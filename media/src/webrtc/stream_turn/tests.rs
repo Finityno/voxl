@@ -24,6 +24,10 @@ fn turn_stream_framing_preserves_coalesced_and_fragmented_packets() {
 
 #[test]
 fn turn_stream_datagrams_reject_invalid_lengths_and_framing() {
+    let mut maximum=vec![0;MAX_DATAGRAM];
+    maximum[..4].copy_from_slice(&[0x40,0,((MAX_DATAGRAM-4)>>8) as u8,(MAX_DATAGRAM-4) as u8]);
+    assert_eq!(datagram_length(&maximum).unwrap(),MAX_DATAGRAM);
+    maximum.push(0);assert!(datagram_length(&maximum).is_err());
     assert_eq!(datagram_length(&[0x40,0,0,1,7]).unwrap(),5);
     assert_eq!(datagram_length(&[0x40,0,0,1,7,0,0,0]).unwrap(),5);
     for data in [&[0x40,0,0,2,7][..],&[0x80,0,0,0],&[0x40,0,0,0,0],&[0,0,0,0,0,0,0,0]] {

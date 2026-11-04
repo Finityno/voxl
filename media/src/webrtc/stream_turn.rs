@@ -8,7 +8,10 @@ use tokio::{io::{AsyncRead,AsyncReadExt,AsyncWrite,AsyncWriteExt},net::{TcpStrea
 use tokio_rustls::{TlsConnector,rustls::{self,ClientConfig,pki_types::ServerName}};
 use webrtc::peer_connection::RTCIceServer;
 
-const MAX_DATAGRAM: usize = 65_507;
+// Match the pinned driver's ordinary UDP receive limit. Video RTP payloads
+// are at most 1100 bytes and DTLS is fragmented; a 64 KiB queue slot would
+// budget memory for datagrams the SDK cannot receive on a normal socket.
+const MAX_DATAGRAM: usize = 2000;
 const QUEUED_DATAGRAMS: usize = 32;
 
 #[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
