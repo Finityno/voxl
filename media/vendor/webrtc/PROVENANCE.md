@@ -34,6 +34,19 @@ media. An earlier all-timers-blocked fixture failed both versions and is not
 used as causal proof; raw results preserve that distinction.
 Passive-TCP event ordering is preserved; the existing write wake is coalesced.
 
+Raw socket input additionally pumps core events after each control datagram,
+before a following packet in a UDP/GRO or TCP batch. DTLS completion installs
+SRTP contexts through that pump; deferring it until after the batch can drop the
+first RTP even though ICE/DTLS reaches Connected. The initially configured
+one-sided TURN baseline and late-configuration cases fail before this change
+and deliver payload afterwards with identical tests. RTP/RTCP retains its
+ordinary end-of-burst public-event drain, so steady media does not acquire an
+extra immediate pump. The existing core lock is reused, and empty event storage
+allocates no vector buffer. This extends handshake ordering independently of
+the older track-event-before-media drain on TURN input. Exact source comparisons,
+UDP/TCP/TLS allocation oracles and failure logs are retained in the parent's
+`results/2026-11-04-late-relay-fallback/` pack. No measured CPU saving is implied.
+
 `runtime/mod.rs` adds an optional, default-disabled TURN-only local-address
 preference. `transport/turn_relayer.rs` evaluates it once per destination
 family using actual bound sockets. The default keeps every interface, and

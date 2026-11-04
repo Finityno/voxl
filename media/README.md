@@ -211,3 +211,16 @@ payloads, capture timestamps, keyframe feedback, direct selected candidates,
 byte counters and bounded close. Like the H.264 loopback, it uses synthetic NAL
 bytes and proves neither valid native decoding nor browser compatibility.
 Profile signaling follows [RFC 7798](https://www.rfc-editor.org/rfc/rfc7798.html).
+
+
+Late startup credentials can now use `WebRtcVideo::begin_relay_fallback` after
+an initially server-free Automatic trickle peer accepts its first answer but
+remains unconnected. The embedder owns grace, credential fetch, authenticated
+view/generation envelopes and signaling-task replacement. The API performs one
+bounded ICE restart with stable DTLS identity; superseded candidate handles and
+answers cannot feed it. It does not implement credential renewal, STUN-only
+startup cancellation or application coordination. Raw control-datagram event
+pumping also fixes a first-SRTP-packet failure exposed by a one-sided TURN
+baseline. Exact pre-fix failures and the unchanged passing eight-case scope at
+5229dac are in `results/2026-11-04-late-relay-fallback/`. No application startup
+or resource saving is claimed by those synthetic transport tests.
