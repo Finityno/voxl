@@ -5,6 +5,24 @@ use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
 use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
 use tokio::sync::mpsc;
 
+#[test]
+fn webrtc_relay_configuration_preserves_direct_policy_and_bounds_credentials() {
+    let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id: [66,224,31]},vec!["127.0.0.1:0".into()]);
+    assert!(config.add_ice_server(vec!["turn:relay.example.com:3478?transport=udp".into()],"user".into(),"password".into()).is_ok());
+    assert_eq!(config.route_policy,RoutePolicy::Automatic);
+    assert_eq!(config.ice_servers.len(),1);
+    for (url,user,password) in [("https://relay.example.com","user","password"),("turn:relay.example.com","",""),
+        ("turn:user@relay.example.com","user","password")] {
+        assert_eq!(config.add_ice_server(vec![url.into()],user.into(),password.into()),Err(WebRtcError::Configuration));
+        assert_eq!(config.ice_servers.len(),1);
+    }
+    assert_eq!(config.add_ice_server(vec!["turn:relay.example.com".into()],"x".repeat(257),"password".into()),Err(WebRtcError::Configuration));
+    for _ in 1..4 {
+        config.add_ice_server(vec!["turns:relay.example.com:443?transport=tcp".into()],"user".into(),"password".into()).unwrap();
+    }
+    assert_eq!(config.add_ice_server(vec!["stun:relay.example.com".into()],String::new(),String::new()),Err(WebRtcError::Configuration));
+}
+
 struct ReceiverEvents { packets: mpsc::Sender<rtc::rtp::Packet> }
 #[async_trait]
 impl PeerConnectionEventHandler for ReceiverEvents {

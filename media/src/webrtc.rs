@@ -98,6 +98,18 @@ impl WebRtcConfig {
     pub fn direct_first(format: VideoFormat, bind_addresses: Vec<String>) -> Self {
         Self { format, bind_addresses, ice_servers: Vec::new(), route_policy: RoutePolicy::Automatic }
     }
+
+    /// Add authenticated relay fallback without changing the direct-route
+    /// policy or requiring the embedder to depend on WebRTC's DTO types.
+    pub fn add_ice_server(&mut self, urls: Vec<String>, username: String, credential: String) -> Result<(),WebRtcError> {
+        if self.ice_servers.len()>=4 || urls.is_empty() || urls.len()>4 || username.len()>256 || credential.len()>512
+            || urls.iter().any(|url|url.len()>512 || url.chars().any(|c|c.is_control() || c.is_whitespace() || "@/#".contains(c)))
+        {return Err(WebRtcError::Configuration);}
+        let server=RTCIceServer {urls,username,credential};
+        server.urls().map_err(|_|WebRtcError::Configuration)?;
+        self.ice_servers.push(server);
+        Ok(())
+    }
 }
 
 /// Synchronous authority-boundary close, usable while the sender is awaiting
