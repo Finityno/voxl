@@ -73,7 +73,7 @@ actually bound; otherwise explicit alternate routes are preserved. TCP/TLS
 adapters need one local IPC binding per address family. This avoids allocating
 once per VPN/VM/interface in the usual topology while keeping all direct host
 candidates. The preference is recalculated from actual sockets after a rebind,
-adds no DNS query or packet, and does no work per media frame. The two-interface
+adds no DNS query or packet, and does no work per media frame. The two-binding
 coturn assertions passed at `a5e0f7cfe3906a3185a869ce70e8154693c3fc61`,
 including nominated UDP/TCP/TLS media and preserved direct host candidates.
 Raw results are in `results/2026-11-04-relay-fanout/`. Native resource

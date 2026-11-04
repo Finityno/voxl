@@ -30,7 +30,7 @@ host/STUN gathering is unchanged. The embedding media wrapper prefers the
 OS-selected UDP route only when it is available, otherwise preserving the
 caller's explicit alternatives; its TCP/TLS IPC uses one binding per family.
 Rebinding reevaluates the preference rather than reusing stale interface IPs.
-The two-interface actual-coturn tests require one relay candidate per peer and
+The two-binding actual-coturn tests require one relay endpoint per peer and
 retain both host candidates in automatic mode, followed by nominated media.
 
 When updating, verify the new package checksum, preserve licenses, reapply this
