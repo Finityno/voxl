@@ -99,6 +99,42 @@ fn late_relay_tcp_after_unanswered_stun_carries_media() {late_configuration(Some
 fn late_relay_tls_after_unanswered_stun_carries_media() {late_configuration(Some(RelayTransport::Tls),true,InitialDiscovery::SilentUdp);}
 
 #[test]
+fn cancelling_relay_fallback_during_stun_barrier_closes_the_view() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {timeout(Duration::from_secs(5),async {
+        let format=VideoFormat::H264 {profile_level_id:[66,224,31]};let bindings=vec!["127.0.0.1:0".to_owned()];
+        let mut initial=WebRtcConfig::direct_first(format,bindings.clone());
+        initial.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into()],String::new(),String::new()).unwrap();
+        let dns=Arc::new(DnsProbe::default());let probe=Arc::clone(&dns);
+        let mut video=WebRtcVideo::open_with_runtime(initial,None,true,Duration::from_millis(250),move |inner|Arc::new(PendingDns {inner,probe})).await.unwrap();
+        let signals=video.signaling().unwrap();
+        let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
+        let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let (packets,_)=mpsc::channel(1);
+        let receiver=PeerConnectionBuilder::new().with_media_engine(media)
+            .with_handler(Arc::new(TrickleReceiver {receiver:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake)}))
+            .with_udp_addrs(bindings.clone()).build().await.unwrap();
+        receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(video.offer())).unwrap()).await.unwrap();
+        receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+        while !gathered.load(Ordering::Acquire) {wake.notified().await;}
+        video.answer(strip_candidates(&receiver.local_description().await.unwrap().sdp)).await.unwrap();
+        dns.entered.notified().await;
+        assert!(!dns.cancelled.load(Ordering::Acquire));
+        let mut fallback=WebRtcConfig::direct_first(format,bindings);
+        fallback.add_ice_server(vec!["stun:127.0.0.1:3478".into()],String::new(),String::new()).unwrap();
+        let mut opening=Box::pin(video.begin_relay_fallback(fallback));
+        let mut context=std::task::Context::from_waker(std::task::Waker::noop());
+        assert!(opening.as_mut().poll(&mut context).is_pending(),"barrier must be outstanding before cancellation");
+        drop(opening);
+        assert!(video.ended(),"dropping startup after it begins must synchronously close authority");
+        assert!(matches!(signals.next_signal().await,Err(WebRtcError::Ended)));
+        video.peer.close().await.unwrap();
+        assert!(dns.cancelled.load(Ordering::Acquire),"the resolver future cannot outlive peer teardown");
+        assert_eq!(video.next_update().await,VideoUpdate::Ended);
+        receiver.close().await.unwrap();
+    }).await.unwrap();});
+}
+
+#[test]
 fn late_relay_close_while_awaiting_restart_answer_stops_retries() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {timeout(Duration::from_secs(8),async {
