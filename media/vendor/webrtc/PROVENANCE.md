@@ -47,20 +47,35 @@ the older track-event-before-media drain on TURN input. Exact source comparisons
 UDP/TCP/TLS allocation oracles and failure logs are retained in the parent's
 `results/2026-11-04-late-relay-fallback/` pack. No measured CPU saving is implied.
 
+STUN hostname resolution belongs to the gatherer's discovery phase. Independent
+lookup futures are polled without holding the packet driver inside DNS, so local
+candidates and direct ICE/DTLS/media progress while a lookup is pending. Resolution
+completion wakes the existing coalesced driver channel; creating a STUN client
+also schedules its first write there instead of relying on an unrelated packet
+or timer. This adds no periodic timer or dedicated OS thread. The phase owns both resolver
+futures and STUN clients; completion requires both sets to be empty.
+
 The fork-only `quiesce_stun_gathering_for_restart` method acknowledges a
-serialized STUN-only restart boundary. A bounded interrupt channel cancels a
-pending resolver future; its acknowledged command uses the existing driver
-FIFO after all earlier gathering requests. The driver retires STUN clients,
-queued writes/events and old core callbacks before replying. It retains the
-ICE/DTLS transports and does not cancel established TURN allocations; callers
-with TURN configuration are rejected. The caller must serialize negotiation
-and close if cancelled. The media wrapper advances its generation only after
-the acknowledgement and still preserves a direct connection observed there.
-The driver's former gathering flags and deferred deadline now live in one
-discovery enum. The interrupt receiver is selected only during STUN gathering,
-without a new steady media listener or periodic timer. No production dependency
-or OS thread is added. Pending-DNS, silent-UDP/late-response and actual TURN
-UDP/TCP/TLS evidence is in `results/2026-11-04-stun-startup/` in the parent.
+serialized STUN-only restart boundary through the existing driver FIFO after all
+earlier gathering requests. The driver drops the old resolver futures and retires
+STUN clients, queued writes/events and old core callbacks before replying. It
+retains the ICE/DTLS transports and does not cancel established TURN allocations;
+callers with TURN configuration are rejected. The caller must serialize
+negotiation and close if cancelled. The media wrapper advances its generation
+only after the acknowledgement and still preserves a direct connection observed
+there. The former separate interrupt channel is no longer needed because DNS
+never holds up the driver's FIFO. The driver's discovery phase is one enum;
+no production dependency, steady media listener or dedicated OS thread is added.
+The existing Tokio hostname resolver uses its blocking pool; dropping the lookup
+future does not promise to interrupt an OS resolver already running there.
+Concurrent lookup resource costs are not qualified by the synthetic fixtures.
+The earlier pending-DNS, silent-UDP/late-response and actual TURN UDP/TCP/TLS
+evidence remains in `results/2026-11-04-stun-startup/` in the parent. That dated
+pack describes the preceding interrupt-channel implementation. The causal
+direct-video failure/pass, fifteen Linux transport cases, three native macOS
+DNS cases and separate ten-case SDK mock scope are retained in
+`results/2026-11-04-stun-dns/` in the parent; metadata and resource limits
+remain explicit there.
 
 `runtime/mod.rs` adds an optional, default-disabled TURN-only local-address
 preference. `transport/turn_relayer.rs` evaluates it once per destination

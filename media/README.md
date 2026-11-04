@@ -221,11 +221,22 @@ bounded ICE restart with stable DTLS identity; superseded candidate handles and
 answers cannot feed it. The driver acknowledges cancellation of old STUN
 DNS/retries and drains old callbacks before advancing the generation, so an
 unreachable discovery service does not hold fallback behind its timeout.
+STUN DNS now runs as independently polled discovery work: an unanswered lookup
+cannot hold local candidates or direct packet handling. Lookup completion wakes
+the existing driver channel, and cancelling a gathering phase drops its lookup
+futures before the restart acknowledgement. No new periodic timer or dedicated OS thread
+is used. The existing resolver may still use Tokio blocking-pool workers;
+dropping its future does not promise to stop an in-flight OS lookup. The older interrupt-channel evidence below remains historical.
 It does not implement credential renewal or application coordination. Raw control-datagram event
 pumping also fixes a first-SRTP-packet failure exposed by a one-sided TURN
 baseline. Exact pre-fix failures and the unchanged passing eight-case scope at
 5229dac are in `results/2026-11-04-late-relay-fallback/`. No application startup
 or resource saving is claimed by those synthetic transport tests. The follow-up
 STUN-first scope passes ten cases and strict Clippy at c7eb4dc; exact evidence
-and limits are in `results/2026-11-04-stun-startup/`. Fincode remains pinned to
-the earlier qualified 5229dac until its next integration/qualification change.
+and limits are in `results/2026-11-04-stun-startup/`. The follow-up at f223998 passes fifteen selected Linux transport cases,
+three new native macOS DNS cases and ten standalone SDK mock-runtime cases;
+strict production library/examples Clippy passes. The identical direct-video
+test fails on c022bfc before the production change. Graph distinctions,
+metadata-download timeout, commands, source/cleanup and limits are retained in
+`results/2026-11-04-stun-dns/`. Fincode remains pinned to the earlier qualified
+5229dac until its next integration/qualification change.
