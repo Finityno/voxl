@@ -71,13 +71,17 @@ fn forced_relay(expected_transport:RelayTransport) {
     use super::super::*;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
-    struct Receiver {packets:mpsc::Sender<rtc::rtp::Packet>,gathered:Arc<AtomicBool>,wake:Arc<Notify>}
+    struct Receiver {packets:mpsc::Sender<rtc::rtp::Packet>,gathered:Arc<AtomicBool>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>,wake:Arc<Notify>}
     #[async_trait]
     impl PeerConnectionEventHandler for Receiver {
         async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {
             if state==RTCIceGatheringState::Complete {self.gathered.store(true,Ordering::Release);self.wake.notify_one();}
         }
+        async fn on_connection_state_change(&self,state:RTCPeerConnectionState) {
+            self.connected.store(state==RTCPeerConnectionState::Connected,Ordering::Release);self.wake.notify_one();
+        }
         async fn on_track(&self,track:Arc<dyn TrackRemote>) {
+            self.track_seen.store(true,Ordering::Release);
             let packets=self.packets.clone();
             tokio::spawn(async move {
                 while let Some(event)=track.poll().await {
@@ -110,9 +114,9 @@ fn forced_relay(expected_transport:RelayTransport) {
             let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
-            let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
+            let gathered=Arc::new(AtomicBool::new(false));let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
             let receiver=PeerConnectionBuilder::new().with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(RTCIceTransportPolicy::Relay).build())
-                .with_media_engine(media).with_handler(Arc::new(Receiver {packets:sender,gathered:Arc::clone(&gathered),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap();
+                .with_media_engine(media).with_handler(Arc::new(Receiver {packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             timeout(Duration::from_secs(6),async {while !gathered.load(Ordering::Acquire) {wake.notified().await;}}).await.unwrap();
@@ -120,10 +124,26 @@ fn forced_relay(expected_transport:RelayTransport) {
             assert!(answer.lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"receiver must gather an authenticated relay candidate");
             video.answer(answer).await.unwrap();
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
+            timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");
             for (index,payload) in [vec![0x65,1,2,3,4],vec![0x41,5,6,7,8]].into_iter().enumerate() {
                 let mut annex_b=vec![0,0,0,1];annex_b.extend_from_slice(&payload);
                 video.send(EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe:index==0,presentation_time_micros:1_000_000+(index as i64)*33_333}).await.unwrap();
-                let received=timeout(Duration::from_secs(5),packets.recv()).await.expect("forced-relay media receive deadline").unwrap();assert_eq!(&received.payload[..],&payload);
+                let received=match timeout(Duration::from_secs(5),packets.recv()).await {
+                    Ok(Some(packet))=>packet,
+                    _=>{
+                        eprintln!("media deadline: receiver connected={} track seen={} sender {:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
+                        use webrtc::peer_connection::{RTCStatsReportEntry as Entry,StatsSelector};
+                        for entry in receiver.get_stats(Instant::now(),StatsSelector::None).await.iter() {
+                            match entry {
+                                Entry::IceCandidatePair(pair)=>eprintln!("receiver pair: nominated={} sent={} received={}",pair.nominated,pair.bytes_sent,pair.bytes_received),
+                                Entry::InboundRtp(stream)=>eprintln!("receiver RTP: bytes={}",stream.bytes_received),
+                                _=>{},
+                            }
+                        }
+                        panic!("forced-relay media receive deadline");
+                    }
+                };
+                assert_eq!(&received.payload[..],&payload);
             }
             let route=video.route_statistics().await;
             assert_eq!(route.route,MediaRoute::Relayed,"host candidates cannot satisfy this fixture");
