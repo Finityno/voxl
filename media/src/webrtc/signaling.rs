@@ -15,14 +15,16 @@ pub enum VideoIceSignal {Candidate {candidate:String,mid:String},GatheringComple
 #[derive(Default)]
 struct Queue {pending:VecDeque<(String,String)>,received:usize}
 #[derive(Default)]
-pub(super) struct Signals {local:Mutex<Queue>,remote:Mutex<Queue>,remote_revision:AtomicU64}
+pub(super) struct Signals {local:Mutex<Queue>,remote:Mutex<Queue>,remote_revision:AtomicU64,generation:AtomicU64}
 fn bounded(candidate:&str,mid:&str)->bool {
     !candidate.is_empty() && candidate.len()<=MAX_CANDIDATE_BYTES && mid.len()<=256
         && !candidate.chars().any(char::is_control) && !mid.chars().any(char::is_control)
 }
 fn push(queue:&Mutex<Queue>,candidate:String,mid:String)->Result<(),WebRtcError> {
+    push_locked(&mut queue.lock().unwrap_or_else(|error|error.into_inner()),candidate,mid)
+}
+fn push_locked(queue:&mut Queue,candidate:String,mid:String)->Result<(),WebRtcError> {
     if !bounded(&candidate,&mid) {return Err(WebRtcError::Configuration);}
-    let mut queue=queue.lock().unwrap_or_else(|error|error.into_inner());
     if queue.received>=MAX_CANDIDATES {return Err(WebRtcError::Configuration);}
     queue.received+=1;queue.pending.push_back((candidate,mid));Ok(())
 }
@@ -32,20 +34,35 @@ impl Signals {
     pub fn take_remote(&self)->VecDeque<(String,String)> {
         std::mem::take(&mut self.remote.lock().unwrap_or_else(|error|error.into_inner()).pending)
     }
+    pub fn generation(&self)->u64 {self.generation.load(Ordering::Acquire)}
+    pub fn advance(&self) {
+        let mut remote=self.remote.lock().unwrap_or_else(|error|error.into_inner());
+        let mut local=self.local.lock().unwrap_or_else(|error|error.into_inner());
+        self.generation.fetch_add(1,Ordering::AcqRel);
+        *remote=Queue::default();*local=Queue::default();
+        self.remote_revision.fetch_add(1,Ordering::AcqRel);
+    }
 }
 
 /// Cloneable signaling endpoint with no frame buffers or concurrent frame
 /// writer. One consumer long-polls local signals; incoming candidates enqueue
 /// synchronously. Closing the view wakes waiters and rejects stale work.
 #[derive(Clone)]
-pub struct VideoSignaling {pub(super) events:Arc<Events>,pub(super) closer:VideoCloseHandle}
+pub struct VideoSignaling {pub(super) events:Arc<Events>,pub(super) closer:VideoCloseHandle,pub(super) generation:u64}
 impl VideoSignaling {
+    /// Include this epoch in the authenticated application signaling envelope.
+    /// Old handles never feed a restarted ICE generation or close its peer.
+    pub fn generation(&self)->u64 {self.generation}
     pub async fn next_signal(&self)->Result<VideoIceSignal,WebRtcError> {
         loop {
             let revision=self.events.changes.revision();
             if self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
             let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
-            let next=signals.local.lock().unwrap_or_else(|error|error.into_inner()).pending.pop_front();
+            let next={
+                let mut local=signals.local.lock().unwrap_or_else(|error|error.into_inner());
+                if signals.generation()!=self.generation {return Err(WebRtcError::Ended);}
+                local.pending.pop_front()
+            };
             if let Some((candidate,mid))=next {
                 let mid=if mid.is_empty() {self.events.media_mid.get().ok_or(WebRtcError::Configuration)?.clone()} else {mid};
                 return Ok(VideoIceSignal::Candidate {candidate,mid});
@@ -57,7 +74,10 @@ impl VideoSignaling {
     pub fn add_candidate(&self,candidate:String,mid:String)->Result<(),WebRtcError> {
         if self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
-        if let Err(error)=push(&signals.remote,candidate,mid) {self.closer.close();return Err(error);}
+        let mut remote=signals.remote.lock().unwrap_or_else(|error|error.into_inner());
+        if signals.generation()!=self.generation {return Err(WebRtcError::Ended);}
+        if let Err(error)=push_locked(&mut remote,candidate,mid) {self.closer.close();return Err(error);}
+        drop(remote);
         signals.remote_revision.fetch_add(1,Ordering::AcqRel);self.events.changes.changed();Ok(())
     }
 }

@@ -22,14 +22,18 @@ pub enum RelayTransport { #[default] Unknown, Udp, Tcp, Tls }
 /// including DNS, handshake and blocked writes. No detached retry survives it.
 #[derive(Default)]
 pub(super) struct StreamRelays {
-    listeners: Vec<AbortHandle>,
+    listeners: Mutex<RelayListeners>,
     allocations: Arc<Mutex<HashMap<SocketAddr,(RelayTransport,bool)>>>,
     failures: Arc<AtomicU64>,
     runtime: Arc<RelayRuntime>,
 }
+enum RelayListeners {Active(Vec<AbortHandle>),Closed}
+impl Default for RelayListeners {fn default()->Self {Self::Active(Vec::new())}}
 impl StreamRelays {
     pub async fn prepare(servers: &mut Vec<RTCIceServer>, bindings: &[String], tls: Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>,turn_delay:Duration) -> Result<Self,WebRtcError> {
-        let mut relays=Self::default();
+        Self::prepare_into(Self::default(),servers,bindings,tls,changes,turn_delay).await
+    }
+    async fn prepare_into(mut relays:Self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>,turn_delay:Duration)->Result<Self,WebRtcError> {
         let allowed: Vec<IpAddr> = bindings.iter().map(|binding|binding.parse::<SocketAddr>().map(|value|value.ip()).map_err(|_|WebRtcError::Configuration)).collect::<Result<_,_>>()?;
         let mut rewritten=Vec::new();
         let mut ipc=std::collections::HashSet::new();let mut has_turn=false;
@@ -55,7 +59,8 @@ impl StreamRelays {
                     ipc.insert(socket.local_addr().map_err(|_|WebRtcError::Transport)?);
                     let state=AllocationState {allocations:Arc::clone(&relays.allocations),failures:Arc::clone(&relays.failures),changes:Arc::clone(&changes),address:None};
                     let task=tokio::spawn(listen(Arc::new(socket),Arc::clone(&target),allowed.clone(),state));
-                    relays.listeners.push(task.abort_handle());
+                    let mut listeners=relays.listeners.lock().unwrap_or_else(|error|error.into_inner());
+                    if let RelayListeners::Active(listeners)=&mut *listeners {listeners.push(task.abort_handle());}
                 }
                 rewritten.push(RTCIceServer {urls:vec![format!("turn:localhost:{port}?transport=udp")],username:server.username.clone(),credential:server.credential.clone()});
             }
@@ -64,8 +69,23 @@ impl StreamRelays {
         relays.runtime=Arc::new(RelayRuntime::new(ipc).with_turn_delay(if has_turn {turn_delay} else {Duration::ZERO}));
         Ok(relays)
     }
+    pub async fn add_fallback(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>)->Result<(),WebRtcError> {
+        let additional=Self {allocations:Arc::clone(&self.allocations),failures:Arc::clone(&self.failures),..Default::default()};
+        let additional=Self::prepare_into(additional,servers,bindings,tls,changes,Duration::ZERO).await?;
+        let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
+        let RelayListeners::Active(listeners)=&mut *listeners else {return Err(WebRtcError::Ended);};
+        // Publish adapter addresses before the driver can gather the new TURN
+        // configuration. Close and adoption share this one ownership boundary.
+        self.runtime.include_ipc(&additional.runtime);
+        let adopted=std::mem::replace(&mut *additional.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);
+        if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
+        Ok(())
+    }
     pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {Arc::<RelayRuntime>::clone(&self.runtime)}
-    pub fn close(&self) {for task in &self.listeners {task.abort();}}
+    pub fn close(&self) {
+        let listeners=std::mem::replace(&mut *self.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);
+        if let RelayListeners::Active(listeners)=listeners {for task in listeners {task.abort();}}
+    }
     pub fn transport(&self,address: SocketAddr) -> RelayTransport {
         self.allocations.lock().unwrap_or_else(|error|error.into_inner()).get(&address).map(|value|value.0).unwrap_or_default()
     }

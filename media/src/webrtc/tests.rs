@@ -5,6 +5,8 @@ use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
 use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
 use tokio::sync::mpsc;
 
+mod relay_fallback;
+
 #[test]
 fn webrtc_change_wait_survives_cancellation_and_prior_notifications() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();

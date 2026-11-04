@@ -3,20 +3,24 @@
 //! bindings without that route keep their existing fallback. TCP/TLS adapters
 //! need one local IPC socket per address family, independent of egress routing.
 
-use std::{collections::HashSet,fmt,future::Future,io,net::{IpAddr,SocketAddr,UdpSocket},pin::Pin,sync::Arc,time::{Duration,Instant}};
+use std::{collections::HashSet,fmt,future::Future,io,net::{IpAddr,SocketAddr,UdpSocket},pin::Pin,sync::{Arc,Mutex},time::{Duration,Instant}};
 use webrtc::runtime::{AsyncInterval,AsyncTcpListener,AsyncTcpStream,AsyncUdpSocket,JoinHandle,Runtime,TokioRuntime};
 
-pub(super) struct RelayRuntime {inner:TokioRuntime,ipc:HashSet<SocketAddr>,turn_delay:Duration}
+pub(super) struct RelayRuntime {inner:TokioRuntime,ipc:Mutex<HashSet<SocketAddr>>,turn_delay:Duration}
 impl Default for RelayRuntime {fn default()->Self {Self::new(HashSet::new())}}
 impl fmt::Debug for RelayRuntime {
-    fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.debug_struct("RelayRuntime").field("ipc_endpoints",&self.ipc.len()).finish()}
+    fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.debug_struct("RelayRuntime").field("ipc_endpoints",&self.ipc.lock().unwrap_or_else(|error|error.into_inner()).len()).finish()}
 }
 impl RelayRuntime {
-    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,ipc,turn_delay:Duration::ZERO}}
+    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,ipc:Mutex::new(ipc),turn_delay:Duration::ZERO}}
     pub fn with_turn_delay(mut self,delay:Duration)->Self {self.turn_delay=delay;self}
+    pub fn include_ipc(&self,other:&Self) {
+        let added=other.ipc.lock().unwrap_or_else(|error|error.into_inner()).clone();
+        self.ipc.lock().unwrap_or_else(|error|error.into_inner()).extend(added);
+    }
     fn preferred(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {
         let family=|address:&&SocketAddr|address.is_ipv4()==server.is_ipv4();
-        let selected=if self.ipc.contains(&server) {
+        let selected=if self.ipc.lock().unwrap_or_else(|error|error.into_inner()).contains(&server) {
             // IPC remains local. The adapter's TCP connection independently
             // follows the OS route to the original TURN endpoint.
             available.iter().filter(family).min()
