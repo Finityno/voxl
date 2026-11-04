@@ -155,8 +155,10 @@ fn late_configuration(relay:Option<RelayTransport>) {
         assert_eq!(video.next_update().await,VideoUpdate::Connected);
         eprintln!("late_fallback_stage=connected");
         assert!(candidates.await.unwrap(),"new configuration must actually gather its new server candidate");
+        eprintln!("late_fallback_stage=candidates_complete");
         if let Some(stun)=stun {stun.await.unwrap();}
         video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,7,6],keyframe:true,presentation_time_micros:1_000_000}).await.unwrap();
+        eprintln!("late_fallback_stage=payload_written");
         assert_eq!(&received.recv().await.unwrap().payload[..],&[0x65,9,8,7,6]);
         eprintln!("late_fallback_stage=payload");
         let route=video.route_statistics().await;
