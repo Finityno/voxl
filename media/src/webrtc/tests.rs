@@ -24,11 +24,21 @@ impl PeerConnectionEventHandler for ReceiverEvents {
 
 #[test]
 fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback() {
+    loopback(VideoFormat::H264 {profile_level_id: [66,224,31]});
+}
+
+#[test]
+fn webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock() {
+    let sps = [0,0,0,1,0x42,1,1,1,0x60,0,0,3,0,0xb0,0,0,3,0,0,3,0,0x7b];
+    loopback(VideoFormat::HevcMain(crate::hevc_main_profile(&sps).unwrap()));
+}
+
+fn loopback(format: VideoFormat) {
     let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
         tokio::time::timeout(Duration::from_secs(20),async {
             let mut video = WebRtcVideo::open(WebRtcConfig { ice_servers: Vec::new(),route_policy: RoutePolicy::Automatic,
-                bind_addresses: vec!["127.0.0.1:0".into()],profile_level_id: [66,224,31] }).await.unwrap();
+                bind_addresses: vec!["127.0.0.1:0".into()],format }).await.unwrap();
             assert!(video.offer().contains("m=video") && video.offer().contains("a=sendonly"));
             assert!(!video.offer().contains("m=audio") && !video.offer().contains("m=application"));
             let mut media = MediaEngine::default();
@@ -49,17 +59,20 @@ fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback()
                 tokio::time::sleep(Duration::from_millis(10)).await;
             }
             assert!(video.take_keyframe_request());
-            let first = vec![0x65,0x88,0x84,0x00,0x31];
-            let second = vec![0x41,0x9a,0x20,0x00,0x11];
+            assert!(video.offer().contains(format.mime().trim_start_matches("video/")));
+            let (first,second) = match format {
+                VideoFormat::H264 {..} => (vec![0x65,0x88,0x84,0x00,0x31],vec![0x41,0x9a,0x20,0x00,0x11]),
+                VideoFormat::HevcMain(_) => (vec![0x26,1,0x31,0x20],vec![0x28,1,0x11,0x40]),
+            };
             let unit = |payload: &[u8],pts,keyframe| {
                 let mut annex_b = vec![0,0,0,1];annex_b.extend_from_slice(payload);
-                EncodedFrame {codec: crate::codec::VideoCodec::H264,annex_b,keyframe,presentation_time_micros: pts}
+                EncodedFrame {codec: format.codec(),annex_b,keyframe,presentation_time_micros: pts}
             };
             video.send(unit(&first,1_000_000,true)).await.unwrap();
             let one = packets.recv().await.unwrap();
             assert_eq!(&one.payload[..],&first);
             assert!(one.header.marker);
-            video.send(unit(&second,2_000_000,false)).await.unwrap();
+            video.send(unit(&second,2_000_000,format.codec() == VideoCodec::Hevc)).await.unwrap();
             let two = packets.recv().await.unwrap();
             assert_eq!(&two.payload[..],&second);
             assert_eq!(two.header.timestamp.wrapping_sub(one.header.timestamp),90_000);

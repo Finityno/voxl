@@ -1,14 +1,15 @@
-//! Send-only H.264 over WebRTC using the embedder's Tokio runtime. Offers and
+//! Send-only H.264/HEVC over WebRTC using the embedder's Tokio runtime. Offers and
 //! answers belong inside the authenticated application session. No signaling
 //! listener, public token endpoint or process-wide runtime is created here.
 
-use crate::{EncodedFrame, MAX_FRAME_BYTES};
+use crate::{EncodedFrame, HevcProfile, MAX_FRAME_BYTES};
+use crate::codec::VideoCodec;
 use async_trait::async_trait;
 use bytes::Bytes;
 use rtc::media_stream::MediaStreamTrack;
 use rtc::peer_connection::configuration::media_engine::MediaEngine;
-use rtc::rtp::codec::h264::H264Payloader;
-use rtc::rtp::packetizer::Payloader as _;
+use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader};
+use rtc::rtp::packetizer::Payloader;
 use rtc::rtp_transceiver::rtp_sender::{RTCPFeedback, RTCRtpCodec, RTCRtpCodecParameters, RTCRtpCodingParameters, RTCRtpEncodingParameters, RtpCodecKind};
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use std::time::{Duration, Instant};
@@ -68,19 +69,34 @@ pub struct RouteStatistics {
     pub packets_discarded_on_send: u32,
 }
 
+/// Offer only the actual encoded profile, with a separate negotiated payload
+/// type for that codec. AV1 needs its own OBU and RTP path before it can appear.
+#[derive(Debug, Clone, Copy)]
+pub enum VideoFormat { H264 { profile_level_id: [u8; 3] }, HevcMain(HevcProfile) }
+impl VideoFormat {
+    fn codec(self) -> VideoCodec { match self { Self::H264 {..} => VideoCodec::H264, Self::HevcMain(_) => VideoCodec::Hevc } }
+    fn mime(self) -> &'static str { match self { Self::H264 {..} => "video/H264", Self::HevcMain(_) => "video/H265" } }
+    fn fmtp(self) -> String {
+        match self {
+            Self::H264 { profile_level_id: profile } => format!("level-asymmetry-allowed=1;packetization-mode=1;profile-level-id={:02x}{:02x}{:02x}",profile[0],profile[1],profile[2]),
+            Self::HevcMain(profile) => profile.fmtp(),
+        }
+    }
+}
+
 /// Not Debug: the supplied ICE servers contain short-lived authentication.
 pub struct WebRtcConfig {
     pub ice_servers: Vec<RTCIceServer>,
     pub route_policy: RoutePolicy,
     pub bind_addresses: Vec<String>,
-    pub profile_level_id: [u8; 3],
+    pub format: VideoFormat,
 }
 
 impl WebRtcConfig {
     /// A LAN stream can open without a TURN service or credentials. Internet
     /// deployments may add STUN/TURN servers while retaining automatic routing.
-    pub fn direct_first(profile_level_id: [u8; 3], bind_addresses: Vec<String>) -> Self {
-        Self { profile_level_id, bind_addresses, ice_servers: Vec::new(), route_policy: RoutePolicy::Automatic }
+    pub fn direct_first(format: VideoFormat, bind_addresses: Vec<String>) -> Self {
+        Self { format, bind_addresses, ice_servers: Vec::new(), route_policy: RoutePolicy::Automatic }
     }
 }
 
@@ -100,7 +116,8 @@ pub struct WebRtcVideo {
     timestamp: u32,
     first_pts: Option<i64>,
     last_pts: Option<i64>,
-    payloader: H264Payloader,
+    format: VideoFormat,
+    payloader: Box<dyn Payloader>,
     keyframe: Arc<AtomicBool>,
     last_keyframe_request: Option<Instant>,
 }
@@ -118,13 +135,12 @@ impl WebRtcVideo {
     pub async fn open(config: WebRtcConfig) -> Result<Self, WebRtcError> {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
-            || config.profile_level_id[0] != 66
+            || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false) });
-        let codec = RTCRtpCodec { mime_type: "video/H264".into(), clock_rate: 90_000, channels: 0,
-            sdp_fmtp_line: format!("level-asymmetry-allowed=1;packetization-mode=1;profile-level-id={:02x}{:02x}{:02x}",
-                config.profile_level_id[0],config.profile_level_id[1],config.profile_level_id[2]),
+        let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
+            sdp_fmtp_line: config.format.fmtp(),
             rtcp_feedback: vec![RTCPFeedback { typ: "nack".into(), parameter: String::new() },
                 RTCPFeedback { typ: "nack".into(), parameter: "pli".into() }, RTCPFeedback { typ: "ccm".into(), parameter: "fir".into() }],
         };
@@ -153,7 +169,8 @@ impl WebRtcVideo {
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
         Ok(Self { peer,sender,track,events,runtime,closed: AtomicBool::new(false),offer,payload_type: None,ssrc,
-            sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,payloader: H264Payloader::default(),
+            sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
+                VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
             keyframe,last_keyframe_request: None })
     }
 
@@ -200,7 +217,7 @@ impl WebRtcVideo {
         if sdp.is_empty() || sdp.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         self.peer.set_remote_description(RTCSessionDescription::answer(sdp).map_err(transport)?).await.map_err(transport)?;
         self.payload_type = self.sender.get_parameters().await.map_err(transport)?.rtp_parameters.codecs.iter()
-            .find(|codec| codec.rtp_codec.mime_type.eq_ignore_ascii_case("video/H264")).map(|codec| codec.payload_type);
+            .find(|codec| codec.rtp_codec.mime_type.eq_ignore_ascii_case(self.format.mime())).map(|codec| codec.payload_type);
         if self.payload_type.is_none() { self.close(); return Err(WebRtcError::Transport); }
         Ok(())
     }
@@ -209,7 +226,7 @@ impl WebRtcVideo {
         if self.ended() { return Err(WebRtcError::Ended); }
         if !self.connected() { return Err(WebRtcError::NotConnected); }
         let payload_type = self.payload_type.ok_or(WebRtcError::NotConnected)?;
-        if frame.codec != crate::codec::VideoCodec::H264 || frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
+        if frame.codec != self.format.codec() || frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
             || self.last_pts.is_some_and(|last| frame.presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
         if self.first_pts.is_none() && !frame.keyframe { return Err(WebRtcError::InvalidFrame); }

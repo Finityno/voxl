@@ -38,7 +38,7 @@ not desktop capture, network or physical-phone power measurements.
 
 
 With `--features webrtc`, the sender uses the caller's Tokio runtime, sends only
-H.264 video and selects AWS-LC crypto explicitly. Register the actual encoder
+video (H.264 or HEVC Main) and selects AWS-LC crypto explicitly. Register the actual encoder
 SPS profile/level, exchange its gathered offer/answer inside authenticated
 Connect, and keep the native view tied to that session. RTP timestamps follow
 capture presentation time even when unchanged frames are skipped. PLI/FIR
@@ -67,10 +67,13 @@ caller preference order, then allows only explicitly permitted, measured
 real-time software fallbacks. Unknown capability is never interpreted as
 support. This is selection policy, not an AV1/HEVC encoder implementation;
 providers must advertise only paths they actually implement and have probed for
-the requested geometry, fps, profile and chroma. The native encoder implements H.264 and HEVC; the current WebRTC sender remains
-H.264-only and explicitly rejects a frame tagged with another codec. Native
-HEVC execution, profile negotiation and RTP/receiver interoperability remain
-required before advertising HEVC in the application.
+the requested geometry, fps, profile and chroma. The native encoder and WebRTC sender implement H.264 and HEVC Main.
+`hevc_main_profile` reads the actual SPS profile/tier/level after removing
+emulation-prevention bytes; `VideoFormat::HevcMain` carries those parameters
+into RFC 7798 SDP and selects its own RTP payloader. The sender rejects a frame
+tagged with a codec other than the negotiated format. Native HEVC execution
+and browser/receiver interoperability remain required before advertising HEVC
+in the application.
 
 
 The initial route assertion failed because the statistics report's selected-pair
@@ -89,3 +92,9 @@ advertise a validated CPU fallback before the native software probe succeeds.
 
 Run the same native synthetic workload with `codec_probe hardware /tmp/probe.hevc hevc`
 for HEVC. Its native validation and any matched-quality savings are pending.
+
+The HEVC transport loopback separately requires intact type-19 and type-20 IDR
+payloads, capture timestamps, keyframe feedback, direct selected candidates,
+byte counters and bounded close. Like the H.264 loopback, it uses synthetic NAL
+bytes and proves neither valid native decoding nor browser compatibility.
+Profile signaling follows [RFC 7798](https://www.rfc-editor.org/rfc/rfc7798.html).

@@ -72,6 +72,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if Instant::now() > limit { return Err("encoder output deadline".into()); }
             std::thread::sleep(Duration::from_millis(1));
         };
+        if index == 0 {
+            match codec {
+                VideoCodec::H264 => println!("profile_level_id={:02x?}",voxl_media::h264_profile_level_id(&output.annex_b)?),
+                VideoCodec::Hevc => println!("hevc_fmtp={}",voxl_media::hevc_main_profile(&output.annex_b)?.fmtp()),
+                VideoCodec::Av1 => unreachable!(),
+            }
+        }
         if output.codec != codec { return Err("codec mismatch".into()); }
         if output.presentation_time_micros != (index as i64)*1_000_000/30 { return Err("timestamp mismatch".into()); }
         bytes += output.annex_b.len();
@@ -79,6 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         file.write_all(&output.annex_b)?;
         latencies.push(submitted.elapsed().as_secs_f64()*1000.0);
     }
+    println!("encode_samples_ms={latencies:?}");
     latencies.sort_by(f64::total_cmp);
     println!("codec={codec:?} hardware={} width=1280 height=720 fps=30 frames=60 keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3}",
         encoder.using_hardware(), bytes as f64*8.0/2000.0, latencies[30],latencies[57],started.elapsed().as_secs_f64());

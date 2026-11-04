@@ -50,7 +50,6 @@ impl std::fmt::Display for MediaError {
 }
 impl std::error::Error for MediaError {}
 
-#[cfg(any(target_os = "macos", feature = "webrtc", test))]
 const MAX_FRAME_BYTES: usize = 8 * 1024 * 1024;
 
 /// Parse length-prefixed NAL units without trusting the native sample's length
@@ -131,4 +130,75 @@ pub fn h264_profile_level_id(annex_b: &[u8]) -> Result<[u8; 3], MediaError> {
         }
     }
     Err(MediaError::InvalidFrame)
+}
+
+/// The actual HEVC Main profile/tier/level, read from the encoder's SPS.
+/// Private fields prevent a caller from advertising another unimplemented
+/// profile as Main. This does not establish the receiver's decoder capability.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HevcProfile {
+    tier: bool,
+    level: u8,
+    compatibility: u32,
+    constraints: [u8; 6],
+}
+impl HevcProfile {
+    /// RFC 7798 format parameters for a single RTP stream, without decoding
+    /// order numbers. Parameter sets are repeated in-band with keyframes.
+    pub fn fmtp(&self) -> String {
+        let constraints = self.constraints.iter().map(|value| format!("{value:02x}")).collect::<String>();
+        format!("profile-space=0;profile-id=1;tier-flag={};level-id={};profile-compatibility-indicator={:08x};interop-constraints={constraints};tx-mode=SRST;sprop-max-don-diff=0",
+            u8::from(self.tier),self.level,self.compatibility)
+    }
+}
+
+/// Parse just the bounded general profile/tier/level prefix of a single-layer
+/// HEVC SPS. Remove emulation-prevention bytes before reading fixed offsets;
+/// zeros in compatibility flags otherwise move the apparent level byte.
+pub fn hevc_main_profile(annex_b: &[u8]) -> Result<HevcProfile, MediaError> {
+    if annex_b.len() > MAX_FRAME_BYTES { return Err(MediaError::InvalidFrame); }
+    let offset = annex_b.windows(4).enumerate().find_map(|(offset,prefix)| {
+        (prefix == [0,0,0,1] && annex_b.get(offset+4).is_some_and(|byte| (byte >> 1) & 0x3f == 33)).then_some(offset+4)
+    }).ok_or(MediaError::InvalidFrame)?;
+    let rest = &annex_b[offset..];
+    let length = rest.windows(4).position(|prefix| prefix == [0,0,0,1]).unwrap_or(rest.len());
+    let nal = &rest[..length];
+    if nal.len() < 3 || nal[0] & 0x81 != 0 || nal[1] & 0xf8 != 0 || nal[1] & 7 == 0 { return Err(MediaError::InvalidFrame); }
+    let mut bytes = nal[2..].iter().copied().peekable();
+    let mut rbsp = [0; 13];
+    let mut index = 0;
+    let mut zeros = 0;
+    while index < rbsp.len() {
+        let byte = bytes.next().ok_or(MediaError::InvalidFrame)?;
+        if zeros >= 2 && byte == 3 {
+            if bytes.peek().is_none_or(|next| *next > 3) { return Err(MediaError::InvalidFrame); }
+            zeros = 0;
+            continue;
+        }
+        rbsp[index] = byte;
+        index += 1;
+        zeros = if byte == 0 { zeros+1 } else { 0 };
+    }
+    if rbsp[1] & 0xdf != 1 { return Err(MediaError::UnsupportedCodec); }
+    if rbsp[12] == 0 { return Err(MediaError::InvalidFrame); }
+    Ok(HevcProfile { tier: rbsp[1] & 0x20 != 0,level: rbsp[12],
+        compatibility: u32::from_be_bytes(rbsp[2..6].try_into().map_err(|_| MediaError::InvalidFrame)?),
+        constraints: rbsp[6..12].try_into().map_err(|_| MediaError::InvalidFrame)? })
+}
+
+#[cfg(test)]
+mod hevc_profile_tests {
+    use super::*;
+    #[test]
+    fn hevc_profile_removes_emulation_prevention_and_advertises_actual_level() {
+        // SPS header, sps_max_sub_layers_minus1/temporal nesting, then Main
+        // profile, compatibility flags, six constraint bytes and level 4.1.
+        let sps = [0,0,0,1,0x42,1,1,1,0x60,0,0,3,0,0xb0,0,0,3,0,0,3,0,0x7b];
+        let profile = hevc_main_profile(&sps).unwrap();
+        assert_eq!(profile.fmtp(),"profile-space=0;profile-id=1;tier-flag=0;level-id=123;profile-compatibility-indicator=60000000;interop-constraints=b00000000000;tx-mode=SRST;sprop-max-don-diff=0");
+        assert!(hevc_main_profile(&sps[..sps.len()-1]).is_err());
+        let mut main10 = sps;
+        main10[7] = 2;
+        assert_eq!(hevc_main_profile(&main10).unwrap_err(),MediaError::UnsupportedCodec);
+    }
 }
