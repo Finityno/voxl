@@ -91,6 +91,12 @@ impl PeerConnectionEventHandler for ReceiverEvents {
         });
     }
 }
+struct TrickleReceiver {receiver:ReceiverEvents,gathered:Arc<AtomicBool>,wake:Arc<Notify>}
+#[async_trait]
+impl PeerConnectionEventHandler for TrickleReceiver {
+    async fn on_track(&self,track:Arc<dyn TrackRemote>) {self.receiver.on_track(track).await;}
+    async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {if state==RTCIceGatheringState::Complete {self.gathered.store(true,Ordering::Release);self.wake.notify_one();}}
+}
 
 #[test]
 fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates() {
@@ -113,19 +119,21 @@ fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates()
             assert!(video.offer().contains("a=ice-options:trickle"));assert!(!video.offer().contains("a=end-of-candidates"));
             let signals=video.signaling().unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (sender,mut packets)=mpsc::channel(4);
-            let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
+            let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
+            let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(TrickleReceiver {receiver:ReceiverEvents {packets:sender},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake)})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
             let wire_offer=video.offer().lines().filter(|line|!line.starts_with("a=candidate:")).collect::<Vec<_>>().join("\r\n")+"\r\n";
             receiver.set_remote_description(RTCSessionDescription::offer(wire_offer).unwrap()).await.unwrap();
-            let incoming=signals.clone();let receiver_candidates=Arc::clone(&receiver);
+            let incoming=signals.clone();let receiver_candidates=Arc::clone(&receiver);let expected_mid=video.events.media_mid.get().unwrap().clone();
             let candidates=tokio::spawn(async move {
                 let mut reflexive=false;
                 loop {match incoming.next_signal().await.unwrap() {
-                    VideoIceSignal::Candidate {candidate,mid}=>{assert_eq!(mid,"0");reflexive|=candidate.contains(" typ srflx");receiver_candidates.add_ice_candidate(super::signaling::candidate(candidate,mid)).await.unwrap();},
+                    VideoIceSignal::Candidate {candidate,mid}=>{assert_eq!(mid,expected_mid);reflexive|=candidate.contains(" typ srflx");receiver_candidates.add_ice_candidate(super::signaling::candidate(candidate,mid)).await.unwrap();},
                     VideoIceSignal::GatheringComplete=>break,
                 }}
                 reflexive
             });
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+            while !gathered.load(Ordering::Acquire) {wake.notified().await;}
             let answer=receiver.local_description().await.unwrap().sdp;
             let mid=answer.lines().find_map(|line|line.strip_prefix("a=mid:")).unwrap().to_owned();
             for candidate in answer.lines().filter_map(|line|line.strip_prefix("a=candidate:")) {signals.add_candidate(format!("candidate:{candidate}"),mid.clone()).unwrap();}
@@ -151,9 +159,11 @@ fn trickle_cancelled_wait_and_close_do_not_lose_terminal_state() {
             let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
             config.add_ice_server(vec![format!("stun:{}",socket.local_addr().unwrap())],String::new(),String::new()).unwrap();
             let video=WebRtcVideo::open_trickle(config).await.unwrap();let signals=video.signaling().unwrap();
-            let count=video.events.signals.as_ref().unwrap().local_pending();
-            for _ in 0..count {assert!(matches!(signals.next_signal().await.unwrap(),VideoIceSignal::Candidate {..}));}
-            assert!(tokio::time::timeout(Duration::from_millis(10),signals.next_signal()).await.is_err());
+            loop {match tokio::time::timeout(Duration::from_millis(10),signals.next_signal()).await {
+                Ok(Ok(VideoIceSignal::Candidate {..}))=>{},
+                Err(_)=>break,
+                _=>panic!("held STUN cannot finish gathering or close the view"),
+            }}
             let waiting=signals.next_signal();tokio::pin!(waiting);
             std::future::poll_fn(|cx| {assert!(std::future::Future::poll(waiting.as_mut(),cx).is_pending());std::task::Poll::Ready(())}).await;
             video.close();assert!(matches!(waiting.await,Err(WebRtcError::Ended)));

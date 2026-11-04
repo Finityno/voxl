@@ -29,8 +29,6 @@ fn push(queue:&Mutex<Queue>,candidate:String,mid:String)->Result<(),WebRtcError>
 impl Signals {
     pub fn local(&self,candidate:String,mid:String)->Result<(),WebRtcError> {push(&self.local,candidate,mid)}
     pub fn remote_revision(&self)->u64 {self.remote_revision.load(Ordering::Acquire)}
-    #[cfg(test)]
-    pub fn local_pending(&self)->usize {self.local.lock().unwrap().pending.len()}
     pub fn take_remote(&self)->VecDeque<(String,String)> {
         std::mem::take(&mut self.remote.lock().unwrap_or_else(|error|error.into_inner()).pending)
     }
