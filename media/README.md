@@ -70,12 +70,35 @@ or the meaning of a direct-route result; endpoint CPU/latency need native runs.
 The same-process loopback test requires a proven direct nominated path; physical two-device
 LAN, Internet-direct and forced-relay cases remain required integration checks.
 
-The pinned `webrtc 0.21.1` async TURN relayer currently skips secure TURN and
-non-UDP TURN URLs in `src/peer_connection/transport/turn_relayer.rs`. Accepting
-those URLs in a bounded configuration does not establish TCP/TLS support. The
-VPS's successful raw TURN/TLS tests do not cover this native-client limitation.
-TURN/TCP and TURN/TLS need an implementation and forced-relay integration proof
-before release; UDP-only connectivity does not complete that requirement.
+The pinned SDK's TURN relayer supports UDP. The media wrapper adapts TURN/TCP
+and TURN/TLS through endpoint-local loopback sockets, one stream per SDK socket.
+Direct ICE and TURN/UDP bypass the adapter. TLS uses AWS-LC, normal hostname/IP
+certificate validation and Mozilla roots; remote ICE configuration cannot add
+trust roots. Stream framing follows [RFC 8656](https://www.rfc-editor.org/rfc/rfc8656.html).
+Queues hold at most 32 datagrams of 2000 bytes, matching the SDK receive limit;
+overload closes that stream rather than silently reopening another allocation.
+An allocated selected stream failing ends media; an unused fallback failing
+does not end healthy direct video. `route_statistics.local_relay_transport`
+joins the actual nominated allocation to its transport instead of reporting
+the loopback adapter as network UDP. It describes only the local relay leg.
+
+`vendor/webrtc/PROVENANCE.md` records the verified package and two driver
+ordering changes: flush relay writes produced by core media before waiting,
+and install remote tracks discovered during TURN decapsulation before
+delivering their first RTP packet. The first-payload relay fixture failed
+before these changes and passes with both present. No upstream PR is opened.
+
+At `32569b3f6816353f85e5d7a453099dd1a565996b`, locked build, strict library/
+examples Clippy and seven selected tests passed: framing/bounds, nominated
+UDP/TCP/TLS relay media, rejection of an untrusted TLS certificate, and healthy
+direct video after an unused TCP relay fails. The same fixtures also require
+selected stream loss to wake and end media. Raw sanitized commands, test output
+and server/cleanup counts are in `results/2026-11-04-turn-streams/`.
+These use isolated loopback coturn with fresh short-lived REST credentials and
+a private test CA. They prove synthetic encrypted transport, not native
+decoding, physical LAN/VPS routing, hardware performance or endpoint memory.
+Credential renewal/ICE restart, trickle gathering and limiting relay allocation
+fanout across interfaces remain required work before release.
 
 `codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
 caller preference order, then allows only explicitly permitted, measured
