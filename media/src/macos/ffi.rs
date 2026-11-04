@@ -1,13 +1,20 @@
 //! The small system C ABI used by the encoder. Signatures follow the installed
 //! Apple SDK; CMTime comes from the generated framework bindings.
 #![allow(non_snake_case, non_upper_case_globals)]
-use std::ffi::c_void;
+use std::ffi::{c_char,c_void};
 use objc2_core_media::CMTime;
 pub type Object = *const c_void;
 pub type Session = *mut c_void;
 pub type Output = unsafe extern "C" fn(*mut c_void, *mut c_void, i32, u32, Object);
 // VideoToolbox/VTErrors.h: an unrecognized or unsupported session property.
 pub const kVTPropertyNotSupportedErr: i32 = -12900;
+// Darwin dlfcn.h. Resolve optional newer data symbols without raising the
+// embedding application's minimum supported OS through a strong import.
+pub const RTLD_DEFAULT: *mut c_void = -2isize as *mut c_void;
+#[link(name = "System")]
+unsafe extern "C" {
+    pub fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
+}
 
 #[link(name = "VideoToolbox", kind = "framework")]
 unsafe extern "C" {
