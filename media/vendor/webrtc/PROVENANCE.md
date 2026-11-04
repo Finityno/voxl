@@ -27,9 +27,11 @@ forced-relay tests in the parent media crate cover actual coturn transport.
 when no passive-TCP connect event is enqueued. Candidate insertion can arm an
 ICE check deadline or mDNS output while the driver is parked. Without a wake,
 late trickle candidates can wait for an unrelated timer/packet. A regression
-parks both real-UDP peers after answer processing and prevents driver timers
-from expiring, then requires late candidates to connect and carry media. The
-pre-fix run reaches its late-connection deadline after setup successfully parks.
+parks both real-UDP peers after answer processing on held old deadlines, then
+allows newly armed ICE timers only after a wake. The same fixture fails without
+the wake and passes with it, requiring late candidates to connect and carry
+media. An earlier all-timers-blocked fixture failed both versions and is not
+used as causal proof; raw results preserve that distinction.
 Passive-TCP event ordering is preserved; the existing write wake is coalesced.
 
 `runtime/mod.rs` adds an optional, default-disabled TURN-only local-address

@@ -56,6 +56,10 @@ physical-device measurement. `results/2026-11-04-lazy-turn/` records zero native
 LAN allocations and actual UDP/TCP/TLS fallback with direct packet paths blocked.
 Browser viewers and credential lookup have separate remaining allocation/startup
 work; these tests establish no measured CPU/RSS saving.
+Late incremental candidates explicitly wake the SDK driver so ICE can replace
+its previous parked deadline. The identical controlled test fails without this
+wake and passes with it while old waits stay held and new ICE timers may run;
+see `results/2026-11-04-idle-candidates/`. Passive-TCP event ordering is retained.
 The bounded loopback test uses real UDP/DTLS/SRTP and synthetic NAL payloads;
 it does not test a decoder, display capture or video quality.
 

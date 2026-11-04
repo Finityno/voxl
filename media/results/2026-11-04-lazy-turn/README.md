@@ -46,6 +46,14 @@ REST/CA state and xtables locks removed. No host firewall was changed. Source
 was clean in each cloud run. A hash-verified Git bundle imported exact `de198d9`
 while GitHub pushes returned internal errors.
 
+The strengthened fixture at `610ffea2317ff8183ae2230cc0ffe57f5dc2f04d`
+forwards valid host candidates in both directions while their UDP paths are
+blackholed. All three fallback cases passed, with 68 drops per case (204 total),
+including failed ICE checks beyond the twelve preflight probes. Coturn counted
+two allocations per case. Raw results are in `610ffea-direct-checks/`; unlike
+the earlier namespace pass, this explicitly exercises unavailable direct paths
+with their candidates present.
+
 A matched comparison at exact
 `75638d6d34bcd210c90a565f72a135dc6fe8c79a` keeps both roles, bindings,
 Automatic/trickle policy, TURN/UDP server, candidate exchange and payloads the
