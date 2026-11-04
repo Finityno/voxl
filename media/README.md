@@ -39,8 +39,12 @@ not desktop capture, network or physical-phone power measurements.
 
 With `--features webrtc`, the sender uses the caller's Tokio runtime, sends only
 video (H.264 or HEVC Main) and selects AWS-LC crypto explicitly. Register the actual encoder
-SPS profile/level, exchange its gathered offer/answer inside authenticated
-Connect, and keep the native view tied to that session. RTP timestamps follow
+SPS profile/level, exchange offer/answer inside authenticated Connect, and keep
+native media tied to that session. `open` retains the full gathered SDP path.
+Opt-in `open_trickle` returns without waiting for gathering: exchange its
+`VideoSignaling` candidates through the same authenticated channel, apply the
+answer to the frame writer, and keep driving `next_update`. Each direction
+accepts at most 64 bounded candidates. Closing wakes pending signal consumers. RTP timestamps follow
 capture presentation time even when unchanged frames are skipped. PLI/FIR
 requests are coalesced and rate-limited before the encoder forces an IDR.
 The bounded loopback test uses real UDP/DTLS/SRTP and synthetic NAL payloads;
@@ -114,8 +118,10 @@ and server/cleanup counts are in `results/2026-11-04-turn-streams/`.
 These use isolated loopback coturn with fresh short-lived REST credentials and
 a private test CA. They prove synthetic encrypted transport, not native
 decoding, physical LAN/VPS routing, hardware performance or endpoint memory.
-Credential renewal/ICE restart, trickle gathering and limiting relay allocation
-fanout across interfaces remain required work before release.
+The later interface-allocation checks below retain these earlier fixtures.
+Opt-in trickle gathering is covered separately in `results/2026-11-04-trickle/`;
+physical NAT traversal and credential renewal/ICE restart remain required work
+before release.
 
 `codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
 caller preference order, then allows only explicitly permitted, measured
