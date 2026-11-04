@@ -97,7 +97,7 @@ impl VideoEncoder {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
             encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel,
-                if config.codec == VideoCodec::Hevc { kVTProfileLevel_HEVC_Main_AutoLevel } else { h264_profile() })?;
+                if config.codec == VideoCodec::Hevc { kVTProfileLevel_HEVC_Main_AutoLevel } else { h264_profile(hardware) })?;
             encoder.number("bitrate", kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
             encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
             encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
@@ -204,7 +204,7 @@ impl Drop for VideoEncoder {
 }
 fn check(operation: &'static str, code: i32) -> Result<(), MediaError> { if code == 0 { Ok(()) } else { Err(MediaError::Platform { operation, code }) } }
 
-fn h264_profile() -> Object {
+fn h264_profile(hardware: bool) -> Object {
     // Constrained Baseline is the interoperable WebRTC profile. VideoToolbox's
     // ordinary hardware Baseline emits 4200, which WebKit's 42e0 capabilities
     // do not advertise. Request the actual constrained encoder profile instead
@@ -214,6 +214,10 @@ fn h264_profile() -> Object {
     // SAFETY: VideoToolbox is already linked/loaded. This optional SDK data
     // symbol is a process-lifetime CFStringRef, hence one pointer indirection.
     unsafe {
+        // Apple's software encoder rejects the constrained-profile setting.
+        // Its supported Baseline setting emits constrained SPS flags; report
+        // that actual profile rather than assuming the property was accepted.
+        if !hardware { return kVTProfileLevel_H264_Baseline_AutoLevel; }
         let symbol = dlsym(RTLD_DEFAULT,c"kVTProfileLevel_H264_ConstrainedBaseline_AutoLevel".as_ptr());
         if symbol.is_null() { kVTProfileLevel_H264_Baseline_AutoLevel } else { *symbol.cast::<Object>() }
     }
