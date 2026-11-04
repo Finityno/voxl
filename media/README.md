@@ -7,6 +7,15 @@ stream. Screen capture and native application integration belong to the embedder
 optional WebRTC sender is implemented behind the `webrtc` feature; platform
 validation and receiver interoperability are still in progress.
 
+Native Apple Silicon builds enable AES 0.8's runtime ARM detector through the
+repository's target-specific Cargo setting, retaining its software fallback.
+Embedders must carry that setting in their own root config because dependency
+configs do not propagate. The isolated `tools/aes-probe` workspace and
+`results/2026-11-04-arm-aes/` retain exact-source alternating component comparisons,
+independent known vectors and generated-instruction evidence. Component CPU
+savings do not establish whole-SRTP, codec, endpoint or bandwidth improvements;
+full native interoperability with the setting must be validated separately.
+
 Give the encoder immutable NV12 buffers from the capture API. The hardware-first
 mode tries a required hardware encoder, then an explicitly software encoder;
 the actual hardware property is queried and exposed when supported. Explicitly
