@@ -70,6 +70,13 @@ or the meaning of a direct-route result; endpoint CPU/latency need native runs.
 The same-process loopback test requires a proven direct nominated path; physical two-device
 LAN, Internet-direct and forced-relay cases remain required integration checks.
 
+The pinned `webrtc 0.21.1` async TURN relayer currently skips secure TURN and
+non-UDP TURN URLs in `src/peer_connection/transport/turn_relayer.rs`. Accepting
+those URLs in a bounded configuration does not establish TCP/TLS support. The
+VPS's successful raw TURN/TLS tests do not cover this native-client limitation.
+TURN/TCP and TURN/TLS need an implementation and forced-relay integration proof
+before release; UDP-only connectivity does not complete that requirement.
+
 `codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
 caller preference order, then allows only explicitly permitted, measured
 real-time software fallbacks. Unknown capability is never interpreted as
