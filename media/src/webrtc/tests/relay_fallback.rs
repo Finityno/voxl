@@ -12,17 +12,20 @@ impl PeerConnectionEventHandler for FallbackReceiver {
 }
 
 #[test]
-fn late_relay_configuration_restarts_ice_and_fences_old_signaling() {late_configuration(None);}
+fn late_relay_configuration_restarts_ice_and_fences_old_signaling() {late_configuration(None,true);}
 
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
-fn late_relay_udp_configuration_carries_media() {late_configuration(Some(RelayTransport::Udp));}
+fn late_relay_udp_configuration_carries_media() {late_configuration(Some(RelayTransport::Udp),true);}
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
-fn late_relay_tcp_configuration_carries_media() {late_configuration(Some(RelayTransport::Tcp));}
+fn late_relay_tcp_configuration_carries_media() {late_configuration(Some(RelayTransport::Tcp),true);}
 #[test]
 #[ignore = "requires isolated coturn TLS and a namespace blocking direct host UDP"]
-fn late_relay_tls_configuration_carries_media() {late_configuration(Some(RelayTransport::Tls));}
+fn late_relay_tls_configuration_carries_media() {late_configuration(Some(RelayTransport::Tls),true);}
+#[test]
+#[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
+fn late_relay_udp_initial_configuration_baseline() {late_configuration(Some(RelayTransport::Udp),false);}
 
 #[test]
 fn late_relay_close_while_awaiting_restart_answer_stops_retries() {
@@ -62,7 +65,7 @@ fn strip_candidates(sdp:&str)->String {
 }
 fn field<'a>(sdp:&'a str,prefix:&str)->&'a str {sdp.lines().find_map(|line|line.strip_prefix(prefix)).unwrap()}
 
-fn late_configuration(relay:Option<RelayTransport>) {
+fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {timeout(Duration::from_secs(25),async {
         let bindings=if relay.is_some() {
@@ -101,13 +104,16 @@ fn late_configuration(relay:Option<RelayTransport>) {
             }));
             None
         };
-        let mut video=WebRtcVideo::open_mode(WebRtcConfig::direct_first(format,bindings.clone()),tls,true).await.unwrap();
+        let mut fallback=Some(fallback);
+        let config=if restart {WebRtcConfig::direct_first(format,bindings.clone())} else {fallback.take().unwrap()};
+        let mut video=WebRtcVideo::open_mode(config,tls,true).await.unwrap();
         let initial_offer=video.offer().to_owned();let old_signals=video.signaling().unwrap();
         let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(4);
         let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));
         let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
             .with_handler(Arc::new(FallbackReceiver {receiver:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen)}))
             .with_udp_addrs(bindings.clone()).build().await.unwrap());
+        let offer=if restart {
         receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(&initial_offer)).unwrap()).await.unwrap();
         receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
         while !gathered.load(Ordering::Acquire) {wake.notified().await;}
@@ -122,7 +128,7 @@ fn late_configuration(relay:Option<RelayTransport>) {
         invalid.add_ice_server(vec!["stun:127.0.0.1:3478".into()],String::new(),String::new()).unwrap();
         assert!(matches!(video.begin_relay_fallback(invalid).await,Err(WebRtcError::Configuration)));
         assert!(!video.ended());assert_eq!(video.signaling().unwrap().generation(),0);
-        let offer=video.begin_relay_fallback(fallback).await.unwrap();
+        let offer=video.begin_relay_fallback(fallback.take().unwrap()).await.unwrap();
         eprintln!("late_fallback_stage=restart_offer");
         assert_eq!(offer.generation,1);
         assert!(field(&initial_offer,"a=ice-ufrag:")!=field(&offer.sdp,"a=ice-ufrag:"),"restart must advertise fresh ICE credentials");
@@ -130,7 +136,9 @@ fn late_configuration(relay:Option<RelayTransport>) {
         assert_eq!(old_signals.add_candidate("candidate:old".into(),"0".into()),Err(WebRtcError::Ended));
         assert!(matches!(old_signals.next_signal().await,Err(WebRtcError::Ended)));
         assert_eq!(video.answer(old_answer).await,Err(WebRtcError::Configuration));assert!(!video.ended());
-        let signals=video.signaling().unwrap();assert_eq!(signals.generation(),1);
+        offer
+        } else {VideoRestartOffer {generation:0,sdp:initial_offer}};
+        let signals=video.signaling().unwrap();assert_eq!(signals.generation(),offer.generation);
         gathered.store(false,Ordering::Release);
         receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(&offer.sdp)).unwrap()).await.unwrap();
         eprintln!("late_fallback_stage=remote_offer");
@@ -172,6 +180,7 @@ fn late_configuration(relay:Option<RelayTransport>) {
             _=>{
                 eprintln!("late fallback media deadline: receiver_connected={} track_seen={} sender={:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
                 use webrtc::peer_connection::{RTCStatsReportEntry as Entry,StatsSelector};
+                for entry in video.peer.get_stats(Instant::now(),StatsSelector::None).await.iter() {if let Entry::OutboundRtp(stream)=entry {eprintln!("sender RTP: bytes={}",stream.bytes_sent);}}
                 for entry in receiver.get_stats(Instant::now(),StatsSelector::None).await.iter() {match entry {
                     Entry::IceCandidatePair(pair)=>eprintln!("receiver pair: nominated={} sent={} received={}",pair.nominated,pair.bytes_sent,pair.bytes_received),
                     Entry::InboundRtp(stream)=>eprintln!("receiver RTP: bytes={}",stream.bytes_received),
