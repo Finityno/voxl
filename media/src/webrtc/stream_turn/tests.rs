@@ -119,7 +119,17 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             // multiplying TURN allocations for this one reachable IPv4 route.
             let bindings=vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()];
             let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
-            let relay_count=|sdp:&str|sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")).count();
+            let relay_count=|sdp:&str| {
+                let rows:Vec<_>=sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")).map(|line|line.split_whitespace().collect::<Vec<_>>()).collect();
+                assert!(rows.iter().all(|row|row.len()>=8),"relay candidate must include its transport address");
+                let endpoints:std::collections::HashSet<_>=rows.iter().map(|row|(row[2],row[4],row[5])).collect();
+                let components:Vec<_>=rows.iter().map(|row|row[1].parse::<u16>().unwrap()).collect();
+                // An allocation is a relay transport/address/port, not an SDP
+                // row. Components or repeated SDP placement can name it again.
+                // Never print candidate addresses or session authentication.
+                eprintln!("relay gather: rows={} unique_transport_endpoints={} components={components:?}",rows.len(),endpoints.len());
+                endpoints.len()
+            };
             assert_eq!(relay_count(video.offer()),1,"sender must use one authenticated relay allocation for both local IPv4 bindings");
             if policy==RoutePolicy::Automatic {
                 for address in ["127.0.0.1","127.0.0.2"] {assert!(video.offer().lines().any(|line|line.contains(address) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");}

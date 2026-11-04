@@ -63,7 +63,7 @@ impl StreamRelays {
         relays.runtime=Arc::new(RelayRuntime::new(ipc));
         Ok(relays)
     }
-    pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {let runtime=Arc::clone(&self.runtime);runtime}
+    pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {Arc::<RelayRuntime>::clone(&self.runtime)}
     pub fn close(&self) {for task in &self.listeners {task.abort();}}
     pub fn transport(&self,address: SocketAddr) -> RelayTransport {
         self.allocations.lock().unwrap_or_else(|error|error.into_inner()).get(&address).map(|value|value.0).unwrap_or_default()
