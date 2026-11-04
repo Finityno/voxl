@@ -218,14 +218,17 @@ impl WebRtcVideo {
     async fn open_with_tls(config: WebRtcConfig,tls: Option<Arc<tokio_rustls::rustls::ClientConfig>>) -> Result<Self, WebRtcError> {
         Self::open_mode(config,tls,false).await
     }
-    async fn open_mode(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool)->Result<Self,WebRtcError> {
+    async fn open_mode(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool)->Result<Self,WebRtcError> {
+        let turn_delay=if trickle && config.route_policy==RoutePolicy::Automatic {Duration::from_millis(250)} else {Duration::ZERO};
+        Self::open_with_grace(config,tls,trickle,turn_delay).await
+    }
+    async fn open_with_grace(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration)->Result<Self,WebRtcError> {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
-        let turn_delay=if trickle && config.route_policy==RoutePolicy::Automatic {Duration::from_millis(250)} else {Duration::ZERO};
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes),turn_delay).await?);
         let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,

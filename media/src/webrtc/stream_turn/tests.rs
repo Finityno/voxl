@@ -75,6 +75,10 @@ fn trickle_forced_relay_tls_carries_media_without_candidates_in_sdp() {relay_con
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn lazy_turn_immediate_native_baseline_retains_allocation() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::Automatic,true,GatherMode::TrickleImmediate);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
 fn lazy_turn_direct_media_skips_the_native_relay_allocation() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::Automatic,true,GatherMode::Trickle);}
 
 #[test]
@@ -108,7 +112,7 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
 }
 
 #[derive(Clone,Copy,PartialEq,Eq)]
-enum GatherMode {Full,Trickle,DeferredFallback}
+enum GatherMode {Full,Trickle,DeferredFallback,TrickleImmediate}
 
 fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy,limit_receiver_interfaces:bool,mode:GatherMode) {
     use super::super::*;
@@ -188,7 +192,9 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             } else {vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()]};
             let retained_bindings=bindings.clone();
             let opened_at=Instant::now();
-            let mut video=WebRtcVideo::open_mode(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone(),trickle).await.unwrap();
+            let config=WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}};
+            let mut video=if mode==GatherMode::TrickleImmediate {WebRtcVideo::open_with_grace(config,tls.clone(),true,Duration::ZERO).await}
+                else {WebRtcVideo::open_mode(config,tls.clone(),trickle).await}.unwrap();
             let relay_count=|sdp:&str| {
                 let rows:Vec<_>=sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")).map(|line|line.split_whitespace().collect::<Vec<_>>()).collect();
                 assert!(rows.iter().all(|row|row.len()>=8),"relay candidate must include its transport address");
@@ -255,7 +261,7 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");
             assert!(video.take_keyframe_request());
-            let skip_native_turn=trickle && policy==RoutePolicy::Automatic && !relay_candidates_only;
+            let skip_native_turn=mode==GatherMode::Trickle && policy==RoutePolicy::Automatic;
             let expected_sender_allocations=if skip_native_turn {0} else {1};
             if let Some(task)=candidate_task {
                 let relays=timeout(Duration::from_secs(6),task).await.unwrap().unwrap();
