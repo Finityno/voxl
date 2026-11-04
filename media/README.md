@@ -58,8 +58,7 @@ Automatic routing keeps host and server-reflexive candidates eligible; relay-onl
 is an explicit diagnostic policy. `WebRtcConfig::direct_first` needs no TURN
 service; `add_ice_server` supplies bounded, authenticated fallback while keeping
 automatic direct candidates eligible. It rejects malformed URLs and oversized
-credentials before constructing the peer.
-credential service for a working LAN path. Read `route_statistics` for the
+credentials before constructing the peer. Read `route_statistics` for the
 nominated path and byte counters: the presence of a TURN URL alone says nothing
 about the path used. Returned diagnostics contain no addresses or credentials.
 The same-process loopback test requires a proven direct nominated path; physical two-device
