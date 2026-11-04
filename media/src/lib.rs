@@ -2,16 +2,18 @@
 //! an application event loop, or link the standalone server's x264 dependency.
 
 pub mod codec;
+use codec::VideoCodec;
 
 #[cfg(target_os = "macos")]
 pub mod macos;
 #[cfg(feature = "webrtc")]
 pub mod webrtc;
 
-/// A complete Annex B H.264 access unit. Parameter sets precede every IDR so
+/// A complete Annex B video access unit. Parameter sets precede keyframes so
 /// transports can establish or restart decoding without a separate header API.
 #[derive(Debug)]
 pub struct EncodedFrame {
+    pub codec: VideoCodec,
     pub annex_b: Vec<u8>,
     pub keyframe: bool,
     pub presentation_time_micros: i64,
@@ -22,6 +24,7 @@ pub enum EncoderPreference { PreferHardware, RequireHardware, Software }
 
 #[derive(Debug, Clone, Copy)]
 pub struct EncoderConfig {
+    pub codec: VideoCodec,
     pub width: u32,
     pub height: u32,
     pub fps: u32,
@@ -41,7 +44,7 @@ impl EncoderConfig {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MediaError { Configuration, Platform { operation: &'static str, code: i32 }, Backpressure, InvalidFrame, Closed }
+pub enum MediaError { Configuration, UnsupportedCodec, Platform { operation: &'static str, code: i32 }, Backpressure, InvalidFrame, Closed }
 impl std::fmt::Display for MediaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "desktop media: {self:?}") }
 }
@@ -53,7 +56,8 @@ const MAX_FRAME_BYTES: usize = 8 * 1024 * 1024;
 /// Parse length-prefixed NAL units without trusting the native sample's length
 /// fields. Kept platform-independent so malformed boundaries are tested on Linux.
 #[cfg(any(target_os = "macos", test))]
-fn avcc_to_annex_b(data: &[u8], length_bytes: usize) -> Result<(Vec<u8>, bool), MediaError> {
+fn nal_units_to_annex_b(data: &[u8], length_bytes: usize, codec: VideoCodec) -> Result<(Vec<u8>, bool), MediaError> {
+    if codec == VideoCodec::Av1 { return Err(MediaError::UnsupportedCodec); }
     if !(1..=4).contains(&length_bytes) || data.is_empty() || data.len() > MAX_FRAME_BYTES {
         return Err(MediaError::InvalidFrame);
     }
@@ -68,7 +72,19 @@ fn avcc_to_annex_b(data: &[u8], length_bytes: usize) -> Result<(Vec<u8>, bool), 
             return Err(MediaError::InvalidFrame);
         }
         let nal = &data[offset..offset + length];
-        keyframe |= nal[0] & 0x1f == 5;
+        match codec {
+            VideoCodec::H264 => { keyframe |= nal[0] & 0x1f == 5; }
+            VideoCodec::Hevc => {
+                // The implemented HEVC Main path is single-layer. Reject a
+                // truncated header, forbidden bit or zero temporal ID rather
+                // than submitting malformed or multilayer data to a receiver.
+                if nal.len() < 2 || nal[0] & 0x81 != 0 || nal[1] & 0xf8 != 0 || nal[1] & 7 == 0 {
+                    return Err(MediaError::InvalidFrame);
+                }
+                keyframe |= (16..=21).contains(&((nal[0] >> 1) & 0x3f));
+            }
+            VideoCodec::Av1 => return Err(MediaError::UnsupportedCodec),
+        }
         out.extend_from_slice(&[0, 0, 0, 1]);
         out.extend_from_slice(nal);
         offset += length;
@@ -81,15 +97,28 @@ mod tests {
     use super::*;
     #[test]
     fn avcc_rejects_truncation_and_preserves_nal_boundaries() {
-        let (output, key) = avcc_to_annex_b(&[0,0,0,2,0x65,7,0,0,0,1,0x41],4).unwrap();
+        let (output, key) = nal_units_to_annex_b(&[0,0,0,2,0x65,7,0,0,0,1,0x41],4,VideoCodec::H264).unwrap();
         assert!(key);
         assert_eq!(output, [0,0,0,1,0x65,7,0,0,0,1,0x41]);
         for input in [&[0,0,0,2,0x65][..], &[0,0,0,0], &[0xff,0xff,0xff,0xff], &[]] {
-            assert!(avcc_to_annex_b(input,4).is_err());
+            assert!(nal_units_to_annex_b(input,4,VideoCodec::H264).is_err());
         }
-        assert!(avcc_to_annex_b(&[1,0x41],0).is_err());
-        assert_eq!(avcc_to_annex_b(&[1,0x41],1).unwrap(), (vec![0,0,0,1,0x41],false));
+        assert!(nal_units_to_annex_b(&[1,0x41],0,VideoCodec::H264).is_err());
+        assert_eq!(nal_units_to_annex_b(&[1,0x41],1,VideoCodec::H264).unwrap(), (vec![0,0,0,1,0x41],false));
     }
+    #[test]
+    fn hevc_preserves_parameter_sets_and_recognizes_irap_without_accepting_bad_headers() {
+        let data = [0,0,0,3,0x40,1,7,0,0,0,3,0x26,1,9];
+        let (output,keyframe) = nal_units_to_annex_b(&data,4,VideoCodec::Hevc).unwrap();
+        assert_eq!(output,[0,0,0,1,0x40,1,7,0,0,0,1,0x26,1,9]);
+        assert!(keyframe);
+        assert!(!nal_units_to_annex_b(&[2,2,1],1,VideoCodec::Hevc).unwrap().1);
+        for data in [&[1,0x26][..],&[2,0x26,0],&[2,0xa6,1],&[2,0x27,1],&[2,0x26,9],&[3,0x26,1]] {
+            assert_eq!(nal_units_to_annex_b(data,1,VideoCodec::Hevc).unwrap_err(),MediaError::InvalidFrame);
+        }
+        assert_eq!(nal_units_to_annex_b(&[2,0x26,1],1,VideoCodec::Av1).unwrap_err(),MediaError::UnsupportedCodec);
+    }
+
 }
 
 /// Read the advertised H.264 profile/constraint/level bytes from a complete

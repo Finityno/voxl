@@ -27,6 +27,7 @@ unsafe extern "C" {
     pub static kVTCompressionPropertyKey_MaxKeyFrameInterval: Object;
     pub static kVTCompressionPropertyKey_ProfileLevel: Object;
     pub static kVTProfileLevel_H264_Baseline_AutoLevel: Object;
+    pub static kVTProfileLevel_HEVC_Main_AutoLevel: Object;
     pub static kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder: Object;
     pub static kVTEncodeFrameOptionKey_ForceKeyFrame: Object;
 }
@@ -54,6 +55,8 @@ unsafe extern "C" {
     pub fn CMSampleBufferGetPresentationTimeStamp(sample: Object) -> CMTime;
     pub fn CMBlockBufferGetDataLength(buffer: Object) -> usize;
     pub fn CMBlockBufferCopyDataBytes(buffer: Object, offset: usize, length: usize, target: *mut c_void) -> i32;
+    pub fn CMVideoFormatDescriptionGetHEVCParameterSetAtIndex(format: Object, index: usize, bytes: *mut *const u8,
+        length: *mut usize, count: *mut usize, nal_length: *mut i32) -> i32;
     pub fn CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format: Object, index: usize, bytes: *mut *const u8,
         length: *mut usize, count: *mut usize, nal_length: *mut i32) -> i32;
 }

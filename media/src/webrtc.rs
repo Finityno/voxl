@@ -209,7 +209,7 @@ impl WebRtcVideo {
         if self.ended() { return Err(WebRtcError::Ended); }
         if !self.connected() { return Err(WebRtcError::NotConnected); }
         let payload_type = self.payload_type.ok_or(WebRtcError::NotConnected)?;
-        if frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
+        if frame.codec != crate::codec::VideoCodec::H264 || frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
             || self.last_pts.is_some_and(|last| frame.presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
         if self.first_pts.is_none() && !frame.keyframe { return Err(WebRtcError::InvalidFrame); }

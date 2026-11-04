@@ -53,7 +53,7 @@ fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback()
             let second = vec![0x41,0x9a,0x20,0x00,0x11];
             let unit = |payload: &[u8],pts,keyframe| {
                 let mut annex_b = vec![0,0,0,1];annex_b.extend_from_slice(payload);
-                EncodedFrame {annex_b,keyframe,presentation_time_micros: pts}
+                EncodedFrame {codec: crate::codec::VideoCodec::H264,annex_b,keyframe,presentation_time_micros: pts}
             };
             video.send(unit(&first,1_000_000,true)).await.unwrap();
             let one = packets.recv().await.unwrap();

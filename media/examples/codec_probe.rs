@@ -4,7 +4,8 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::Write};
     use voxl_media::{EncoderConfig, EncoderPreference};
-    use voxl_media::macos::{H264Encoder, PixelBuffer};
+    use voxl_media::codec::VideoCodec;
+    use voxl_media::macos::{VideoEncoder, PixelBuffer};
     #[link(name = "CoreVideo", kind = "framework")]
     unsafe extern "C" {
         fn CVPixelBufferCreate(allocator: *const c_void, width: usize, height: usize, format: u32, attrs: *const c_void, out: *mut *const c_void) -> i32;
@@ -19,12 +20,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output.h264>".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let mut file = std::fs::File::create(path)?;
-    let config = EncoderConfig { width: 1280, height: 720, fps: 30, bitrate_kbps: 2500, preference };
-    let mut encoder = H264Encoder::new(config, || {})?;
+    let codec = match args.get(3).map(String::as_str) {
+        None | Some("h264") => VideoCodec::H264,
+        Some("hevc") => VideoCodec::Hevc,
+        _ => return Err("codec must be h264 or hevc".into()),
+    };
+    let config = EncoderConfig { codec, width: 1280, height: 720, fps: 30, bitrate_kbps: 2500, preference };
+    let mut encoder = VideoEncoder::new(config, || {})?;
     let started = Instant::now();
     let mut bytes = 0;
     let mut latencies = Vec::new();
@@ -66,6 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if Instant::now() > limit { return Err("encoder output deadline".into()); }
             std::thread::sleep(Duration::from_millis(1));
         };
+        if output.codec != codec { return Err("codec mismatch".into()); }
         if output.presentation_time_micros != (index as i64)*1_000_000/30 { return Err("timestamp mismatch".into()); }
         bytes += output.annex_b.len();
         keyframes += usize::from(output.keyframe);
@@ -73,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         latencies.push(submitted.elapsed().as_secs_f64()*1000.0);
     }
     latencies.sort_by(f64::total_cmp);
-    println!("hardware={} width=1280 height=720 fps=30 frames=60 keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3}",
+    println!("codec={codec:?} hardware={} width=1280 height=720 fps=30 frames=60 keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3}",
         encoder.using_hardware(), bytes as f64*8.0/2000.0, latencies[30],latencies[57],started.elapsed().as_secs_f64());
     Ok(())
 }

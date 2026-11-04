@@ -2,7 +2,7 @@
 
 This crate is maintained in the Fincode custom fork. It has no dependency on
 Voxl's process-owning server entry point, web asset build, libx264 or audio stack.
-It currently provides a macOS VideoToolbox H.264 encoder, not a complete desktop
+It currently provides a macOS VideoToolbox H.264/HEVC encoder, not a complete desktop
 stream. Screen capture and native application integration remain separate work. An
 optional WebRTC sender is implemented behind the `webrtc` feature; platform
 validation and receiver interoperability are still in progress.
@@ -10,11 +10,14 @@ validation and receiver interoperability are still in progress.
 Give the encoder immutable NV12 buffers from the capture API. The hardware-first
 mode tries a required hardware encoder, then an explicitly software encoder;
 the actual hardware property is queried and exposed. Software-only and
-hardware-required modes make matched experiments possible. The profile is H.264
-Baseline with real-time encoding, no frame reordering and two-second keyframes.
+hardware-required modes make matched experiments possible. `VideoEncoder` selects H.264 Baseline or HEVC Main (8-bit 4:2:0), with real-time
+encoding, no frame reordering and two-second keyframes. AV1 encoding returns
+UnsupportedCodec; it is never silently passed through the H.264 parser.
 The bitrate is an average target, not a hard transport bandwidth ceiling.
 
-Output is complete Annex B access units with SPS/PPS before each IDR. There are
+Output is tagged with its actual codec: complete Annex B access units with
+SPS/PPS (H.264) or VPS/SPS/PPS (HEVC) before keyframes. HEVC rejects truncated
+or multilayer NAL headers and recognizes IRAP frames. There are
 at most three outstanding native encode submissions and two queued output
 frames. A lagging consumer closes the encoder rather than losing reference
 frames and then delivering corrupt deltas. Recreate the stream and send a fresh
@@ -64,8 +67,10 @@ caller preference order, then allows only explicitly permitted, measured
 real-time software fallbacks. Unknown capability is never interpreted as
 support. This is selection policy, not an AV1/HEVC encoder implementation;
 providers must advertise only paths they actually implement and have probed for
-the requested geometry, fps, profile and chroma. The initial implemented native
-encoder and sender still use H.264.
+the requested geometry, fps, profile and chroma. The native encoder implements H.264 and HEVC; the current WebRTC sender remains
+H.264-only and explicitly rejects a frame tagged with another codec. Native
+HEVC execution, profile negotiation and RTP/receiver interoperability remain
+required before advertising HEVC in the application.
 
 
 The initial route assertion failed because the statistics report's selected-pair
@@ -81,3 +86,6 @@ The first native Mac H.264 result and raw command logs are in
 passed; the software attempt failed with an unsupported native property.
 Operation-specific errors have been added to identify that failure. Do not
 advertise a validated CPU fallback before the native software probe succeeds.
+
+Run the same native synthetic workload with `codec_probe hardware /tmp/probe.hevc hevc`
+for HEVC. Its native validation and any matched-quality savings are pending.

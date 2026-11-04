@@ -1,10 +1,11 @@
-//! VideoToolbox H.264 from immutable NV12 capture buffers. Hardware is tried
+//! VideoToolbox H.264/HEVC from immutable NV12 capture buffers. Hardware is tried
 //! first, software is selectable and the actual encoder is queried. No raw
 //! pixels are copied into a CPU color-conversion buffer on the encode path.
 
 mod ffi;
 use ffi::*;
-use crate::{EncodedFrame, EncoderConfig, EncoderPreference, MediaError, MAX_FRAME_BYTES, avcc_to_annex_b};
+use crate::{EncodedFrame, EncoderConfig, EncoderPreference, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
+use crate::codec::VideoCodec;
 use objc2_core_media::{CMTime, CMTimeFlags};
 use std::ffi::c_void;
 use std::ptr::{self, NonNull};
@@ -38,11 +39,12 @@ struct CallbackState {
     // Embedders using a collecting allocator supply its synchronous idle hook.
     // Every foreign callback announces an idle point, including early failures.
     idle: fn(),
+    codec: VideoCodec,
 }
 
 /// A single producer. Poll output promptly; a blocked consumer closes the
-/// encoder rather than receiving H.264 deltas whose reference was discarded.
-pub struct H264Encoder {
+/// encoder rather than receiving encoded deltas whose reference was discarded.
+pub struct VideoEncoder {
     session: NonNull<c_void>,
     callback: Box<CallbackState>,
     receiver: Receiver<EncodedFrame>,
@@ -52,11 +54,12 @@ pub struct H264Encoder {
 }
 // SAFETY: ownership moves as a whole; mutating session calls require &mut self.
 // VideoToolbox is thread-safe and callbacks access only atomics and a sender.
-unsafe impl Send for H264Encoder {}
+unsafe impl Send for VideoEncoder {}
 
-impl H264Encoder {
+impl VideoEncoder {
     pub fn new(config: EncoderConfig, idle: fn()) -> Result<Self, MediaError> {
         config.validate()?;
+        if config.codec == VideoCodec::Av1 { return Err(MediaError::UnsupportedCodec); }
         match config.preference {
             EncoderPreference::PreferHardware => Self::create(config, true, idle)
                 .or_else(|_| Self::create(config, false, idle)),
@@ -66,8 +69,13 @@ impl H264Encoder {
     }
 
     fn create(config: EncoderConfig, hardware: bool, idle: fn()) -> Result<Self, MediaError> {
+        let codec = match config.codec {
+            VideoCodec::H264 => u32::from_be_bytes(*b"avc1"),
+            VideoCodec::Hevc => u32::from_be_bytes(*b"hvc1"),
+            VideoCodec::Av1 => return Err(MediaError::UnsupportedCodec),
+        };
         let (sender, receiver) = mpsc::sync_channel(2);
-        let mut callback = Box::new(CallbackState { sender, failed: AtomicBool::new(false), pending: AtomicUsize::new(0), idle });
+        let mut callback = Box::new(CallbackState { sender, failed: AtomicBool::new(false), pending: AtomicUsize::new(0), idle, codec: config.codec });
         let mut session = ptr::null_mut();
         // Specification borrows only immortal framework constants; callbacks
         // are intentionally null so the dictionary does not own those values.
@@ -79,7 +87,7 @@ impl H264Encoder {
                 if hardware { kCFBooleanTrue } else { kCFBooleanFalse });
         }
         let code = unsafe { VTCompressionSessionCreate(ptr::null(), config.width as i32, config.height as i32,
-            u32::from_be_bytes(*b"avc1"), specification, ptr::null(), ptr::null(), Some(output),
+            codec, specification, ptr::null(), ptr::null(), Some(output),
             (&mut *callback as *mut CallbackState).cast(), &mut session) };
         unsafe { CFRelease(specification); }
         check("create encoder",code)?;
@@ -88,7 +96,8 @@ impl H264Encoder {
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
-            encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel, kVTProfileLevel_H264_Baseline_AutoLevel)?;
+            encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel,
+                if config.codec == VideoCodec::Hevc { kVTProfileLevel_HEVC_Main_AutoLevel } else { kVTProfileLevel_H264_Baseline_AutoLevel })?;
             encoder.number("bitrate", kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
             encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
             encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
@@ -163,7 +172,7 @@ impl H264Encoder {
         }
     }
 }
-impl Drop for H264Encoder {
+impl Drop for VideoEncoder {
     fn drop(&mut self) {
         // Invalidation tears down the codec and completes its outstanding
         // callbacks before the context is destroyed. Do not run this on GPUI.
@@ -191,7 +200,7 @@ fn output_inner(state: &CallbackState, status: i32, flags: u32, sample: Object) 
         state.failed.store(true, Ordering::Release);
         return;
     }
-    let parsed = unsafe { read_sample(sample) };
+    let parsed = unsafe { read_sample(sample,state.codec) };
     match parsed {
         Ok(frame) if !state.failed.load(Ordering::Acquire) => {
             if state.sender.try_send(frame).is_err() { state.failed.store(true, Ordering::Release); }
@@ -200,25 +209,30 @@ fn output_inner(state: &CallbackState, status: i32, flags: u32, sample: Object) 
     }
 }
 
-unsafe fn read_sample(sample: Object) -> Result<EncodedFrame, MediaError> {
+unsafe fn read_sample(sample: Object, codec: VideoCodec) -> Result<EncodedFrame, MediaError> {
     let data = unsafe { CMSampleBufferGetDataBuffer(sample) };
     let format = unsafe { CMSampleBufferGetFormatDescription(sample) };
     if data.is_null() || format.is_null() { return Err(MediaError::InvalidFrame); }
     let length = unsafe { CMBlockBufferGetDataLength(data) };
     if length == 0 || length > MAX_FRAME_BYTES { return Err(MediaError::InvalidFrame); }
+    let parameter_set = match codec {
+        VideoCodec::H264 => CMVideoFormatDescriptionGetH264ParameterSetAtIndex,
+        VideoCodec::Hevc => CMVideoFormatDescriptionGetHEVCParameterSetAtIndex,
+        VideoCodec::Av1 => return Err(MediaError::UnsupportedCodec),
+    };
     let mut count = 0;
     let mut prefix = 0;
-    check("read H264 parameter sets",unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,0,ptr::null_mut(),ptr::null_mut(),&mut count,&mut prefix) })?;
+    check("read video parameter sets",unsafe { parameter_set(format,0,ptr::null_mut(),ptr::null_mut(),&mut count,&mut prefix) })?;
     if count > 8 { return Err(MediaError::InvalidFrame); }
     let mut avcc = vec![0; length];
     check("read encoded bytes",unsafe { CMBlockBufferCopyDataBytes(data,0,length,avcc.as_mut_ptr().cast()) })?;
-    let (mut annex_b, keyframe) = avcc_to_annex_b(&avcc, prefix as usize)?;
+    let (mut annex_b, keyframe) = nal_units_to_annex_b(&avcc, prefix as usize, codec)?;
     if keyframe {
         let mut header = Vec::new();
         for index in 0..count {
             let mut bytes = ptr::null();
             let mut length = 0;
-            check("read H264 parameter sets",unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,index,&mut bytes,&mut length,ptr::null_mut(),ptr::null_mut()) })?;
+            check("read video parameter sets",unsafe { parameter_set(format,index,&mut bytes,&mut length,ptr::null_mut(),ptr::null_mut()) })?;
             if bytes.is_null() || length == 0 || length > 64 * 1024 { return Err(MediaError::InvalidFrame); }
             header.extend_from_slice(&[0,0,0,1]);
             header.extend_from_slice(unsafe { std::slice::from_raw_parts(bytes,length) });
@@ -231,5 +245,5 @@ unsafe fn read_sample(sample: Object) -> Result<EncodedFrame, MediaError> {
     if pts.timescale <= 0 { return Err(MediaError::InvalidFrame); }
     let micros = i128::from(pts.value) * 1_000_000 / i128::from(pts.timescale);
     let presentation_time_micros = i64::try_from(micros).map_err(|_| MediaError::InvalidFrame)?;
-    Ok(EncodedFrame { annex_b, keyframe, presentation_time_micros })
+    Ok(EncodedFrame { codec, annex_b, keyframe, presentation_time_micros })
 }
