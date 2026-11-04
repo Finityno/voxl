@@ -170,7 +170,23 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             } else {None};
             // Two interfaces must remain available for direct ICE, without
             // multiplying TURN allocations for this one reachable IPv4 route.
-            let bindings=vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()];
+            let bindings=if relay_candidates_only {
+                assert_eq!(std::env::var("VOXL_TEST_BLOCK_DIRECT_UDP").as_deref(),Ok("1"),"delayed fallback requires the private network namespace fixture");
+                // Removing host candidates does not prevent peer-reflexive
+                // discovery from finding a direct path. Prove actual packet
+                // loss between every host-interface pair before testing TURN.
+                for source in ["127.0.0.2","127.0.0.3"] {
+                    for target in ["127.0.0.2","127.0.0.3"] {
+                        let sender=UdpSocket::bind(format!("{source}:0")).await.unwrap();
+                        let receiver=UdpSocket::bind(format!("{target}:0")).await.unwrap();
+                        sender.send_to(b"direct path probe",receiver.local_addr().unwrap()).await.unwrap();
+                        let mut bytes=[0;64];
+                        assert!(timeout(Duration::from_millis(20),receiver.recv_from(&mut bytes)).await.is_err(),"fixture must block all direct host UDP paths");
+                    }
+                }
+                vec!["127.0.0.2:0".to_owned(),"127.0.0.3:0".to_owned()]
+            } else {vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()]};
+            let retained_bindings=bindings.clone();
             let opened_at=Instant::now();
             let mut video=WebRtcVideo::open_mode(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone(),trickle).await.unwrap();
             let relay_count=|sdp:&str| {
@@ -251,7 +267,10 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             let local=video.peer.local_description().await.unwrap().sdp;
             assert_eq!(relay_count(&local),expected_sender_allocations,"sender must follow its deferred allocation policy");
             if policy==RoutePolicy::Automatic {
-                for address in ["127.0.0.1","127.0.0.2"] {assert!(local.lines().any(|line|line.contains(address) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");}
+                for address in &retained_bindings {
+                    let ip=address.parse::<SocketAddr>().unwrap().ip().to_string();
+                    assert!(local.lines().any(|line|line.contains(&ip) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");
+                }
             }
             assert_eq!(relay_count(&receiver.local_description().await.unwrap().sdp),expected_receiver_allocations,"receiver allocation count must match its explicit policy");
             eprintln!("relay fanout: trickle={trickle} sender_bindings=2 receiver_bindings=2 sender_allocations={expected_sender_allocations} receiver_allocations={expected_receiver_allocations}");
