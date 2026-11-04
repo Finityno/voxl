@@ -1,11 +1,12 @@
-//! Candidate application must wake the SDK driver without relying on unrelated
-//! STUN, TURN, RTCP or media timers. Real UDP remains active in this fixture.
+//! Candidate application must replace the driver's previous parked deadline.
+//! New ICE check timers may run after a wake; old waits remain held forever.
+//! Actual UDP remains active, with no STUN/TURN or unrelated timer assistance.
 use super::*;
 use std::{future::Future,io,net::{SocketAddr,UdpSocket},pin::Pin};
 use webrtc::runtime::{Runtime,TokioRuntime,AsyncUdpSocket,AsyncTcpListener,AsyncTcpStream,AsyncInterval,JoinHandle};
 
 #[derive(Debug,Default)]
-struct Park {generation:AtomicU64,parked:AtomicBool,wake:Notify}
+struct Park {generation:AtomicU64,parked:AtomicBool,allow_new_timers:AtomicBool,wake:Notify}
 impl Park {
     async fn after(&self,generation:u64) {
         loop {
@@ -27,7 +28,10 @@ impl Runtime for NoTimers {
     fn connect_tcp<'a>(&'a self,remote:SocketAddr)->Pin<Box<dyn Future<Output=io::Result<Arc<dyn AsyncTcpStream>>>+Send+'a>> {self.inner.connect_tcp(remote)}
     fn resolve_host<'a>(&'a self,host:&'a str)->Pin<Box<dyn Future<Output=io::Result<Vec<SocketAddr>>>+Send+'a>> {self.inner.resolve_host(host)}
     fn now(&self)->Instant {self.inner.now()}
-    fn sleep(&self,_duration:Duration)->Pin<Box<dyn Future<Output=()>+Send+'static>> {
+    fn sleep(&self,duration:Duration)->Pin<Box<dyn Future<Output=()>+Send+'static>> {
+        // Decide when creating the future. Releasing new timers below cannot
+        // wake an already parked driver; it must first receive an event.
+        if self.park.allow_new_timers.load(Ordering::Acquire) {return self.inner.sleep(duration);}
         let park=Arc::clone(&self.park);
         Box::pin(async move {
             struct Guard(Arc<Park>);
@@ -40,11 +44,11 @@ impl Runtime for NoTimers {
     fn interval(&self,period:Duration)->Box<dyn AsyncInterval> {self.inner.interval(period)}
     fn block_on(&self,future:Pin<Box<dyn Future<Output=()>+'_>>) {self.inner.block_on(future);}
     fn yield_now(&self)->Pin<Box<dyn Future<Output=()>+Send+'static>> {self.inner.yield_now()}
-    fn name(&self)->&'static str {"test-no-driver-timers"}
+    fn name(&self)->&'static str {"test-park-old-driver-timers"}
 }
 
 #[test]
-fn late_trickle_candidates_wake_parked_drivers_without_timer_assistance() {
+fn late_trickle_candidates_replace_the_drivers_parked_deadlines() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
         tokio::time::timeout(Duration::from_secs(5),async {
@@ -68,13 +72,16 @@ fn late_trickle_candidates_wake_parked_drivers_without_timer_assistance() {
             let sender_before_answer=sender_park.generation.load(Ordering::Acquire);
             video.answer(without_candidates(&answer)).await.unwrap();
             // Drain the answer's own driver wake before adding any candidates.
-            // Both peers are now parked, and their timer futures never finish.
+            // Both peers are now parked. Their existing waits cannot finish;
+            // only a new driver wake can recompute a usable ICE check timer.
             sender_park.after(sender_before_answer).await;receiver_park.after(0).await;
             let candidates=|sdp:&str| {
                 let mid=sdp.lines().find_map(|line|line.strip_prefix("a=mid:")).unwrap().to_owned();
                 sdp.lines().filter_map(|line|line.strip_prefix("a=candidate:")).map(|line|(format!("candidate:{line}"),mid.clone())).collect::<Vec<_>>()
             };
             let remote=candidates(&answer);let local=candidates(&offer);assert!(!local.is_empty() && !remote.is_empty());
+            sender_park.allow_new_timers.store(true,Ordering::Release);
+            receiver_park.allow_new_timers.store(true,Ordering::Release);
             for (candidate,mid) in remote {signals.add_candidate(candidate,mid).unwrap();}
             for (candidate,mid) in local {receiver.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();}
             let outcome=tokio::time::timeout(Duration::from_millis(250),async {
@@ -84,7 +91,7 @@ fn late_trickle_candidates_wake_parked_drivers_without_timer_assistance() {
                 assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
             }).await;
             video.close();receiver.close().await.unwrap();
-            outcome.expect("late candidates must wake idle drivers without a timer expiring");
+            outcome.expect("late candidates must replace old parked waits and arm their own ICE timers");
         }).await.expect("bounded idle candidate fixture");
     });
 }
