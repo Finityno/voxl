@@ -27,7 +27,7 @@ fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback()
     let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
         tokio::time::timeout(Duration::from_secs(20),async {
-            let mut video = WebRtcVideo::open(WebRtcConfig { ice_servers: Vec::new(),relay_only: false,
+            let mut video = WebRtcVideo::open(WebRtcConfig { ice_servers: Vec::new(),route_policy: RoutePolicy::Automatic,
                 bind_addresses: vec!["127.0.0.1:0".into()],profile_level_id: [66,224,31] }).await.unwrap();
             assert!(video.offer().contains("m=video") && video.offer().contains("a=sendonly"));
             assert!(!video.offer().contains("m=audio") && !video.offer().contains("m=application"));
@@ -65,6 +65,9 @@ fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback()
             assert_eq!(two.header.timestamp.wrapping_sub(one.header.timestamp),90_000);
             assert_eq!(two.header.sequence_number,one.header.sequence_number.wrapping_add(1));
             while !video.take_keyframe_request() { tokio::time::sleep(Duration::from_millis(10)).await; }
+            let route = video.route_statistics().await;
+            assert_eq!(route.route,MediaRoute::Direct,"selected candidate pair must prove the route");
+            assert!(route.bytes_sent > 0);
             video.close();
             assert!(video.ended() && !video.connected());
             receiver.close().await.unwrap();

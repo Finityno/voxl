@@ -50,12 +50,38 @@ impl PeerConnectionEventHandler for Events {
     }
 }
 
+/// Direct host/STUN candidates remain eligible by default. Relay-only exists
+/// for forced-fallback tests, not as the normal production policy.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum RoutePolicy { #[default] Automatic, RelayOnly }
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum MediaRoute { Direct, Relayed, #[default] Unknown }
+
+/// Safe to log: no addresses, SDP, certificates or TURN authentication.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct RouteStatistics {
+    pub route: MediaRoute,
+    pub bytes_sent: u64,
+    pub bytes_received: u64,
+    pub current_rtt: Option<Duration>,
+    pub packets_discarded_on_send: u32,
+}
+
 /// Not Debug: the supplied ICE servers contain short-lived authentication.
 pub struct WebRtcConfig {
     pub ice_servers: Vec<RTCIceServer>,
-    pub relay_only: bool,
+    pub route_policy: RoutePolicy,
     pub bind_addresses: Vec<String>,
     pub profile_level_id: [u8; 3],
+}
+
+impl WebRtcConfig {
+    /// A LAN stream can open without a TURN service or credentials. Internet
+    /// deployments may add STUN/TURN servers while retaining automatic routing.
+    pub fn direct_first(profile_level_id: [u8; 3], bind_addresses: Vec<String>) -> Self {
+        Self { profile_level_id, bind_addresses, ice_servers: Vec::new(), route_policy: RoutePolicy::Automatic }
+    }
 }
 
 /// Serial frame sender. Stopping is synchronous at the authority boundary;
@@ -103,13 +129,13 @@ impl WebRtcVideo {
                 RTCPFeedback { typ: "nack".into(), parameter: "pli".into() }, RTCPFeedback { typ: "ccm".into(), parameter: "fir".into() }],
         };
         let mut media = MediaEngine::default();
-        media.register_codec(RTCRtpCodecParameters { rtp_codec: codec.clone(), payload_type: 102, ..Default::default() },RtpCodecKind::Video).map_err(transport)?;
+        media.register_codec(RTCRtpCodecParameters { rtp_codec: codec.clone(), payload_type: 102 },RtpCodecKind::Video).map_err(transport)?;
         let keyframe = Arc::new(AtomicBool::new(true));
         let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
             .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe)));
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
-                .with_ice_transport_policy(if config.relay_only { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
+                .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
             .with_media_engine(media).with_interceptor_registry(registry).with_handler(Arc::<Events>::clone(&events))
             .with_udp_addrs(config.bind_addresses).build().await.map_err(transport)?);
         let mut guard = OpeningPeer(Some(Arc::clone(&peer)),runtime.clone());
@@ -137,6 +163,30 @@ impl WebRtcVideo {
     pub fn take_keyframe_request(&mut self) -> bool {
         if self.last_keyframe_request.is_some_and(|time| time.elapsed() < Duration::from_millis(250)) { return false; }
         if self.keyframe.swap(false,Ordering::AcqRel) { self.last_keyframe_request = Some(Instant::now()); true } else { false }
+    }
+
+    /// Read the nominated path rather than inferring it from configured ICE
+    /// servers. A TURN URL existing does not mean video actually used TURN.
+    pub async fn route_statistics(&self) -> RouteStatistics {
+        use webrtc::peer_connection::{RTCStatsReportEntry as Entry, StatsSelector};
+        use rtc::peer_connection::transport::RTCIceCandidateType;
+        let report = self.peer.get_stats(Instant::now(), StatsSelector::None).await;
+        for entry in report.iter() {
+            let Entry::Transport(transport) = entry else { continue; };
+            let Some(Entry::IceCandidatePair(pair)) = report.get(&transport.selected_candidate_pair_id) else { continue; };
+            if !pair.nominated { continue; }
+            let Some(Entry::LocalCandidate(local)) = report.get(&pair.local_candidate_id) else { continue; };
+            let Some(Entry::RemoteCandidate(remote)) = report.get(&pair.remote_candidate_id) else { continue; };
+            let route = if local.candidate_type == RTCIceCandidateType::Relay || remote.candidate_type == RTCIceCandidateType::Relay {
+                MediaRoute::Relayed
+            } else if local.candidate_type == RTCIceCandidateType::Unspecified || remote.candidate_type == RTCIceCandidateType::Unspecified {
+                MediaRoute::Unknown
+            } else { MediaRoute::Direct };
+            return RouteStatistics { route,bytes_sent: pair.bytes_sent,bytes_received: pair.bytes_received,
+                current_rtt: Duration::try_from_secs_f64(pair.current_round_trip_time).ok().filter(|time| !time.is_zero()),
+                packets_discarded_on_send: pair.packets_discarded_on_send };
+        }
+        RouteStatistics::default()
     }
 
     pub async fn answer(&mut self, sdp: String) -> Result<(), WebRtcError> {

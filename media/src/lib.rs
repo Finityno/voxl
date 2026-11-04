@@ -1,6 +1,8 @@
 //! Embeddable media primitives that do not initialize a process runtime, own
 //! an application event loop, or link the standalone server's x264 dependency.
 
+pub mod codec;
+
 #[cfg(target_os = "macos")]
 pub mod macos;
 #[cfg(feature = "webrtc")]

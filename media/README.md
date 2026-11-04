@@ -49,3 +49,20 @@ features, aarch64-apple-darwin). It checks types only, without framework linking
 or native execution. Native Windows compilation of the prior WebRTC head found
 an RTP module import mismatch; it is corrected in this checkpoint. AWS-LC
 compiled on Windows and the active dependency graph contained no ring backend.
+
+
+Automatic routing keeps host and server-reflexive candidates eligible; relay-only
+is an explicit diagnostic policy. `WebRtcConfig::direct_first` needs no TURN
+credential service for a working LAN path. Read `route_statistics` for the
+nominated path and byte counters: the presence of a TURN URL alone says nothing
+about the path used. Returned diagnostics contain no addresses or credentials.
+A same-process loopback test proves a direct nominated path; physical two-device
+LAN, Internet-direct and forced-relay cases remain required integration checks.
+
+`codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
+caller preference order, then allows only explicitly permitted, measured
+real-time software fallbacks. Unknown capability is never interpreted as
+support. This is selection policy, not an AV1/HEVC encoder implementation;
+providers must advertise only paths they actually implement and have probed for
+the requested geometry, fps, profile and chroma. The initial implemented native
+encoder and sender still use H.264.
