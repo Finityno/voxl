@@ -52,8 +52,12 @@ impl Events {
     fn transition(&self,next:Connection) {
         // Terminal transport/candidate failure cannot be revived by a late
         // connection callback from the same driver.
-        let _=self.connection.fetch_update(Ordering::AcqRel,Ordering::Acquire,|current|
-            (current!=Connection::Ended as u8).then_some(next as u8));
+        let mut current=self.connection.load(Ordering::Acquire);
+        while current!=Connection::Ended as u8 {
+            match self.connection.compare_exchange(current,next as u8,Ordering::AcqRel,Ordering::Acquire) {
+                Ok(_)=>return,Err(observed)=>current=observed,
+            }
+        }
     }
     fn ice_connected(&self)->bool {
         self.connection()!=Connection::Ended && matches!(*self.ice.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
