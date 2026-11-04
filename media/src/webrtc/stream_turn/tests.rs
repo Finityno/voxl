@@ -100,8 +100,8 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
     #[async_trait]
     impl PeerConnectionEventHandler for Receiver {
         async fn on_ice_candidate(&self,event:RTCPeerConnectionIceEvent) {
-            if let (Some((signals,mid,count)),Some(candidate))=(&self.incremental,event.candidate) {
-                let candidate=candidate.to_json().unwrap();
+            if let Some((signals,mid,count))=&self.incremental {
+                let candidate=event.candidate.to_json().unwrap();
                 if !candidate.candidate.is_empty() {
                     signals.add_candidate(candidate.candidate,mid.clone()).unwrap();
                     count.fetch_add(1,Ordering::AcqRel);
