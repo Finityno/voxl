@@ -62,12 +62,12 @@ fn webrtc_explicit_stun_discovers_a_reflexive_candidate_and_keeps_host_candidate
             let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
             config.add_ice_server(vec![format!("stun:{address}")],String::new(),String::new()).unwrap();
             assert_eq!(config.route_policy,RoutePolicy::Automatic);
-            let mut video=WebRtcVideo::open(config).await.unwrap();
+            let video=WebRtcVideo::open(config).await.unwrap();
             server.await.unwrap();
             assert!(video.offer().contains("203.0.113.19 40000 typ srflx"),"STUN must publish the mapped address");
             assert!(video.offer().lines().any(|line|line.contains("127.0.0.1") && line.contains("typ host")),"STUN must not remove the LAN route");
             assert!(!video.offer().contains("typ relay"));
-            video.close().await.unwrap();
+            video.close();assert!(video.ended());
         }).await.unwrap();
     });
 }
