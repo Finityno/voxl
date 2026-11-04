@@ -70,8 +70,8 @@ impl StreamRelays {
         Ok(relays)
     }
     pub async fn add_fallback(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>)->Result<(),WebRtcError> {
-        let mut additional=Self::default();
-        additional.allocations=Arc::clone(&self.allocations);additional.failures=Arc::clone(&self.failures);
+        let additional=Self {listeners:Mutex::new(RelayListeners::default()),allocations:Arc::clone(&self.allocations),
+            failures:Arc::clone(&self.failures),runtime:Arc::default()};
         let additional=Self::prepare_into(additional,servers,bindings,tls,changes,Duration::ZERO).await?;
         let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
         let RelayListeners::Active(listeners)=&mut *listeners else {return Err(WebRtcError::Ended);};
