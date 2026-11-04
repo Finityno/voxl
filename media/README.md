@@ -165,7 +165,11 @@ encoding and independent decoding passed. The production phone WebKit receiver
 on the owned iOS Simulator also presents real hardware H.264/HEVC and software
 H.264 video; see `results/2026-11-04-native-webkit/`. Physical-device capability
 negotiation and full application runtime remain required before broad HEVC use.
-Application viewers currently still request H.264 by default.
+Embedding viewers now discover local receiver formats and HEVC hardware
+availability, with H.264 compatibility and one bounded startup retry. This is
+currently an availability-based candidate policy; measured per-device latency,
+quality and resource-budget admission remains unimplemented and required before
+release. See the native result notes for the distinction.
 
 
 The initial route assertion failed because the statistics report's selected-pair

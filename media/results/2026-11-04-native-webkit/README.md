@@ -61,9 +61,14 @@ H.264/HEVC and no AV1, regardless of the Mac's AV1 hardware-decoder capability.
 Those inventories do not establish physical iPhone capabilities or geometry/fps
 budgets. AV1 still needs an implemented provider and compatible receiver.
 
-Both application viewers still request H.264 by default. HEVC's successful
-receiver test closes an interoperability gap; capability-based production codec
-selection and further performance work remain to be implemented.
+At the recorded sources, both viewers requested H.264 by default. Subsequent
+embedding work now discovers real receiver formats and HEVC hardware capability,
+with cached metadata and one H.264 startup retry. The Mac native probe reports
+known [HEVC,H.264] and hardware availability true; the Simulator reports hardware
+availability false and keeps H.264 despite decoding forced HEVC test video.
+This candidate policy is provisional: per-device/geometry measured-budget
+admission and full application/physical-device qualification remain incomplete.
+Hardware availability is not proof of current decoder implementation or power.
 
 All runs used clean frozen exact source, owned targets/DerivedData/Simulator,
 shared Mac build lock, nice 19, at most two build jobs and external process-group
