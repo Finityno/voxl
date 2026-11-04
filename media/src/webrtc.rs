@@ -170,29 +170,29 @@ impl WebRtcVideo {
     pub async fn route_statistics(&self) -> RouteStatistics {
         use webrtc::peer_connection::{RTCStatsReportEntry as Entry, StatsSelector};
         use rtc::peer_connection::transport::RTCIceCandidateType;
+        if self.ended() { return RouteStatistics::default(); }
+        let Ok(Some(transport)) = self.sender.transport().await else { return RouteStatistics::default(); };
+        let Ok(Some(selected)) = transport.ice_transport().get_selected_candidate_pair().await else { return RouteStatistics::default(); };
+        let local = selected.local();
+        let remote = selected.remote();
+        let route = if local.typ == RTCIceCandidateType::Relay || remote.typ == RTCIceCandidateType::Relay {
+            MediaRoute::Relayed
+        } else if local.typ == RTCIceCandidateType::Unspecified || remote.typ == RTCIceCandidateType::Unspecified {
+            MediaRoute::Unknown
+        } else { MediaRoute::Direct };
+        // The transport's selected pair is authoritative. Statistics references
+        // in rtc 0.21 can be absent even after media flows; join counters using
+        // the selected candidates rather than treating a missing stats link as
+        // evidence that the route itself is unknown.
         let report = self.peer.get_stats(Instant::now(), StatsSelector::None).await;
         for entry in report.iter() {
-            let Entry::Transport(transport) = entry else { continue; };
-            let Some(Entry::IceCandidatePair(pair)) = report.get(&transport.selected_candidate_pair_id) else { continue; };
-            if !pair.nominated { continue; }
-            // rtc 0.21 retains raw candidate IDs in pair references but keys
-            // candidate report entries with these role prefixes. Resolve the
-            // exact report reference first, then that documented representation;
-            // never infer a path from configured servers or address guesses.
-            let local = report.get(&pair.local_candidate_id).or_else(|| report.get(&format!("RTCLocalIceCandidate_{}",pair.local_candidate_id)));
-            let remote = report.get(&pair.remote_candidate_id).or_else(|| report.get(&format!("RTCRemoteIceCandidate_{}",pair.remote_candidate_id)));
-            let Some(Entry::LocalCandidate(local)) = local else { continue; };
-            let Some(Entry::RemoteCandidate(remote)) = remote else { continue; };
-            let route = if local.candidate_type == RTCIceCandidateType::Relay || remote.candidate_type == RTCIceCandidateType::Relay {
-                MediaRoute::Relayed
-            } else if local.candidate_type == RTCIceCandidateType::Unspecified || remote.candidate_type == RTCIceCandidateType::Unspecified {
-                MediaRoute::Unknown
-            } else { MediaRoute::Direct };
+            let Entry::IceCandidatePair(pair) = entry else { continue; };
+            if pair.local_candidate_id != local.id || pair.remote_candidate_id != remote.id { continue; }
             return RouteStatistics { route,bytes_sent: pair.bytes_sent,bytes_received: pair.bytes_received,
                 current_rtt: Duration::try_from_secs_f64(pair.current_round_trip_time).ok().filter(|time| !time.is_zero()),
                 packets_discarded_on_send: pair.packets_discarded_on_send };
         }
-        RouteStatistics::default()
+        RouteStatistics { route,..Default::default() }
     }
 
     pub async fn answer(&mut self, sdp: String) -> Result<(), WebRtcError> {

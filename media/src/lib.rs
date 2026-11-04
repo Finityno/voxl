@@ -41,7 +41,7 @@ impl EncoderConfig {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MediaError { Configuration, Platform(i32), Backpressure, InvalidFrame, Closed }
+pub enum MediaError { Configuration, Platform { operation: &'static str, code: i32 }, Backpressure, InvalidFrame, Closed }
 impl std::fmt::Display for MediaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "desktop media: {self:?}") }
 }

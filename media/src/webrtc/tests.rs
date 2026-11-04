@@ -67,6 +67,19 @@ fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback()
             while !video.take_keyframe_request() { tokio::time::sleep(Duration::from_millis(10)).await; }
             let route = video.route_statistics().await;
             assert_eq!(route.route,MediaRoute::Direct,"selected candidate pair must prove the route");
+            if route.bytes_sent == 0 {
+                use webrtc::peer_connection::{RTCStatsReportEntry as Entry, StatsSelector};
+                let report = video.peer.get_stats(Instant::now(),StatsSelector::None).await;
+                // Structural diagnostics only: never print SDP, credentials,
+                // candidate addresses or the full native report.
+                for entry in report.iter() {
+                    match entry {
+                        Entry::Transport(value) => eprintln!("transport stats: selected reference present={} resolves={}",!value.selected_candidate_pair_id.is_empty(),report.get(&value.selected_candidate_pair_id).is_some()),
+                        Entry::IceCandidatePair(value) => eprintln!("pair stats: nominated={} sent={} received={}",value.nominated,value.bytes_sent,value.bytes_received),
+                        _ => {},
+                    }
+                }
+            }
             assert!(route.bytes_sent > 0);
             video.close();
             assert!(video.ended() && !video.connected());

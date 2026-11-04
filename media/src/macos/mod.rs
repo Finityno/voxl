@@ -82,19 +82,19 @@ impl H264Encoder {
             u32::from_be_bytes(*b"avc1"), specification, ptr::null(), ptr::null(), Some(output),
             (&mut *callback as *mut CallbackState).cast(), &mut session) };
         unsafe { CFRelease(specification); }
-        check(code)?;
+        check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
         let mut encoder = Self { session, callback, receiver, config, hardware: false, last_pts: None };
         unsafe {
-            encoder.property(kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
-            encoder.property(kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
-            encoder.property(kVTCompressionPropertyKey_ProfileLevel, kVTProfileLevel_H264_Baseline_AutoLevel)?;
-            encoder.number(kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
-            encoder.number(kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
-            encoder.number(kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
-            check(VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
+            encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
+            encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
+            encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel, kVTProfileLevel_H264_Baseline_AutoLevel)?;
+            encoder.number("bitrate", kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
+            encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
+            encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
+            check("prepare encoder",VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
             let mut actual = ptr::null();
-            check(VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual))?;
+            check("query hardware encoder",VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual))?;
             if actual.is_null() { return Err(MediaError::Configuration); }
             encoder.hardware = CFBooleanGetValue(actual);
             CFRelease(actual);
@@ -103,13 +103,13 @@ impl H264Encoder {
         Ok(encoder)
     }
 
-    fn property(&mut self, key: Object, value: Object) -> Result<(), MediaError> {
-        check(unsafe { VTSessionSetProperty(self.session.as_ptr(), key, value) })
+    fn property(&mut self, operation: &'static str, key: Object, value: Object) -> Result<(), MediaError> {
+        check(operation,unsafe { VTSessionSetProperty(self.session.as_ptr(), key, value) })
     }
-    fn number(&mut self, key: Object, value: i64) -> Result<(), MediaError> {
+    fn number(&mut self, operation: &'static str, key: Object, value: i64) -> Result<(), MediaError> {
         let number = unsafe { CFNumberCreate(ptr::null(), 4, (&value as *const i64).cast()) };
         if number.is_null() { return Err(MediaError::Configuration); }
-        let result = self.property(key, number);
+        let result = self.property(operation, key, number);
         unsafe { CFRelease(number); }
         result
     }
@@ -148,7 +148,7 @@ impl H264Encoder {
             // An immediate failure has no output callback. Close permanently;
             // do not continue a dependency chain after a failed encode.
             self.callback.failed.store(true, Ordering::Release);
-            return Err(MediaError::Platform(result));
+            return Err(MediaError::Platform { operation: "encode frame", code: result });
         }
         self.last_pts = Some(pts_micros);
         Ok(())
@@ -170,7 +170,7 @@ impl Drop for H264Encoder {
         unsafe { VTCompressionSessionInvalidate(self.session.as_ptr()); CFRelease(self.session.as_ptr()); }
     }
 }
-fn check(code: i32) -> Result<(), MediaError> { if code == 0 { Ok(()) } else { Err(MediaError::Platform(code)) } }
+fn check(operation: &'static str, code: i32) -> Result<(), MediaError> { if code == 0 { Ok(()) } else { Err(MediaError::Platform { operation, code }) } }
 
 unsafe extern "C" fn output(context: *mut c_void, _source: *mut c_void, status: i32, flags: u32, sample: Object) {
     // SAFETY: the boxed context is pinned through session invalidation. The
@@ -208,17 +208,17 @@ unsafe fn read_sample(sample: Object) -> Result<EncodedFrame, MediaError> {
     if length == 0 || length > MAX_FRAME_BYTES { return Err(MediaError::InvalidFrame); }
     let mut count = 0;
     let mut prefix = 0;
-    check(unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,0,ptr::null_mut(),ptr::null_mut(),&mut count,&mut prefix) })?;
+    check("read H264 parameter sets",unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,0,ptr::null_mut(),ptr::null_mut(),&mut count,&mut prefix) })?;
     if count > 8 { return Err(MediaError::InvalidFrame); }
     let mut avcc = vec![0; length];
-    check(unsafe { CMBlockBufferCopyDataBytes(data,0,length,avcc.as_mut_ptr().cast()) })?;
+    check("read encoded bytes",unsafe { CMBlockBufferCopyDataBytes(data,0,length,avcc.as_mut_ptr().cast()) })?;
     let (mut annex_b, keyframe) = avcc_to_annex_b(&avcc, prefix as usize)?;
     if keyframe {
         let mut header = Vec::new();
         for index in 0..count {
             let mut bytes = ptr::null();
             let mut length = 0;
-            check(unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,index,&mut bytes,&mut length,ptr::null_mut(),ptr::null_mut()) })?;
+            check("read H264 parameter sets",unsafe { CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format,index,&mut bytes,&mut length,ptr::null_mut(),ptr::null_mut()) })?;
             if bytes.is_null() || length == 0 || length > 64 * 1024 { return Err(MediaError::InvalidFrame); }
             header.extend_from_slice(&[0,0,0,1]);
             header.extend_from_slice(unsafe { std::slice::from_raw_parts(bytes,length) });
