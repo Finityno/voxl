@@ -46,6 +46,18 @@ REST/CA state and xtables locks removed. No host firewall was changed. Source
 was clean in each cloud run. A hash-verified Git bundle imported exact `de198d9`
 while GitHub pushes returned internal errors.
 
+A matched comparison at exact
+`75638d6d34bcd210c90a565f72a135dc6fe8c79a` keeps both roles, bindings,
+Automatic/trickle policy, TURN/UDP server, candidate exchange and payloads the
+same. Only native TURN grace changes: zero for the immediate baseline, 250 ms
+for the new policy. The baseline sender/receiver used one allocation each; the
+grace sender used zero and the same ordinary receiver used one. Coturn
+independently recorded two allocations for baseline and one for grace. Both
+cases required Direct selected routes and actual payloads. Locked prebuild and
+strict Clippy also passed; all two tests passed without retries. Raw evidence is
+in `75638d6-comparison/artifact-pack.json`. The helper extraction used for the
+baseline preserves the production policy used at `7c44f12`.
+
 This does not prove native capture/decoding, physical LAN/NAT/VPS routing,
 matched-quality codec performance, CPU/RSS/power or startup p95. The provisional
 250 ms fallback tradeoff requires physical measurements. Optional credential
