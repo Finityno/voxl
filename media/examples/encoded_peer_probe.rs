@@ -39,10 +39,12 @@ mod enabled {
             VideoCodec::Hevc => VideoFormat::HevcMain(voxl_media::hevc_main_profile(&first.annex_b)?),
             VideoCodec::Av1 => return Err("AV1 fixture is not implemented".into()),
         };
-        let mut video = Box::pin(WebRtcVideo::open(WebRtcConfig::direct_first(format,vec!["127.0.0.1".into()]))).await?;
+        println!("loaded_frames={} format={format:?}",frames.len());
+        let mut video = Box::pin(WebRtcVideo::open(WebRtcConfig::direct_first(format,vec!["127.0.0.1:0".into()]))).await?;
         let temporary = format!("{}.tmp",args[2]);
         fs::write(&temporary,video.offer())?;
         fs::rename(temporary,&args[2])?;
+        println!("offer_ready");
         let answer = tokio::time::timeout(Duration::from_secs(30),async {
             loop {
                 match fs::metadata(&args[3]) {
@@ -56,6 +58,7 @@ mod enabled {
             }
         }).await??;
         video.answer(answer).await?;
+        println!("answer_accepted");
         tokio::time::timeout(Duration::from_secs(20),async {
             loop { match video.next_update().await {
                 VideoUpdate::Connected => return Ok::<_,Box<dyn Error>>(()),
