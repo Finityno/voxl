@@ -238,5 +238,9 @@ three new native macOS DNS cases and ten standalone SDK mock-runtime cases;
 strict production library/examples Clippy passes. The identical direct-video
 test fails on c022bfc before the production change. Graph distinctions,
 metadata-download timeout, commands, source/cleanup and limits are retained in
-`results/2026-11-04-stun-dns/`. Fincode remains pinned to the earlier qualified
-5229dac until its next integration/qualification change.
+`results/2026-11-04-stun-dns/`. The native Fincode host now pins f223998 and owns opt-in cached-STUN startup,
+bounded deferred credential lookup and ticketed generation replacement. Its
+current desktop/phone clients still use legacy startup. Same-peer viewer restart
+and actual deferred full-application network qualification remain required;
+the host controller and legacy compatibility evidence stays with the embedding
+application. No whole-endpoint resource or cost saving is established here.
