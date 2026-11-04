@@ -1,0 +1,10 @@
+[package]
+name = "voxl-media"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/Finityno/voxl"
+description = "Bounded native desktop media primitives for the Fincode Voxl fork"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-core-media = { version = "0.3", default-features = false, features = ["CMTime"] }
