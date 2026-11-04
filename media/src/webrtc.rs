@@ -11,7 +11,7 @@ use rtc::peer_connection::configuration::media_engine::MediaEngine;
 use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader};
 use rtc::rtp::packetizer::Payloader;
 use rtc::rtp_transceiver::rtp_sender::{RTCPFeedback, RTCRtpCodec, RTCRtpCodecParameters, RTCRtpCodingParameters, RTCRtpEncodingParameters, RtpCodecKind};
-use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::sync::{Arc, atomic::{AtomicBool, AtomicU64, Ordering}};
 use std::time::{Duration, Instant};
 use tokio::sync::Notify;
 use webrtc::media_stream::track_local::{TrackLocal, static_rtp::TrackLocalStaticRTP};
@@ -34,6 +34,21 @@ struct Events {
     gather_wake: Notify,
     connected: AtomicBool,
     ended: AtomicBool,
+    changes: Arc<ChangeSignal>,
+}
+
+#[derive(Default)]
+struct ChangeSignal {revision: AtomicU64,wake: Notify}
+impl ChangeSignal {
+    fn revision(&self) -> u64 {self.revision.load(Ordering::Acquire)}
+    fn changed(&self) {
+        self.revision.fetch_add(1,Ordering::AcqRel);
+        self.wake.notify_waiters();
+    }
+    async fn wait(&self,revision: u64) {
+        let notified=self.wake.notified();tokio::pin!(notified);notified.as_mut().enable();
+        if self.revision()==revision {notified.await;}
+    }
 }
 #[async_trait]
 impl PeerConnectionEventHandler for Events {
@@ -48,6 +63,7 @@ impl PeerConnectionEventHandler for Events {
         if matches!(state, RTCPeerConnectionState::Failed | RTCPeerConnectionState::Disconnected | RTCPeerConnectionState::Closed) {
             self.ended.store(true, Ordering::Release);
         }
+        self.changes.changed();
     }
 }
 
@@ -121,11 +137,13 @@ pub struct VideoCloseHandle {
     wake: Arc<Notify>,
     peer: Arc<dyn PeerConnection>,
     runtime: tokio::runtime::Handle,
+    changes: Arc<ChangeSignal>,
 }
 impl VideoCloseHandle {
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();
+        self.changes.changed();
         let peer = Arc::clone(&self.peer);
         self.runtime.spawn(async move { let _ = tokio::time::timeout(Duration::from_secs(2),peer.close()).await; });
     }
@@ -150,7 +168,13 @@ pub struct WebRtcVideo {
     payloader: Box<dyn Payloader>,
     keyframe: Arc<AtomicBool>,
     last_keyframe_request: Option<Instant>,
+    updates: UpdatePhase,
 }
+
+#[derive(Clone,Copy)]
+enum UpdatePhase {Waiting,Connected}
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub enum VideoUpdate {Connected,KeyframeRequested,Ended}
 
 struct OpeningPeer(Option<Arc<dyn PeerConnection>>, tokio::runtime::Handle);
 impl Drop for OpeningPeer {
@@ -168,7 +192,8 @@ impl WebRtcVideo {
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
-        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false) });
+        let changes=Arc::new(ChangeSignal::default());
+        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes) });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
             sdp_fmtp_line: config.format.fmtp(),
             rtcp_feedback: vec![RTCPFeedback { typ: "nack".into(), parameter: String::new() },
@@ -178,7 +203,7 @@ impl WebRtcVideo {
         media.register_codec(RTCRtpCodecParameters { rtp_codec: codec.clone(), payload_type: 102 },RtpCodecKind::Video).map_err(transport)?;
         let keyframe = Arc::new(AtomicBool::new(true));
         let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
-            .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe)));
+            .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)));
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
                 .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
@@ -198,16 +223,41 @@ impl WebRtcVideo {
         let offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
-        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime };
+        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes };
         Ok(Self { peer,sender,track,events,closer,offer,payload_type: None,ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
-            keyframe,last_keyframe_request: None })
+            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
     pub fn connected(&self) -> bool { !self.ended() && self.events.connected.load(Ordering::Acquire) }
     pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) }
+    /// Wait without polling for first connection, coalesced keyframe feedback
+    /// or terminal close. A pending rate-limited PLI has one deadline; idle
+    /// connected media has no periodic timer. Cancelling a wait loses no state.
+    pub async fn next_update(&mut self) -> VideoUpdate {
+        loop {
+            let revision=self.events.changes.revision();
+            if self.ended() {return VideoUpdate::Ended;}
+            let connected=self.connected();
+            if connected && matches!(self.updates,UpdatePhase::Waiting) {
+                self.updates=UpdatePhase::Connected;
+                return VideoUpdate::Connected;
+            }
+            if connected && self.take_keyframe_request() {return VideoUpdate::KeyframeRequested;}
+            let deadline=if connected && self.keyframe.load(Ordering::Acquire) {
+                self.last_keyframe_request.map(|last|last+Duration::from_millis(250))
+            } else {None};
+            tokio::select! {
+                _ = self.events.changes.wait(revision) => {},
+                _ = async {
+                    if let Some(deadline)=deadline {tokio::time::sleep_until(deadline.into()).await;}
+                    else {std::future::pending::<()>().await;}
+                } => {},
+            }
+        }
+    }
     pub fn take_keyframe_request(&mut self) -> bool {
         if self.last_keyframe_request.is_some_and(|time| time.elapsed() < Duration::from_millis(250)) { return false; }
         if self.keyframe.swap(false,Ordering::AcqRel) { self.last_keyframe_request = Some(Instant::now()); true } else { false }

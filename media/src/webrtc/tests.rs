@@ -6,6 +6,21 @@ use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication
 use tokio::sync::mpsc;
 
 #[test]
+fn webrtc_change_wait_survives_cancellation_and_prior_notifications() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        let changes=ChangeSignal::default();
+        let first=changes.revision();
+        changes.changed();
+        tokio::time::timeout(Duration::from_millis(50),changes.wait(first)).await.unwrap();
+        let second=changes.revision();
+        assert!(tokio::time::timeout(Duration::from_millis(5),changes.wait(second)).await.is_err());
+        changes.changed();
+        tokio::time::timeout(Duration::from_millis(50),changes.wait(second)).await.unwrap();
+    });
+}
+
+#[test]
 fn webrtc_relay_configuration_preserves_direct_policy_and_bounds_credentials() {
     let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id: [66,224,31]},vec!["127.0.0.1:0".into()]);
     assert!(config.add_ice_server(vec!["turn:relay.example.com:3478?transport=udp".into()],"user".into(),"password".into()).is_ok());
@@ -72,11 +87,9 @@ fn loopback(format: VideoFormat) {
             // candidates are available synchronously, without public STUN.
             let answer = receiver.local_description().await.unwrap().sdp;
             video.answer(answer).await.unwrap();
-            while !video.connected() {
-                assert!(!video.ended(),"peer ended before connection");
-                tokio::time::sleep(Duration::from_millis(10)).await;
-            }
+            assert_eq!(video.next_update().await,VideoUpdate::Connected);
             assert!(video.take_keyframe_request());
+            let feedback_not_before=video.last_keyframe_request.unwrap()+Duration::from_millis(250);
             assert!(video.offer().contains(format.mime().trim_start_matches("video/")));
             let (first,second) = match format {
                 VideoFormat::H264 {..} => (vec![0x65,0x88,0x84,0x00,0x31],vec![0x41,0x9a,0x20,0x00,0x11]),
@@ -95,7 +108,8 @@ fn loopback(format: VideoFormat) {
             assert_eq!(&two.payload[..],&second);
             assert_eq!(two.header.timestamp.wrapping_sub(one.header.timestamp),90_000);
             assert_eq!(two.header.sequence_number,one.header.sequence_number.wrapping_add(1));
-            while !video.take_keyframe_request() { tokio::time::sleep(Duration::from_millis(10)).await; }
+            assert_eq!(video.next_update().await,VideoUpdate::KeyframeRequested);
+            assert!(Instant::now()>=feedback_not_before,"feedback must retain its 250 ms rate limit");
             let route = video.route_statistics().await;
             assert_eq!(route.route,MediaRoute::Direct,"selected candidate pair must prove the route");
             if route.bytes_sent == 0 {
@@ -113,7 +127,9 @@ fn loopback(format: VideoFormat) {
             }
             assert!(route.bytes_sent > 0);
             let close = video.close_handle();
-            close.close();
+            let closing=tokio::spawn(async move {tokio::task::yield_now().await;close.close();});
+            while video.next_update().await!=VideoUpdate::Ended {}
+            closing.await.unwrap();
             assert!(video.ended() && !video.connected());
             receiver.close().await.unwrap();
         }).await.expect("bounded native WebRTC loopback");

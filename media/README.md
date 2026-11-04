@@ -61,6 +61,12 @@ automatic direct candidates eligible. It rejects malformed URLs and oversized
 credentials before constructing the peer. Read `route_statistics` for the
 nominated path and byte counters: the presence of a TURN URL alone says nothing
 about the path used. Returned diagnostics contain no addresses or credentials.
+`WebRtcVideo::next_update` waits for first connection, coalesced keyframe feedback
+and close without a periodic poll. Feedback still has its 250 ms rate limit;
+only a pending request arms that deadline. A revision counter preserves wakeups
+across cancelled waits, and the synchronous authority close handle wakes the
+listener as well as an in-flight sender. This changes scheduling, not the codec
+or the meaning of a direct-route result; endpoint CPU/latency need native runs.
 The same-process loopback test requires a proven direct nominated path; physical two-device
 LAN, Internet-direct and forced-relay cases remain required integration checks.
 

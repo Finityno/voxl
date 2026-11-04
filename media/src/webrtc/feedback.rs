@@ -10,11 +10,12 @@ use rtc::rtcp::payload_feedbacks::{picture_loss_indication::PictureLossIndicatio
 
 pub(super) struct KeyframeFeedback {
     keyframe: Arc<AtomicBool>,
+    changes: Arc<super::ChangeSignal>,
     read: VecDeque<TaggedPacket>,
     write: VecDeque<TaggedPacket>,
 }
 impl KeyframeFeedback {
-    pub fn new(keyframe: Arc<AtomicBool>) -> Self { Self {keyframe,read: VecDeque::new(),write: VecDeque::new()} }
+    pub fn new(keyframe: Arc<AtomicBool>,changes: Arc<super::ChangeSignal>) -> Self { Self {keyframe,changes,read: VecDeque::new(),write: VecDeque::new()} }
 }
 impl Protocol<TaggedPacket,TaggedPacket,()> for KeyframeFeedback {
     type Rout = TaggedPacket;
@@ -25,7 +26,7 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for KeyframeFeedback {
     fn handle_read(&mut self,message: TaggedPacket) -> Result<(),Error> {
         if let Packet::Rtcp(packets) = &message.message.packet
             && packets.iter().any(|packet| packet.as_any().is::<PictureLossIndication>() || packet.as_any().is::<FullIntraRequest>()) {
-            self.keyframe.store(true,Ordering::Release);
+            if !self.keyframe.swap(true,Ordering::AcqRel) {self.changes.changed();}
         }
         if self.read.len() >= 64 { return Err(Error::Other("desktop feedback queue is full".into())); }
         self.read.push_back(message);
