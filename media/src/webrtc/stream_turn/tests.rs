@@ -115,21 +115,28 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
                 let mut roots=rustls::RootCertStore::empty();roots.add(der.into()).unwrap();
                 Some(Arc::new(ClientConfig::builder_with_provider(Arc::new(rustls::crypto::aws_lc_rs::default_provider())).with_safe_default_protocol_versions().unwrap().with_root_certificates(roots).with_no_client_auth()))
             } else {None};
-            let bindings=vec!["127.0.0.1:0".to_owned()];
+            // Two interfaces must remain available for direct ICE, without
+            // multiplying TURN allocations for this one reachable IPv4 route.
+            let bindings=vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()];
             let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
-            assert!(video.offer().lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"sender must gather an authenticated relay candidate");
+            let relay_count=|sdp:&str|sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")).count();
+            assert_eq!(relay_count(video.offer()),1,"sender must use one authenticated relay allocation for both local IPv4 bindings");
+            if policy==RoutePolicy::Automatic {
+                for address in ["127.0.0.1","127.0.0.2"] {assert!(video.offer().lines().any(|line|line.contains(address) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");}
+            }
             let mut servers=vec![server];
             let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
             let gathered=Arc::new(AtomicBool::new(false));let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
-            let receiver=PeerConnectionBuilder::new().with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
+            let receiver=PeerConnectionBuilder::new().with_runtime(receiver_relays.runtime()).with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
                 .with_media_engine(media).with_handler(Arc::new(Receiver {packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             timeout(Duration::from_secs(6),async {while !gathered.load(Ordering::Acquire) {wake.notified().await;}}).await.unwrap();
             let answer=receiver.local_description().await.unwrap().sdp;
-            assert!(answer.lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"receiver must gather an authenticated relay candidate");
+            assert_eq!(relay_count(&answer),1,"receiver must use one authenticated relay allocation for both local IPv4 bindings");
+            eprintln!("relay fanout: sender_bindings=2 receiver_bindings=2 sender_allocations=1 receiver_allocations=1");
             video.answer(answer).await.unwrap();
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");

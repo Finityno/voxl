@@ -2,6 +2,7 @@
 //! This is endpoint-local IPC, never a public proxy. Each SDK socket owns its
 //! own stream allocation. Direct ICE and ordinary TURN/UDP bypass this module.
 use super::{ChangeSignal,WebRtcError};
+use super::relay_interfaces::RelayRuntime;
 use rtc::ice::url::{ProtoType,SchemeType};
 use std::{collections::HashMap,io,net::{IpAddr,SocketAddr},sync::{Arc,Mutex,atomic::{AtomicU64,Ordering}}};
 use tokio::{io::{AsyncRead,AsyncReadExt,AsyncWrite,AsyncWriteExt},net::{TcpStream,UdpSocket},sync::mpsc,task::{AbortHandle,JoinSet},time::{Duration,timeout}};
@@ -24,12 +25,14 @@ pub(super) struct StreamRelays {
     listeners: Vec<AbortHandle>,
     allocations: Arc<Mutex<HashMap<SocketAddr,(RelayTransport,bool)>>>,
     failures: Arc<AtomicU64>,
+    runtime: Arc<RelayRuntime>,
 }
 impl StreamRelays {
     pub async fn prepare(servers: &mut Vec<RTCIceServer>, bindings: &[String], tls: Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>) -> Result<Self,WebRtcError> {
         let mut relays=Self::default();
         let allowed: Vec<IpAddr> = bindings.iter().map(|binding|binding.parse::<SocketAddr>().map(|value|value.ip()).map_err(|_|WebRtcError::Configuration)).collect::<Result<_,_>>()?;
         let mut rewritten=Vec::new();
+        let mut ipc=std::collections::HashSet::new();
         for server in servers.iter() {
             for url in server.urls().map_err(|_|WebRtcError::Configuration)? {
                 if !matches!(url.scheme,SchemeType::Turn|SchemeType::Turns) || url.proto!=ProtoType::Tcp {
@@ -48,6 +51,7 @@ impl StreamRelays {
                 let mut sockets=vec![first];
                 if ipv4 && ipv6 {sockets.push(UdpSocket::bind(SocketAddr::new(IpAddr::V6(std::net::Ipv6Addr::LOCALHOST),port)).await.map_err(|_|WebRtcError::Transport)?);}
                 for socket in sockets {
+                    ipc.insert(socket.local_addr().map_err(|_|WebRtcError::Transport)?);
                     let state=AllocationState {allocations:Arc::clone(&relays.allocations),failures:Arc::clone(&relays.failures),changes:Arc::clone(&changes),address:None};
                     let task=tokio::spawn(listen(Arc::new(socket),Arc::clone(&target),allowed.clone(),state));
                     relays.listeners.push(task.abort_handle());
@@ -56,8 +60,10 @@ impl StreamRelays {
             }
         }
         *servers=rewritten;
+        relays.runtime=Arc::new(RelayRuntime::new(ipc));
         Ok(relays)
     }
+    pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {let runtime=Arc::clone(&self.runtime);runtime}
     pub fn close(&self) {for task in &self.listeners {task.abort();}}
     pub fn transport(&self,address: SocketAddr) -> RelayTransport {
         self.allocations.lock().unwrap_or_else(|error|error.into_inner()).get(&address).map(|value|value.0).unwrap_or_default()

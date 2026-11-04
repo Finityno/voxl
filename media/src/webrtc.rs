@@ -21,6 +21,7 @@ use webrtc::rtp_transceiver::{RtpSender, RTCRtpTransceiverDirection};
 
 mod feedback;
 mod stream_turn;
+mod relay_interfaces;
 pub use stream_turn::RelayTransport;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -216,6 +217,7 @@ impl WebRtcVideo {
         let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
             .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)));
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
+            .with_runtime(relays.runtime())
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
                 .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
             .with_media_engine(media).with_interceptor_registry(registry).with_handler(Arc::<Events>::clone(&events))

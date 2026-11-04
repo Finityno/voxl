@@ -291,14 +291,17 @@ impl RTCTurnRelayer {
                     }
                 };
 
+                // Evaluate the optional interface policy once per destination
+                // family, never once per socket or media packet. Direct host
+                // and STUN candidates still use every bound address.
+                let select = |ipv4| resolved_addrs.iter().copied().find(|addr| addr.is_ipv4() == ipv4)
+                    .map(|peer| (peer, runtime.preferred_turn_local_address(peer, &self.local_addrs)
+                        .filter(|local| self.local_addrs.contains(local))));
+                let ipv4 = select(true);
+                let ipv6 = select(false);
                 for local_addr in &self.local_addrs {
-                    let Some(peer_addr) = resolved_addrs
-                        .iter()
-                        .copied()
-                        .find(|addr| addr.is_ipv4() == local_addr.is_ipv4())
-                    else {
-                        continue;
-                    };
+                    let Some((peer_addr, preferred)) = (if local_addr.is_ipv4() {ipv4} else {ipv6}) else {continue;};
+                    if preferred.is_some_and(|preferred| preferred != *local_addr) {continue;}
 
                     let four_tuple = FourTuple {
                         local_addr: *local_addr,

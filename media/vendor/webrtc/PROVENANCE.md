@@ -13,7 +13,7 @@ vendored. Numeric GitHub issue references in source comments use bare numbers
 to comply with this fork's reference policy. Production dependencies and their
 version constraints are unchanged. Defaults remain disabled by the parent.
 
-The maintained behavior changes are in `peer_connection/driver.rs`:
+The maintained behavior changes include `peer_connection/driver.rs`:
 drain pending TURN writes after draining core writes, before the driver waits
 for another event. Core media can enqueue a relay datagram after the earlier
 TURN drain; leaving that datagram queued makes an idle final frame wait for an
@@ -23,6 +23,16 @@ RTP packet is delivered. The direct read path already has that ordering.
 Direct UDP/GSO behavior is unchanged. The
 forced-relay tests in the parent media crate cover actual coturn transport.
 
+`runtime/mod.rs` adds an optional, default-disabled TURN-only local-address
+preference. `transport/turn_relayer.rs` evaluates it once per destination
+family using actual bound sockets. The default keeps every interface, and
+host/STUN gathering is unchanged. The embedding media wrapper prefers the
+OS-selected UDP route only when it is available, otherwise preserving the
+caller's explicit alternatives; its TCP/TLS IPC uses one binding per family.
+Rebinding reevaluates the preference rather than reusing stale interface IPs.
+The two-interface actual-coturn tests require one relay candidate per peer and
+retain both host candidates in automatic mode, followed by nominated media.
+
 When updating, verify the new package checksum, preserve licenses, reapply this
-small driver change and rerun the forced UDP/TCP/TLS relay fixtures. URL parsing,
+driver and optional interface changes and rerun the forced UDP/TCP/TLS relay fixtures. URL parsing,
 loopback transport tests and native cross-compilation do not replace them.

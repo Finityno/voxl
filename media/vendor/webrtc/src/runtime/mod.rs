@@ -161,6 +161,15 @@ pub trait Runtime: Send + Sync + Debug + 'static {
         host: &'a str,
     ) -> Pin<Box<dyn Future<Output = io::Result<Vec<SocketAddr>>> + Send + 'a>>;
 
+    /// Optional TURN-only interface policy. `available` contains the actual
+    /// bound UDP addresses; host and STUN gathering never use this hook. The
+    /// default (`None`) preserves every interface. An embedder may prefer the OS route
+    /// without removing direct candidates, and must reconsider missing routes
+    /// when transports rebind after a network change.
+    fn preferred_turn_local_address(&self, _server: SocketAddr, _available: &[SocketAddr]) -> Option<SocketAddr> {
+        None
+    }
+
     /// The current instant, as this runtime measures it.
     ///
     /// **This is the clock the sans-I/O core sees.** The core is *told* the time — through
