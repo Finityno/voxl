@@ -61,6 +61,12 @@ automatic direct candidates eligible. It rejects malformed URLs and oversized
 credentials before constructing the peer. Read `route_statistics` for the
 nominated path and byte counters: the presence of a TURN URL alone says nothing
 about the path used. Returned diagnostics contain no addresses or credentials.
+The pinned native SDK gathers server-reflexive candidates only from an explicit
+plain UDP `stun:` URL. Configure one alongside TURN UDP/TLS when Internet-direct
+discovery is wanted; a TURN URL alone does not enable that gatherer. STUN adds
+no relay allocation and does not remove host candidates. The discovery test
+uses a real loopback UDP exchange with a synthetic mapped address; physical
+NAT traversal remains separate required evidence.
 `WebRtcVideo::next_update` waits for first connection, coalesced keyframe feedback
 and close without a periodic poll. Feedback still has its 250 ms rate limit;
 only a pending request arms that deadline. A revision counter preserves wakeups

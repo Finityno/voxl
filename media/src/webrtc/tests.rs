@@ -53,11 +53,14 @@ fn webrtc_explicit_stun_discovers_a_reflexive_candidate_and_keeps_host_candidate
                 let mut request=rtc::stun::message::Message::new();
                 request.raw=buffer[..length].to_vec();request.decode().unwrap();
                 assert_eq!(request.typ,rtc::stun::message::BINDING_REQUEST);
-                let mut response=rtc::stun::message::Message::new();
-                let setters:Vec<Box<dyn rtc::stun::message::Setter>>=vec![Box::new(request.transaction_id),
-                    Box::new(rtc::stun::message::BINDING_SUCCESS),Box::new(rtc::stun::xoraddr::XorMappedAddress {
-                        ip:"203.0.113.19".parse().unwrap(),port:40000})];
-                response.build(&setters).unwrap();socket.send_to(&response.raw,source).await.unwrap();
+                let response={
+                    let mut response=rtc::stun::message::Message::new();
+                    let setters:Vec<Box<dyn rtc::stun::message::Setter>>=vec![Box::new(request.transaction_id),
+                        Box::new(rtc::stun::message::BINDING_SUCCESS),Box::new(rtc::stun::xoraddr::XorMappedAddress {
+                            ip:"203.0.113.19".parse().unwrap(),port:40000})];
+                    response.build(&setters).unwrap();response
+                };
+                socket.send_to(&response.raw,source).await.unwrap();
             });
             let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
             config.add_ice_server(vec![format!("stun:{address}")],String::new(),String::new()).unwrap();
