@@ -3,7 +3,7 @@
 This crate is maintained in the Fincode custom fork. It has no dependency on
 Voxl's process-owning server entry point, web asset build, libx264 or audio stack.
 It currently provides a macOS VideoToolbox H.264/HEVC encoder, not a complete desktop
-stream. Screen capture and native application integration remain separate work. An
+stream. Screen capture and native application integration belong to the embedder. An
 optional WebRTC sender is implemented behind the `webrtc` feature; platform
 validation and receiver interoperability are still in progress.
 
@@ -14,7 +14,12 @@ disabling hardware guarantees software encoding; only that path accepts the
 documented unsupported-property error from the hardware-status query. Other
 errors, missing successful query values and mismatched selection still fail.
 Software-only and
-hardware-required modes make matched experiments possible. `VideoEncoder` selects H.264 Baseline or HEVC Main (8-bit 4:2:0), with real-time
+hardware-required modes make matched experiments possible. Hardware H.264 now
+requests Constrained Baseline when the optional macOS 12+ constant is available;
+software retains the supported Baseline property and reports its actual SPS.
+The constant is resolved dynamically, preserving older embedding deployment
+targets. The observed software output is Constrained Baseline; the SDP always
+uses actual encoded flags. HEVC selects Main (8-bit 4:2:0), with real-time
 encoding, no frame reordering and two-second keyframes. AV1 encoding returns
 UnsupportedCodec; it is never silently passed through the H.264 parser.
 The bitrate is an average target, not a hard transport bandwidth ceiling.
@@ -38,7 +43,9 @@ and the corresponding `software` command generate the same 60-frame, 1280×720,
 30 fps synthetic workload. They capture no screen. Record the exact commit,
 external process deadline, CPU/RSS and independent decode/quality results as
 well as the printed encode latency. These numbers are synthetic codec evidence,
-not desktop capture, network or physical-phone power measurements.
+not desktop capture, network or physical-phone power measurements. An optional final
+`framed-output` argument preserves native access units for the bounded
+`encoded_peer_probe` WebRTC fixture. It is test IPC, not a recording API.
 
 
 With `--features webrtc`, the sender uses the caller's Tokio runtime, sends only
@@ -154,9 +161,11 @@ the requested geometry, fps, profile and chroma. The native encoder and WebRTC s
 emulation-prevention bytes; `VideoFormat::HevcMain` carries those parameters
 into RFC 7798 SDP and selects its own RTP payloader. The sender rejects a frame
 tagged with a codec other than the negotiated format. Native synthetic HEVC
-encoding and independent decoding passed; browser/receiver interoperability
-remains required before advertising HEVC
-in the application.
+encoding and independent decoding passed. The production phone WebKit receiver
+on the owned iOS Simulator also presents real hardware H.264/HEVC and software
+H.264 video; see `results/2026-11-04-native-webkit/`. Physical-device capability
+negotiation and full application runtime remain required before broad HEVC use.
+Application viewers currently still request H.264 by default.
 
 
 The initial route assertion failed because the statistics report's selected-pair
