@@ -238,9 +238,24 @@ three new native macOS DNS cases and ten standalone SDK mock-runtime cases;
 strict production library/examples Clippy passes. The identical direct-video
 test fails on c022bfc before the production change. Graph distinctions,
 metadata-download timeout, commands, source/cleanup and limits are retained in
-`results/2026-11-04-stun-dns/`. The native Fincode host now pins f223998 and owns opt-in cached-STUN startup,
-bounded deferred credential lookup and ticketed generation replacement. Its
-current desktop/phone clients still use legacy startup. Same-peer viewer restart
-and actual deferred full-application network qualification remain required;
-the host controller and legacy compatibility evidence stays with the embedding
-application. No whole-endpoint resource or cost saving is established here.
+`results/2026-11-04-stun-dns/`. The embedding host owns cached-STUN startup,
+bounded credential lookup, authenticated generations and viewer coordination;
+its full-application evidence belongs with that application. No whole-endpoint
+resource or cost saving is established by these synthetic transport cases.
+
+At `2ae3179905ebbf1a343b66fb3db596dadc79d6d6`, `ice_connected()` exposes ICE
+reachability before DTLS/sender transport readiness. It must only retire optional
+startup work, never authorize RTP or input. Terminal connection state cannot be
+revived by late callbacks. Startup restart refuses ICE that becomes reachable
+before or while old discovery is quiesced; the embedder resumes its old handle.
+Proven srflx/prflx candidates nominate without the SDK's extra 500/1000 ms waits.
+Relay nomination is immediate for STUN-only deferred peers and forced-relay
+tests, avoiding a second delay after the embedder's direct grace. Legacy eager
+TURN peers retain their relay nomination preference.
+
+Six exact Linux callback, H.264/HEVC UDP/DTLS, STUN and closure cases pass with
+locked metadata and strict library/examples Clippy. The initial fc15 source
+fails on deprecated `AtomicU8::fetch_update`; its test build and six cases do
+not run. The stable compare/exchange fix and final results are retained in
+`results/2026-11-04-ice-nomination/`. These checks establish no native decoder,
+quality, physical route, sustained resource or performance-budget result.
