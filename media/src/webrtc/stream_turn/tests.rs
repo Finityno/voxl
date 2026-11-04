@@ -105,6 +105,7 @@ fn forced_relay(expected_transport:RelayTransport) {
             } else {None};
             let bindings=vec!["127.0.0.1:0".to_owned()];
             let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:RoutePolicy::RelayOnly,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
+            assert!(video.offer().lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"sender must gather an authenticated relay candidate");
             let mut servers=vec![server];
             let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
@@ -115,16 +116,18 @@ fn forced_relay(expected_transport:RelayTransport) {
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             timeout(Duration::from_secs(6),async {while !gathered.load(Ordering::Acquire) {wake.notified().await;}}).await.unwrap();
-            video.answer(receiver.local_description().await.unwrap().sdp).await.unwrap();
-            assert_eq!(video.next_update().await,VideoUpdate::Connected);
+            let answer=receiver.local_description().await.unwrap().sdp;
+            assert!(answer.lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"receiver must gather an authenticated relay candidate");
+            video.answer(answer).await.unwrap();
+            assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             for (index,payload) in [vec![0x65,1,2,3,4],vec![0x41,5,6,7,8]].into_iter().enumerate() {
                 let mut annex_b=vec![0,0,0,1];annex_b.extend_from_slice(&payload);
                 video.send(EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe:index==0,presentation_time_micros:1_000_000+(index as i64)*33_333}).await.unwrap();
-                let received=packets.recv().await.unwrap();assert_eq!(&received.payload[..],&payload);
+                let received=timeout(Duration::from_secs(5),packets.recv()).await.expect("forced-relay media receive deadline").unwrap();assert_eq!(&received.payload[..],&payload);
             }
             let route=video.route_statistics().await;
             assert_eq!(route.route,MediaRoute::Relayed,"host candidates cannot satisfy this fixture");
-            assert_eq!(route.local_relay_transport,expected_transport,"join nominated allocation to actual stream expected_transport");
+            assert_eq!(route.local_relay_transport,expected_transport,"join nominated allocation to actual stream transport");
             assert!(route.bytes_sent>0);
             if expected_transport==RelayTransport::Udp {video.close();}
             else {

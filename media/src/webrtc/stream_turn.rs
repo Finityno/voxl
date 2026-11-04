@@ -104,9 +104,8 @@ async fn listen(socket:Arc<UdpSocket>,target:Arc<Target>,allowed:Vec<IpAddr>,sta
                 if let Some(slot)=sessions.get_mut(&source) {
                     // Overflow ends this stream. Reopening an allocation behind
                     // an already advertised relay address would be incorrect.
-                    if slot.as_ref().is_some_and(|session|session.sender.try_send(buffer[..length].to_vec()).is_err()) {
-                        if let Some(session)=slot.take() {session.stop.abort();}
-                    }
+                    if slot.as_ref().is_some_and(|session|session.sender.try_send(buffer[..length].to_vec()).is_err())
+                        && let Some(session)=slot.take() {session.stop.abort();}
                     continue;
                 }
                 // A single allocation per local source address prevents local

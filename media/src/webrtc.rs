@@ -252,16 +252,14 @@ impl WebRtcVideo {
             let revision=self.events.changes.revision();
             if self.ended() {return VideoUpdate::Ended;}
             let failure_revision=self.closer.relays.failure_revision();
-            if failure_revision!=self.checked_relay_failure {
-                if let Ok(Some(transport))=self.sender.transport().await {
-                    if let Ok(Some(pair))=transport.ice_transport().get_selected_candidate_pair().await {
-                        let local=pair.local();
-                        if local.address.parse::<std::net::IpAddr>().ok().is_some_and(|ip|self.closer.relays.is_failed(std::net::SocketAddr::new(ip,local.port))) {
-                            self.close();return VideoUpdate::Ended;
-                        }
-                        self.checked_relay_failure=failure_revision;
-                    }
+            if failure_revision!=self.checked_relay_failure
+                && let Ok(Some(transport))=self.sender.transport().await
+                && let Ok(Some(pair))=transport.ice_transport().get_selected_candidate_pair().await {
+                let local=pair.local();
+                if local.address.parse::<std::net::IpAddr>().ok().is_some_and(|ip|self.closer.relays.is_failed(std::net::SocketAddr::new(ip,local.port))) {
+                    self.close();return VideoUpdate::Ended;
                 }
+                self.checked_relay_failure=failure_revision;
             }
             let connected=self.connected();
             if connected && matches!(self.updates,UpdatePhase::Waiting) {
