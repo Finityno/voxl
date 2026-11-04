@@ -113,8 +113,18 @@ fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates()
             assert!(video.offer().contains("a=ice-options:trickle"));assert!(!video.offer().contains("a=end-of-candidates"));
             let signals=video.signaling().unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (sender,mut packets)=mpsc::channel(4);
-            let receiver=PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
-            receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
+            let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
+            let wire_offer=video.offer().lines().filter(|line|!line.starts_with("a=candidate:")).collect::<Vec<_>>().join("\r\n")+"\r\n";
+            receiver.set_remote_description(RTCSessionDescription::offer(wire_offer).unwrap()).await.unwrap();
+            let incoming=signals.clone();let receiver_candidates=Arc::clone(&receiver);
+            let candidates=tokio::spawn(async move {
+                let mut reflexive=false;
+                loop {match incoming.next_signal().await.unwrap() {
+                    VideoIceSignal::Candidate {candidate,mid}=>{assert_eq!(mid,"0");reflexive|=candidate.contains(" typ srflx");receiver_candidates.add_ice_candidate(super::signaling::candidate(candidate,mid)).await.unwrap();},
+                    VideoIceSignal::GatheringComplete=>break,
+                }}
+                reflexive
+            });
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             let answer=receiver.local_description().await.unwrap().sdp;
             let mid=answer.lines().find_map(|line|line.strip_prefix("a=mid:")).unwrap().to_owned();
@@ -127,12 +137,7 @@ fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates()
             assert_eq!(&packets.recv().await.unwrap().payload[..],&[0x65,9,8,7,6]);
             assert!(!video.events.gathered.load(Ordering::Acquire),"direct payload must precede STUN completion");
             release.send(()).unwrap();stun.await.unwrap();
-            let mut reflexive=false;
-            loop {match signals.next_signal().await.unwrap() {
-                VideoIceSignal::Candidate {candidate,mid:actual}=>{assert_eq!(actual,mid);reflexive|=candidate.contains(" typ srflx");},
-                VideoIceSignal::GatheringComplete=>break,
-            }}
-            assert!(reflexive);video.close();receiver.close().await.unwrap();
+            assert!(candidates.await.unwrap());video.close();receiver.close().await.unwrap();
         }).await.unwrap();
     });
 }
