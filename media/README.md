@@ -74,8 +74,10 @@ adapters need one local IPC binding per address family. This avoids allocating
 once per VPN/VM/interface in the usual topology while keeping all direct host
 candidates. The preference is recalculated from actual sockets after a rebind,
 adds no DNS query or packet, and does no work per media frame. The two-interface
-coturn assertions and native resource measurements still require validation
-at this new checkpoint; no measured CPU/RSS saving is claimed.
+coturn assertions passed at `a5e0f7cfe3906a3185a869ce70e8154693c3fc61`,
+including nominated UDP/TCP/TLS media and preserved direct host candidates.
+Raw results are in `results/2026-11-04-relay-fanout/`. Native resource
+measurements remain required; no measured CPU/RSS saving is claimed.
 `WebRtcVideo::next_update` waits for first connection, coalesced keyframe feedback
 and close without a periodic poll. Feedback still has its 250 ms rate limit;
 only a pending request arms that deadline. A revision counter preserves wakeups
