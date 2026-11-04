@@ -1,0 +1,5 @@
+timeout -k 5 30 git fetch origin fincode/desktop-streaming 
+git switch --detach 2ab66f7739e71f9d64975b95e7787029eaab8f23 
+timeout -k 5 900 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short 
+timeout -k 5 30 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_explicit_stun_discovers_a_reflexive_candidate_and_keeps_host_candidates -- --nocapture 
+timeout -k 5 600 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --examples -j2 -q --message-format=short -- -D warnings 
