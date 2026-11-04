@@ -120,8 +120,12 @@ a private test CA. They prove synthetic encrypted transport, not native
 decoding, physical LAN/VPS routing, hardware performance or endpoint memory.
 The later interface-allocation checks below retain these earlier fixtures.
 Opt-in trickle gathering is covered separately in `results/2026-11-04-trickle/`;
-physical NAT traversal and credential renewal/ICE restart remain required work
-before release.
+at exact `367b015b1b198caeaab4e35ee48e14780f8f18df`, all three forced-relay
+trickle paths (UDP/TCP/TLS), a legacy forced-UDP regression, locked prebuild and
+strict Clippy passed. Both wire SDPs omit candidates, requiring incremental
+exchange in both directions. Each peer retains one relay allocation across two
+bindings. Physical NAT traversal and credential renewal/ICE restart remain
+required work before release.
 
 `codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
 caller preference order, then allows only explicitly permitted, measured
