@@ -270,3 +270,5 @@ fn lazy_turn_close_cancels_the_deferred_allocation() {
         }).await.unwrap();
     });
 }
+
+mod idle_candidates;

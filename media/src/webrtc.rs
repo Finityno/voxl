@@ -222,7 +222,11 @@ impl WebRtcVideo {
         let turn_delay=if trickle && config.route_policy==RoutePolicy::Automatic {Duration::from_millis(250)} else {Duration::ZERO};
         Self::open_with_grace(config,tls,trickle,turn_delay).await
     }
-    async fn open_with_grace(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration)->Result<Self,WebRtcError> {
+    async fn open_with_grace(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration)->Result<Self,WebRtcError> {
+        Self::open_with_runtime(config,tls,trickle,turn_delay,|runtime|runtime).await
+    }
+    async fn open_with_runtime<F>(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration,adapt_runtime:F)->Result<Self,WebRtcError>
+    where F:FnOnce(Arc<dyn webrtc::runtime::Runtime>)->Arc<dyn webrtc::runtime::Runtime>+Send {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
@@ -242,7 +246,7 @@ impl WebRtcVideo {
         let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
             .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)));
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
-            .with_runtime(relays.runtime())
+            .with_runtime(adapt_runtime(relays.runtime()))
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
                 .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
             .with_media_engine(media).with_interceptor_registry(registry).with_handler(Arc::<Events>::clone(&events))
