@@ -1305,6 +1305,11 @@ impl PeerConnection for PeerConnectionImpl {
                 .await
                 .map_err(|e| Error::Other(format!("{:?}", e)))
         } else {
+            // Candidate insertion can arm ICE checks or mDNS output while
+            // the driver is parked on its previous deadline. TCP passive
+            // candidates already enqueue an event above; all other accepted
+            // candidates need an explicit wake instead of an unrelated timer.
+            self.inner.wake_writes().await;
             Ok(())
         }
     }

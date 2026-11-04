@@ -23,6 +23,15 @@ RTP packet is delivered. The direct read path already has that ordering.
 Direct UDP/GSO behavior is unchanged. The
 forced-relay tests in the parent media crate cover actual coturn transport.
 
+`peer_connection/mod.rs` wakes the driver after accepting a remote candidate
+when no passive-TCP connect event is enqueued. Candidate insertion can arm an
+ICE check deadline or mDNS output while the driver is parked. Without a wake,
+late trickle candidates can wait for an unrelated timer/packet. A regression
+parks both real-UDP peers after answer processing and prevents driver timers
+from expiring, then requires late candidates to connect and carry media. The
+pre-fix run reaches its late-connection deadline after setup successfully parks.
+Passive-TCP event ordering is preserved; the existing write wake is coalesced.
+
 `runtime/mod.rs` adds an optional, default-disabled TURN-only local-address
 preference. `transport/turn_relayer.rs` evaluates it once per destination
 family using actual bound sockets. The default keeps every interface, and
