@@ -20,6 +20,8 @@ use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnect
 use webrtc::rtp_transceiver::{RtpSender, RTCRtpTransceiverDirection};
 
 mod feedback;
+mod stream_turn;
+pub use stream_turn::RelayTransport;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WebRtcError { Configuration, Transport, Deadline, Ended, NotConnected, InvalidFrame }
@@ -79,6 +81,7 @@ pub enum MediaRoute { Direct, Relayed, #[default] Unknown }
 #[derive(Debug, Default, Clone, Copy)]
 pub struct RouteStatistics {
     pub route: MediaRoute,
+    pub local_relay_transport: RelayTransport,
     pub bytes_sent: u64,
     pub bytes_received: u64,
     pub current_rtt: Option<Duration>,
@@ -138,12 +141,14 @@ pub struct VideoCloseHandle {
     peer: Arc<dyn PeerConnection>,
     runtime: tokio::runtime::Handle,
     changes: Arc<ChangeSignal>,
+    relays: Arc<stream_turn::StreamRelays>,
 }
 impl VideoCloseHandle {
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();
         self.changes.changed();
+        self.relays.close();
         let peer = Arc::clone(&self.peer);
         self.runtime.spawn(async move { let _ = tokio::time::timeout(Duration::from_secs(2),peer.close()).await; });
     }
@@ -187,11 +192,16 @@ impl Drop for OpeningPeer {
 
 impl WebRtcVideo {
     pub async fn open(config: WebRtcConfig) -> Result<Self, WebRtcError> {
+        Self::open_with_tls(config,None).await
+    }
+
+    async fn open_with_tls(mut config: WebRtcConfig,tls: Option<Arc<tokio_rustls::rustls::ClientConfig>>) -> Result<Self, WebRtcError> {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
+        let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls).await?);
         let changes=Arc::new(ChangeSignal::default());
         let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes) });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
@@ -223,7 +233,7 @@ impl WebRtcVideo {
         let offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
-        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes };
+        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
         Ok(Self { peer,sender,track,events,closer,offer,payload_type: None,ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
@@ -278,6 +288,10 @@ impl WebRtcVideo {
         } else if local.typ == RTCIceCandidateType::Unspecified || remote.typ == RTCIceCandidateType::Unspecified {
             MediaRoute::Unknown
         } else { MediaRoute::Direct };
+        let local_relay_transport=if local.typ==RTCIceCandidateType::Relay {
+            local.address.parse::<std::net::IpAddr>().ok().map(|ip|self.closer.relays.transport(std::net::SocketAddr::new(ip,local.port)))
+                .filter(|value|*value!=RelayTransport::Unknown).unwrap_or(RelayTransport::Udp)
+        } else {RelayTransport::Unknown};
         // The transport's selected pair is authoritative. Statistics references
         // in rtc 0.21 can be absent even after media flows; join counters using
         // the selected candidates rather than treating a missing stats link as
@@ -286,11 +300,11 @@ impl WebRtcVideo {
         for entry in report.iter() {
             let Entry::IceCandidatePair(pair) = entry else { continue; };
             if pair.local_candidate_id != local.id || pair.remote_candidate_id != remote.id { continue; }
-            return RouteStatistics { route,bytes_sent: pair.bytes_sent,bytes_received: pair.bytes_received,
+            return RouteStatistics { route,local_relay_transport,bytes_sent: pair.bytes_sent,bytes_received: pair.bytes_received,
                 current_rtt: Duration::try_from_secs_f64(pair.current_round_trip_time).ok().filter(|time| !time.is_zero()),
                 packets_discarded_on_send: pair.packets_discarded_on_send };
         }
-        RouteStatistics { route,..Default::default() }
+        RouteStatistics { route,local_relay_transport,..Default::default() }
     }
 
     pub async fn answer(&mut self, sdp: String) -> Result<(), WebRtcError> {
