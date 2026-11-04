@@ -16,7 +16,7 @@ use std::sync::{Arc, OnceLock, Mutex, atomic::{AtomicBool, AtomicU8, AtomicU64, 
 use std::time::{Duration, Instant};
 use tokio::sync::Notify;
 use webrtc::media_stream::track_local::{TrackLocal, static_rtp::TrackLocalStaticRTP};
-use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnectionEventHandler, RTCConfigurationBuilder, RTCIceGatheringState,RTCIceConnectionState,
+use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnectionEventHandler, RTCConfigurationBuilder, RTCIceGatheringState,RTCIceConnectionState,SettingEngineBuilder,
     RTCIceServer, RTCIceTransportPolicy, RTCPeerConnectionIceEvent, RTCPeerConnectionState, RTCSessionDescription, Registry, register_default_interceptors};
 use webrtc::rtp_transceiver::{RtpSender, RTCRtpTransceiverDirection};
 
@@ -289,8 +289,19 @@ impl WebRtcVideo {
         let keyframe = Arc::new(AtomicBool::new(true));
         let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
             .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)));
+        // Browser mDNS hosts commonly become peer-reflexive candidates here.
+        // Proven direct connectivity must not wait the SDK's extra 0.5/1 s
+        // nomination policy and lose to the embedder's shorter relay grace.
+        // Deferred startup already gives direct ICE its grace before TURN is
+        // installed; do not impose a second relay delay after that restart.
+        let settings=SettingEngineBuilder::new()
+            .with_srflx_acceptance_min_wait(Some(Duration::ZERO))
+            .with_prflx_acceptance_min_wait(Some(Duration::ZERO))
+            .with_relay_acceptance_min_wait((fallback.is_some() || config.route_policy==RoutePolicy::RelayOnly).then_some(Duration::ZERO))
+            .build();
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
             .with_runtime(adapt_runtime(relays.runtime()))
+            .with_setting_engine(settings)
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
                 .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
             .with_media_engine(media).with_interceptor_registry(registry).with_handler(Arc::<Events>::clone(&events))
