@@ -6,13 +6,14 @@
 use std::{collections::HashSet,fmt,future::Future,io,net::{IpAddr,SocketAddr,UdpSocket},pin::Pin,sync::Arc,time::{Duration,Instant}};
 use webrtc::runtime::{AsyncInterval,AsyncTcpListener,AsyncTcpStream,AsyncUdpSocket,JoinHandle,Runtime,TokioRuntime};
 
-pub(super) struct RelayRuntime {inner:TokioRuntime,ipc:HashSet<SocketAddr>}
+pub(super) struct RelayRuntime {inner:TokioRuntime,ipc:HashSet<SocketAddr>,turn_delay:Duration}
 impl Default for RelayRuntime {fn default()->Self {Self::new(HashSet::new())}}
 impl fmt::Debug for RelayRuntime {
     fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.debug_struct("RelayRuntime").field("ipc_endpoints",&self.ipc.len()).finish()}
 }
 impl RelayRuntime {
-    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,ipc}}
+    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,ipc,turn_delay:Duration::ZERO}}
+    pub fn with_turn_delay(mut self,delay:Duration)->Self {self.turn_delay=delay;self}
     fn preferred(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {
         let family=|address:&&SocketAddr|address.is_ipv4()==server.is_ipv4();
         let selected=if self.ipc.contains(&server) {
@@ -36,6 +37,7 @@ fn route_ip(server:SocketAddr)->Option<IpAddr> {
     socket.connect(server).ok()?;Some(socket.local_addr().ok()?.ip())
 }
 impl Runtime for RelayRuntime {
+    fn turn_gathering_delay(&self)->Duration {self.turn_delay}
     fn preferred_turn_local_address(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {self.preferred(server,available)}
     fn spawn(&self,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn(future)}
     fn spawn_reactor(&self,size:usize,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn_reactor(size,future)}

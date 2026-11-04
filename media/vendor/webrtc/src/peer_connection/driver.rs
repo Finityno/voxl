@@ -34,7 +34,7 @@ use rtc::media_stream::MediaStreamTrack;
 use rtc::peer_connection::configuration::{RTCIceServer, RTCIceTransportPolicy};
 use rtc::peer_connection::event::{RTCDataChannelEvent, RTCPeerConnectionEvent, RTCTrackEvent};
 use rtc::peer_connection::message::{RTCMessage, TaggedRTCMessage};
-use rtc::peer_connection::state::RTCIceGatheringState;
+use rtc::peer_connection::state::{RTCIceGatheringState, RTCPeerConnectionState};
 use rtc::peer_connection::transport::RTCIceCandidateInit;
 use rtc::rtp_transceiver::{RTCRtpReceiverId, RTCRtpSenderId};
 use rtc::sansio::Protocol;
@@ -508,6 +508,7 @@ pub(crate) struct PeerConnectionDriver<A = SocketAddr> {
     ice_gathering_active: bool,
     stun_gathering_complete: bool,
     turn_gathering_complete: bool,
+    deferred_turn_gathering: Option<Instant>,
     pending_ice_configuration: Option<(Vec<RTCIceServer>, RTCIceTransportPolicy)>,
     /// Data-channel events that did not fit in their channel's queue, kept in arrival order.
     ///
@@ -588,6 +589,7 @@ where
             ice_gathering_active: false,
             stun_gathering_complete: false,
             turn_gathering_complete: false,
+            deferred_turn_gathering: None,
             pending_ice_configuration: None,
             pending_data_channel_events: HashMap::new(),
             udp_addrs,
@@ -699,6 +701,7 @@ where
             self.ice_gather_policy,
             Arc::clone(&runtime),
         );
+        self.deferred_turn_gathering = None;
         self.turn_relayer = RTCTurnRelayer::new(
             local_addrs,
             self.ice_servers.clone(),
@@ -1297,6 +1300,10 @@ where
                     .await;
             }
             RTCPeerConnectionEvent::OnConnectionStateChangeEvent(state) => {
+                if state == RTCPeerConnectionState::Connected && self.deferred_turn_gathering.take().is_some() {
+                    self.turn_gathering_complete = true;
+                    self.finish_gathering_if_ready().await;
+                }
                 self.inner.handler.on_connection_state_change(state).await;
             }
             RTCPeerConnectionEvent::OnDataChannel(evt) => {
@@ -1741,10 +1748,19 @@ where
                 {
                     error!("Failed to gather ice gathering: {}", err);
                 }
-                if self.turn_relayer.state() != RTCIceGatheringState::Gathering
-                    && let Err(err) = self.turn_relayer.gather().await
-                {
-                    error!("Failed to gather relay candidates: {}", err);
+                self.deferred_turn_gathering = None;
+                if self.turn_relayer.state() != RTCIceGatheringState::Gathering {
+                    let delay = if ice_gather_policy == RTCIceTransportPolicy::Relay {Duration::ZERO}
+                        else {self.inner.runtime.turn_gathering_delay().min(Duration::from_secs(1))};
+                    if delay.is_zero() {
+                        if let Err(err) = self.turn_relayer.gather().await {
+                            error!("Failed to gather relay candidates: {}", err);
+                        }
+                    } else {
+                        // A timer in the existing driver keeps socket reads,
+                        // DTLS, media and Close live while TURN is deferred.
+                        self.deferred_turn_gathering = Some(self.inner.runtime.now() + delay);
+                    }
                 }
             }
             PeerConnectionDriverEvent::RemoteIceTcpPassiveCandidate(candidate) => {
@@ -2185,7 +2201,7 @@ where
         let stun_timeout = self.stun_gatherer.poll_timeout();
         let turn_timeout = self.turn_relayer.poll_timeout();
 
-        [core_timeout, stun_timeout, turn_timeout]
+        [core_timeout, stun_timeout, turn_timeout, self.deferred_turn_gathering]
             .into_iter()
             .flatten()
             .min()
@@ -2193,6 +2209,12 @@ where
     }
 
     async fn handle_timeout(&mut self, now: Instant) -> Result<()> {
+        if self.deferred_turn_gathering.is_some_and(|deadline| deadline <= now) {
+            self.deferred_turn_gathering = None;
+            if let Err(err) = self.turn_relayer.gather().await {
+                error!("Failed to gather deferred relay candidates: {}", err);
+            }
+        }
         self.stun_gatherer.handle_timeout(now)?;
         self.turn_relayer.handle_timeout(now)?;
         let mut core = self.inner.core.lock().await;

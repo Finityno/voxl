@@ -43,35 +43,51 @@ fn turn_stream_datagrams_reject_invalid_lengths_and_framing() {
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true,false);}
+fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true,GatherMode::Full);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true,false);}
+fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true,GatherMode::Full);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true,false);}
+fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true,GatherMode::Full);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic,true,false);}
+fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic,true,GatherMode::Full);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_default_sdk_relay_allocates_per_interface_for_comparison() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,false,false);}
+fn webrtc_default_sdk_relay_allocates_per_interface_for_comparison() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,false,GatherMode::Full);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn trickle_forced_relay_udp_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true,true);}
+fn trickle_forced_relay_udp_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true,GatherMode::Trickle);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn trickle_forced_relay_tcp_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true,true);}
+fn trickle_forced_relay_tcp_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true,GatherMode::Trickle);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn trickle_forced_relay_tls_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true,true);}
+fn trickle_forced_relay_tls_carries_media_without_candidates_in_sdp() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true,GatherMode::Trickle);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn lazy_turn_direct_media_skips_the_native_relay_allocation() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::Automatic,true,GatherMode::Trickle);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn lazy_turn_udp_fallback_connects_when_direct_candidates_are_unusable() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::Automatic,true,GatherMode::DeferredFallback);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn lazy_turn_tcp_fallback_connects_when_direct_candidates_are_unusable() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic,true,GatherMode::DeferredFallback);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn lazy_turn_tls_fallback_connects_when_direct_candidates_are_unusable() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::Automatic,true,GatherMode::DeferredFallback);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn TLS fixture"]
@@ -91,20 +107,31 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
     });
 }
 
-fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy,limit_receiver_interfaces:bool,trickle:bool) {
+#[derive(Clone,Copy,PartialEq,Eq)]
+enum GatherMode {Full,Trickle,DeferredFallback}
+
+fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy,limit_receiver_interfaces:bool,mode:GatherMode) {
     use super::super::*;
     use std::sync::atomic::AtomicUsize;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
-    struct Receiver {incremental:Option<(VideoSignaling,String,Arc<AtomicUsize>)>,packets:mpsc::Sender<rtc::rtp::Packet>,gathered:Arc<AtomicBool>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>,wake:Arc<Notify>}
+    let trickle=mode!=GatherMode::Full;
+    let relay_candidates_only=mode==GatherMode::DeferredFallback;
+    struct CandidateGate {open:bool,pending:Vec<String>}
+    struct Receiver {gate:Arc<Mutex<CandidateGate>>,relay_candidates_only:bool,incremental:Option<(VideoSignaling,String,Arc<AtomicUsize>)>,packets:mpsc::Sender<rtc::rtp::Packet>,gathered:Arc<AtomicBool>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>,wake:Arc<Notify>}
     #[async_trait]
     impl PeerConnectionEventHandler for Receiver {
         async fn on_ice_candidate(&self,event:RTCPeerConnectionIceEvent) {
             if let Some((signals,mid,count))=&self.incremental {
                 let candidate=event.candidate.to_json().unwrap();
-                if !candidate.candidate.is_empty() {
-                    signals.add_candidate(candidate.candidate,mid.clone()).unwrap();
-                    count.fetch_add(1,Ordering::AcqRel);
+                if !candidate.candidate.is_empty() && (!self.relay_candidates_only || candidate.candidate.contains(" typ relay")) {
+                    let mut gate=self.gate.lock().unwrap();
+                    if gate.open {
+                        signals.add_candidate(candidate.candidate,mid.clone()).unwrap();
+                        count.fetch_add(1,Ordering::AcqRel);
+                    } else {
+                        assert!(gate.pending.len()<64);gate.pending.push(candidate.candidate);
+                    }
                 }
             }
         }
@@ -144,6 +171,7 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             // Two interfaces must remain available for direct ICE, without
             // multiplying TURN allocations for this one reachable IPv4 route.
             let bindings=vec!["127.0.0.1:0".to_owned(),"127.0.0.2:0".to_owned()];
+            let opened_at=Instant::now();
             let mut video=WebRtcVideo::open_mode(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone(),trickle).await.unwrap();
             let relay_count=|sdp:&str| {
                 let rows:Vec<_>=sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")).map(|line|line.split_whitespace().collect::<Vec<_>>()).collect();
@@ -157,11 +185,8 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
                 endpoints.len()
             };
             if !trickle {assert_eq!(relay_count(video.offer()),1,"sender must use one authenticated relay allocation for both local IPv4 bindings");}
-            if policy==RoutePolicy::Automatic {
-                for address in ["127.0.0.1","127.0.0.2"] {assert!(video.offer().lines().any(|line|line.contains(address) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");}
-            }
             let mut servers=vec![server];
-            let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
+            let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default()),Duration::ZERO).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
             let gathered=Arc::new(AtomicBool::new(false));let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
@@ -171,20 +196,34 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             let receiver=if limit_receiver_interfaces {receiver.with_runtime(receiver_relays.runtime())} else {receiver};
             let expected_receiver_allocations=if limit_receiver_interfaces {1} else {bindings.len()};
             let remote_candidates=Arc::new(AtomicUsize::new(0));
+            // Withhold the receiver relay too: one remote relay alone could
+            // establish a pair before the native allocation deadline.
+            let gate=Arc::new(Mutex::new(CandidateGate {open:!relay_candidates_only,pending:Vec::new()}));
             let signals=video.signaling();
             let incremental=signals.clone().map(|signals|(signals,video.events.media_mid.get().unwrap().clone(),Arc::clone(&remote_candidates)));
             let receiver=Arc::new(receiver.with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
-                .with_media_engine(media).with_handler(Arc::new(Receiver {incremental,packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap());
+                .with_media_engine(media).with_handler(Arc::new(Receiver {gate:Arc::clone(&gate),relay_candidates_only,incremental,packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap());
             let without_candidates=|sdp:&str|sdp.lines().filter(|line|!line.starts_with("a=candidate:") && *line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n";
             let offer=if trickle {without_candidates(video.offer())} else {video.offer().to_owned()};
             receiver.set_remote_description(RTCSessionDescription::offer(offer).unwrap()).await.unwrap();
             let candidate_task=signals.map(|signals| {
-                let target=Arc::clone(&receiver);
+                let target=Arc::clone(&receiver);let gate=Arc::clone(&gate);let remote_candidates=Arc::clone(&remote_candidates);
                 tokio::spawn(async move {
                     let mut relays=0;
                     loop {match signals.next_signal().await.unwrap() {
                         VideoIceSignal::Candidate {candidate,mid}=>{
-                            if candidate.contains(" typ relay") {relays+=1;}
+                            let relay=candidate.contains(" typ relay");
+                            if relay {
+                                relays+=1;
+                                if relay_candidates_only {
+                                    assert!(opened_at.elapsed()>=Duration::from_millis(250),"automatic relay cannot allocate before its grace");
+                                    let mut gate=gate.lock().unwrap();gate.open=true;
+                                    for candidate in std::mem::take(&mut gate.pending) {
+                                        signals.add_candidate(candidate,mid.clone()).unwrap();remote_candidates.fetch_add(1,Ordering::AcqRel);
+                                    }
+                                }
+                            }
+                            if relay_candidates_only && !relay {continue;}
                             target.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
                         },
                         VideoIceSignal::GatheringComplete=>break,
@@ -200,14 +239,22 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");
             assert!(video.take_keyframe_request());
+            let skip_native_turn=trickle && policy==RoutePolicy::Automatic && !relay_candidates_only;
+            let expected_sender_allocations=if skip_native_turn {0} else {1};
             if let Some(task)=candidate_task {
-                assert!(timeout(Duration::from_secs(6),task).await.unwrap().unwrap()>0,"host relay candidate must cross the incremental path");
+                let relays=timeout(Duration::from_secs(6),task).await.unwrap().unwrap();
+                if skip_native_turn {assert_eq!(relays,0,"a connected direct peer must skip deferred TURN");}
+                else {assert!(relays>0,"host relay candidate must cross the incremental path");}
                 assert!(remote_candidates.load(Ordering::Acquire)>0,"viewer candidates must cross the incremental path");
             }
             timeout(Duration::from_secs(6),async {while !gathered.load(Ordering::Acquire) {wake.notified().await;}}).await.unwrap();
-            assert_eq!(relay_count(&video.peer.local_description().await.unwrap().sdp),1,"sender must retain one relay allocation");
+            let local=video.peer.local_description().await.unwrap().sdp;
+            assert_eq!(relay_count(&local),expected_sender_allocations,"sender must follow its deferred allocation policy");
+            if policy==RoutePolicy::Automatic {
+                for address in ["127.0.0.1","127.0.0.2"] {assert!(local.lines().any(|line|line.contains(address) && line.contains(" typ host")),"both direct interfaces must survive relay optimization");}
+            }
             assert_eq!(relay_count(&receiver.local_description().await.unwrap().sdp),expected_receiver_allocations,"receiver allocation count must match its explicit policy");
-            eprintln!("relay fanout: trickle={trickle} sender_bindings=2 receiver_bindings=2 sender_allocations=1 receiver_allocations={expected_receiver_allocations}");
+            eprintln!("relay fanout: trickle={trickle} sender_bindings=2 receiver_bindings=2 sender_allocations={expected_sender_allocations} receiver_allocations={expected_receiver_allocations}");
             for (index,payload) in [vec![0x65,1,2,3,4],vec![0x41,5,6,7,8]].into_iter().enumerate() {
                 let mut annex_b=vec![0,0,0,1];annex_b.extend_from_slice(&payload);
                 video.send(EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe:index==0,presentation_time_micros:1_000_000+(index as i64)*33_333}).await.unwrap();
@@ -229,7 +276,7 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
                 assert_eq!(&received.payload[..],&payload);
             }
             let route=video.route_statistics().await;
-            let relay_only=policy==RoutePolicy::RelayOnly;
+            let relay_only=policy==RoutePolicy::RelayOnly || relay_candidates_only;
             assert_eq!(route.route,if relay_only {MediaRoute::Relayed} else {MediaRoute::Direct},"prove the selected route under the requested policy");
             assert_eq!(route.local_relay_transport,if relay_only {expected_transport} else {RelayTransport::Unknown},"join nominated allocation to actual stream transport");
             assert!(route.bytes_sent>0);

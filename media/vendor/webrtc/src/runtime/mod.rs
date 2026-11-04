@@ -170,6 +170,15 @@ pub trait Runtime: Send + Sync + Debug + 'static {
         None
     }
 
+    /// Optional initial TURN grace for an embedder exchanging incremental ICE.
+    /// Host/STUN and the driver keep running during the grace. A connection
+    /// established before the deadline skips these unnecessary allocations;
+    /// otherwise TURN starts at the deadline. Relay-only mode never delays.
+    /// Zero preserves the SDK default. The driver caps this at one second.
+    fn turn_gathering_delay(&self) -> Duration {
+        Duration::ZERO
+    }
+
     /// The current instant, as this runtime measures it.
     ///
     /// **This is the clock the sans-I/O core sees.** The core is *told* the time — through

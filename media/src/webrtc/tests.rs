@@ -252,3 +252,21 @@ fn loopback(format: VideoFormat) {
         }).await.expect("bounded native WebRTC loopback");
     });
 }
+
+#[test]
+fn lazy_turn_close_cancels_the_deferred_allocation() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(3),async {
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+            config.add_ice_server(vec![format!("turn:{}?transport=udp",socket.local_addr().unwrap())],"fixture".into(),"test-only".into()).unwrap();
+            let video=WebRtcVideo::open_trickle(config).await.unwrap();
+            assert!(!video.events.gathered.load(Ordering::Acquire));
+            let signals=video.signaling().unwrap();video.close();
+            assert!(matches!(signals.next_signal().await,Err(WebRtcError::Ended)));
+            let mut bytes=[0;2000];
+            assert!(tokio::time::timeout(Duration::from_millis(400),socket.recv_from(&mut bytes)).await.is_err(),"closed peers cannot allocate after their grace expires");
+        }).await.unwrap();
+    });
+}

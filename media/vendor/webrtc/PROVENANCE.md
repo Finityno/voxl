@@ -33,6 +33,17 @@ Rebinding reevaluates the preference rather than reusing stale interface IPs.
 The two-binding actual-coturn tests require one relay endpoint per peer and
 retain both host candidates in automatic mode, followed by nominated media.
 
+`Runtime::turn_gathering_delay` is a default-zero optional policy for incremental
+ICE embedders. The existing driver timer schedules deferred TURN, never a sleep
+inside the event handler; host/STUN, reads, DTLS, writes and Close remain live.
+A Connected event cancels the deferred allocation and completes the TURN part
+of gathering. If no connection exists at the deadline, normal TURN gathering
+starts. Relay-only mode bypasses the grace; rebind clears stale deferred work.
+The wrapper uses 250 ms only for Automatic trickle peers with configured TURN.
+Full-SDP callers and the SDK default remain immediate. Actual-coturn fixtures
+cover skipped native LAN allocations and delayed UDP/TCP/TLS fallback; a close
+fixture requires no late Allocate after its original deadline.
+
 When updating, verify the new package checksum, preserve licenses, reapply this
 driver and optional interface changes and rerun the forced UDP/TCP/TLS relay fixtures. URL parsing,
 loopback transport tests and native cross-compilation do not replace them.

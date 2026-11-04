@@ -28,13 +28,14 @@ pub(super) struct StreamRelays {
     runtime: Arc<RelayRuntime>,
 }
 impl StreamRelays {
-    pub async fn prepare(servers: &mut Vec<RTCIceServer>, bindings: &[String], tls: Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>) -> Result<Self,WebRtcError> {
+    pub async fn prepare(servers: &mut Vec<RTCIceServer>, bindings: &[String], tls: Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>,turn_delay:Duration) -> Result<Self,WebRtcError> {
         let mut relays=Self::default();
         let allowed: Vec<IpAddr> = bindings.iter().map(|binding|binding.parse::<SocketAddr>().map(|value|value.ip()).map_err(|_|WebRtcError::Configuration)).collect::<Result<_,_>>()?;
         let mut rewritten=Vec::new();
-        let mut ipc=std::collections::HashSet::new();
+        let mut ipc=std::collections::HashSet::new();let mut has_turn=false;
         for server in servers.iter() {
             for url in server.urls().map_err(|_|WebRtcError::Configuration)? {
+                has_turn|=matches!(url.scheme,SchemeType::Turn|SchemeType::Turns);
                 if !matches!(url.scheme,SchemeType::Turn|SchemeType::Turns) || url.proto!=ProtoType::Tcp {
                     // DTLS TURN is not implemented by this adapter or the SDK.
                     if url.is_secure() {return Err(WebRtcError::Configuration);}
@@ -60,7 +61,7 @@ impl StreamRelays {
             }
         }
         *servers=rewritten;
-        relays.runtime=Arc::new(RelayRuntime::new(ipc));
+        relays.runtime=Arc::new(RelayRuntime::new(ipc).with_turn_delay(if has_turn {turn_delay} else {Duration::ZERO}));
         Ok(relays)
     }
     pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {Arc::<RelayRuntime>::clone(&self.runtime)}
