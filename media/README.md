@@ -47,6 +47,15 @@ answer to the frame writer, and keep driving `next_update`. Each direction
 accepts at most 64 bounded candidates. Closing wakes pending signal consumers. RTP timestamps follow
 capture presentation time even when unchanged frames are skipped. PLI/FIR
 requests are coalesced and rate-limited before the encoder forces an IDR.
+Automatic trickle peers with TURN configured give a direct connection 250 ms
+before starting native relay allocation. A connection that wins cancels that
+allocation; an unconnected peer starts TURN at the deadline on the existing
+driver timer. Full-SDP and Relay-only paths remain immediate. The SDK hook is
+opt-in and defaults to zero. This provisional latency/cost tradeoff still needs
+physical-device measurement. `results/2026-11-04-lazy-turn/` records zero native
+LAN allocations and actual UDP/TCP/TLS fallback with direct packet paths blocked.
+Browser viewers and credential lookup have separate remaining allocation/startup
+work; these tests establish no measured CPU/RSS saving.
 The bounded loopback test uses real UDP/DTLS/SRTP and synthetic NAL payloads;
 it does not test a decoder, display capture or video quality.
 
