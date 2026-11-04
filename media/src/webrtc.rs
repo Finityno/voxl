@@ -174,6 +174,7 @@ pub struct WebRtcVideo {
     keyframe: Arc<AtomicBool>,
     last_keyframe_request: Option<Instant>,
     updates: UpdatePhase,
+    checked_relay_failure: u64,
 }
 
 #[derive(Clone,Copy)]
@@ -201,8 +202,8 @@ impl WebRtcVideo {
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
-        let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls).await?);
         let changes=Arc::new(ChangeSignal::default());
+        let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes)).await?);
         let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes) });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
             sdp_fmtp_line: config.format.fmtp(),
@@ -237,7 +238,7 @@ impl WebRtcVideo {
         Ok(Self { peer,sender,track,events,closer,offer,payload_type: None,ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
-            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting })
+            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0 })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
@@ -250,6 +251,18 @@ impl WebRtcVideo {
         loop {
             let revision=self.events.changes.revision();
             if self.ended() {return VideoUpdate::Ended;}
+            let failure_revision=self.closer.relays.failure_revision();
+            if failure_revision!=self.checked_relay_failure {
+                if let Ok(Some(transport))=self.sender.transport().await {
+                    if let Ok(Some(pair))=transport.ice_transport().get_selected_candidate_pair().await {
+                        let local=pair.local();
+                        if local.address.parse::<std::net::IpAddr>().ok().is_some_and(|ip|self.closer.relays.is_failed(std::net::SocketAddr::new(ip,local.port))) {
+                            self.close();return VideoUpdate::Ended;
+                        }
+                        self.checked_relay_failure=failure_revision;
+                    }
+                }
+            }
             let connected=self.connected();
             if connected && matches!(self.updates,UpdatePhase::Waiting) {
                 self.updates=UpdatePhase::Connected;

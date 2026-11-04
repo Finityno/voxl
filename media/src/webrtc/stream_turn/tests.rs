@@ -49,6 +49,24 @@ fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {forced_re
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
 fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {forced_relay(RelayTransport::Tls);}
 
+#[test]
+#[ignore = "requires the isolated loopback coturn TLS fixture"]
+fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        let url=rtc::ice::url::Url::parse_url(&std::env::var("VOXL_TEST_TURN_TLS").expect("fixture TLS URL")).unwrap();
+        assert!(url.host.parse::<IpAddr>().unwrap().is_loopback());
+        let socket=Arc::new(UdpSocket::bind("127.0.0.1:0").await.unwrap());
+        let source=socket.local_addr().unwrap();
+        let (sender,receiver)=mpsc::channel(1);
+        sender.try_send(vec![0,1,0,0,0x21,0x12,0xa4,0x42,1,2,3,4,5,6,7,8,9,10,11,12]).unwrap();
+        let state=AllocationState {allocations:Arc::default(),failures:Arc::default(),changes:Arc::default(),address:None};
+        let target=Arc::new(Target {host:url.host,port:url.port,transport:RelayTransport::Tls,tls:Some(default_tls().unwrap())});
+        let error=timeout(Duration::from_secs(5),session(socket,source,target,receiver,state)).await.unwrap().unwrap_err();
+        assert!(matches!(error.get_ref().and_then(|value|value.downcast_ref::<rustls::Error>()),Some(rustls::Error::InvalidCertificate(rustls::CertificateError::UnknownIssuer))));
+    });
+}
+
 fn forced_relay(transport:RelayTransport) {
     use super::super::*;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
@@ -88,7 +106,7 @@ fn forced_relay(transport:RelayTransport) {
             let bindings=vec!["127.0.0.1:0".to_owned()];
             let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:RoutePolicy::RelayOnly,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
             let mut servers=vec![server];
-            let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls).await.unwrap();
+            let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
             let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
@@ -108,7 +126,14 @@ fn forced_relay(transport:RelayTransport) {
             assert_eq!(route.route,MediaRoute::Relayed,"host candidates cannot satisfy this fixture");
             assert_eq!(route.local_relay_transport,transport,"join nominated allocation to actual stream transport");
             assert!(route.bytes_sent>0);
-            video.close();assert_eq!(video.next_update().await,VideoUpdate::Ended);
+            if transport==RelayTransport::Udp {video.close();}
+            else {
+                // Lose the allocated stream without closing the peer first.
+                // Its media update must wake and end the selected failed path.
+                assert!(!video.closer.closed.load(Ordering::Acquire));
+                video.closer.relays.close();
+            }
+            while video.next_update().await!=VideoUpdate::Ended {}
             receiver.close().await.unwrap();receiver_relays.close();
         }).await.expect("bounded forced-relay fixture");
     });
