@@ -12,11 +12,11 @@ use rtc::peer_connection::configuration::RTCOfferOptions;
 use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader};
 use rtc::rtp::packetizer::Payloader;
 use rtc::rtp_transceiver::rtp_sender::{RTCPFeedback, RTCRtpCodec, RTCRtpCodecParameters, RTCRtpCodingParameters, RTCRtpEncodingParameters, RtpCodecKind};
-use std::sync::{Arc, OnceLock, atomic::{AtomicBool, AtomicU64, Ordering}};
+use std::sync::{Arc, OnceLock, Mutex, atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering}};
 use std::time::{Duration, Instant};
 use tokio::sync::Notify;
 use webrtc::media_stream::track_local::{TrackLocal, static_rtp::TrackLocalStaticRTP};
-use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnectionEventHandler, RTCConfigurationBuilder, RTCIceGatheringState,
+use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnectionEventHandler, RTCConfigurationBuilder, RTCIceGatheringState,RTCIceConnectionState,
     RTCIceServer, RTCIceTransportPolicy, RTCPeerConnectionIceEvent, RTCPeerConnectionState, RTCSessionDescription, Registry, register_default_interceptors};
 use webrtc::rtp_transceiver::{RtpSender, RTCRtpTransceiverDirection};
 
@@ -35,14 +35,30 @@ impl std::fmt::Display for WebRtcError {
 impl std::error::Error for WebRtcError {}
 fn transport(_: webrtc::error::Error) -> WebRtcError { WebRtcError::Transport }
 
+#[repr(u8)]
+#[derive(Clone,Copy,PartialEq,Eq)]
+enum Connection {Waiting,Connected,Ended}
 struct Events {
     gathered: AtomicBool,
     gather_wake: Notify,
-    connected: AtomicBool,
-    ended: AtomicBool,
+    connection: AtomicU8,
+    ice: Mutex<RTCIceConnectionState>,
     changes: Arc<ChangeSignal>,
     signals: Option<signaling::Signals>,
     media_mid:OnceLock<String>,
+}
+impl Events {
+    fn connection(&self)->Connection {match self.connection.load(Ordering::Acquire) {0=>Connection::Waiting,1=>Connection::Connected,_=>Connection::Ended}}
+    fn transition(&self,next:Connection) {
+        // Terminal transport/candidate failure cannot be revived by a late
+        // connection callback from the same driver.
+        let _=self.connection.fetch_update(Ordering::AcqRel,Ordering::Acquire,|current|
+            (current!=Connection::Ended as u8).then_some(next as u8));
+    }
+    fn ice_connected(&self)->bool {
+        self.connection()!=Connection::Ended && matches!(*self.ice.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+            RTCIceConnectionState::Connected|RTCIceConnectionState::Completed)
+    }
 }
 
 #[derive(Default)]
@@ -62,7 +78,7 @@ impl ChangeSignal {
 impl PeerConnectionEventHandler for Events {
     async fn on_ice_candidate(&self,event:RTCPeerConnectionIceEvent) {
         let Some(signals)=&self.signals else {return;};
-        if !event.candidate.to_json().ok().is_some_and(|candidate|signals.local(candidate.candidate,candidate.sdp_mid.unwrap_or_default()).is_ok()) {self.ended.store(true,Ordering::Release);}
+        if !event.candidate.to_json().ok().is_some_and(|candidate|signals.local(candidate.candidate,candidate.sdp_mid.unwrap_or_default()).is_ok()) {self.transition(Connection::Ended);}
         self.changes.changed();
     }
     async fn on_ice_gathering_state_change(&self, state: RTCIceGatheringState) {
@@ -72,11 +88,16 @@ impl PeerConnectionEventHandler for Events {
             self.changes.changed();
         }
     }
+    async fn on_ice_connection_state_change(&self,state:RTCIceConnectionState) {
+        *self.ice.lock().unwrap_or_else(std::sync::PoisonError::into_inner)=state;
+        self.changes.changed();
+    }
     async fn on_connection_state_change(&self, state: RTCPeerConnectionState) {
-        self.connected.store(state == RTCPeerConnectionState::Connected, Ordering::Release);
-        if matches!(state, RTCPeerConnectionState::Failed | RTCPeerConnectionState::Disconnected | RTCPeerConnectionState::Closed) {
-            self.ended.store(true, Ordering::Release);
-        }
+        self.transition(match state {
+            RTCPeerConnectionState::Connected=>Connection::Connected,
+            RTCPeerConnectionState::Failed|RTCPeerConnectionState::Disconnected|RTCPeerConnectionState::Closed=>Connection::Ended,
+            _=>Connection::Waiting,
+        });
         self.changes.changed();
     }
 }
@@ -257,7 +278,7 @@ impl WebRtcVideo {
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes),turn_delay).await?);
-        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
+        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connection: AtomicU8::new(Connection::Waiting as u8),ice:Mutex::new(RTCIceConnectionState::New),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
             sdp_fmtp_line: config.format.fmtp(),
             rtcp_feedback: vec![RTCPFeedback { typ: "nack".into(), parameter: String::new() },
@@ -311,8 +332,11 @@ impl WebRtcVideo {
     pub fn signaling(&self)->Option<VideoSignaling> {
         self.events.signals.as_ref().map(|signals|VideoSignaling {events:Arc::clone(&self.events),closer:self.closer.clone(),generation:signals.generation()})
     }
-    pub fn connected(&self) -> bool { !self.ended() && self.negotiation.payload().is_some() && self.events.connected.load(Ordering::Acquire) }
-    pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) }
+    pub fn connected(&self) -> bool { !self.ended() && self.negotiation.payload().is_some() && self.events.connection()==Connection::Connected }
+    /// ICE reachability is available before DTLS and the sender transport.
+    /// Use it to retire optional startup relay work, never to permit RTP/input.
+    pub fn ice_connected(&self)->bool {!self.ended() && self.events.ice_connected()}
+    pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.connection()==Connection::Ended }
     /// Wait without polling for first connection, coalesced keyframe feedback
     /// or terminal close. A pending rate-limited PLI has one deadline; idle
     /// connected media has no periodic timer. Cancelling a wait loses no state.
@@ -433,7 +457,7 @@ impl WebRtcVideo {
     async fn relay_fallback(&mut self,config:&mut WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
         let (setup,payload)=match &self.negotiation {
-            Negotiation::Ready {fallback:Some(setup),payload} if !self.connected()=>(setup.clone(),*payload),
+            Negotiation::Ready {fallback:Some(setup),payload} if !self.connected() && !self.ice_connected()=>(setup.clone(),*payload),
             _=>return Err(WebRtcError::Configuration),
         };
         if config.route_policy!=RoutePolicy::Automatic || config.bind_addresses!=setup.bindings
@@ -445,7 +469,7 @@ impl WebRtcVideo {
         self.negotiation=Negotiation::PreparingFallback;
         self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;
         if self.ended() {return Err(WebRtcError::Ended);}
-        if self.events.connected.load(Ordering::Acquire) {
+        if self.events.connection()==Connection::Connected || self.ice_connected() {
             self.negotiation=Negotiation::Ready {payload,fallback:Some(setup)};
             guard.0=None;
             return Err(WebRtcError::Configuration);

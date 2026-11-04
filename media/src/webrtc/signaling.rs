@@ -56,7 +56,7 @@ impl VideoSignaling {
     pub async fn next_signal(&self)->Result<VideoIceSignal,WebRtcError> {
         loop {
             let revision=self.events.changes.revision();
-            if self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
+            if self.closer.closed.load(Ordering::Acquire) || self.events.connection()==super::Connection::Ended {return Err(WebRtcError::Ended);}
             let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
             let next={
                 let mut local=signals.local.lock().unwrap_or_else(|error|error.into_inner());
@@ -72,7 +72,7 @@ impl VideoSignaling {
         }
     }
     pub fn add_candidate(&self,candidate:String,mid:String)->Result<(),WebRtcError> {
-        if self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
+        if self.closer.closed.load(Ordering::Acquire) || self.events.connection()==super::Connection::Ended {return Err(WebRtcError::Ended);}
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
         let mut remote=signals.remote.lock().unwrap_or_else(|error|error.into_inner());
         if signals.generation()!=self.generation {return Err(WebRtcError::Ended);}

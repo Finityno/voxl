@@ -8,6 +8,35 @@ use tokio::sync::mpsc;
 mod relay_fallback;
 
 #[test]
+fn ice_reachability_precedes_dtls_and_terminal_connection_stays_closed() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(5),async {
+            let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+            let mut video=WebRtcVideo::open_trickle(config).await.unwrap();
+            assert!(!video.ice_connected() && !video.connected());
+            video.events.on_ice_connection_state_change(RTCIceConnectionState::Connected).await;
+            assert!(video.ice_connected() && !video.connected(),"ICE reachability never grants DTLS/RTP readiness");
+            // Model an accepted answer while DTLS is pending. A relay request
+            // must be refused before it changes the negotiation or allocates.
+            video.negotiation=Negotiation::Ready {payload:102,fallback:Some(FallbackSetup {bindings:vec!["127.0.0.1:0".into()],tls:None})};
+            let mut fallback=WebRtcConfig::direct_first(video.format,vec!["127.0.0.1:0".into()]);
+            fallback.add_ice_server(vec!["turn:127.0.0.1:9?transport=udp".into()],"fixture".into(),"unused".into()).unwrap();
+            assert!(matches!(video.begin_relay_fallback(fallback).await,Err(WebRtcError::Configuration)));
+            assert_eq!(video.signaling().unwrap().generation(),0);assert!(!video.ended());
+            video.events.on_ice_connection_state_change(RTCIceConnectionState::Disconnected).await;
+            assert!(!video.ice_connected());
+            video.events.on_ice_connection_state_change(RTCIceConnectionState::Completed).await;
+            assert!(video.ice_connected());
+            video.events.on_connection_state_change(RTCPeerConnectionState::Failed).await;
+            video.events.on_connection_state_change(RTCPeerConnectionState::Connected).await;
+            assert!(video.ended() && !video.connected() && !video.ice_connected(),"late callbacks cannot revive a terminal peer");
+            video.close();
+        }).await.unwrap();
+    });
+}
+
+#[test]
 fn webrtc_change_wait_survives_cancellation_and_prior_notifications() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
