@@ -39,15 +39,19 @@ fn turn_stream_datagrams_reject_invalid_lengths_and_framing() {
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {forced_relay(RelayTransport::Udp);}
+fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {forced_relay(RelayTransport::Tcp);}
+fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {forced_relay(RelayTransport::Tls);}
+fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn TLS fixture"]
@@ -67,7 +71,7 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
     });
 }
 
-fn forced_relay(expected_transport:RelayTransport) {
+fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy) {
     use super::super::*;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
@@ -108,14 +112,14 @@ fn forced_relay(expected_transport:RelayTransport) {
                 Some(Arc::new(ClientConfig::builder_with_provider(Arc::new(rustls::crypto::aws_lc_rs::default_provider())).with_safe_default_protocol_versions().unwrap().with_root_certificates(roots).with_no_client_auth()))
             } else {None};
             let bindings=vec!["127.0.0.1:0".to_owned()];
-            let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:RoutePolicy::RelayOnly,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
+            let mut video=WebRtcVideo::open_with_tls(WebRtcConfig {ice_servers:vec![server.clone()],route_policy:policy,bind_addresses:bindings.clone(),format:VideoFormat::H264 {profile_level_id:[66,224,31]}},tls.clone()).await.unwrap();
             assert!(video.offer().lines().any(|line|line.starts_with("a=candidate:") && line.contains(" typ relay")),"sender must gather an authenticated relay candidate");
             let mut servers=vec![server];
             let receiver_relays=StreamRelays::prepare(&mut servers,&bindings,tls,Arc::new(ChangeSignal::default())).await.unwrap();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
             let gathered=Arc::new(AtomicBool::new(false));let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
-            let receiver=PeerConnectionBuilder::new().with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(RTCIceTransportPolicy::Relay).build())
+            let receiver=PeerConnectionBuilder::new().with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
                 .with_media_engine(media).with_handler(Arc::new(Receiver {packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
@@ -125,6 +129,7 @@ fn forced_relay(expected_transport:RelayTransport) {
             video.answer(answer).await.unwrap();
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");
+            assert!(video.take_keyframe_request());
             for (index,payload) in [vec![0x65,1,2,3,4],vec![0x41,5,6,7,8]].into_iter().enumerate() {
                 let mut annex_b=vec![0,0,0,1];annex_b.extend_from_slice(&payload);
                 video.send(EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe:index==0,presentation_time_micros:1_000_000+(index as i64)*33_333}).await.unwrap();
@@ -146,10 +151,19 @@ fn forced_relay(expected_transport:RelayTransport) {
                 assert_eq!(&received.payload[..],&payload);
             }
             let route=video.route_statistics().await;
-            assert_eq!(route.route,MediaRoute::Relayed,"host candidates cannot satisfy this fixture");
-            assert_eq!(route.local_relay_transport,expected_transport,"join nominated allocation to actual stream transport");
+            let relay_only=policy==RoutePolicy::RelayOnly;
+            assert_eq!(route.route,if relay_only {MediaRoute::Relayed} else {MediaRoute::Direct},"prove the selected route under the requested policy");
+            assert_eq!(route.local_relay_transport,if relay_only {expected_transport} else {RelayTransport::Unknown},"join nominated allocation to actual stream transport");
             assert!(route.bytes_sent>0);
-            if expected_transport==RelayTransport::Udp {video.close();}
+            if !relay_only {
+                video.closer.relays.close();
+                assert_eq!(timeout(Duration::from_secs(2),video.next_update()).await.unwrap(),VideoUpdate::KeyframeRequested,"unused relay failure must leave direct video healthy");
+                video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,7,6],keyframe:true,presentation_time_micros:2_000_000}).await.unwrap();
+                assert_eq!(&timeout(Duration::from_secs(2),packets.recv()).await.unwrap().unwrap().payload[..],&[0x65,9,8,7,6]);
+                assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
+                video.close();
+            }
+            else if expected_transport==RelayTransport::Udp {video.close();}
             else {
                 // Lose the allocated stream without closing the peer first.
                 // Its media update must wake and end the selected failed path.
