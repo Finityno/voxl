@@ -47,6 +47,21 @@ the older track-event-before-media drain on TURN input. Exact source comparisons
 UDP/TCP/TLS allocation oracles and failure logs are retained in the parent's
 `results/2026-11-04-late-relay-fallback/` pack. No measured CPU saving is implied.
 
+The fork-only `quiesce_stun_gathering_for_restart` method acknowledges a
+serialized STUN-only restart boundary. A bounded interrupt channel cancels a
+pending resolver future; its acknowledged command uses the existing driver
+FIFO after all earlier gathering requests. The driver retires STUN clients,
+queued writes/events and old core callbacks before replying. It retains the
+ICE/DTLS transports and does not cancel established TURN allocations; callers
+with TURN configuration are rejected. The caller must serialize negotiation
+and close if cancelled. The media wrapper advances its generation only after
+the acknowledgement and still preserves a direct connection observed there.
+The driver's former gathering flags and deferred deadline now live in one
+discovery enum. The interrupt receiver is selected only during STUN gathering,
+without a new steady media listener or periodic timer. No production dependency
+or OS thread is added. Pending-DNS, silent-UDP/late-response and actual TURN
+UDP/TCP/TLS evidence is in `results/2026-11-04-stun-startup/` in the parent.
+
 `runtime/mod.rs` adds an optional, default-disabled TURN-only local-address
 preference. `transport/turn_relayer.rs` evaluates it once per destination
 family using actual bound sockets. The default keeps every interface, and

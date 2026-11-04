@@ -1,0 +1,44 @@
+{
+  "source": "ae1a9896d9c3a9d206936314de13f22ca85eeedf",
+  "previous_source": "c7eb4dc61e29fac1a37de52bb25136fc497756c2",
+  "results": {
+    "build_exit": 0,
+    "cancellation": {
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 43
+    },
+    "clippy_exit": 0
+  },
+  "scope": "Ten previous tests passed at c7; only the new cancellation test ran at ae1. Production files are byte-identical.",
+  "files": {
+    "commands.log": "cargo --version \ntimeout -k 5 30 git fetch https://github.com/Finityno/voxl.git fincode/desktop-streaming \ntimeout -k 5 30 git diff --name-only c7eb4dc61e29fac1a37de52bb25136fc497756c2..ae1a9896d9c3a9d206936314de13f22ca85eeedf \ntimeout -k 5 30 git switch --detach ae1a9896d9c3a9d206936314de13f22ca85eeedf\ntimeout -k 5 120 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short \ntimeout -k 5 15 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc::tests::relay_fallback::cancelling_relay_fallback_during_stun_barrier_closes_the_view -- --exact --nocapture \ntimeout -k 5 120 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --examples -j2 -q --message-format=short -- -D warnings \n",
+    "exits.tsv": "cargo-version\t0\nfetch\t0\ndiff-names\t0\nswitch\t0\nbuild\t0\ncancellation\t0\nclippy\t0\n",
+    "source-checks.log": "before-cargo-version c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nafter-cargo-version c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nbefore-fetch c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nafter-fetch c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nbefore-diff-names c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nafter-diff-names c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nbefore-switch c7eb4dc61e29fac1a37de52bb25136fc497756c2 clean\nafter-switch ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nbefore-build ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nafter-build ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nbefore-cancellation ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nafter-cancellation ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nbefore-clippy ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\nafter-clippy ae1a9896d9c3a9d206936314de13f22ca85eeedf clean\n",
+    "final-source.log": "ae1a9896d9c3a9d206936314de13f22ca85eeedf\nclean\n",
+    "production-hashes.json": "{\n  \"media/src/webrtc.rs\": {\n    \"c7eb4dc61e29fac1a37de52bb25136fc497756c2\": \"b67db506a2c39a0f3d99b09b2e7fa25751b01182e286bc480756cf951279f908\",\n    \"ae1a9896d9c3a9d206936314de13f22ca85eeedf\": \"b67db506a2c39a0f3d99b09b2e7fa25751b01182e286bc480756cf951279f908\"\n  },\n  \"media/vendor/webrtc/src/peer_connection/driver.rs\": {\n    \"c7eb4dc61e29fac1a37de52bb25136fc497756c2\": \"3c3a08ba38f7ecf507f5a7163df4bd1217c57909a4e82eb76ad94ea5fab8a10a\",\n    \"ae1a9896d9c3a9d206936314de13f22ca85eeedf\": \"3c3a08ba38f7ecf507f5a7163df4bd1217c57909a4e82eb76ad94ea5fab8a10a\"\n  },\n  \"media/vendor/webrtc/src/peer_connection/mod.rs\": {\n    \"c7eb4dc61e29fac1a37de52bb25136fc497756c2\": \"d46a4ad0ad6ae5022fcfc98be8cf6b2f390be5fe796dea8889eb13c22682f51a\",\n    \"ae1a9896d9c3a9d206936314de13f22ca85eeedf\": \"d46a4ad0ad6ae5022fcfc98be8cf6b2f390be5fe796dea8889eb13c22682f51a\"\n  }\n}\n",
+    "cargo-version.log": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+    "fetch.log": "From https://github.com/Finityno/voxl\n * branch            fincode/desktop-streaming -> FETCH_HEAD\n",
+    "diff-names.log": "media/src/webrtc/tests/relay_fallback.rs\n",
+    "switch.log": "Previous HEAD position was c7eb4dc Allow STUN-first peers to cancel discovery before relay fallback\nHEAD is now at ae1a989 Check cancellation while STUN discovery is being retired\n",
+    "build.log": "",
+    "cancellation.log": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 43 filtered out; finished in 0.02s\n\n",
+    "clippy.log": ""
+  },
+  "sha256": {
+    "commands.log": "27aa5f1862f63234fef710162ad1dc79cae24430f0f95f1c0f1b5efdbf3732d6",
+    "exits.tsv": "b3086b9486507b39dab953599eee097d796f1544ea9d73363d9db500433b3d5a",
+    "source-checks.log": "1d25ab6b5a21871f46482811e849958c342b000639d1e9999ca23d753195aea2",
+    "final-source.log": "6265a1df2bb7fe976ae0673a710001afab5507d1b520387afd97b990b0144d7a",
+    "production-hashes.json": "2553d638cebe2c2a6ab6435a9b14b22738681258e52017e157555dfe70f08ce4",
+    "cargo-version.log": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+    "fetch.log": "9847da2ce96385ff443d13c620209439de9b6d9b501fd971b6fb5da0f84743d3",
+    "diff-names.log": "efba7c3ea8c60510a4eadd0ea88f22d451f804cc9f126762d368f576b160dba9",
+    "switch.log": "e77516e65d461e7237ab6fe44ad0b0fad1526333d4fe718559f1d3a7c82ba8be",
+    "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cancellation.log": "281f73de9f5bd00bf8c661d54063708d41924cab076245ce5ebe082e87c55269",
+    "clippy.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

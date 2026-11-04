@@ -214,13 +214,18 @@ Profile signaling follows [RFC 7798](https://www.rfc-editor.org/rfc/rfc7798.html
 
 
 Late startup credentials can now use `WebRtcVideo::begin_relay_fallback` after
-an initially server-free Automatic trickle peer accepts its first answer but
+an initially STUN-only/server-free Automatic trickle peer accepts its first answer but
 remains unconnected. The embedder owns grace, credential fetch, authenticated
 view/generation envelopes and signaling-task replacement. The API performs one
 bounded ICE restart with stable DTLS identity; superseded candidate handles and
-answers cannot feed it. It does not implement credential renewal, STUN-only
-startup cancellation or application coordination. Raw control-datagram event
+answers cannot feed it. The driver acknowledges cancellation of old STUN
+DNS/retries and drains old callbacks before advancing the generation, so an
+unreachable discovery service does not hold fallback behind its timeout.
+It does not implement credential renewal or application coordination. Raw control-datagram event
 pumping also fixes a first-SRTP-packet failure exposed by a one-sided TURN
 baseline. Exact pre-fix failures and the unchanged passing eight-case scope at
 5229dac are in `results/2026-11-04-late-relay-fallback/`. No application startup
-or resource saving is claimed by those synthetic transport tests.
+or resource saving is claimed by those synthetic transport tests. The follow-up
+STUN-first scope passes ten cases and strict Clippy at c7eb4dc; exact evidence
+and limits are in `results/2026-11-04-stun-startup/`. Fincode remains pinned to
+the earlier qualified 5229dac until its next integration/qualification change.
