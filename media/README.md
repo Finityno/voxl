@@ -174,7 +174,9 @@ Operation-specific errors identified the hardware-status query. The narrowly
 scoped software-only correction now passes actual software H.264/HEVC encoding
 and independent decoding on this Mac; all failed and passing logs remain in
 `results/2026-11-04-macos-codec-matrix/`. Sustained CPU fallback performance on
-other devices remains required.
+other devices remains required. The probe now uses the callback wait and measures
+arrival before stream/profile output; its earlier polling samples retain their
+original scope and are not a controlled latency-saving comparison.
 
 Run the same native synthetic workload with `codec_probe hardware /tmp/probe.hevc hevc`
 for HEVC. Hardware H.264/HEVC now pass native synthetic encoding and independent

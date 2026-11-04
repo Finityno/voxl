@@ -65,3 +65,33 @@ at 720p30. The probe still polls at 1 ms and includes file/profile-output work i
 latencies, so its timings must not be conflated with pure encoder latency.
 `fec7f8f/artifact-pack.json` retains every raw log and command under the same
 shared lock, priority, watchdog and source-cleanliness controls.
+
+
+## Callback-based measurement
+
+At exact `2a48680703de56380268bc0f3b740176455877ed`, the example now waits on
+the native output callback instead of polling every millisecond and records
+latency before profile logging and stream writes. This matches the application's
+worker wait mechanism. It changes benchmark instrumentation, not the production
+encoder or application behavior. Earlier timing samples are retained with their
+original measurement scope and are not a controlled product-speedup baseline.
+
+Release example build, strict native library/examples Clippy, all four encoder
+modes and independent decoding/quality checks passed again. Each mode produced
+60 correctly timestamped 720p30 frames. The encoded byte counts and SSIM values
+match the preceding run, as expected from unchanged encoding settings.
+
+| Mode | First-frame ms | Callback-latency p50/p95 ms |
+| --- | ---: | --- |
+| H.264 hardware | 41.93 | 3.77 / 6.08 |
+| H.264 software | 51.10 | 2.88 / 7.64 |
+| HEVC hardware | 34.49 | 4.55 / 6.25 |
+| HEVC software | 46.95 | 12.44 / 22.22 |
+
+These are still single short synthetic runs, with no separate steady-state
+warmup. Software encoding may run in system codec helpers, excluded from the
+probe's time/RSS counters. Lower software probe-process CPU or any individual
+sample does not show it uses less total CPU/power than hardware. No end-to-end,
+physical-device, five-run sustained target or matched-quality saving is proved.
+`2a48680/artifact-pack.json` includes raw samples, time logs, commands, source
+checks and output-checksum comparison with the preceding measurement method.
