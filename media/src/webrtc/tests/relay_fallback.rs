@@ -105,6 +105,7 @@ fn late_configuration(relay:Option<RelayTransport>) {
         while !gathered.load(Ordering::Acquire) {wake.notified().await;}
         let old_answer=receiver.local_description().await.unwrap().sdp;
         video.answer(strip_candidates(&old_answer)).await.unwrap();
+        eprintln!("late_fallback_stage=initial_answer");
         // Neither direction has received a candidate, so no peer-reflexive
         // shortcut can disguise the late-configuration transition.
         tokio::time::sleep(Duration::from_millis(250)).await;
@@ -114,6 +115,7 @@ fn late_configuration(relay:Option<RelayTransport>) {
         assert!(matches!(video.begin_relay_fallback(invalid).await,Err(WebRtcError::Configuration)));
         assert!(!video.ended());assert_eq!(video.signaling().unwrap().generation(),0);
         let offer=video.begin_relay_fallback(fallback).await.unwrap();
+        eprintln!("late_fallback_stage=restart_offer");
         assert_eq!(offer.generation,1);
         assert!(field(&initial_offer,"a=ice-ufrag:")!=field(&offer.sdp,"a=ice-ufrag:"),"restart must advertise fresh ICE credentials");
         assert!(field(&initial_offer,"a=fingerprint:")==field(&offer.sdp,"a=fingerprint:"),"DTLS identity must stay pinned");
@@ -123,6 +125,7 @@ fn late_configuration(relay:Option<RelayTransport>) {
         let signals=video.signaling().unwrap();assert_eq!(signals.generation(),1);
         gathered.store(false,Ordering::Release);
         receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(&offer.sdp)).unwrap()).await.unwrap();
+        eprintln!("late_fallback_stage=remote_offer");
         let outgoing=signals.clone();let peer=Arc::clone(&receiver);
         let candidates=tokio::spawn(async move {
             let mut discovered=false;
@@ -141,17 +144,21 @@ fn late_configuration(relay:Option<RelayTransport>) {
         });
         receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
         while !gathered.load(Ordering::Acquire) {wake.notified().await;}
+        eprintln!("late_fallback_stage=receiver_gathered");
         let answer=receiver.local_description().await.unwrap().sdp;
         let mid=field(&answer,"a=mid:").to_owned();
         for candidate in answer.lines().filter_map(|line|line.strip_prefix("a=candidate:")) {
             signals.add_candidate(format!("candidate:{candidate}"),mid.clone()).unwrap();
         }
         video.answer_generation(offer.generation,strip_candidates(&answer)).await.unwrap();
+        eprintln!("late_fallback_stage=restart_answer");
         assert_eq!(video.next_update().await,VideoUpdate::Connected);
+        eprintln!("late_fallback_stage=connected");
         assert!(candidates.await.unwrap(),"new configuration must actually gather its new server candidate");
         if let Some(stun)=stun {stun.await.unwrap();}
         video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,7,6],keyframe:true,presentation_time_micros:1_000_000}).await.unwrap();
         assert_eq!(&received.recv().await.unwrap().payload[..],&[0x65,9,8,7,6]);
+        eprintln!("late_fallback_stage=payload");
         let route=video.route_statistics().await;
         assert_eq!(route.route,if relay.is_some() {MediaRoute::Relayed} else {MediaRoute::Direct});
         if let Some(transport)=relay {assert_eq!(route.local_relay_transport,transport);}
