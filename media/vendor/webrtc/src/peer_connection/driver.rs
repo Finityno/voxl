@@ -2144,6 +2144,13 @@ where
             for message in turn_messages {
                 core.handle_read(message)?;
             }
+            drop(core);
+            // Decapsulation happens after the iteration's normal event drain.
+            // Install a newly discovered remote track before delivering its
+            // first media packet, just as the direct read path does.
+            for event in Self::drain_core_events(self.inner.clone()).await {
+                self.handle_rtc_event(event).await;
+            }
         }
 
         // 3.b Media, unconditionally. It shares nothing with data-channel flow control, and

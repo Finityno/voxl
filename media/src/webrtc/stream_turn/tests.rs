@@ -131,7 +131,7 @@ fn forced_relay(expected_transport:RelayTransport) {
                 let received=match timeout(Duration::from_secs(5),packets.recv()).await {
                     Ok(Some(packet))=>packet,
                     _=>{
-                        eprintln!("media deadline: receiver connected={} track seen={} sender {:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
+                        eprintln!("media deadline: frame={index} receiver connected={} track seen={} sender {:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
                         use webrtc::peer_connection::{RTCStatsReportEntry as Entry,StatsSelector};
                         for entry in receiver.get_stats(Instant::now(),StatsSelector::None).await.iter() {
                             match entry {
