@@ -23,10 +23,9 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for KeyframeFeedback {
     type Error = Error;
     type Time = Instant;
     fn handle_read(&mut self,message: TaggedPacket) -> Result<(),Error> {
-        if let Packet::Rtcp(packets) = &message.message.packet {
-            if packets.iter().any(|packet| packet.as_any().is::<PictureLossIndication>() || packet.as_any().is::<FullIntraRequest>()) {
-                self.keyframe.store(true,Ordering::Release);
-            }
+        if let Packet::Rtcp(packets) = &message.message.packet
+            && packets.iter().any(|packet| packet.as_any().is::<PictureLossIndication>() || packet.as_any().is::<FullIntraRequest>()) {
+            self.keyframe.store(true,Ordering::Release);
         }
         if self.read.len() >= 64 { return Err(Error::Other("desktop feedback queue is full".into())); }
         self.read.push_back(message);

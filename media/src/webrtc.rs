@@ -161,7 +161,8 @@ impl WebRtcVideo {
         let ticks = (i128::from(frame.presentation_time_micros)-i128::from(first_pts))*90_000/1_000_000;
         let timestamp = self.timestamp.wrapping_add(ticks as u32);
         let payloads = self.payloader.payload(1100,&Bytes::from(frame.annex_b)).map_err(transport)?;
-        let last = payloads.len().saturating_sub(1);
+        if payloads.is_empty() { self.close(); return Err(WebRtcError::InvalidFrame); }
+        let last = payloads.len() - 1;
         let result = tokio::time::timeout(Duration::from_millis(200),async {
             for (index,payload) in payloads.into_iter().enumerate() {
                 let packet = rtc::rtp::Packet { header: rtc::rtp::header::Header { version: 2, marker: index == last,
@@ -183,3 +184,6 @@ impl WebRtcVideo {
     }
 }
 impl Drop for WebRtcVideo { fn drop(&mut self) { self.close(); } }
+
+#[cfg(test)]
+mod tests;
