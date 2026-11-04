@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let mut file = std::fs::File::create(path)?;
@@ -30,6 +30,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => return Err("codec must be h264 or hevc".into()),
     };
     let config = EncoderConfig { codec, width: 1280, height: 720, fps: 30, bitrate_kbps: 2500, preference };
+    // Test-only access-unit capture preserves frame boundaries and timestamps
+    // for native browser interoperability; it is not a recording format API.
+    let mut framed = args.get(4).map(std::fs::File::create).transpose()?;
+    if let Some(framed) = &mut framed {
+        framed.write_all(b"VXFR\x01")?;
+        framed.write_all(&[if codec == VideoCodec::H264 { 0 } else { 1 }])?;
+    }
     let mut encoder = VideoEncoder::new(config, || {})?;
     let started = Instant::now();
     let mut bytes = 0;
@@ -83,6 +90,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         bytes += output.annex_b.len();
         keyframes += usize::from(output.keyframe);
         file.write_all(&output.annex_b)?;
+        if let Some(framed) = &mut framed {
+            framed.write_all(&output.presentation_time_micros.to_be_bytes())?;
+            framed.write_all(&[u8::from(output.keyframe)])?;
+            framed.write_all(&u32::try_from(output.annex_b.len())?.to_be_bytes())?;
+            framed.write_all(&output.annex_b)?;
+        }
         latencies.push(latency);
     }
     println!("wait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms={:.2}",latencies[0]);
