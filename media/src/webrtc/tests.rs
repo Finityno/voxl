@@ -38,6 +38,40 @@ fn webrtc_relay_configuration_preserves_direct_policy_and_bounds_credentials() {
     assert_eq!(config.add_ice_server(vec!["stun:relay.example.com".into()],String::new(),String::new()),Err(WebRtcError::Configuration));
 }
 
+#[test]
+fn webrtc_explicit_stun_discovers_a_reflexive_candidate_and_keeps_host_candidates() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(10),async {
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            let address=socket.local_addr().unwrap();
+            // A real UDP STUN exchange with a synthetic mapped address. This
+            // proves candidate gathering, not physical NAT traversal or media.
+            let server=tokio::spawn(async move {
+                let mut buffer=[0u8;2000];
+                let (length,source)=socket.recv_from(&mut buffer).await.unwrap();
+                let mut request=rtc::stun::message::Message::new();
+                request.raw=buffer[..length].to_vec();request.decode().unwrap();
+                assert_eq!(request.typ,rtc::stun::message::BINDING_REQUEST);
+                let mut response=rtc::stun::message::Message::new();
+                let setters:Vec<Box<dyn rtc::stun::message::Setter>>=vec![Box::new(request.transaction_id),
+                    Box::new(rtc::stun::message::BINDING_SUCCESS),Box::new(rtc::stun::xoraddr::XorMappedAddress {
+                        ip:"203.0.113.19".parse().unwrap(),port:40000})];
+                response.build(&setters).unwrap();socket.send_to(&response.raw,source).await.unwrap();
+            });
+            let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+            config.add_ice_server(vec![format!("stun:{address}")],String::new(),String::new()).unwrap();
+            assert_eq!(config.route_policy,RoutePolicy::Automatic);
+            let mut video=WebRtcVideo::open(config).await.unwrap();
+            server.await.unwrap();
+            assert!(video.offer().contains("203.0.113.19 40000 typ srflx"),"STUN must publish the mapped address");
+            assert!(video.offer().lines().any(|line|line.contains("127.0.0.1") && line.contains("typ host")),"STUN must not remove the LAN route");
+            assert!(!video.offer().contains("typ relay"));
+            video.close().await.unwrap();
+        }).await.unwrap();
+    });
+}
+
 struct ReceiverEvents { packets: mpsc::Sender<rtc::rtp::Packet> }
 #[async_trait]
 impl PeerConnectionEventHandler for ReceiverEvents {
