@@ -8,7 +8,35 @@ enum InitialDiscovery { Empty, SilentUdp, PendingDns }
 #[derive(Debug,Default)]
 struct DnsProbe {entered:Notify,cancelled:AtomicBool}
 #[derive(Debug)]
-struct PendingDns {inner:Arc<dyn Runtime>,probe:Arc<DnsProbe>}
+enum DnsAnswer {Pending,Ready(SocketAddr)}
+#[derive(Debug)]
+struct DnsGate {answer:std::sync::Mutex<DnsAnswer>,changed:Notify,parks:AtomicU64,started:AtomicU64,parked:Notify}
+impl Default for DnsGate {
+    fn default()->Self {Self {answer:std::sync::Mutex::new(DnsAnswer::Pending),changed:Notify::new(),parks:AtomicU64::new(0),started:AtomicU64::new(0),parked:Notify::new()}}
+}
+impl DnsGate {
+    async fn resolve(&self)->io::Result<Vec<SocketAddr>> {
+        loop {
+            let changed=self.changed.notified();tokio::pin!(changed);changed.as_mut().enable();
+            if let DnsAnswer::Ready(address)=*self.answer.lock().unwrap() {return Ok(vec![address]);}
+            changed.await;
+        }
+    }
+    async fn wait_parked(&self) {
+        loop {
+            let parked=self.parked.notified();tokio::pin!(parked);parked.as_mut().enable();
+            if self.parks.load(Ordering::Acquire)>self.started.load(Ordering::Acquire) {return;}
+            parked.await;
+        }
+    }
+}
+#[derive(Debug)]
+enum DnsMode {Pending,Gated(Arc<DnsGate>)}
+#[derive(Debug)]
+struct PendingDns {inner:Arc<dyn Runtime>,probe:Arc<DnsProbe>,mode:DnsMode}
+impl PendingDns {
+    fn new(inner:Arc<dyn Runtime>,probe:Arc<DnsProbe>)->Self {Self {inner,probe,mode:DnsMode::Pending}}
+}
 impl Runtime for PendingDns {
     fn preferred_turn_local_address(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {self.inner.preferred_turn_local_address(server,available)}
     fn turn_gathering_delay(&self)->Duration {self.inner.turn_gathering_delay()}
@@ -23,12 +51,19 @@ impl Runtime for PendingDns {
             struct Cancelled<'a>(&'a AtomicBool);
             impl Drop for Cancelled<'_> {fn drop(&mut self) {self.0.store(true,Ordering::Release);}}
             let _cancelled=Cancelled(&self.probe.cancelled);
+            if let DnsMode::Gated(gate)=&self.mode {gate.started.store(gate.parks.load(Ordering::Acquire),Ordering::Release);}
             self.probe.entered.notify_one();
-            std::future::pending().await
+            match &self.mode {DnsMode::Pending=>std::future::pending().await,DnsMode::Gated(gate)=>gate.resolve().await}
         })
     }
     fn now(&self)->Instant {self.inner.now()}
-    fn sleep(&self,duration:Duration)->Pin<Box<dyn Future<Output=()>+Send+'static>> {self.inner.sleep(duration)}
+    fn sleep(&self,duration:Duration)->Pin<Box<dyn Future<Output=()>+Send+'static>> {
+        if let DnsMode::Gated(gate)=&self.mode {
+            let gate=Arc::clone(gate);
+            return Box::pin(async move {gate.parks.fetch_add(1,Ordering::AcqRel);gate.parked.notify_one();std::future::pending::<()>().await;});
+        }
+        self.inner.sleep(duration)
+    }
     fn interval(&self,period:Duration)->Box<dyn AsyncInterval> {self.inner.interval(period)}
     fn block_on(&self,future:Pin<Box<dyn Future<Output=()>+'_>>) {self.inner.block_on(future);}
     fn yield_now(&self)->Pin<Box<dyn Future<Output=()>+Send+'static>> {self.inner.yield_now()}
@@ -88,6 +123,101 @@ fn late_relay_udp_initial_configuration_baseline() {late_configuration(Some(Rela
 fn late_relay_interrupts_pending_stun_udp_and_rejects_late_response() {late_configuration(None,true,InitialDiscovery::SilentUdp);}
 #[test]
 fn late_relay_interrupts_pending_stun_dns() {late_configuration(None,true,InitialDiscovery::PendingDns);}
+
+#[test]
+fn direct_video_connects_while_stun_dns_remains_pending() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {timeout(Duration::from_secs(5),async {
+        let format=VideoFormat::H264 {profile_level_id:[66,224,31]};let bindings=vec!["127.0.0.1:0".to_owned()];
+        let mut config=WebRtcConfig::direct_first(format,bindings.clone());
+        config.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into()],String::new(),String::new()).unwrap();
+        let dns=Arc::new(DnsProbe::default());let probe=Arc::clone(&dns);
+        let mut video=WebRtcVideo::open_with_runtime(config,None,true,Duration::from_millis(250),move |inner|Arc::new(PendingDns::new(inner,probe))).await.unwrap();
+        dns.entered.notified().await;
+        let signals=video.signaling().unwrap();
+        let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
+        let (packets,mut received)=mpsc::channel(1);let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
+        let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
+            .with_handler(Arc::new(TrickleReceiver {receiver:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake)}))
+            .with_udp_addrs(bindings).build().await.unwrap());
+        receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(video.offer())).unwrap()).await.unwrap();
+        receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+        while !gathered.load(Ordering::Acquire) {wake.notified().await;}
+        let answer=receiver.local_description().await.unwrap().sdp;let mid=field(&answer,"a=mid:").to_owned();
+        for candidate in answer.lines().filter_map(|line|line.strip_prefix("a=candidate:")) {signals.add_candidate(format!("candidate:{candidate}"),mid.clone()).unwrap();}
+        video.answer(strip_candidates(&answer)).await.unwrap();
+        eprintln!("pending_dns_stage=answer_applied");
+        let outgoing=signals.clone();let peer=Arc::clone(&receiver);
+        let candidate=tokio::spawn(async move {
+            loop {if let VideoIceSignal::Candidate {candidate,mid}=outgoing.next_signal().await.unwrap() {
+                if candidate.contains(" typ host") {peer.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();return;}
+            }}
+        });
+        assert_eq!(video.next_update().await,VideoUpdate::Connected);
+        candidate.await.unwrap();
+        assert!(!dns.cancelled.load(Ordering::Acquire),"direct connectivity must not require DNS to finish or be cancelled");
+        assert!(!video.events.gathered.load(Ordering::Acquire),"pending DNS cannot be reported as completed gathering");
+        video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,1,2,3],keyframe:true,presentation_time_micros:1_000_000}).await.unwrap();
+        assert_eq!(&received.recv().await.unwrap().payload[..],&[0x65,1,2,3]);
+        assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
+        assert!(dns.cancelled.load(Ordering::Acquire));
+    }).await.unwrap();});
+}
+
+async fn mapped_response(socket:&UdpSocket,mapped:&str) {
+    let mut bytes=[0;2000];let (length,source)=socket.recv_from(&mut bytes).await.unwrap();
+    let mut request=rtc::stun::message::Message::new();request.raw=bytes[..length].to_vec();request.decode().unwrap();
+    let mut response=rtc::stun::message::Message::new();response.build(&[Box::new(request.transaction_id),Box::new(rtc::stun::message::BINDING_SUCCESS),
+        Box::new(rtc::stun::xoraddr::XorMappedAddress {ip:mapped.parse().unwrap(),port:40002})]).unwrap();
+    socket.send_to(&response.raw,source).await.unwrap();
+}
+
+#[test]
+fn stun_dns_completion_wakes_a_driver_with_all_timers_parked() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {timeout(Duration::from_secs(5),async {
+        let socket=UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+        config.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into()],String::new(),String::new()).unwrap();
+        let dns=Arc::new(DnsProbe::default());let probe=Arc::clone(&dns);let gate=Arc::new(DnsGate::default());let control=Arc::clone(&gate);
+        let video=WebRtcVideo::open_with_runtime(config,None,true,Duration::ZERO,move |inner|Arc::new(PendingDns {inner,probe,mode:DnsMode::Gated(control)})).await.unwrap();
+        dns.entered.notified().await;
+        let signals=video.signaling().unwrap();
+        let VideoIceSignal::Candidate {candidate,..}=signals.next_signal().await.unwrap() else {panic!("host candidate before DNS");};
+        assert!(candidate.contains(" typ host"));
+        gate.wait_parked().await;
+        *gate.answer.lock().unwrap()=DnsAnswer::Ready(socket.local_addr().unwrap());gate.changed.notify_waiters();
+        mapped_response(&socket,"203.0.113.91").await;
+        let mut reflexive=false;
+        loop {match signals.next_signal().await.unwrap() {
+            VideoIceSignal::Candidate {candidate,..}=>reflexive|=candidate.contains("203.0.113.91") && candidate.contains(" typ srflx"),
+            VideoIceSignal::GatheringComplete=>break,
+        }}
+        assert!(reflexive,"DNS completion must wake progress without a protocol timer or unrelated packet");
+        video.close();video.peer.close().await.unwrap();
+    }).await.unwrap();});
+}
+
+#[test]
+fn one_pending_stun_lookup_does_not_block_another_server() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {timeout(Duration::from_secs(5),async {
+        let socket=UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+        config.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into(),format!("stun:{}",socket.local_addr().unwrap())],String::new(),String::new()).unwrap();
+        let dns=Arc::new(DnsProbe::default());let probe=Arc::clone(&dns);
+        let video=WebRtcVideo::open_with_runtime(config,None,true,Duration::ZERO,move |inner|Arc::new(PendingDns::new(inner,probe))).await.unwrap();
+        dns.entered.notified().await;
+        mapped_response(&socket,"203.0.113.92").await;
+        let signals=video.signaling().unwrap();
+        loop {if let VideoIceSignal::Candidate {candidate,..}=signals.next_signal().await.unwrap() {
+            if candidate.contains("203.0.113.92") && candidate.contains(" typ srflx") {break;}
+        }}
+        assert!(!video.events.gathered.load(Ordering::Acquire));assert!(!dns.cancelled.load(Ordering::Acquire));
+        video.close();video.peer.close().await.unwrap();assert!(dns.cancelled.load(Ordering::Acquire));
+    }).await.unwrap();});
+}
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
 fn late_relay_udp_after_unanswered_stun_carries_media() {late_configuration(Some(RelayTransport::Udp),true,InitialDiscovery::SilentUdp);}
@@ -106,7 +236,7 @@ fn cancelling_relay_fallback_during_stun_barrier_closes_the_view() {
         let mut initial=WebRtcConfig::direct_first(format,bindings.clone());
         initial.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into()],String::new(),String::new()).unwrap();
         let dns=Arc::new(DnsProbe::default());let probe=Arc::clone(&dns);
-        let mut video=WebRtcVideo::open_with_runtime(initial,None,true,Duration::from_millis(250),move |inner|Arc::new(PendingDns {inner,probe})).await.unwrap();
+        let mut video=WebRtcVideo::open_with_runtime(initial,None,true,Duration::from_millis(250),move |inner|Arc::new(PendingDns::new(inner,probe))).await.unwrap();
         let signals=video.signaling().unwrap();
         let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
         let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let (packets,_)=mpsc::channel(1);
@@ -225,7 +355,7 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool,initial:InitialD
         }
         let probe=Arc::clone(&dns);
         let mut video=WebRtcVideo::open_with_runtime(config,tls,true,Duration::from_millis(250),move |inner|
-            if matches!(initial,InitialDiscovery::PendingDns) {Arc::new(PendingDns {inner,probe})} else {inner}).await.unwrap();
+            if matches!(initial,InitialDiscovery::PendingDns) {Arc::new(PendingDns::new(inner,probe))} else {inner}).await.unwrap();
         let initial_offer=video.offer().to_owned();let old_signals=video.signaling().unwrap();
         let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(4);
         let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));
