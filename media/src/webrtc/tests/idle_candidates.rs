@@ -61,6 +61,7 @@ fn late_trickle_candidates_wake_parked_drivers_without_timer_assistance() {
             receiver.set_remote_description(RTCSessionDescription::offer(without_candidates(video.offer())).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             while !gathered.load(Ordering::Acquire) {wake.notified().await;}
+            loop {if matches!(signals.next_signal().await.unwrap(),VideoIceSignal::GatheringComplete) {break;}}
             sender_park.after(0).await;receiver_park.after(0).await;
             let offer=video.peer.local_description().await.unwrap().sdp;
             let answer=receiver.local_description().await.unwrap().sdp;
