@@ -175,8 +175,14 @@ impl WebRtcVideo {
             let Entry::Transport(transport) = entry else { continue; };
             let Some(Entry::IceCandidatePair(pair)) = report.get(&transport.selected_candidate_pair_id) else { continue; };
             if !pair.nominated { continue; }
-            let Some(Entry::LocalCandidate(local)) = report.get(&pair.local_candidate_id) else { continue; };
-            let Some(Entry::RemoteCandidate(remote)) = report.get(&pair.remote_candidate_id) else { continue; };
+            // rtc 0.21 retains raw candidate IDs in pair references but keys
+            // candidate report entries with these role prefixes. Resolve the
+            // exact report reference first, then that documented representation;
+            // never infer a path from configured servers or address guesses.
+            let local = report.get(&pair.local_candidate_id).or_else(|| report.get(&format!("RTCLocalIceCandidate_{}",pair.local_candidate_id)));
+            let remote = report.get(&pair.remote_candidate_id).or_else(|| report.get(&format!("RTCRemoteIceCandidate_{}",pair.remote_candidate_id)));
+            let Some(Entry::LocalCandidate(local)) = local else { continue; };
+            let Some(Entry::RemoteCandidate(remote)) = remote else { continue; };
             let route = if local.candidate_type == RTCIceCandidateType::Relay || remote.candidate_type == RTCIceCandidateType::Relay {
                 MediaRoute::Relayed
             } else if local.candidate_type == RTCIceCandidateType::Unspecified || remote.candidate_type == RTCIceCandidateType::Unspecified {

@@ -56,7 +56,7 @@ is an explicit diagnostic policy. `WebRtcConfig::direct_first` needs no TURN
 credential service for a working LAN path. Read `route_statistics` for the
 nominated path and byte counters: the presence of a TURN URL alone says nothing
 about the path used. Returned diagnostics contain no addresses or credentials.
-A same-process loopback test proves a direct nominated path; physical two-device
+The same-process loopback test requires a proven direct nominated path; physical two-device
 LAN, Internet-direct and forced-relay cases remain required integration checks.
 
 `codec::select_codec` covers AV1, HEVC and H.264. It prefers a hardware pair in
@@ -66,3 +66,10 @@ support. This is selection policy, not an AV1/HEVC encoder implementation;
 providers must advertise only paths they actually implement and have probed for
 the requested geometry, fps, profile and chroma. The initial implemented native
 encoder and sender still use H.264.
+
+
+The initial route assertion exposed an rtc 0.21 statistics reference mismatch:
+pairs use raw candidate IDs while candidate report entries use local/remote
+prefixes. The resolver handles those exact representations and still returns
+Unknown if the selected pair cannot be proven. It does not assume Direct when
+no TURN URL was supplied. Revalidation is required after the correction.
