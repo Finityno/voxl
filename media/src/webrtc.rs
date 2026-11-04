@@ -11,18 +11,20 @@ use rtc::peer_connection::configuration::media_engine::MediaEngine;
 use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader};
 use rtc::rtp::packetizer::Payloader;
 use rtc::rtp_transceiver::rtp_sender::{RTCPFeedback, RTCRtpCodec, RTCRtpCodecParameters, RTCRtpCodingParameters, RTCRtpEncodingParameters, RtpCodecKind};
-use std::sync::{Arc, atomic::{AtomicBool, AtomicU64, Ordering}};
+use std::sync::{Arc, OnceLock, atomic::{AtomicBool, AtomicU64, Ordering}};
 use std::time::{Duration, Instant};
 use tokio::sync::Notify;
 use webrtc::media_stream::track_local::{TrackLocal, static_rtp::TrackLocalStaticRTP};
 use webrtc::peer_connection::{PeerConnection, PeerConnectionBuilder, PeerConnectionEventHandler, RTCConfigurationBuilder, RTCIceGatheringState,
-    RTCIceServer, RTCIceTransportPolicy, RTCPeerConnectionState, RTCSessionDescription, Registry, register_default_interceptors};
+    RTCIceServer, RTCIceTransportPolicy, RTCPeerConnectionIceEvent, RTCPeerConnectionState, RTCSessionDescription, Registry, register_default_interceptors};
 use webrtc::rtp_transceiver::{RtpSender, RTCRtpTransceiverDirection};
 
 mod feedback;
 mod stream_turn;
 mod relay_interfaces;
+mod signaling;
 pub use stream_turn::RelayTransport;
+pub use signaling::{VideoIceSignal,VideoSignaling};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WebRtcError { Configuration, Transport, Deadline, Ended, NotConnected, InvalidFrame }
@@ -38,6 +40,8 @@ struct Events {
     connected: AtomicBool,
     ended: AtomicBool,
     changes: Arc<ChangeSignal>,
+    signals: Option<signaling::Signals>,
+    media_mid:OnceLock<String>,
 }
 
 #[derive(Default)]
@@ -55,10 +59,16 @@ impl ChangeSignal {
 }
 #[async_trait]
 impl PeerConnectionEventHandler for Events {
+    async fn on_ice_candidate(&self,event:RTCPeerConnectionIceEvent) {
+        let Some(signals)=&self.signals else {return;};
+        if !event.candidate.to_json().ok().is_some_and(|candidate|signals.local(candidate.candidate,candidate.sdp_mid.unwrap_or_default()).is_ok()) {self.ended.store(true,Ordering::Release);}
+        self.changes.changed();
+    }
     async fn on_ice_gathering_state_change(&self, state: RTCIceGatheringState) {
         if state == RTCIceGatheringState::Complete {
             self.gathered.store(true, Ordering::Release);
             self.gather_wake.notify_one();
+            self.changes.changed();
         }
     }
     async fn on_connection_state_change(&self, state: RTCPeerConnectionState) {
@@ -176,6 +186,7 @@ pub struct WebRtcVideo {
     last_keyframe_request: Option<Instant>,
     updates: UpdatePhase,
     checked_relay_failure: u64,
+    checked_remote_candidates:u64,
 }
 
 #[derive(Clone,Copy)]
@@ -197,7 +208,17 @@ impl WebRtcVideo {
         Self::open_with_tls(config,None).await
     }
 
-    async fn open_with_tls(mut config: WebRtcConfig,tls: Option<Arc<tokio_rustls::rustls::ClientConfig>>) -> Result<Self, WebRtcError> {
+    /// Return SDP without waiting for server-reflexive/relay discovery. Both
+    /// endpoints must exchange the signaling handle's candidates over the
+    /// authenticated view; callers needing complete SDP keep using `open`.
+    pub async fn open_trickle(config:WebRtcConfig)->Result<Self,WebRtcError> {
+        Self::open_mode(config,None,true).await
+    }
+
+    async fn open_with_tls(config: WebRtcConfig,tls: Option<Arc<tokio_rustls::rustls::ClientConfig>>) -> Result<Self, WebRtcError> {
+        Self::open_mode(config,tls,false).await
+    }
+    async fn open_mode(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool)->Result<Self,WebRtcError> {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
@@ -205,7 +226,7 @@ impl WebRtcVideo {
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes)).await?);
-        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes) });
+        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connected: AtomicBool::new(false), ended: AtomicBool::new(false),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
             sdp_fmtp_line: config.format.fmtp(),
             rtcp_feedback: vec![RTCPFeedback { typ: "nack".into(), parameter: String::new() },
@@ -230,20 +251,35 @@ impl WebRtcVideo {
         for transceiver in peer.get_transceivers().await { transceiver.set_direction(RTCRtpTransceiverDirection::Sendonly).await.map_err(transport)?; }
         let offer = peer.create_offer(None).await.map_err(transport)?;
         peer.set_local_description(offer).await.map_err(transport)?;
-        tokio::time::timeout(Duration::from_secs(6),async {
+        if !trickle {tokio::time::timeout(Duration::from_secs(6),async {
             while !events.gathered.load(Ordering::Acquire) { events.gather_wake.notified().await; }
-        }).await.map_err(|_| WebRtcError::Deadline)?;
-        let offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
+        }).await.map_err(|_| WebRtcError::Deadline)?;}
+        let mut offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
+        if trickle {
+            offer=offer.lines().filter(|line|*line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n";
+            let mid=offer.lines().find_map(|line|line.strip_prefix("a=mid:")).filter(|mid|!mid.is_empty() && mid.len()<=256).ok_or(WebRtcError::Configuration)?;
+            let _=events.media_mid.set(mid.to_owned());
+            // The wrapper now exchanges incremental candidates. Advertise that
+            // application capability in the one video media section; transport,
+            // fingerprints, ICE credentials and the SDK's local SDP stay intact.
+            if !offer.lines().any(|line|line.strip_prefix("a=ice-options:").is_some_and(|options|options.split_whitespace().any(|option|option=="trickle"))) {
+                if !offer.ends_with('\n') {offer.push_str("\r\n");}
+                offer.push_str("a=ice-options:trickle\r\n");
+            }
+        }
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
         let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
         Ok(Self { peer,sender,track,events,closer,offer,payload_type: None,ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
-            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0 })
+            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0 })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
+    pub fn signaling(&self)->Option<VideoSignaling> {
+        self.events.signals.as_ref().map(|_|VideoSignaling {events:Arc::clone(&self.events),closer:self.closer.clone()})
+    }
     pub fn connected(&self) -> bool { !self.ended() && self.events.connected.load(Ordering::Acquire) }
     pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) }
     /// Wait without polling for first connection, coalesced keyframe feedback
@@ -253,6 +289,17 @@ impl WebRtcVideo {
         loop {
             let revision=self.events.changes.revision();
             if self.ended() {return VideoUpdate::Ended;}
+            if self.payload_type.is_some() && let Some(signals)=&self.events.signals {
+                let changed=signals.remote_revision();
+                if changed!=self.checked_remote_candidates {
+                    self.checked_remote_candidates=changed;
+                    for (candidate,mid) in signals.take_remote() {
+                        if self.peer.add_ice_candidate(signaling::candidate(candidate,mid)).await.is_err() {
+                            self.close();return VideoUpdate::Ended;
+                        }
+                    }
+                }
+            }
             let failure_revision=self.closer.relays.failure_revision();
             if failure_revision!=self.checked_relay_failure
                 && let Ok(Some(transport))=self.sender.transport().await

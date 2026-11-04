@@ -93,6 +93,71 @@ impl PeerConnectionEventHandler for ReceiverEvents {
 }
 
 #[test]
+fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(20),async {
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();let address=socket.local_addr().unwrap();
+            let (release,held)=tokio::sync::oneshot::channel();
+            let stun=tokio::spawn(async move {
+                let mut bytes=[0;2000];let (length,source)=socket.recv_from(&mut bytes).await.unwrap();
+                let mut request=rtc::stun::message::Message::new();request.raw=bytes[..length].to_vec();request.decode().unwrap();
+                held.await.unwrap();
+                let response={let mut response=rtc::stun::message::Message::new();let setters:Vec<Box<dyn rtc::stun::message::Setter>>=vec![Box::new(request.transaction_id),Box::new(rtc::stun::message::BINDING_SUCCESS),Box::new(rtc::stun::xoraddr::XorMappedAddress {ip:"203.0.113.19".parse().unwrap(),port:40000})];response.build(&setters).unwrap();response};
+                socket.send_to(&response.raw,source).await.unwrap();
+            });
+            let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+            config.add_ice_server(vec![format!("stun:{address}")],String::new(),String::new()).unwrap();
+            let mut video=tokio::time::timeout(Duration::from_secs(1),WebRtcVideo::open_trickle(config)).await.expect("offer cannot wait for held STUN").unwrap();
+            assert!(!video.events.gathered.load(Ordering::Acquire));
+            assert!(video.offer().contains("a=ice-options:trickle"));assert!(!video.offer().contains("a=end-of-candidates"));
+            let signals=video.signaling().unwrap();
+            let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (sender,mut packets)=mpsc::channel(4);
+            let receiver=PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
+            receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+            let answer=receiver.local_description().await.unwrap().sdp;
+            let mid=answer.lines().find_map(|line|line.strip_prefix("a=mid:")).unwrap().to_owned();
+            for candidate in answer.lines().filter_map(|line|line.strip_prefix("a=candidate:")) {signals.add_candidate(format!("candidate:{candidate}"),mid.clone()).unwrap();}
+            assert!(video.events.signals.as_ref().unwrap().remote_revision()>0);
+            let answer=answer.lines().filter(|line|!line.starts_with("a=candidate:") && *line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n";
+            video.answer(answer).await.unwrap();assert_eq!(video.next_update().await,VideoUpdate::Connected);
+            assert!(video.events.signals.as_ref().unwrap().take_remote().is_empty());
+            video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,7,6],keyframe:true,presentation_time_micros:1_000_000}).await.unwrap();
+            assert_eq!(&packets.recv().await.unwrap().payload[..],&[0x65,9,8,7,6]);
+            assert!(!video.events.gathered.load(Ordering::Acquire),"direct payload must precede STUN completion");
+            release.send(()).unwrap();stun.await.unwrap();
+            let mut reflexive=false;
+            loop {match signals.next_signal().await.unwrap() {
+                VideoIceSignal::Candidate {candidate,mid:actual}=>{assert_eq!(actual,mid);reflexive|=candidate.contains(" typ srflx");},
+                VideoIceSignal::GatheringComplete=>break,
+            }}
+            assert!(reflexive);video.close();receiver.close().await.unwrap();
+        }).await.unwrap();
+    });
+}
+
+#[test]
+fn trickle_cancelled_wait_and_close_do_not_lose_terminal_state() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(5),async {
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+            config.add_ice_server(vec![format!("stun:{}",socket.local_addr().unwrap())],String::new(),String::new()).unwrap();
+            let video=WebRtcVideo::open_trickle(config).await.unwrap();let signals=video.signaling().unwrap();
+            let count=video.events.signals.as_ref().unwrap().local_pending();
+            for _ in 0..count {assert!(matches!(signals.next_signal().await.unwrap(),VideoIceSignal::Candidate {..}));}
+            assert!(tokio::time::timeout(Duration::from_millis(10),signals.next_signal()).await.is_err());
+            let waiting=signals.next_signal();tokio::pin!(waiting);
+            std::future::poll_fn(|cx| {assert!(std::future::Future::poll(waiting.as_mut(),cx).is_pending());std::task::Poll::Ready(())}).await;
+            video.close();assert!(matches!(waiting.await,Err(WebRtcError::Ended)));
+            assert_eq!(signals.add_candidate("candidate:stale".into(),"0".into()),Err(WebRtcError::Ended));
+        }).await.unwrap();
+    });
+}
+
+#[test]
 fn webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback() {
     loopback(VideoFormat::H264 {profile_level_id: [66,224,31]});
 }
