@@ -180,7 +180,7 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
             _=>{
                 eprintln!("late fallback media deadline: receiver_connected={} track_seen={} sender={:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
                 use webrtc::peer_connection::{RTCStatsReportEntry as Entry,StatsSelector};
-                for entry in video.peer.get_stats(Instant::now(),StatsSelector::None).await.iter() {if let Entry::OutboundRtp(stream)=entry {eprintln!("sender RTP: bytes={}",stream.bytes_sent);}}
+                for entry in video.peer.get_stats(Instant::now(),StatsSelector::None).await.iter() {if let Entry::OutboundRtp(stream)=entry {eprintln!("sender RTP: bytes={}",stream.sent_rtp_stream_stats.bytes_sent);}}
                 for entry in receiver.get_stats(Instant::now(),StatsSelector::None).await.iter() {match entry {
                     Entry::IceCandidatePair(pair)=>eprintln!("receiver pair: nominated={} sent={} received={}",pair.nominated,pair.bytes_sent,pair.bytes_received),
                     Entry::InboundRtp(stream)=>eprintln!("receiver RTP: bytes={}",stream.bytes_received),
