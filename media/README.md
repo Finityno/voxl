@@ -68,8 +68,16 @@ the requested geometry, fps, profile and chroma. The initial implemented native
 encoder and sender still use H.264.
 
 
-The initial route assertion exposed an rtc 0.21 statistics reference mismatch:
-pairs use raw candidate IDs while candidate report entries use local/remote
-prefixes. The resolver handles those exact representations and still returns
-Unknown if the selected pair cannot be proven. It does not assume Direct when
-no TURN URL was supplied. Revalidation is required after the correction.
+The initial route assertion failed because the statistics report's selected-pair
+link was insufficient to establish the route. The sender now reads the actual
+ICE transport's selected candidate pair and joins byte counters by its candidate
+IDs. The unchanged direct-route and nonzero-counter assertions passed on Linux
+at `6980a8dcc22f5528a213e704e58dbfef0bd3f676`, as did strict library/examples
+clippy. Unknown remains the result when no selected transport can be obtained.
+This is localhost transport evidence, not a physical LAN result.
+
+The first native Mac H.264 result and raw command logs are in
+`results/2026-11-04-macos-h264/`. Hardware encoding and independent decoding
+passed; the software attempt failed with an unsupported native property.
+Operation-specific errors have been added to identify that failure. Do not
+advertise a validated CPU fallback before the native software probe succeeds.
