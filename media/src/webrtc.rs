@@ -250,7 +250,9 @@ impl WebRtcVideo {
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
         { return Err(WebRtcError::Configuration); }
-        let fallback=(trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.is_empty())
+        let fallback=(trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.iter().all(|server|
+            server.username.is_empty() && server.credential.is_empty() && server.urls().ok().is_some_and(|urls|
+                urls.iter().all(|url|url.scheme==rtc::ice::url::SchemeType::Stun && url.proto==rtc::ice::url::ProtoType::Udp))))
             .then(||FallbackSetup {bindings:config.bind_addresses.clone(),tls:tls.clone()});
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
@@ -419,7 +421,7 @@ impl WebRtcVideo {
         Ok(())
     }
 
-    /// One startup fallback for an initially server-free Automatic trickle
+    /// One startup fallback for an initially STUN-only/server-free Automatic trickle
     /// peer. The embedder first gives direct ICE a grace period, then fetches
     /// short-lived credentials and calls this only while still unconnected.
     /// It must stop old signaling, authenticate the new offer/generation and
@@ -430,8 +432,8 @@ impl WebRtcVideo {
     }
     async fn relay_fallback(&mut self,config:&mut WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
-        let setup=match &self.negotiation {
-            Negotiation::Ready {fallback:Some(setup),..} if !self.connected()=>setup.clone(),
+        let (setup,payload)=match &self.negotiation {
+            Negotiation::Ready {fallback:Some(setup),payload} if !self.connected()=>(setup.clone(),*payload),
             _=>return Err(WebRtcError::Configuration),
         };
         if config.route_policy!=RoutePolicy::Automatic || config.bind_addresses!=setup.bindings
@@ -439,19 +441,15 @@ impl WebRtcVideo {
             || config.ice_servers.is_empty() || config.ice_servers.len()>4 {return Err(WebRtcError::Configuration);}
         let mut validated=WebRtcConfig::direct_first(config.format,setup.bindings.clone());
         for server in &config.ice_servers {validated.add_ice_server(server.urls.clone(),server.username.clone(),server.credential.clone())?;}
-        // Complete the old host-only gather before resetting its callback
-        // queues, so no old local candidate is attributed to the new epoch.
-        tokio::time::timeout(Duration::from_secs(6),async {
-            while !self.events.gathered.load(Ordering::Acquire) {
-                let revision=self.events.changes.revision();
-                if self.ended() {return Err(WebRtcError::Ended);}
-                if !self.events.gathered.load(Ordering::Acquire) {self.events.changes.wait(revision).await;}
-            }
-            Ok(())
-        }).await.map_err(|_|WebRtcError::Deadline)??;
-        if self.ended() || self.connected() {return Err(if self.ended() {WebRtcError::Ended} else {WebRtcError::Configuration});}
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         self.negotiation=Negotiation::PreparingFallback;
+        self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;
+        if self.ended() {return Err(WebRtcError::Ended);}
+        if self.events.connected.load(Ordering::Acquire) {
+            self.negotiation=Negotiation::Ready {payload,fallback:Some(setup)};
+            guard.0=None;
+            return Err(WebRtcError::Configuration);
+        }
         self.events.gathered.store(false,Ordering::Release);
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
         signals.advance();self.events.changes.changed();

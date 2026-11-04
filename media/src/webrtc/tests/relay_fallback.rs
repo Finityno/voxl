@@ -1,6 +1,39 @@
 //! Real UDP/DTLS/SRTP after late ICE configuration. No capture, input or decoder.
 use super::*;
-use std::net::IpAddr;
+use std::{future::Future,io,net::{IpAddr,SocketAddr},pin::Pin};
+use webrtc::runtime::{Runtime,AsyncUdpSocket,AsyncTcpListener,AsyncTcpStream,AsyncInterval,JoinHandle};
+
+#[derive(Clone,Copy)]
+enum InitialDiscovery { Empty, SilentUdp, PendingDns }
+#[derive(Debug,Default)]
+struct DnsProbe {entered:Notify,cancelled:AtomicBool}
+#[derive(Debug)]
+struct PendingDns {inner:Arc<dyn Runtime>,probe:Arc<DnsProbe>}
+impl Runtime for PendingDns {
+    fn preferred_turn_local_address(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {self.inner.preferred_turn_local_address(server,available)}
+    fn turn_gathering_delay(&self)->Duration {self.inner.turn_gathering_delay()}
+    fn spawn(&self,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn(future)}
+    fn spawn_reactor(&self,size:usize,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn_reactor(size,future)}
+    fn wrap_udp_socket(&self,socket:std::net::UdpSocket)->io::Result<Arc<dyn AsyncUdpSocket>> {self.inner.wrap_udp_socket(socket)}
+    fn wrap_tcp_listener(&self,listener:std::net::TcpListener)->io::Result<Arc<dyn AsyncTcpListener>> {self.inner.wrap_tcp_listener(listener)}
+    fn connect_tcp<'a>(&'a self,remote:SocketAddr)->Pin<Box<dyn Future<Output=io::Result<Arc<dyn AsyncTcpStream>>>+Send+'a>> {self.inner.connect_tcp(remote)}
+    fn resolve_host<'a>(&'a self,host:&'a str)->Pin<Box<dyn Future<Output=io::Result<Vec<SocketAddr>>>+Send+'a>> {
+        if !host.starts_with("unanswered.fixture.invalid:") {return self.inner.resolve_host(host);}
+        Box::pin(async move {
+            struct Cancelled<'a>(&'a AtomicBool);
+            impl Drop for Cancelled<'_> {fn drop(&mut self) {self.0.store(true,Ordering::Release);}}
+            let _cancelled=Cancelled(&self.probe.cancelled);
+            self.probe.entered.notify_one();
+            std::future::pending().await
+        })
+    }
+    fn now(&self)->Instant {self.inner.now()}
+    fn sleep(&self,duration:Duration)->Pin<Box<dyn Future<Output=()>+Send+'static>> {self.inner.sleep(duration)}
+    fn interval(&self,period:Duration)->Box<dyn AsyncInterval> {self.inner.interval(period)}
+    fn block_on(&self,future:Pin<Box<dyn Future<Output=()>+'_>>) {self.inner.block_on(future);}
+    fn yield_now(&self)->Pin<Box<dyn Future<Output=()>+Send+'static>> {self.inner.yield_now()}
+    fn name(&self)->&'static str {"test-pending-stun-dns"}
+}
 use tokio::{net::UdpSocket,time::timeout};
 
 fn install_diagnostics() {
@@ -36,20 +69,34 @@ impl PeerConnectionEventHandler for FallbackReceiver {
 }
 
 #[test]
-fn late_relay_configuration_restarts_ice_and_fences_old_signaling() {late_configuration(None,true);}
+fn late_relay_configuration_restarts_ice_and_fences_old_signaling() {late_configuration(None,true,InitialDiscovery::Empty);}
 
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
-fn late_relay_udp_configuration_carries_media() {late_configuration(Some(RelayTransport::Udp),true);}
+fn late_relay_udp_configuration_carries_media() {late_configuration(Some(RelayTransport::Udp),true,InitialDiscovery::Empty);}
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
-fn late_relay_tcp_configuration_carries_media() {late_configuration(Some(RelayTransport::Tcp),true);}
+fn late_relay_tcp_configuration_carries_media() {late_configuration(Some(RelayTransport::Tcp),true,InitialDiscovery::Empty);}
 #[test]
 #[ignore = "requires isolated coturn TLS and a namespace blocking direct host UDP"]
-fn late_relay_tls_configuration_carries_media() {late_configuration(Some(RelayTransport::Tls),true);}
+fn late_relay_tls_configuration_carries_media() {late_configuration(Some(RelayTransport::Tls),true,InitialDiscovery::Empty);}
 #[test]
 #[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
-fn late_relay_udp_initial_configuration_baseline() {late_configuration(Some(RelayTransport::Udp),false);}
+fn late_relay_udp_initial_configuration_baseline() {late_configuration(Some(RelayTransport::Udp),false,InitialDiscovery::Empty);}
+
+#[test]
+fn late_relay_interrupts_pending_stun_udp_and_rejects_late_response() {late_configuration(None,true,InitialDiscovery::SilentUdp);}
+#[test]
+fn late_relay_interrupts_pending_stun_dns() {late_configuration(None,true,InitialDiscovery::PendingDns);}
+#[test]
+#[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
+fn late_relay_udp_after_unanswered_stun_carries_media() {late_configuration(Some(RelayTransport::Udp),true,InitialDiscovery::SilentUdp);}
+#[test]
+#[ignore = "requires isolated coturn and a namespace blocking direct host UDP"]
+fn late_relay_tcp_after_unanswered_stun_carries_media() {late_configuration(Some(RelayTransport::Tcp),true,InitialDiscovery::SilentUdp);}
+#[test]
+#[ignore = "requires isolated coturn TLS and a namespace blocking direct host UDP"]
+fn late_relay_tls_after_unanswered_stun_carries_media() {late_configuration(Some(RelayTransport::Tls),true,InitialDiscovery::SilentUdp);}
 
 #[test]
 fn late_relay_close_while_awaiting_restart_answer_stops_retries() {
@@ -89,7 +136,7 @@ fn strip_candidates(sdp:&str)->String {
 }
 fn field<'a>(sdp:&'a str,prefix:&str)->&'a str {sdp.lines().find_map(|line|line.strip_prefix(prefix)).unwrap()}
 
-fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
+fn late_configuration(relay:Option<RelayTransport>,restart:bool,initial:InitialDiscovery) {
     install_diagnostics();
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {timeout(Duration::from_secs(25),async {
@@ -130,8 +177,19 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
             None
         };
         let mut fallback=Some(fallback);
-        let config=if restart {WebRtcConfig::direct_first(format,bindings.clone())} else {fallback.take().unwrap()};
-        let mut video=WebRtcVideo::open_mode(config,tls,true).await.unwrap();
+        let mut config=if restart {WebRtcConfig::direct_first(format,bindings.clone())} else {fallback.take().unwrap()};
+        let silent=if matches!(initial,InitialDiscovery::SilentUdp) {
+            let socket=UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            config.add_ice_server(vec![format!("stun:{}",socket.local_addr().unwrap())],String::new(),String::new()).unwrap();
+            Some(socket)
+        } else {None};
+        let dns=Arc::new(DnsProbe::default());
+        if matches!(initial,InitialDiscovery::PendingDns) {
+            config.add_ice_server(vec!["stun:unanswered.fixture.invalid:3478".into()],String::new(),String::new()).unwrap();
+        }
+        let probe=Arc::clone(&dns);
+        let mut video=WebRtcVideo::open_with_runtime(config,tls,true,Duration::from_millis(250),move |inner|
+            if matches!(initial,InitialDiscovery::PendingDns) {Arc::new(PendingDns {inner,probe})} else {inner}).await.unwrap();
         let initial_offer=video.offer().to_owned();let old_signals=video.signaling().unwrap();
         let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(4);
         let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));
@@ -153,7 +211,23 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
         invalid.add_ice_server(vec!["stun:127.0.0.1:3478".into()],String::new(),String::new()).unwrap();
         assert!(matches!(video.begin_relay_fallback(invalid).await,Err(WebRtcError::Configuration)));
         assert!(!video.ended());assert_eq!(video.signaling().unwrap().generation(),0);
-        let offer=video.begin_relay_fallback(fallback.take().unwrap()).await.unwrap();
+        let delayed=if let Some(socket)=&silent {
+            let mut bytes=[0;2000];let (length,source)=timeout(Duration::from_secs(1),socket.recv_from(&mut bytes)).await.unwrap().unwrap();
+            let mut request=rtc::stun::message::Message::new();request.raw=bytes[..length].to_vec();request.decode().unwrap();
+            let mut response=rtc::stun::message::Message::new();
+            response.build(&[Box::new(request.transaction_id),Box::new(rtc::stun::message::BINDING_SUCCESS),
+                Box::new(rtc::stun::xoraddr::XorMappedAddress {ip:"203.0.113.20".parse().unwrap(),port:40001})]).unwrap();
+            Some((response.raw,source))
+        } else {None};
+        if matches!(initial,InitialDiscovery::PendingDns) {timeout(Duration::from_secs(1),dns.entered.notified()).await.unwrap();}
+        if !matches!(initial,InitialDiscovery::Empty) {assert!(!video.events.gathered.load(Ordering::Acquire),"old discovery must still be pending");}
+        let offer=timeout(Duration::from_secs(1),video.begin_relay_fallback(fallback.take().unwrap())).await.unwrap().unwrap();
+        if matches!(initial,InitialDiscovery::PendingDns) {assert!(dns.cancelled.load(Ordering::Acquire),"pending DNS future must be dropped before restart is returned");}
+        if let Some(socket)=&silent {
+            let mut bytes=[0;2000];while socket.try_recv_from(&mut bytes).is_ok() {}
+            assert!(timeout(Duration::from_millis(300),socket.recv_from(&mut bytes)).await.is_err(),"old STUN retry must stop at the acknowledged barrier");
+            let (response,source)=delayed.unwrap();socket.send_to(&response,source).await.unwrap();
+        }
         eprintln!("late_fallback_stage=restart_offer");
         assert_eq!(offer.generation,1);
         assert!(field(&initial_offer,"a=ice-ufrag:")!=field(&offer.sdp,"a=ice-ufrag:"),"restart must advertise fresh ICE credentials");
@@ -172,6 +246,7 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
             let mut discovered=false;
             loop {match outgoing.next_signal().await.unwrap() {
                 VideoIceSignal::Candidate {candidate,mid}=>{
+                    assert!(!candidate.contains("203.0.113.20"),"old STUN result must not enter the new generation");
                     let is_relay=candidate.contains(" typ relay");discovered|=if relay.is_some() {is_relay} else {candidate.contains(" typ srflx")};
                     // Unreachable synthetic mapped addresses are observed,
                     // never sent to the peer or used for external probes.

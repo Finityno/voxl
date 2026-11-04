@@ -607,6 +607,13 @@ pub trait PeerConnection: crate::sealed::Sealed + Send + Sync + 'static {
     /// See [setConfiguration](https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-setconfiguration)
     async fn set_configuration(&self, configuration: RTCConfiguration) -> Result<()>;
 
+    /// Stop STUN-only discovery before a serialized ICE restart. The driver
+    /// acknowledges after interrupting DNS/retries and draining old callbacks;
+    /// no old local candidate can follow the acknowledgement. Existing ICE/DTLS
+    /// transports remain live. The caller must serialize negotiation, close on
+    /// cancellation, then set configuration and create a restart offer.
+    async fn quiesce_stun_gathering_for_restart(&self) -> Result<()>;
+
     /// Creates a data channel.
     ///
     /// The channel is not usable immediately: unless it was negotiated out-of-band, its SCTP
@@ -757,6 +764,7 @@ pub(crate) struct PeerConnectionRef {
     pub(crate) rtp_transceivers: Mutex<HashMap<RTCRtpTransceiverId, Arc<RtpTransceiverImpl>>>,
     /// Unified channel for all outgoing driver events
     pub(crate) driver_event_tx: Sender<PeerConnectionDriverEvent>,
+    pub(crate) gather_interrupt_tx: Sender<()>,
     /// Coalescing write-flush gate (pion `awakeWriteLoop` equivalent).
     ///
     /// Hot-path senders (`dc.send`, etc.) set this flag and, only on the
@@ -998,6 +1006,7 @@ impl PeerConnectionImpl {
 
         let (driver_event_tx, driver_event_rx) =
             channel(APPLICATION_TO_DRIVER_EVENT_CHANNEL_CAPACITY);
+        let (gather_interrupt_tx, gather_interrupt_rx) = channel::<()>(1);
         let peer_connection = Self {
             inner: Arc::new(PeerConnectionRef {
                 core: Mutex::new(core),
@@ -1008,6 +1017,7 @@ impl PeerConnectionImpl {
                 rtp_transceivers: Mutex::new(HashMap::new()),
                 handler,
                 driver_event_tx,
+                gather_interrupt_tx,
                 write_pending: AtomicBool::new(false),
                 write_backpressure: std::sync::atomic::AtomicUsize::new(0),
                 closing: AtomicBool::new(false),
@@ -1051,6 +1061,7 @@ impl PeerConnectionImpl {
                 crypto_provider,
                 discard_local_candidates_during_ice_restart,
                 turn_allocation_refresh_interval_cap,
+                gather_interrupt_rx,
             );
 
             if let Err(e) = driver.event_loop(driver_event_rx, init_tx).await {
@@ -1334,6 +1345,32 @@ impl PeerConnection for PeerConnectionImpl {
         core.get_configuration().clone()
     }
 
+    async fn quiesce_stun_gathering_for_restart(&self) -> Result<()> {
+        {
+            let core = self.inner.core.lock().await;
+            if core.get_configuration().ice_servers().iter().any(|server| {
+                server.urls().map_or(true, |urls| urls.iter().any(|url| {
+                    !matches!(url.scheme, rtc::ice::url::SchemeType::Stun)
+                }))
+            }) {
+                return Err(Error::Other("only STUN discovery may be quiesced".to_owned()));
+            }
+        }
+        // overflow: nudge — a full channel already carries the interrupt. The
+        // acknowledged barrier uses the ordinary FIFO after all earlier work.
+        match self.inner.gather_interrupt_tx.try_send(()) {
+            Ok(()) | Err(crate::runtime::TrySendError::Full(())) => {}
+            Err(crate::runtime::TrySendError::Disconnected(())) => {
+                return Err(Error::Other("peer connection driver stopped".to_owned()));
+            }
+        }
+        let (reply, mut acknowledged) = channel(1);
+        // overflow: awaited — producer is the serialized application caller.
+        self.inner.driver_event_tx.send(PeerConnectionDriverEvent::QuiesceStunGathering(reply))
+            .await.map_err(|_| Error::Other("peer connection driver stopped".to_owned()))?;
+        acknowledged.recv().await.ok_or_else(|| Error::Other("peer connection driver stopped".to_owned()))
+    }
+
     async fn set_configuration(&self, configuration: RTCConfiguration) -> Result<()> {
         let (ice_servers, ice_transport_policy) = {
             let mut core = self.inner.core.lock().await;
@@ -1614,12 +1651,14 @@ mod tests {
         let runtime = default_runtime().expect("test requires a runtime feature");
         let handler: Arc<dyn PeerConnectionEventHandler> = Arc::new(DummyHandler);
         let (driver_event_tx, driver_event_rx) = channel::<PeerConnectionDriverEvent>(1);
+        let (gather_interrupt_tx, _) = channel(1);
 
         let inner = Arc::new(PeerConnectionRef {
             core: Mutex::new(core),
             runtime,
             handler,
             driver_event_tx,
+            gather_interrupt_tx,
             write_pending: AtomicBool::new(false),
             write_backpressure: AtomicUsize::new(0),
             closing: AtomicBool::new(false),

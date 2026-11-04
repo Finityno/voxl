@@ -489,7 +489,43 @@ pub(crate) enum PeerConnectionDriverEvent {
         ice_transport_policy: RTCIceTransportPolicy,
     },
     IceGathering,
+    QuiesceStunGathering(Sender<()>),
     Close,
+}
+
+enum GatheringPart { Pending, Complete }
+enum TurnDiscovery { Pending, Deferred(Instant), Complete }
+enum IceDiscovery {
+    Idle,
+    Gathering { stun: GatheringPart, turn: TurnDiscovery },
+    Suspended,
+}
+impl IceDiscovery {
+    fn complete_stun(&mut self) {
+        if let Self::Gathering { stun, .. } = self { *stun = GatheringPart::Complete; }
+    }
+    fn complete_turn(&mut self) {
+        if let Self::Gathering { turn, .. } = self { *turn = TurnDiscovery::Complete; }
+    }
+    fn deadline(&self) -> Option<Instant> {
+        match self { Self::Gathering { turn: TurnDiscovery::Deferred(deadline), .. } => Some(*deadline), _ => None }
+    }
+    fn take_deferred(&mut self) -> bool {
+        if let Self::Gathering { turn, .. } = self
+            && matches!(turn, TurnDiscovery::Deferred(_)) {
+            *turn = TurnDiscovery::Pending;
+            true
+        } else { false }
+    }
+    fn defer_turn(&mut self, deadline: Instant) {
+        if let Self::Gathering { turn, .. } = self { *turn = TurnDiscovery::Deferred(deadline); }
+    }
+    fn finish(&mut self) -> bool {
+        if matches!(self, Self::Gathering { stun: GatheringPart::Complete, turn: TurnDiscovery::Complete }) {
+            *self = Self::Idle;
+            true
+        } else { false }
+    }
 }
 
 /// The driver for a peer connection
@@ -505,10 +541,8 @@ pub(crate) struct PeerConnectionDriver<A = SocketAddr> {
     /// Reused scratch buffer for concatenating a run of same-destination datagrams
     /// into one UDP GSO send (see [`flush_writes`](Self::flush_writes)).
     gso_scratch: Vec<u8>,
-    ice_gathering_active: bool,
-    stun_gathering_complete: bool,
-    turn_gathering_complete: bool,
-    deferred_turn_gathering: Option<Instant>,
+    discovery: IceDiscovery,
+    gather_interrupt_rx: Receiver<()>,
     pending_ice_configuration: Option<(Vec<RTCIceServer>, RTCIceTransportPolicy)>,
     /// Data-channel events that did not fit in their channel's queue, kept in arrival order.
     ///
@@ -563,6 +597,7 @@ where
         crypto_provider: Arc<dyn rtc::crypto::RTCCryptoProvider>,
         discard_local_candidates_during_ice_restart: bool,
         turn_allocation_refresh_interval_cap: Option<Duration>,
+        gather_interrupt_rx: Receiver<()>,
     ) -> Self {
         let runtime = Arc::clone(&inner.runtime);
         Self {
@@ -586,10 +621,8 @@ where
             udp_sockets: HashMap::new(),
             gso_scratch: Vec::new(),
             tcp_transport: RTCTcpTransport::new(HashMap::new()),
-            ice_gathering_active: false,
-            stun_gathering_complete: false,
-            turn_gathering_complete: false,
-            deferred_turn_gathering: None,
+            discovery: IceDiscovery::Idle,
+            gather_interrupt_rx,
             pending_ice_configuration: None,
             pending_data_channel_events: HashMap::new(),
             udp_addrs,
@@ -701,7 +734,7 @@ where
             self.ice_gather_policy,
             Arc::clone(&runtime),
         );
-        self.deferred_turn_gathering = None;
+        self.discovery = IceDiscovery::Idle;
         self.turn_relayer = RTCTurnRelayer::new(
             local_addrs,
             self.ice_servers.clone(),
@@ -1261,7 +1294,7 @@ where
                 }
             }
             RTCStunGatherEventOut::StunGatheringComplete => {
-                self.stun_gathering_complete = true;
+                self.discovery.complete_stun();
                 self.finish_gathering_if_ready().await;
             }
         }
@@ -1277,16 +1310,25 @@ where
                 }
             }
             RTCTurnRelayEventOut::TurnGatheringComplete => {
-                self.turn_gathering_complete = true;
+                self.discovery.complete_turn();
                 self.finish_gathering_if_ready().await;
             }
         }
     }
 
+    async fn suspend_stun_gathering(&mut self) {
+        self.discovery = IceDiscovery::Suspended;
+        self.stun_gatherer.update_configuration(self.ice_servers.clone(), self.ice_gather_policy);
+        // Candidates already handed to the core still belong to the old epoch.
+        // Dispatch them before acknowledging rather than relabeling or dropping
+        // non-discovery events (including a simultaneous direct connection).
+        for event in Self::drain_core_events(Arc::clone(&self.inner)).await {
+            self.handle_rtc_event(event).await;
+        }
+    }
+
     async fn finish_gathering_if_ready(&mut self) {
-        if self.ice_gathering_active && self.stun_gathering_complete && self.turn_gathering_complete
-        {
-            self.ice_gathering_active = false;
+        if self.discovery.finish() {
             let end_of_candidates = RTCIceCandidateInit::default();
             let mut core = self.inner.core.lock().await;
             if let Err(err) = core.add_local_candidate(end_of_candidates) {
@@ -1322,8 +1364,8 @@ where
                     .await;
             }
             RTCPeerConnectionEvent::OnConnectionStateChangeEvent(state) => {
-                if state == RTCPeerConnectionState::Connected && self.deferred_turn_gathering.take().is_some() {
-                    self.turn_gathering_complete = true;
+                if state == RTCPeerConnectionState::Connected && self.discovery.take_deferred() {
+                    self.discovery.complete_turn();
                     self.finish_gathering_if_ready().await;
                 }
                 self.inner.handler.on_connection_state_change(state).await;
@@ -1729,7 +1771,16 @@ where
                 // takes effect when the next gathering phase starts.
                 self.pending_ice_configuration = Some((ice_servers, ice_transport_policy));
             }
+            PeerConnectionDriverEvent::QuiesceStunGathering(reply) => {
+                self.suspend_stun_gathering().await;
+                while self.gather_interrupt_rx.try_recv().is_ok() {}
+                // All preceding FIFO gathering requests and public callbacks are
+                // now retired; only a later restart can start fresh discovery.
+                self.discovery = IceDiscovery::Idle;
+                if reply.try_send(()).is_err() { debug!("STUN barrier caller ended"); }
+            }
             PeerConnectionDriverEvent::IceGathering => {
+                if matches!(self.discovery, IceDiscovery::Suspended) { return false; }
                 if let Some((ice_servers, ice_transport_policy)) =
                     self.pending_ice_configuration.take()
                 {
@@ -1744,9 +1795,7 @@ where
                     self.ice_gather_policy = ice_transport_policy;
                 }
 
-                self.ice_gathering_active = true;
-                self.stun_gathering_complete = false;
-                self.turn_gathering_complete = false;
+                self.discovery = IceDiscovery::Gathering { stun: GatheringPart::Pending, turn: TurnDiscovery::Pending };
 
                 // Gather TCP candidates
                 let ice_gather_policy = {
@@ -1765,12 +1814,21 @@ where
                     }
                 }
 
-                if self.stun_gatherer.state() != RTCIceGatheringState::Gathering
-                    && let Err(err) = self.stun_gatherer.gather().await
-                {
-                    error!("Failed to gather ice gathering: {}", err);
+                if self.stun_gatherer.state() != RTCIceGatheringState::Gathering {
+                    let interrupted = {
+                        let gather = self.stun_gatherer.gather().fuse();
+                        let interrupt = self.gather_interrupt_rx.recv().fuse();
+                        futures::pin_mut!(gather, interrupt);
+                        futures::select! {
+                            result = gather => {
+                                if let Err(err) = result { error!("Failed to gather ice gathering: {}", err); }
+                                false
+                            }
+                            signal = interrupt => signal.is_some(),
+                        }
+                    };
+                    if interrupted { self.suspend_stun_gathering().await; return false; }
                 }
-                self.deferred_turn_gathering = None;
                 if self.turn_relayer.state() != RTCIceGatheringState::Gathering {
                     let delay = if ice_gather_policy == RTCIceTransportPolicy::Relay {Duration::ZERO}
                         else {self.inner.runtime.turn_gathering_delay().min(Duration::from_secs(1))};
@@ -1781,7 +1839,7 @@ where
                     } else {
                         // A timer in the existing driver keeps socket reads,
                         // DTLS, media and Close live while TURN is deferred.
-                        self.deferred_turn_gathering = Some(self.inner.runtime.now() + delay);
+                        self.discovery.defer_turn(self.inner.runtime.now() + delay);
                     }
                 }
             }
@@ -2223,7 +2281,7 @@ where
         let stun_timeout = self.stun_gatherer.poll_timeout();
         let turn_timeout = self.turn_relayer.poll_timeout();
 
-        [core_timeout, stun_timeout, turn_timeout, self.deferred_turn_gathering]
+        [core_timeout, stun_timeout, turn_timeout, self.discovery.deadline()]
             .into_iter()
             .flatten()
             .min()
@@ -2231,8 +2289,8 @@ where
     }
 
     async fn handle_timeout(&mut self, now: Instant) -> Result<()> {
-        if self.deferred_turn_gathering.is_some_and(|deadline| deadline <= now) {
-            self.deferred_turn_gathering = None;
+        if self.discovery.deadline().is_some_and(|deadline| deadline <= now) {
+            self.discovery.take_deferred();
             if let Err(err) = self.turn_relayer.gather().await {
                 error!("Failed to gather deferred relay candidates: {}", err);
             }
