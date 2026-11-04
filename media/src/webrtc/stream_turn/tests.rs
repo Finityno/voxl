@@ -43,19 +43,23 @@ fn turn_stream_datagrams_reject_invalid_lengths_and_framing() {
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly);}
+fn webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly);}
+fn webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly);}
+fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
-fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic);}
+fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic,true);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn webrtc_default_sdk_relay_allocates_per_interface_for_comparison() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,false);}
 
 #[test]
 #[ignore = "requires the isolated loopback coturn TLS fixture"]
@@ -75,7 +79,7 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
     });
 }
 
-fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy) {
+fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy,limit_receiver_interfaces:bool) {
     use super::super::*;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
@@ -139,14 +143,19 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
             let (sender,mut packets)=mpsc::channel(4);
             let gathered=Arc::new(AtomicBool::new(false));let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
-            let receiver=PeerConnectionBuilder::new().with_runtime(receiver_relays.runtime()).with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
+            let receiver=PeerConnectionBuilder::new();
+            // Keep an independent comparison against the SDK's default None
+            // preference. Only the receiver changes; the sender stays limited.
+            let receiver=if limit_receiver_interfaces {receiver.with_runtime(receiver_relays.runtime())} else {receiver};
+            let expected_receiver_allocations=if limit_receiver_interfaces {1} else {bindings.len()};
+            let receiver=receiver.with_configuration(RTCConfigurationBuilder::new().with_ice_servers(servers).with_ice_transport_policy(if policy==RoutePolicy::RelayOnly {RTCIceTransportPolicy::Relay} else {RTCIceTransportPolicy::All}).build())
                 .with_media_engine(media).with_handler(Arc::new(Receiver {packets:sender,gathered:Arc::clone(&gathered),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen),wake:Arc::clone(&wake)})).with_udp_addrs(bindings).build().await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             timeout(Duration::from_secs(6),async {while !gathered.load(Ordering::Acquire) {wake.notified().await;}}).await.unwrap();
             let answer=receiver.local_description().await.unwrap().sdp;
-            assert_eq!(relay_count(&answer),1,"receiver must use one authenticated relay allocation for both local IPv4 bindings");
-            eprintln!("relay fanout: sender_bindings=2 receiver_bindings=2 sender_allocations=1 receiver_allocations=1");
+            assert_eq!(relay_count(&answer),expected_receiver_allocations,"receiver allocation count must match its explicit policy");
+            eprintln!("relay fanout: sender_bindings=2 receiver_bindings=2 sender_allocations=1 receiver_allocations={expected_receiver_allocations}");
             video.answer(answer).await.unwrap();
             assert_eq!(timeout(Duration::from_secs(5),video.next_update()).await.expect("forced-relay ICE/DTLS connection deadline"),VideoUpdate::Connected);
             timeout(Duration::from_secs(5),async {while !connected.load(Ordering::Acquire) {wake.notified().await;}}).await.expect("receiver ICE/DTLS connection deadline");
