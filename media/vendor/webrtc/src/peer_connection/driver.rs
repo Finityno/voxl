@@ -1222,8 +1222,24 @@ where
         } else if self.stun_gatherer.is_stun_message(&msg) {
             self.stun_gatherer.handle_read(msg)?;
         } else {
-            let mut core = self.inner.core.lock().await;
-            core.handle_read(msg)?;
+            let events = {
+                let mut core = self.inner.core.lock().await;
+                core.handle_read(msg)?;
+                // A UDP burst (or TCP read batch) can contain a handshake
+                // transition followed immediately by media. Pump core events
+                // now: DTLS completion installs SRTP keys through that pump,
+                // and postponing it until after the burst drops the first RTP.
+                // Retain this lock rather than locking/cloning once per packet
+                // again; an event-free packet allocates no event vector storage.
+                let mut events = Vec::new();
+                while let Some(event) = core.poll_event() {
+                    events.push(event);
+                }
+                events
+            };
+            for event in events {
+                self.handle_rtc_event(event).await;
+            }
         }
 
         Ok(())
