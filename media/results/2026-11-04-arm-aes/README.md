@@ -51,3 +51,14 @@ their own target setting. x86 and other targets retain existing settings.
 
 Sources: [exact AES implementation and runtime detector](https://github.com/RustCrypto/block-ciphers/blob/aes-v0.8.4/aes/src/lib.rs),
 [NIST CTR-AES128 vector, F.5.1](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf).
+
+Strict release Clippy also exits 0 for both flag variants at exact evidence
+source `57240f790166ab3d863db78c7637f65ea6091e96`; its scoped commands,
+watchdogs and logs are in `strict-clippy-57240f7.json`. The embedding app's
+native library/example build and strict Clippy pass at source b7640e9, and actual
+selected-display H.264 passes into the unchanged phone WebKit receiver through
+connected selected/nominated direct DTLS/SRTP: one test passed, zero failed/skipped,
+253 presented 1670x1080 frames and sender exit 0. This separately establishes
+native interoperability with the setting; overall CPU/energy/bandwidth gains
+remain unmeasured. Private application evidence stays in its dated `arm-aes`
+pack. No screen pixels or private credentials are copied here.
