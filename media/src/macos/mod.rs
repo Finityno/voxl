@@ -171,6 +171,20 @@ impl VideoEncoder {
             Err(mpsc::TryRecvError::Disconnected) => Err(MediaError::Closed),
         }
     }
+
+    /// Block only a dedicated native worker until output or the supplied bound.
+    /// This avoids a one-millisecond polling loop between native callbacks.
+    pub fn wait_output(&self, timeout: std::time::Duration) -> Result<Option<EncodedFrame>, MediaError> {
+        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
+        let result = match self.receiver.recv_timeout(timeout) {
+            Ok(frame) => Ok(Some(frame)),
+            Err(mpsc::RecvTimeoutError::Timeout) => Ok(None),
+            Err(mpsc::RecvTimeoutError::Disconnected) => Err(MediaError::Closed),
+        };
+        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
+        result
+    }
+
 }
 impl Drop for VideoEncoder {
     fn drop(&mut self) {

@@ -100,6 +100,25 @@ impl WebRtcConfig {
     }
 }
 
+/// Synchronous authority-boundary close, usable while the sender is awaiting
+/// network I/O. The single serial writer is woken and the peer is torn down on
+/// its owning runtime with a separate deadline.
+#[derive(Clone)]
+pub struct VideoCloseHandle {
+    closed: Arc<AtomicBool>,
+    wake: Arc<Notify>,
+    peer: Arc<dyn PeerConnection>,
+    runtime: tokio::runtime::Handle,
+}
+impl VideoCloseHandle {
+    pub fn close(&self) {
+        if self.closed.swap(true,Ordering::AcqRel) { return; }
+        self.wake.notify_one();
+        let peer = Arc::clone(&self.peer);
+        self.runtime.spawn(async move { let _ = tokio::time::timeout(Duration::from_secs(2),peer.close()).await; });
+    }
+}
+
 /// Serial frame sender. Stopping is synchronous at the authority boundary;
 /// native transport teardown is scheduled with a separate two-second bound.
 pub struct WebRtcVideo {
@@ -107,8 +126,7 @@ pub struct WebRtcVideo {
     sender: Arc<dyn RtpSender>,
     track: Arc<TrackLocalStaticRTP>,
     events: Arc<Events>,
-    runtime: tokio::runtime::Handle,
-    closed: AtomicBool,
+    closer: VideoCloseHandle,
     offer: String,
     payload_type: Option<u8>,
     ssrc: u32,
@@ -168,7 +186,8 @@ impl WebRtcVideo {
         let offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
-        Ok(Self { peer,sender,track,events,runtime,closed: AtomicBool::new(false),offer,payload_type: None,ssrc,
+        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime };
+        Ok(Self { peer,sender,track,events,closer,offer,payload_type: None,ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
             keyframe,last_keyframe_request: None })
@@ -176,7 +195,7 @@ impl WebRtcVideo {
 
     pub fn offer(&self) -> &str { &self.offer }
     pub fn connected(&self) -> bool { !self.ended() && self.events.connected.load(Ordering::Acquire) }
-    pub fn ended(&self) -> bool { self.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) }
+    pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.ended.load(Ordering::Acquire) }
     pub fn take_keyframe_request(&mut self) -> bool {
         if self.last_keyframe_request.is_some_and(|time| time.elapsed() < Duration::from_millis(250)) { return false; }
         if self.keyframe.swap(false,Ordering::AcqRel) { self.last_keyframe_request = Some(Instant::now()); true } else { false }
@@ -241,7 +260,12 @@ impl WebRtcVideo {
                 let packet = rtc::rtp::Packet { header: rtc::rtp::header::Header { version: 2, marker: index == last,
                     payload_type,sequence_number: self.sequence,timestamp,ssrc: self.ssrc,..Default::default() },payload };
                 self.sequence = self.sequence.wrapping_add(1);
-                self.track.write_rtp(packet).await.map_err(transport)?;
+                if self.ended() { return Err(WebRtcError::Ended); }
+                tokio::select! {
+                    biased;
+                    _ = self.closer.wake.notified() => return Err(WebRtcError::Ended),
+                    result = self.track.write_rtp(packet) => { result.map_err(transport)?; }
+                }
             }
             Ok::<_,WebRtcError>(())
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
@@ -250,11 +274,8 @@ impl WebRtcVideo {
         result
     }
 
-    pub fn close(&self) {
-        if self.closed.swap(true,Ordering::AcqRel) { return; }
-        let peer = Arc::clone(&self.peer);
-        self.runtime.spawn(async move { let _ = tokio::time::timeout(Duration::from_secs(2),peer.close()).await; });
-    }
+    pub fn close_handle(&self) -> VideoCloseHandle { self.closer.clone() }
+    pub fn close(&self) { self.closer.close(); }
 }
 impl Drop for WebRtcVideo { fn drop(&mut self) { self.close(); } }
 

@@ -94,7 +94,8 @@ fn loopback(format: VideoFormat) {
                 }
             }
             assert!(route.bytes_sent > 0);
-            video.close();
+            let close = video.close_handle();
+            close.close();
             assert!(video.ended() && !video.connected());
             receiver.close().await.unwrap();
         }).await.expect("bounded native WebRTC loopback");
