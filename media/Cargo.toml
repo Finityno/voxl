@@ -8,3 +8,15 @@ description = "Bounded native desktop media primitives for the Fincode Voxl fork
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2-core-media = { version = "0.3", default-features = false, features = ["CMTime"] }
+
+[features]
+default = []
+webrtc = ["dep:webrtc", "dep:rtc", "dep:tokio", "dep:async-trait", "dep:bytes", "dep:rand"]
+
+[dependencies]
+webrtc = { version = "0.21.1", optional = true, default-features = false, features = ["runtime-tokio", "crypto-aws-lc-rs"] }
+rtc = { version = "0.21.1", optional = true, default-features = false, features = ["crypto-aws-lc-rs"] }
+tokio = { version = "1", optional = true, default-features = false, features = ["rt", "sync", "time"] }
+async-trait = { version = "0.1", optional = true }
+bytes = { version = "1", optional = true }
+rand = { version = "0.10", optional = true }
