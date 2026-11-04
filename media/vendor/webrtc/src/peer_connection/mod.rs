@@ -764,7 +764,6 @@ pub(crate) struct PeerConnectionRef {
     pub(crate) rtp_transceivers: Mutex<HashMap<RTCRtpTransceiverId, Arc<RtpTransceiverImpl>>>,
     /// Unified channel for all outgoing driver events
     pub(crate) driver_event_tx: Sender<PeerConnectionDriverEvent>,
-    pub(crate) gather_interrupt_tx: Sender<()>,
     /// Coalescing write-flush gate (pion `awakeWriteLoop` equivalent).
     ///
     /// Hot-path senders (`dc.send`, etc.) set this flag and, only on the
@@ -968,17 +967,19 @@ impl PeerConnectionRef {
     /// 1:1 wake per message (yield every time) on cooperatively-scheduled
     /// runtimes such as smol — both collapse throughput.
     #[inline]
+    pub(crate) fn wake_driver(&self)->bool {
+        if self.write_pending.swap(true,Ordering::AcqRel) {return false;}
+        // overflow: nudge — a full channel already wakes the driver; the
+        // durable gate is cleared only when its work is drained.
+        match self.driver_event_tx.try_send(PeerConnectionDriverEvent::WriteNotify) {
+            Ok(())|Err(crate::runtime::TrySendError::Full(_))=>{},
+            Err(crate::runtime::TrySendError::Disconnected(_))=>log::debug!("Driver wake receiver ended"),
+        }
+        true
+    }
+    #[inline]
     pub(crate) async fn wake_writes(&self) {
-        if !self.write_pending.swap(true, Ordering::AcqRel) {
-            // overflow: nudge — `write_pending` is the durable signal and the driver clears
-            // it every iteration, so a dropped wake loses nothing. Deliberately not an
-            // await: see this function's doc comment for why that collapses throughput.
-            let _ = self
-                .driver_event_tx
-                .try_send(PeerConnectionDriverEvent::WriteNotify);
-        } else if self.write_backpressure.fetch_add(1, Ordering::Relaxed) % WRITE_YIELD_INTERVAL
-            == WRITE_YIELD_INTERVAL - 1
-        {
+        if !self.wake_driver() && self.write_backpressure.fetch_add(1,Ordering::Relaxed)%WRITE_YIELD_INTERVAL==WRITE_YIELD_INTERVAL-1 {
             self.runtime.yield_now().await;
         }
     }
@@ -1006,7 +1007,6 @@ impl PeerConnectionImpl {
 
         let (driver_event_tx, driver_event_rx) =
             channel(APPLICATION_TO_DRIVER_EVENT_CHANNEL_CAPACITY);
-        let (gather_interrupt_tx, gather_interrupt_rx) = channel::<()>(1);
         let peer_connection = Self {
             inner: Arc::new(PeerConnectionRef {
                 core: Mutex::new(core),
@@ -1017,7 +1017,6 @@ impl PeerConnectionImpl {
                 rtp_transceivers: Mutex::new(HashMap::new()),
                 handler,
                 driver_event_tx,
-                gather_interrupt_tx,
                 write_pending: AtomicBool::new(false),
                 write_backpressure: std::sync::atomic::AtomicUsize::new(0),
                 closing: AtomicBool::new(false),
@@ -1061,7 +1060,6 @@ impl PeerConnectionImpl {
                 crypto_provider,
                 discard_local_candidates_during_ice_restart,
                 turn_allocation_refresh_interval_cap,
-                gather_interrupt_rx,
             );
 
             if let Err(e) = driver.event_loop(driver_event_rx, init_tx).await {
@@ -1356,14 +1354,6 @@ impl PeerConnection for PeerConnectionImpl {
                 return Err(Error::Other("only STUN discovery may be quiesced".to_owned()));
             }
         }
-        // overflow: nudge — a full channel already carries the interrupt. The
-        // acknowledged barrier uses the ordinary FIFO after all earlier work.
-        match self.inner.gather_interrupt_tx.try_send(()) {
-            Ok(()) | Err(crate::runtime::TrySendError::Full(())) => {}
-            Err(crate::runtime::TrySendError::Disconnected(())) => {
-                return Err(Error::Other("peer connection driver stopped".to_owned()));
-            }
-        }
         let (reply, mut acknowledged) = channel(1);
         // overflow: awaited — producer is the serialized application caller.
         self.inner.driver_event_tx.send(PeerConnectionDriverEvent::QuiesceStunGathering(reply))
@@ -1651,14 +1641,12 @@ mod tests {
         let runtime = default_runtime().expect("test requires a runtime feature");
         let handler: Arc<dyn PeerConnectionEventHandler> = Arc::new(DummyHandler);
         let (driver_event_tx, driver_event_rx) = channel::<PeerConnectionDriverEvent>(1);
-        let (gather_interrupt_tx, _) = channel(1);
 
         let inner = Arc::new(PeerConnectionRef {
             core: Mutex::new(core),
             runtime,
             handler,
             driver_event_tx,
-            gather_interrupt_tx,
             write_pending: AtomicBool::new(false),
             write_backpressure: AtomicUsize::new(0),
             closing: AtomicBool::new(false),

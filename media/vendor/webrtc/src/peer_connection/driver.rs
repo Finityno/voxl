@@ -493,6 +493,12 @@ pub(crate) enum PeerConnectionDriverEvent {
     Close,
 }
 
+struct DiscoveryWake(std::sync::Weak<PeerConnectionRef>);
+impl std::task::Wake for DiscoveryWake {
+    fn wake(self:Arc<Self>) {std::task::Wake::wake_by_ref(&self);}
+    fn wake_by_ref(self:&Arc<Self>) {if let Some(inner)=self.0.upgrade() {inner.wake_driver();}}
+}
+
 enum GatheringPart { Pending, Complete }
 enum TurnDiscovery { Pending, Deferred(Instant), Complete }
 enum IceDiscovery {
@@ -542,7 +548,7 @@ pub(crate) struct PeerConnectionDriver<A = SocketAddr> {
     /// into one UDP GSO send (see [`flush_writes`](Self::flush_writes)).
     gso_scratch: Vec<u8>,
     discovery: IceDiscovery,
-    gather_interrupt_rx: Receiver<()>,
+    discovery_waker: std::task::Waker,
     pending_ice_configuration: Option<(Vec<RTCIceServer>, RTCIceTransportPolicy)>,
     /// Data-channel events that did not fit in their channel's queue, kept in arrival order.
     ///
@@ -597,9 +603,9 @@ where
         crypto_provider: Arc<dyn rtc::crypto::RTCCryptoProvider>,
         discard_local_candidates_during_ice_restart: bool,
         turn_allocation_refresh_interval_cap: Option<Duration>,
-        gather_interrupt_rx: Receiver<()>,
     ) -> Self {
         let runtime = Arc::clone(&inner.runtime);
+        let discovery_waker=std::task::Waker::from(Arc::new(DiscoveryWake(Arc::downgrade(&inner))));
         Self {
             inner,
             // Placeholders until `bind_transports` runs; constructing them costs no I/O.
@@ -622,7 +628,7 @@ where
             gso_scratch: Vec::new(),
             tcp_transport: RTCTcpTransport::new(HashMap::new()),
             discovery: IceDiscovery::Idle,
-            gather_interrupt_rx,
+            discovery_waker,
             pending_ice_configuration: None,
             pending_data_channel_events: HashMap::new(),
             udp_addrs,
@@ -1773,7 +1779,6 @@ where
             }
             PeerConnectionDriverEvent::QuiesceStunGathering(reply) => {
                 self.suspend_stun_gathering().await;
-                while self.gather_interrupt_rx.try_recv().is_ok() {}
                 // All preceding FIFO gathering requests and public callbacks are
                 // now retired; only a later restart can start fresh discovery.
                 self.discovery = IceDiscovery::Idle;
@@ -1814,20 +1819,9 @@ where
                     }
                 }
 
-                if self.stun_gatherer.state() != RTCIceGatheringState::Gathering {
-                    let interrupted = {
-                        let gather = self.stun_gatherer.gather().fuse();
-                        let interrupt = self.gather_interrupt_rx.recv().fuse();
-                        futures::pin_mut!(gather, interrupt);
-                        futures::select! {
-                            result = gather => {
-                                if let Err(err) = result { error!("Failed to gather ice gathering: {}", err); }
-                                false
-                            }
-                            signal = interrupt => signal.is_some(),
-                        }
-                    };
-                    if interrupted { self.suspend_stun_gathering().await; return false; }
+                if self.stun_gatherer.state()!=RTCIceGatheringState::Gathering
+                    && let Err(err)=self.stun_gatherer.gather() {
+                    error!("Failed to start STUN gathering: {err}");
                 }
                 if self.turn_relayer.state() != RTCIceGatheringState::Gathering {
                     let delay = if ice_gather_policy == RTCIceTransportPolicy::Relay {Duration::ZERO}
@@ -2212,6 +2206,12 @@ where
     }
 
     async fn poll_events(&mut self) {
+        if self.stun_gatherer.poll_resolutions(&mut std::task::Context::from_waker(&self.discovery_waker)) {
+            // New clients may have queued writes after this iteration's write
+            // drain. Reuse the existing coalesced channel instead of waiting
+            // for a protocol timer or adding a steady-state listener.
+            self.inner.wake_driver();
+        }
         // 2.a stun_gatherer poll_event()
         while let Some(event) = self.stun_gatherer.poll_event() {
             self.handle_stun_gather_event(event).await;

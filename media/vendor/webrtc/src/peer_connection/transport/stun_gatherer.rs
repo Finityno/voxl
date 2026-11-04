@@ -31,6 +31,15 @@ use rtc::stun::xoraddr::XorMappedAddress;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::net::SocketAddr;
 use std::time::Instant;
+use std::{future::Future,io,pin::Pin,task::{Context,Poll}};
+use futures::{stream::FuturesUnordered,Stream};
+
+type Resolution = Pin<Box<dyn Future<Output=io::Result<Vec<SocketAddr>>>+Send>>;
+enum Discovery {
+    New,
+    Gathering {clients:HashMap<FourTuple,StunClient>,resolving:FuturesUnordered<Resolution>},
+    Complete,
+}
 
 #[derive(Debug)]
 pub(crate) enum RTCStunGatherEventIn {
@@ -51,11 +60,10 @@ pub(crate) struct RTCStunGatherer {
     local_addrs: Vec<SocketAddr>,
     ice_servers: Vec<RTCIceServer>,
     ice_gather_policy: RTCIceTransportPolicy,
-    state: RTCIceGatheringState,
+    discovery: Discovery,
     /// Host runtime, used to resolve STUN server hostnames.
     runtime: Arc<dyn Runtime>,
 
-    stun_clients: HashMap<FourTuple, StunClient>,
 
     wouts: VecDeque<TaggedBytesMut>,
     events: VecDeque<RTCStunGatherEventOut>,
@@ -73,10 +81,9 @@ impl RTCStunGatherer {
             local_addrs,
             ice_servers,
             ice_gather_policy,
-            state: RTCIceGatheringState::New,
+            discovery: Discovery::New,
             runtime,
 
-            stun_clients: HashMap::new(),
 
             wouts: VecDeque::new(),
             events: VecDeque::new(),
@@ -84,7 +91,47 @@ impl RTCStunGatherer {
     }
 
     pub(crate) fn state(&self) -> RTCIceGatheringState {
-        self.state
+        match self.discovery {Discovery::New=>RTCIceGatheringState::New,Discovery::Gathering {..}=>RTCIceGatheringState::Gathering,Discovery::Complete=>RTCIceGatheringState::Complete}
+    }
+
+    fn retire(&mut self) {
+        if let Discovery::Gathering {clients,..}=std::mem::replace(&mut self.discovery,Discovery::New) {
+            for (_,mut client) in clients {
+                if client.close().is_err() {debug!("STUN client already retired");}
+            }
+        }
+        self.wouts.clear();self.events.clear();
+    }
+
+    fn finish_if_ready(&mut self) {
+        if matches!(&self.discovery,Discovery::Gathering {clients,resolving} if clients.is_empty() && resolving.is_empty()) {
+            self.discovery=Discovery::Complete;
+            self.events.push_back(RTCStunGatherEventOut::StunGatheringComplete);
+        }
+    }
+
+    pub(crate) fn poll_resolutions(&mut self,context:&mut Context<'_>)->bool {
+        let mut progressed=false;
+        loop {
+            let result=match &mut self.discovery {
+                Discovery::Gathering {resolving,..}=>match Pin::new(resolving).poll_next(context) {
+                    Poll::Ready(Some(result))=>result,
+                    Poll::Ready(None)|Poll::Pending=>break,
+                },
+                _=>return progressed,
+            };
+            progressed=true;
+            let addresses=match result {Ok(addresses)=>addresses,Err(_)=>{warn!("STUN server lookup failed");continue;}};
+            let Discovery::Gathering {clients,..}=&mut self.discovery else {return progressed;};
+            for local in &self.local_addrs {
+                match Self::gather_from_stun_server(&*self.runtime,*local,&addresses) {
+                    Ok(Some(client))=>{clients.insert(FourTuple {local_addr:client.local_addr(),peer_addr:client.peer_addr()},client);},
+                    Ok(None)=>{},
+                    Err(_)=>error!("STUN binding client unavailable"),
+                }
+            }
+        }
+        self.finish_if_ready();progressed
     }
 
     pub(crate) fn update_configuration(
@@ -92,18 +139,14 @@ impl RTCStunGatherer {
         ice_servers: Vec<RTCIceServer>,
         ice_gather_policy: RTCIceTransportPolicy,
     ) {
-        for (_, mut stun_client) in self.stun_clients.drain() {
-            let _ = stun_client.close();
-        }
-        self.wouts.clear();
-        self.events.clear();
+        self.retire();
         self.ice_servers = ice_servers;
         self.ice_gather_policy = ice_gather_policy;
-        self.state = RTCIceGatheringState::New;
     }
 
     pub(crate) fn is_stun_message(&self, msg: &TaggedBytesMut) -> bool {
-        for four_tuple in self.stun_clients.keys() {
+        let Discovery::Gathering {clients,..}=&self.discovery else {return false;};
+        for four_tuple in clients.keys() {
             if four_tuple.peer_addr == msg.transport.peer_addr
                 && four_tuple.local_addr == msg.transport.local_addr
             {
@@ -114,17 +157,14 @@ impl RTCStunGatherer {
         false
     }
 
-    pub(crate) async fn gather(&mut self) -> Result<(), Error> {
-        self.state = RTCIceGatheringState::Gathering;
-        if self.ice_gather_policy != RTCIceTransportPolicy::Relay {
+    pub(crate) fn gather(&mut self) -> Result<(), Error> {
+        self.retire();
+        self.discovery=Discovery::Gathering {clients:HashMap::new(),resolving:FuturesUnordered::new()};
+        if self.ice_gather_policy!=RTCIceTransportPolicy::Relay {
             self.gather_host_candidates()?;
-            self.gather_srflx_candidates().await?;
+            self.gather_srflx_candidates();
         }
-        if self.stun_clients.is_empty() && self.state != RTCIceGatheringState::Complete {
-            self.state = RTCIceGatheringState::Complete;
-            self.events
-                .push_back(RTCStunGatherEventOut::StunGatheringComplete);
-        }
+        self.finish_if_ready();
         Ok(())
     }
 
@@ -155,9 +195,9 @@ impl RTCStunGatherer {
 
     /// Gather server reflexive (srflx) ICE candidates via STUN
     ///
-    /// This performs actual I/O to query STUN servers and should be called
-    /// in an async context.
-    async fn gather_srflx_candidates(&mut self) -> Result<(), Error> {
+    /// Lookup futures stay with their gathering phase so slow DNS cannot
+    /// hold host candidates, packet handling or cancellation behind it.
+    fn gather_srflx_candidates(&mut self) {
         // Clone the handle up front so the per-server borrows below stay disjoint.
         let runtime = Arc::clone(&self.runtime);
         for ice_server in &self.ice_servers {
@@ -202,41 +242,13 @@ impl RTCStunGatherer {
                     format!("{}:{}", url.host, url.port)
                 };
 
-                // Resolve once per URL, then only create clients for matching families.
-                debug!("Resolving STUN server: {}", server_addr);
-                let resolved_addrs = match runtime.resolve_host(&server_addr).await {
-                    Ok(addrs) => addrs,
-                    Err(err) => {
-                        error!("Failed to resolve STUN server {}: {}", server_addr, err);
-                        continue;
-                    }
-                };
-
-                for local_addr in &self.local_addrs {
-                    match RTCStunGatherer::gather_from_stun_server(
-                        &*runtime,
-                        *local_addr,
-                        &resolved_addrs,
-                    ) {
-                        Ok(Some(stun_client)) => {
-                            self.stun_clients.insert(
-                                FourTuple {
-                                    local_addr: stun_client.local_addr(),
-                                    peer_addr: stun_client.peer_addr(),
-                                },
-                                stun_client,
-                            );
-                        }
-                        Ok(None) => {}
-                        Err(err) => {
-                            error!("Failed to gather stun client: {}", err);
-                        }
-                    }
-                }
+                let Discovery::Gathering {resolving,..}=&mut self.discovery else {return;};
+                let runtime=Arc::clone(&runtime);
+                // Each lookup is owned by this gathering phase. It is polled
+                // without holding the driver in DNS, and dropped on restart.
+                resolving.push(Box::pin(async move {runtime.resolve_host(&server_addr).await}));
             }
         }
-
-        Ok(())
     }
 
     /// The server-reflexive candidate a Binding response reports, or `None` if the response
@@ -329,7 +341,8 @@ impl Protocol<TaggedBytesMut, (), RTCStunGatherEventIn> for RTCStunGatherer {
     type Time = Instant;
 
     fn handle_read(&mut self, msg: TaggedBytesMut) -> Result<(), Self::Error> {
-        for (four_tuple, stun_client) in &mut self.stun_clients {
+        let Discovery::Gathering {clients,..}=&mut self.discovery else {return Ok(());};
+        for (four_tuple, stun_client) in clients {
             if four_tuple.peer_addr == msg.transport.peer_addr
                 && four_tuple.local_addr == msg.transport.local_addr
             {
@@ -349,9 +362,9 @@ impl Protocol<TaggedBytesMut, (), RTCStunGatherEventIn> for RTCStunGatherer {
     }
 
     fn poll_write(&mut self) -> Option<Self::Wout> {
-        for stun_client in self.stun_clients.values_mut() {
-            while let Some(transmit) = stun_client.poll_write() {
-                self.wouts.push_back(transmit);
+        if let Discovery::Gathering {clients,..}=&mut self.discovery {
+            for stun_client in clients.values_mut() {
+                while let Some(transmit) = stun_client.poll_write() {self.wouts.push_back(transmit);}
             }
         }
 
@@ -361,16 +374,10 @@ impl Protocol<TaggedBytesMut, (), RTCStunGatherEventIn> for RTCStunGatherer {
     fn handle_event(&mut self, evt: RTCStunGatherEventIn) -> Result<(), Self::Error> {
         match evt {
             RTCStunGatherEventIn::SocketWriteFailure(four_tuple) => {
-                if let Some(mut stun_client) = self.stun_clients.remove(&four_tuple) {
-                    let _ = stun_client.close();
-
-                    if self.stun_clients.is_empty() && self.state != RTCIceGatheringState::Complete
-                    {
-                        self.state = RTCIceGatheringState::Complete;
-                        self.events
-                            .push_back(RTCStunGatherEventOut::StunGatheringComplete);
-                    }
-                }
+                if let Discovery::Gathering {clients,..}=&mut self.discovery
+                    && let Some(mut client)=clients.remove(&four_tuple)
+                    && client.close().is_err() {debug!("STUN client already retired");}
+                self.finish_if_ready();
             }
         }
         Ok(())
@@ -382,8 +389,9 @@ impl Protocol<TaggedBytesMut, (), RTCStunGatherEventIn> for RTCStunGatherer {
         // gathering complete. Retiring only the ones that produced a candidate left a client
         // whose server never answered in the map for good, so `StunGatheringComplete` never
         // fired and ICE gathering never finished (904).
+        let Discovery::Gathering {clients,..}=&mut self.discovery else {return self.events.pop_front();};
         let mut finished = HashSet::new();
-        for stun_client in self.stun_clients.values_mut() {
+        for stun_client in clients.values_mut() {
             let four_tuple = FourTuple {
                 local_addr: stun_client.local_addr(),
                 peer_addr: stun_client.peer_addr(),
@@ -423,41 +431,32 @@ impl Protocol<TaggedBytesMut, (), RTCStunGatherEventIn> for RTCStunGatherer {
         }
 
         for four_tuple in finished {
-            if let Some(mut stun_client) = self.stun_clients.remove(&four_tuple) {
-                let _ = stun_client.close();
-
-                if self.stun_clients.is_empty() && self.state != RTCIceGatheringState::Complete {
-                    self.state = RTCIceGatheringState::Complete;
-                    self.events
-                        .push_back(RTCStunGatherEventOut::StunGatheringComplete);
-                }
-            }
+            if let Some(mut client)=clients.remove(&four_tuple) && client.close().is_err() {debug!("STUN client already retired");}
         }
+        self.finish_if_ready();
 
         self.events.pop_front()
     }
 
     fn handle_timeout(&mut self, now: Self::Time) -> Result<(), Self::Error> {
-        for stun_client in self.stun_clients.values_mut() {
-            stun_client.handle_timeout(now)?;
+        if let Discovery::Gathering {clients,..}=&mut self.discovery {
+            for client in clients.values_mut() {client.handle_timeout(now)?;}
         }
         Ok(())
     }
 
     fn poll_timeout(&mut self) -> Option<Self::Time> {
         let mut eto: Option<Instant> = None;
-        for stun_client in self.stun_clients.values_mut() {
-            if let Some(next) = stun_client.poll_timeout() {
-                eto = Some(eto.map_or(next, |curr| std::cmp::min(curr, next)));
+        if let Discovery::Gathering {clients,..}=&mut self.discovery {
+            for client in clients.values_mut() {
+                if let Some(next)=client.poll_timeout() {eto=Some(eto.map_or(next,|current|std::cmp::min(current,next)));}
             }
         }
         eto
     }
 
     fn close(&mut self) -> Result<(), Self::Error> {
-        for (_, mut stun_client) in self.stun_clients.drain() {
-            let _ = stun_client.close();
-        }
+        self.retire();
         Ok(())
     }
 }
@@ -467,6 +466,14 @@ mod tests {
     use super::*;
     use crate::runtime::MockRuntime;
     use std::time::Duration;
+
+    fn begin(gatherer:&mut RTCStunGatherer) {
+        gatherer.gather().unwrap();
+        gatherer.poll_resolutions(&mut Context::from_waker(std::task::Waker::noop()));
+    }
+    fn count(gatherer:&RTCStunGatherer)->usize {
+        match &gatherer.discovery {Discovery::Gathering {clients,..}=>clients.len(),_=>0}
+    }
 
     #[test]
     fn stun_clients_require_a_matching_address_family() {
@@ -514,8 +521,8 @@ mod tests {
                 RTCIceTransportPolicy::All,
                 Arc::new(MockRuntime::new()),
             );
-            futures::executor::block_on(gatherer.gather()).unwrap();
-            assert_eq!(gatherer.stun_clients.len(), 1);
+            begin(&mut gatherer);
+            assert_eq!(count(&gatherer), 1);
             let candidates: Vec<_> = gatherer
                 .events
                 .iter()
@@ -557,8 +564,8 @@ mod tests {
             RTCIceTransportPolicy::All,
             Arc::new(MockRuntime::new()),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
-        assert!(gatherer.stun_clients.is_empty());
+        begin(&mut gatherer);
+        assert!(count(&gatherer)==0);
         assert!(gatherer.poll_write().is_none());
         assert!(gatherer.poll_timeout().is_none());
         assert_eq!(gatherer.state(), RTCIceGatheringState::Complete);
@@ -588,8 +595,8 @@ mod tests {
             RTCIceTransportPolicy::All,
             Arc::new(MockRuntime::new()),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
-        assert_eq!(gatherer.stun_clients.len(), 1);
+        begin(&mut gatherer);
+        assert_eq!(count(&gatherer), 1);
         assert_eq!(
             gatherer.poll_write().unwrap().transport.peer_addr,
             "192.0.2.2:3478".parse::<SocketAddr>().unwrap()
@@ -618,8 +625,8 @@ mod tests {
                 RTCIceTransportPolicy::All,
                 Arc::new(MockRuntime::new()),
             );
-            futures::executor::block_on(gatherer.gather()).unwrap();
-            assert_eq!(1, gatherer.stun_clients.len(), "{url} should have resolved");
+            begin(&mut gatherer);
+            assert_eq!(1, count(&gatherer), "{url} should have resolved");
         }
     }
 
@@ -636,8 +643,8 @@ mod tests {
             RTCIceTransportPolicy::All,
             Arc::new(MockRuntime::new()),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
-        assert_eq!(1, gatherer.stun_clients.len());
+        begin(&mut gatherer);
+        assert_eq!(1, count(&gatherer));
     }
 
     /// A `turn:` URL in the same server list belongs to the TURN relayer and must not be
@@ -656,8 +663,8 @@ mod tests {
             RTCIceTransportPolicy::All,
             Arc::new(MockRuntime::new()),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
-        assert_eq!(1, gatherer.stun_clients.len());
+        begin(&mut gatherer);
+        assert_eq!(1, count(&gatherer));
     }
 
     /// What a test sees from the gatherer, candidates reduced to their type.
@@ -766,7 +773,7 @@ mod tests {
             RTCIceTransportPolicy::All,
             runtime.clone(),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
+        begin(&mut gatherer);
         assert_eq!(drain_events(&mut gatherer), vec![Seen::Host]);
 
         let (seen, sent) = run_timers(&mut gatherer, &runtime, PAST_TRANSACTION_TIMEOUT);
@@ -774,7 +781,7 @@ mod tests {
         assert!(sent > 1, "the request is retransmitted before it times out");
         assert_eq!(seen, vec![Seen::Complete]);
         assert_eq!(gatherer.state(), RTCIceGatheringState::Complete);
-        assert!(gatherer.stun_clients.is_empty());
+        assert!(count(&gatherer)==0);
         assert!(gatherer.poll_timeout().is_none());
     }
 
@@ -793,7 +800,7 @@ mod tests {
             RTCIceTransportPolicy::All,
             runtime.clone(),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
+        begin(&mut gatherer);
         assert_eq!(drain_events(&mut gatherer), vec![Seen::Host, Seen::Host]);
 
         let mut requests = vec![];
@@ -824,7 +831,7 @@ mod tests {
 
         assert_eq!(seen, vec![Seen::Complete]);
         assert_eq!(gatherer.state(), RTCIceGatheringState::Complete);
-        assert!(gatherer.stun_clients.is_empty());
+        assert!(count(&gatherer)==0);
     }
 
     // A response the gatherer cannot use still ends the transaction; it used to `continue`
@@ -841,7 +848,7 @@ mod tests {
             RTCIceTransportPolicy::All,
             runtime.clone(),
         );
-        futures::executor::block_on(gatherer.gather()).unwrap();
+        begin(&mut gatherer);
         assert_eq!(drain_events(&mut gatherer), vec![Seen::Host]);
 
         let request = gatherer.poll_write().expect("Binding request");
@@ -851,6 +858,6 @@ mod tests {
 
         assert_eq!(drain_events(&mut gatherer), vec![Seen::Complete]);
         assert_eq!(gatherer.state(), RTCIceGatheringState::Complete);
-        assert!(gatherer.stun_clients.is_empty());
+        assert!(count(&gatherer)==0);
     }
 }
