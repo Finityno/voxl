@@ -3,6 +3,14 @@ use super::*;
 use std::net::IpAddr;
 use tokio::{net::UdpSocket,time::timeout};
 
+struct FallbackReceiver {receiver:ReceiverEvents,gathered:Arc<AtomicBool>,wake:Arc<Notify>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>}
+#[async_trait]
+impl PeerConnectionEventHandler for FallbackReceiver {
+    async fn on_track(&self,track:Arc<dyn TrackRemote>) {self.track_seen.store(true,Ordering::Release);self.receiver.on_track(track).await;}
+    async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {if state==RTCIceGatheringState::Complete {self.gathered.store(true,Ordering::Release);self.wake.notify_one();}}
+    async fn on_connection_state_change(&self,state:RTCPeerConnectionState) {self.connected.store(state==RTCPeerConnectionState::Connected,Ordering::Release);}
+}
+
 #[test]
 fn late_relay_configuration_restarts_ice_and_fences_old_signaling() {late_configuration(None);}
 
@@ -96,9 +104,9 @@ fn late_configuration(relay:Option<RelayTransport>) {
         let mut video=WebRtcVideo::open_mode(WebRtcConfig::direct_first(format,bindings.clone()),tls,true).await.unwrap();
         let initial_offer=video.offer().to_owned();let old_signals=video.signaling().unwrap();
         let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(4);
-        let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());
+        let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let connected=Arc::new(AtomicBool::new(false));let track_seen=Arc::new(AtomicBool::new(false));
         let receiver=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
-            .with_handler(Arc::new(TrickleReceiver {receiver:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake)}))
+            .with_handler(Arc::new(FallbackReceiver {receiver:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake),connected:Arc::clone(&connected),track_seen:Arc::clone(&track_seen)}))
             .with_udp_addrs(bindings.clone()).build().await.unwrap());
         receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(&initial_offer)).unwrap()).await.unwrap();
         receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
@@ -159,7 +167,20 @@ fn late_configuration(relay:Option<RelayTransport>) {
         if let Some(stun)=stun {stun.await.unwrap();}
         video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,7,6],keyframe:true,presentation_time_micros:1_000_000}).await.unwrap();
         eprintln!("late_fallback_stage=payload_written");
-        assert_eq!(&received.recv().await.unwrap().payload[..],&[0x65,9,8,7,6]);
+        let packet=match timeout(Duration::from_secs(5),received.recv()).await {
+            Ok(Some(packet))=>packet,
+            _=>{
+                eprintln!("late fallback media deadline: receiver_connected={} track_seen={} sender={:?}",connected.load(Ordering::Acquire),track_seen.load(Ordering::Acquire),video.route_statistics().await);
+                use webrtc::peer_connection::{RTCStatsReportEntry as Entry,StatsSelector};
+                for entry in receiver.get_stats(Instant::now(),StatsSelector::None).await.iter() {match entry {
+                    Entry::IceCandidatePair(pair)=>eprintln!("receiver pair: nominated={} sent={} received={}",pair.nominated,pair.bytes_sent,pair.bytes_received),
+                    Entry::InboundRtp(stream)=>eprintln!("receiver RTP: bytes={}",stream.bytes_received),
+                    _=>{},
+                }}
+                panic!("late fallback media receive deadline");
+            }
+        };
+        assert_eq!(&packet.payload[..],&[0x65,9,8,7,6]);
         eprintln!("late_fallback_stage=payload");
         let route=video.route_statistics().await;
         assert_eq!(route.route,if relay.is_some() {MediaRoute::Relayed} else {MediaRoute::Direct});
