@@ -3,6 +3,30 @@ use super::*;
 use std::net::IpAddr;
 use tokio::{net::UdpSocket,time::timeout};
 
+fn install_diagnostics() {
+    struct DiagnosticLog;
+    static LOGGER:DiagnosticLog=DiagnosticLog;
+    static INIT:std::sync::Once=std::sync::Once::new();
+    static COUNT:AtomicU64=AtomicU64::new(0);
+    impl log::Log for DiagnosticLog {
+        fn enabled(&self,metadata:&log::Metadata<'_>)->bool {metadata.level()<=log::Level::Warn}
+        fn log(&self,record:&log::Record<'_>) {
+            if !self.enabled(record.metadata()) || COUNT.fetch_add(1,Ordering::Relaxed)>=16 {return;}
+            let message=record.args().to_string();
+            let class=if message.contains("srtp_context") {"srtp_context"}
+                else if message.contains("auth") || message.contains("Auth") {"authentication"}
+                else if message.contains("SSRC") || message.contains("ssrc") {"ssrc"}
+                else if message.contains("RTP") || message.contains("rtp") {"rtp"}
+                else if message.contains("codec") {"codec"} else {"other"};
+            // Messages may contain addresses or authentication. Only these
+            // fixed categories and the static Rust module name leave memory.
+            eprintln!("sdk_diagnostic module={} class={class}",record.target());
+        }
+        fn flush(&self) {}
+    }
+    INIT.call_once(|| {if log::set_logger(&LOGGER).is_ok() {log::set_max_level(log::LevelFilter::Warn);}});
+}
+
 struct FallbackReceiver {receiver:ReceiverEvents,gathered:Arc<AtomicBool>,wake:Arc<Notify>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>}
 #[async_trait]
 impl PeerConnectionEventHandler for FallbackReceiver {
@@ -66,6 +90,7 @@ fn strip_candidates(sdp:&str)->String {
 fn field<'a>(sdp:&'a str,prefix:&str)->&'a str {sdp.lines().find_map(|line|line.strip_prefix(prefix)).unwrap()}
 
 fn late_configuration(relay:Option<RelayTransport>,restart:bool) {
+    install_diagnostics();
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {timeout(Duration::from_secs(25),async {
         let bindings=if relay.is_some() {
