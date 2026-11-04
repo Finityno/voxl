@@ -67,7 +67,7 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
     });
 }
 
-fn forced_relay(transport:RelayTransport) {
+fn forced_relay(expected_transport:RelayTransport) {
     use super::super::*;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
@@ -93,12 +93,12 @@ fn forced_relay(transport:RelayTransport) {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
         timeout(Duration::from_secs(25),async {
-            let variable=match transport {RelayTransport::Udp=>"VOXL_TEST_TURN_UDP",RelayTransport::Tcp=>"VOXL_TEST_TURN_TCP",RelayTransport::Tls=>"VOXL_TEST_TURN_TLS",_=>unreachable!()};
+            let variable=match expected_transport {RelayTransport::Udp=>"VOXL_TEST_TURN_UDP",RelayTransport::Tcp=>"VOXL_TEST_TURN_TCP",RelayTransport::Tls=>"VOXL_TEST_TURN_TLS",_=>unreachable!()};
             let url=std::env::var(variable).expect("fixture URL required");
             let parsed=rtc::ice::url::Url::parse_url(&url).unwrap();
             assert!(parsed.host.parse::<IpAddr>().unwrap().is_loopback(),"fixture must be loopback only");
             let server=RTCIceServer {urls:vec![url],username:std::env::var("VOXL_TEST_TURN_USERNAME").expect("fixture username"),credential:std::env::var("VOXL_TEST_TURN_PASSWORD").expect("fixture password")};
-            let tls=if transport==RelayTransport::Tls {
+            let tls=if expected_transport==RelayTransport::Tls {
                 let der=std::fs::read(std::env::var("VOXL_TEST_TURN_CA_DER").expect("fixture CA required")).unwrap();
                 let mut roots=rustls::RootCertStore::empty();roots.add(der.into()).unwrap();
                 Some(Arc::new(ClientConfig::builder_with_provider(Arc::new(rustls::crypto::aws_lc_rs::default_provider())).with_safe_default_protocol_versions().unwrap().with_root_certificates(roots).with_no_client_auth()))
@@ -124,9 +124,9 @@ fn forced_relay(transport:RelayTransport) {
             }
             let route=video.route_statistics().await;
             assert_eq!(route.route,MediaRoute::Relayed,"host candidates cannot satisfy this fixture");
-            assert_eq!(route.local_relay_transport,transport,"join nominated allocation to actual stream transport");
+            assert_eq!(route.local_relay_transport,expected_transport,"join nominated allocation to actual stream expected_transport");
             assert!(route.bytes_sent>0);
-            if transport==RelayTransport::Udp {video.close();}
+            if expected_transport==RelayTransport::Udp {video.close();}
             else {
                 // Lose the allocated stream without closing the peer first.
                 // Its media update must wake and end the selected failed path.
