@@ -6,6 +6,8 @@ use objc2_core_media::CMTime;
 pub type Object = *const c_void;
 pub type Session = *mut c_void;
 pub type Output = unsafe extern "C" fn(*mut c_void, *mut c_void, i32, u32, Object);
+// VideoToolbox/VTErrors.h: an unrecognized or unsupported session property.
+pub const kVTPropertyNotSupportedErr: i32 = -12900;
 
 #[link(name = "VideoToolbox", kind = "framework")]
 unsafe extern "C" {

@@ -1,5 +1,5 @@
 //! VideoToolbox H.264/HEVC from immutable NV12 capture buffers. Hardware is tried
-//! first, software is selectable and the actual encoder is queried. No raw
+//! first, software is selectable and hardware selection is verified. No raw
 //! pixels are copied into a CPU color-conversion buffer on the encode path.
 
 mod ffi;
@@ -103,10 +103,19 @@ impl VideoEncoder {
             encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
             check("prepare encoder",VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
             let mut actual = ptr::null();
-            check("query hardware encoder",VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual))?;
-            if actual.is_null() { return Err(MediaError::Configuration); }
-            encoder.hardware = CFBooleanGetValue(actual);
-            CFRelease(actual);
+            let code = VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual);
+            if code == kVTPropertyNotSupportedErr && !hardware {
+                // EnableHardwareAcceleratedVideoEncoder=false guarantees that
+                // hardware will never be used. Software sessions need not
+                // expose UsingHardwareAcceleratedVideoEncoder; Apple documents
+                // querying it after enabling hardware. Other errors still fail.
+                encoder.hardware = false;
+            } else {
+                check("query hardware encoder",code)?;
+                if actual.is_null() { return Err(MediaError::Configuration); }
+                encoder.hardware = CFBooleanGetValue(actual);
+                CFRelease(actual);
+            }
         }
         if hardware != encoder.hardware { return Err(MediaError::Configuration); }
         Ok(encoder)

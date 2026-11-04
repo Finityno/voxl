@@ -9,7 +9,11 @@ validation and receiver interoperability are still in progress.
 
 Give the encoder immutable NV12 buffers from the capture API. The hardware-first
 mode tries a required hardware encoder, then an explicitly software encoder;
-the actual hardware property is queried and exposed. Software-only and
+the actual hardware property is queried and exposed when supported. Explicitly
+disabling hardware guarantees software encoding; only that path accepts the
+documented unsupported-property error from the hardware-status query. Other
+errors, missing successful query values and mismatched selection still fail.
+Software-only and
 hardware-required modes make matched experiments possible. `VideoEncoder` selects H.264 Baseline or HEVC Main (8-bit 4:2:0), with real-time
 encoding, no frame reordering and two-second keyframes. AV1 encoding returns
 UnsupportedCodec; it is never silently passed through the H.264 parser.
@@ -149,8 +153,9 @@ the requested geometry, fps, profile and chroma. The native encoder and WebRTC s
 `hevc_main_profile` reads the actual SPS profile/tier/level after removing
 emulation-prevention bytes; `VideoFormat::HevcMain` carries those parameters
 into RFC 7798 SDP and selects its own RTP payloader. The sender rejects a frame
-tagged with a codec other than the negotiated format. Native HEVC execution
-and browser/receiver interoperability remain required before advertising HEVC
+tagged with a codec other than the negotiated format. Native synthetic HEVC
+encoding and independent decoding passed; browser/receiver interoperability
+remains required before advertising HEVC
 in the application.
 
 
@@ -169,7 +174,9 @@ Operation-specific errors have been added to identify that failure. Do not
 advertise a validated CPU fallback before the native software probe succeeds.
 
 Run the same native synthetic workload with `codec_probe hardware /tmp/probe.hevc hevc`
-for HEVC. Its native validation and any matched-quality savings are pending.
+for HEVC. Hardware H.264/HEVC now pass native synthetic encoding and independent
+decoding; see `results/2026-11-04-macos-codec-matrix/` for raw results and the
+software status-query failure. Matched-quality savings remain unmeasured.
 
 The HEVC transport loopback separately requires intact type-19 and type-20 IDR
 payloads, capture timestamps, keyframe feedback, direct selected candidates,
