@@ -38,3 +38,30 @@ after every step. It used the shared Mac build lock, nice 19, two Cargo jobs,
 an owned target directory and process-group deadlines. Host identity was
 recorded immediately afterward, separately from the probe's environment log.
 No screen capture, personal pixels, Windows use or visual inspection occurred.
+
+
+## Successful software fallback retest
+
+At exact `fec7f8f3989b047bba7e9daa9ef53475d9f7a707`, release example compilation
+and strict native library/examples Clippy passed. All four encoder modes
+produced 60 correctly timestamped 720p30 frames, each independently decoded by
+ffprobe and compared against the same reference with ffmpeg. Hardware-required
+sessions queried true; software sessions used the explicit hardware prohibition.
+
+| Codec / mode | Encoded bytes | Encoded kbps | Probe encode p50/p95 ms | Whole-frame SSIM |
+| --- | ---: | ---: | --- | ---: |
+| H.264 hardware | 64,266 | 257.1 | 4.68 / 6.23 | 0.999721 |
+| H.264 software | 97,077 | 388.3 | 6.94 / 8.87 | 0.999886 |
+| HEVC hardware | 54,402 | 217.6 | 4.70 / 7.68 | 0.999697 |
+| HEVC software | 61,645 | 246.6 | 12.18 / 22.49 | 0.999302 |
+
+The previous failures are preserved above. These results establish this Mac's
+software fallback and native HEVC encoder, including valid independently decoded
+output. They do not establish other Macs, browser/phone HEVC negotiation,
+sustained performance, coding-text ROI quality, CPU/power targets, full-desktop
+bandwidth predictions or matched-quality savings. Software HEVC is probed for
+comparison but is not the application's CPU fallback; that remains H.264 capped
+at 720p30. The probe still polls at 1 ms and includes file/profile-output work in
+latencies, so its timings must not be conflated with pure encoder latency.
+`fec7f8f/artifact-pack.json` retains every raw log and command under the same
+shared lock, priority, watchdog and source-cleanliness controls.

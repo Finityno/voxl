@@ -170,13 +170,17 @@ This is localhost transport evidence, not a physical LAN result.
 The first native Mac H.264 result and raw command logs are in
 `results/2026-11-04-macos-h264/`. Hardware encoding and independent decoding
 passed; the software attempt failed with an unsupported native property.
-Operation-specific errors have been added to identify that failure. Do not
-advertise a validated CPU fallback before the native software probe succeeds.
+Operation-specific errors identified the hardware-status query. The narrowly
+scoped software-only correction now passes actual software H.264/HEVC encoding
+and independent decoding on this Mac; all failed and passing logs remain in
+`results/2026-11-04-macos-codec-matrix/`. Sustained CPU fallback performance on
+other devices remains required.
 
 Run the same native synthetic workload with `codec_probe hardware /tmp/probe.hevc hevc`
 for HEVC. Hardware H.264/HEVC now pass native synthetic encoding and independent
 decoding; see `results/2026-11-04-macos-codec-matrix/` for raw results and the
-software status-query failure. Matched-quality savings remain unmeasured.
+initial software status-query failure and successful correction. Matched-quality
+savings remain unmeasured.
 
 The HEVC transport loopback separately requires intact type-19 and type-20 IDR
 payloads, capture timestamps, keyframe feedback, direct selected candidates,
