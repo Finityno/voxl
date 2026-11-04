@@ -1224,6 +1224,10 @@ where
         } else {
             let events = {
                 let mut core = self.inner.core.lock().await;
+                // Match the core's RFC 7983 RTP/RTCP demux range. Media keeps
+                // its ordinary end-of-burst event drain; control can install
+                // keys needed by the very next datagram in the same burst.
+                let control = !msg.message.first().is_some_and(|byte| (128..=191).contains(byte));
                 core.handle_read(msg)?;
                 // A UDP burst (or TCP read batch) can contain a handshake
                 // transition followed immediately by media. Pump core events
@@ -1232,8 +1236,10 @@ where
                 // Retain this lock rather than locking/cloning once per packet
                 // again; an event-free packet allocates no event vector storage.
                 let mut events = Vec::new();
-                while let Some(event) = core.poll_event() {
-                    events.push(event);
+                if control {
+                    while let Some(event) = core.poll_event() {
+                        events.push(event);
+                    }
                 }
                 events
             };
