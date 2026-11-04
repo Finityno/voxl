@@ -66,12 +66,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         unsafe { CFRelease(raw); }
         let submitted = Instant::now();
         encoder.encode(&image,(index as i64)*1_000_000/30,index==0)?;
-        let limit = submitted + Duration::from_secs(2);
-        let output = loop {
-            if let Some(frame) = encoder.take_output()? { break frame; }
-            if Instant::now() > limit { return Err("encoder output deadline".into()); }
-            std::thread::sleep(Duration::from_millis(1));
-        };
+        // Use the native callback wake, as the application's dedicated worker
+        // does. Record arrival before logging or writing the encoded stream so
+        // the measured interval excludes file and profile-output overhead.
+        let output = encoder.wait_output(Duration::from_secs(2))?.ok_or("encoder output deadline")?;
+        let latency = submitted.elapsed().as_secs_f64()*1000.0;
         if index == 0 {
             match codec {
                 VideoCodec::H264 => println!("profile_level_id={:02x?}",voxl_media::h264_profile_level_id(&output.annex_b)?),
@@ -84,8 +83,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         bytes += output.annex_b.len();
         keyframes += usize::from(output.keyframe);
         file.write_all(&output.annex_b)?;
-        latencies.push(submitted.elapsed().as_secs_f64()*1000.0);
+        latencies.push(latency);
     }
+    println!("wait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms={:.2}",latencies[0]);
     println!("encode_samples_ms={latencies:?}");
     latencies.sort_by(f64::total_cmp);
     println!("codec={codec:?} hardware={} width=1280 height=720 fps=30 frames=60 keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3}",
