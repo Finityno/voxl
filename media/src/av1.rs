@@ -141,7 +141,7 @@ mod tests {
         assert!(validate_temporal_unit(&[0x32,1,0],Some(profile),true).is_err());
         assert!(validate_temporal_unit(&key(),Some(profile),false).is_err());
         assert!(validate_temporal_unit(&key(),Some(Av1MainProfile {level_idx:1,..profile}),true).is_err());
-        let mut excessive=vec![0x7a,0].repeat(256);excessive.extend([0x32,1,0]);
+        let mut excessive=[0x7a,0].repeat(256);excessive.extend([0x32,1,0]);
         assert!(validate_temporal_unit(&excessive,Some(profile),false).is_err());
     }
 
