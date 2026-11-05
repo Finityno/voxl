@@ -1,0 +1,41 @@
+{
+  "sources": {
+    "fork": "636e04d62998883ccd8a6cf824e812a18b56dac8",
+    "app": "a93bb74bf26ad37d8a5492d279560e355433ccdd",
+    "phone": "f64d3611bb91b6350bb704059e0839ae809e304d"
+  },
+  "phoneProductionUnchanged": {
+    "FincodeApplication": {
+      "gitObject": "366f2c152df61a69e033a886a111e281db4417fb",
+      "equal": true
+    },
+    "FincodeWidgets": {
+      "gitObject": "4efb8a7f18a691846f67c21c72b70f683d731293",
+      "equal": true
+    }
+  },
+  "forkUnchanged": {
+    "media/vendor/rtc": {
+      "gitObject": "a34f344f622370021fef84fb08e8a77d7ee48177",
+      "equal": true
+    },
+    "media/vendor/webrtc": {
+      "gitObject": "6162911adace5eebf8a12176dc61cba71577a188",
+      "equal": true
+    },
+    "media/src/macos": {
+      "gitObject": "b95406c1dad92333183ea989fa5c0152f4913dd7",
+      "equal": true
+    },
+    "media/Cargo.toml": {
+      "gitObject": "c0e1279acfa29fa28b846d8f8175b44405ef10f2",
+      "equal": true
+    },
+    "media/Cargo.lock": {
+      "gitObject": "b86a6fd739f7c166456125901cc8c5f92219c40a",
+      "equal": true
+    }
+  },
+  "appLockOnlySourceIds": true,
+  "limits": "Source equality is not a platform test. No Windows, physical device, AV1 native encoder, automatic AV1 application selection or performance-target pass."
+}
