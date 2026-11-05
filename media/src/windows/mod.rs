@@ -4,6 +4,8 @@
 //! runtime, signaling endpoint or long-lived Rust thread is created here.
 
 mod bitstream;
+pub mod capture;
+pub mod convert;
 use crate::{EncodedFrame,EncoderConfig,EncoderPreference,MediaError,MAX_FRAME_BYTES,av1::{Av1Frame,av1_main_profile,validate_temporal_unit},codec::VideoCodec};
 use std::{marker::PhantomData,mem::ManuallyDrop,ptr,rc::Rc,sync::{Arc,atomic::{AtomicBool,AtomicI32,AtomicU32,Ordering}},time::{Duration,Instant}};
 use windows_core::{implement,Interface,IUnknown,IUnknownImpl,Ref,GUID,HRESULT};
