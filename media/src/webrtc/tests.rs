@@ -8,6 +8,29 @@ use tokio::sync::mpsc;
 mod relay_fallback;
 
 #[test]
+fn webrtc_h264_offers_preserve_baseline_high_and_constrained_high_profiles() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        tokio::time::timeout(Duration::from_secs(10),async {
+            for profile in [[66,192,31],[100,0,31],[100,12,31]] {
+                let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:profile},vec!["127.0.0.1:0".into()]);
+                let video=WebRtcVideo::open(config).await.unwrap();
+                let expected=format!("profile-level-id={:02x}{:02x}{:02x}",profile[0],profile[1],profile[2]);
+                let formats:Vec<_>=video.offer().lines().filter(|line|line.starts_with("a=fmtp:")).collect();
+                assert_eq!(formats.len(),1);
+                assert!(formats[0].contains(&expected),"offer must preserve the actual SPS profile");
+                assert!(formats[0].contains("packetization-mode=1"));
+                video.close();
+            }
+            for profile in [[77,0,31],[100,4,31],[100,8,31],[100,13,31],[110,0,31],[0,0,0]] {
+                let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:profile},vec!["127.0.0.1:0".into()]);
+                assert!(matches!(WebRtcVideo::open(config).await,Err(WebRtcError::Configuration)));
+            }
+        }).await.unwrap();
+    });
+}
+
+#[test]
 fn ice_reachability_precedes_dtls_and_terminal_connection_stays_closed() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {

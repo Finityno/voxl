@@ -273,7 +273,7 @@ impl WebRtcVideo {
     where F:FnOnce(Arc<dyn webrtc::runtime::Runtime>)->Arc<dyn webrtc::runtime::Runtime>+Send {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
-            || matches!(config.format,VideoFormat::H264 {profile_level_id} if profile_level_id[0] != 66)
+            || matches!(config.format,VideoFormat::H264 {profile_level_id} if !matches!(profile_level_id,[66,_,_]|[100,0|12,_]))
         { return Err(WebRtcError::Configuration); }
         let fallback=(trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.iter().all(|server|
             server.username.is_empty() && server.credential.is_empty() && server.urls().ok().is_some_and(|urls|

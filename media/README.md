@@ -63,6 +63,9 @@ not desktop capture, network or physical-phone power measurements. An optional f
 `encoded_peer_probe` WebRTC fixture. It is test IPC, not a recording API.
 
 `VideoEncoder::new_tuned(config, tuning, idle)` adds explicit local experiments.
+The WebRTC sender accepts the actual Baseline, High (`6400`) or Constrained High
+(`640c`) SPS profile bytes without relabelling SDP. Other new H.264 profiles
+remain rejected; receiver compatibility and measured admission are separate.
 `new` still supplies the default tuning and preserves the ordinary compatible
 profile, real-time mode, two-second keyframe interval and hardware/CPU fallback.
 Non-default tuning requires `RequireHardware`; creation fails rather than
