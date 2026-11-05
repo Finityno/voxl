@@ -81,6 +81,58 @@ fn live_automatic_restart_close_cancels_deferred_turn() {
     });
 }
 
+#[test]
+fn live_restart_clears_old_turn_servers_and_keeps_direct_media() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
+        timeout(Duration::from_secs(6),async {
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            let format=VideoFormat::H264 {profile_level_id:[66,224,31]};let bindings=vec!["127.0.0.1:0".into()];
+            let config=|username:Option<&str>| {
+                let mut config=WebRtcConfig::direct_first(format,bindings.clone());
+                if let Some(username)=username {config.add_ice_server(vec![format!("turn:{}?transport=udp",socket.local_addr().unwrap())],username.into(),"test-only".into()).unwrap();}
+                config
+            };
+            let mut video=WebRtcVideo::open_trickle(config(Some("fixture-old"))).await.unwrap();let initial=video.offer().to_owned();
+            let fingerprint=field(&initial,"a=fingerprint:").to_owned();let peer=Arc::clone(&video.peer);
+            let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(4);
+            let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let tracks=Arc::new(AtomicU64::new(0));
+            let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
+                .with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake),tracks:Arc::clone(&tracks)}))
+                .with_udp_addrs(bindings.clone()).build().await.unwrap());
+            assert_eq!(negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&initial,0).await,0);
+            let frame=|generation:u64|EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,3,2,generation as u8],keyframe:true,presentation_time_micros:(generation as i64+1)*1_000_000};
+            video.send(frame(0)).await.unwrap();let mut previous=received.recv().await.unwrap();
+            let mut bytes=[0;2000];
+            assert!(timeout(Duration::from_millis(50),socket.recv_from(&mut bytes)).await.is_err(),"old gathering must be quiet before the acknowledged restart barrier");
+            let offer=video.begin_ice_restart(config(None)).await.unwrap();
+            let visible_servers=video.peer.get_configuration().await.ice_servers().len();
+            let stale=timeout(Duration::from_millis(400),socket.recv_from(&mut bytes)).await;
+            let old_allocate=stale.as_ref().is_ok_and(|(length,_)| {
+                let mut request=rtc::stun::message::Message::new();request.raw=bytes[..*length].to_vec();
+                request.decode().is_ok() && request.typ.method==rtc::stun::message::METHOD_ALLOCATE && request.typ.class==rtc::stun::message::CLASS_REQUEST
+            });
+            eprintln!("cleared_ice_servers={visible_servers} stale_turn_datagram={} stale_allocate={old_allocate}",stale.is_ok());
+            if visible_servers!=0 || stale.is_ok() {
+                video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
+                assert_eq!((visible_servers,stale.is_ok()),(0,false),"clearing ICE servers must change the getter and stop new requests to retired TURN endpoints");
+            }
+            let mut cleared_offer=Some(offer);
+            for generation in 1..=2 {
+                let offer=if generation==1 {cleared_offer.take().unwrap()} else {video.begin_ice_restart(config(Some("fixture-new"))).await.unwrap()};
+                if generation==2 {assert_eq!(video.peer.get_configuration().await.ice_servers()[0].username,"fixture-new");}
+                assert_eq!(offer.generation,generation);assert_eq!(field(&offer.sdp,"a=fingerprint:"),fingerprint);assert!(Arc::ptr_eq(&peer,&video.peer));
+                assert_eq!(negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await,0);
+                let stamp=video.send_with_stamp(frame(generation)).await.unwrap();let packet=received.recv().await.unwrap();
+                assert_eq!((stamp.generation,stamp.rtp_timestamp),(generation,packet.header.timestamp));assert_eq!(&packet.payload[..],&[0x65,3,2,generation as u8]);
+                assert_eq!(packet.header.ssrc,previous.header.ssrc);assert_eq!(packet.header.sequence_number,previous.header.sequence_number.wrapping_add(1));assert_eq!(packet.header.timestamp.wrapping_sub(previous.header.timestamp),90_000);previous=packet;
+                assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
+            }
+            assert!(timeout(Duration::from_millis(50),socket.recv_from(&mut bytes)).await.is_err());
+            assert_eq!(tracks.load(Ordering::Acquire),1);video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
+        }).await.unwrap();
+    });
+}
+
 fn live(relay:Option<RelayTransport>,automatic:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
         timeout(Duration::from_secs(20),async {
