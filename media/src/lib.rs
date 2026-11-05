@@ -22,6 +22,31 @@ pub struct EncodedFrame {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncoderPreference { PreferHardware, RequireHardware, Software }
 
+/// Local encoder experiments. These are requests, not measured capability,
+/// codec admission, or a promise that the native encoder supports the mode.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum EncoderRateControl { #[default] RealTime, LowLatency }
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum EncoderProfile { #[default] Compatible, H264High, H264ConstrainedHigh }
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct EncoderTuning { pub rate_control: EncoderRateControl, pub profile: EncoderProfile }
+impl EncoderTuning {
+    pub fn validate(self, config: &EncoderConfig) -> Result<(), MediaError> {
+        config.validate()?;
+        if config.codec == VideoCodec::Av1 { return Err(MediaError::UnsupportedCodec); }
+        // Experimental mode/profile requests must not silently fall back to
+        // software or another tuning. The ordinary constructor keeps its
+        // existing hardware-first/CPU-fallback behavior.
+        if self != Self::default() && config.preference != EncoderPreference::RequireHardware {
+            return Err(MediaError::Configuration);
+        }
+        if config.codec != VideoCodec::H264 && self.profile != EncoderProfile::Compatible {
+            return Err(MediaError::Configuration);
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct EncoderConfig {
     pub codec: VideoCodec,
@@ -94,6 +119,28 @@ fn nal_units_to_annex_b(data: &[u8], length_bytes: usize, codec: VideoCodec) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn encoder_tuning_preserves_default_fallback_and_requires_explicit_hardware_experiments() {
+        let mut config = EncoderConfig { codec: VideoCodec::H264, width: 1280, height: 720, fps: 30,
+            bitrate_kbps: 2500, preference: EncoderPreference::PreferHardware };
+        for preference in [EncoderPreference::PreferHardware,EncoderPreference::RequireHardware,EncoderPreference::Software] {
+            config.preference = preference;
+            assert!(EncoderTuning::default().validate(&config).is_ok());
+            for rate_control in [EncoderRateControl::RealTime,EncoderRateControl::LowLatency] {
+                for profile in [EncoderProfile::Compatible,EncoderProfile::H264High,EncoderProfile::H264ConstrainedHigh] {
+                    let tuning = EncoderTuning { rate_control, profile };
+                    assert_eq!(tuning.validate(&config).is_ok(),tuning == EncoderTuning::default() || preference == EncoderPreference::RequireHardware);
+                }
+            }
+        }
+        config.codec = VideoCodec::Hevc;config.preference = EncoderPreference::RequireHardware;
+        assert!(EncoderTuning { rate_control: EncoderRateControl::LowLatency, profile: EncoderProfile::Compatible }.validate(&config).is_ok());
+        assert_eq!(EncoderTuning { rate_control: EncoderRateControl::RealTime, profile: EncoderProfile::H264High }.validate(&config),Err(MediaError::Configuration));
+        config.codec = VideoCodec::Av1;
+        assert_eq!(EncoderTuning::default().validate(&config),Err(MediaError::UnsupportedCodec));
+        config.codec = VideoCodec::H264;config.width = 1;
+        assert_eq!(EncoderTuning::default().validate(&config),Err(MediaError::Configuration));
+    }
     #[test]
     fn avcc_rejects_truncation_and_preserves_nal_boundaries() {
         let (output, key) = nal_units_to_annex_b(&[0,0,0,2,0x65,7,0,0,0,1,0x41],4,VideoCodec::H264).unwrap();

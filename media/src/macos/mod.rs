@@ -4,7 +4,7 @@
 
 mod ffi;
 use ffi::*;
-use crate::{EncodedFrame, EncoderConfig, EncoderPreference, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
+use crate::{EncodedFrame, EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
 use crate::codec::VideoCodec;
 use objc2_core_media::{CMTime, CMTimeFlags};
 use std::ffi::c_void;
@@ -58,33 +58,51 @@ unsafe impl Send for VideoEncoder {}
 
 impl VideoEncoder {
     pub fn new(config: EncoderConfig, idle: fn()) -> Result<Self, MediaError> {
-        config.validate()?;
-        if config.codec == VideoCodec::Av1 { return Err(MediaError::UnsupportedCodec); }
+        Self::new_tuned(config, EncoderTuning::default(), idle)
+    }
+
+    /// Explicit local tuning for measured experiments. Non-default requests
+    /// require hardware and fail instead of substituting software or a mode.
+    /// The actual SPS/profile and decoder interoperability still need probing.
+    pub fn new_tuned(config: EncoderConfig, tuning: EncoderTuning, idle: fn()) -> Result<Self, MediaError> {
+        tuning.validate(&config)?;
         match config.preference {
-            EncoderPreference::PreferHardware => Self::create(config, true, idle)
-                .or_else(|_| Self::create(config, false, idle)),
-            EncoderPreference::RequireHardware => Self::create(config, true, idle),
-            EncoderPreference::Software => Self::create(config, false, idle),
+            EncoderPreference::PreferHardware => Self::create(config, true, tuning, idle)
+                .or_else(|_| Self::create(config, false, tuning, idle)),
+            EncoderPreference::RequireHardware => Self::create(config, true, tuning, idle),
+            EncoderPreference::Software => Self::create(config, false, tuning, idle),
         }
     }
 
-    fn create(config: EncoderConfig, hardware: bool, idle: fn()) -> Result<Self, MediaError> {
+    fn create(config: EncoderConfig, hardware: bool, tuning: EncoderTuning, idle: fn()) -> Result<Self, MediaError> {
         let codec = match config.codec {
             VideoCodec::H264 => u32::from_be_bytes(*b"avc1"),
             VideoCodec::Hevc => u32::from_be_bytes(*b"hvc1"),
             VideoCodec::Av1 => return Err(MediaError::UnsupportedCodec),
+        };
+        let low_latency = if tuning.rate_control == EncoderRateControl::LowLatency {
+            Some(optional_constant(c"kVTVideoEncoderSpecification_EnableLowLatencyRateControl").ok_or(MediaError::Configuration)?)
+        } else { None };
+        // SAFETY: this linked framework constant is an immortal CFStringRef.
+        let profile = if config.codec == VideoCodec::Hevc { unsafe { kVTProfileLevel_HEVC_Main_AutoLevel } } else {
+            match tuning.profile {
+                EncoderProfile::Compatible => h264_profile(hardware),
+                EncoderProfile::H264High => optional_constant(c"kVTProfileLevel_H264_High_AutoLevel").ok_or(MediaError::Configuration)?,
+                EncoderProfile::H264ConstrainedHigh => optional_constant(c"kVTProfileLevel_H264_ConstrainedHigh_AutoLevel").ok_or(MediaError::Configuration)?,
+            }
         };
         let (sender, receiver) = mpsc::sync_channel(2);
         let mut callback = Box::new(CallbackState { sender, failed: AtomicBool::new(false), pending: AtomicUsize::new(0), idle, codec: config.codec });
         let mut session = ptr::null_mut();
         // Specification borrows only immortal framework constants; callbacks
         // are intentionally null so the dictionary does not own those values.
-        let specification = unsafe { CFDictionaryCreateMutable(ptr::null(), 1, ptr::null(), ptr::null()) };
+        let specification = unsafe { CFDictionaryCreateMutable(ptr::null(), if low_latency.is_some() { 2 } else { 1 }, ptr::null(), ptr::null()) };
         if specification.is_null() { return Err(MediaError::Configuration); }
         unsafe {
             CFDictionarySetValue(specification, if hardware { kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder }
                 else { kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder },
                 if hardware { kCFBooleanTrue } else { kCFBooleanFalse });
+            if let Some(key) = low_latency { CFDictionarySetValue(specification, key, kCFBooleanTrue); }
         }
         let code = unsafe { VTCompressionSessionCreate(ptr::null(), config.width as i32, config.height as i32,
             codec, specification, ptr::null(), ptr::null(), Some(output),
@@ -96,11 +114,15 @@ impl VideoEncoder {
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
-            encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel,
-                if config.codec == VideoCodec::Hevc { kVTProfileLevel_HEVC_Main_AutoLevel } else { h264_profile(hardware) })?;
+            encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel, profile)?;
             encoder.number("bitrate", kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
             encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
-            encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
+            // Low-latency rate control specifies an infinite GOP. Its caller
+            // owns explicit recovery/periodic IDR requests; do not overwrite
+            // that selection with the ordinary two-second interval.
+            if tuning.rate_control == EncoderRateControl::RealTime {
+                encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
+            }
             check("prepare encoder",VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
             let mut actual = ptr::null();
             let code = VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual);
@@ -203,6 +225,17 @@ impl Drop for VideoEncoder {
     }
 }
 fn check(operation: &'static str, code: i32) -> Result<(), MediaError> { if code == 0 { Ok(()) } else { Err(MediaError::Platform { operation, code }) } }
+
+fn optional_constant(name: &std::ffi::CStr) -> Option<Object> {
+    // SAFETY: the linked framework is loaded; these named SDK data symbols
+    // contain immortal CFStringRefs. A data symbol needs one indirection.
+    unsafe {
+        let symbol = dlsym(RTLD_DEFAULT,name.as_ptr());
+        if symbol.is_null() { return None; }
+        let value = *symbol.cast::<Object>();
+        (!value.is_null()).then_some(value)
+    }
+}
 
 fn h264_profile(hardware: bool) -> Object {
     // Constrained Baseline is the interoperable WebRTC profile. VideoToolbox's

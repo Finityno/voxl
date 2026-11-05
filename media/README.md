@@ -56,6 +56,46 @@ not desktop capture, network or physical-phone power measurements. An optional f
 `framed-output` argument preserves native access units for the bounded
 `encoded_peer_probe` WebRTC fixture. It is test IPC, not a recording API.
 
+`VideoEncoder::new_tuned(config, tuning, idle)` adds explicit local experiments.
+`new` still supplies the default tuning and preserves the ordinary compatible
+profile, real-time mode, two-second keyframe interval and hardware/CPU fallback.
+Non-default tuning requires `RequireHardware`; creation fails rather than
+silently substituting software or another tuning. H.264 High and Constrained
+High can be requested separately from low-latency rate control, so a comparison
+does not have to confound a profile change with the mode change. HEVC retains
+Main. Optional newer constants are resolved dynamically; missing symbols fail
+the explicit request without raising the default deployment target.
+
+Apple's [low-latency encoder specification](https://developer.apple.com/documentation/videotoolbox/kvtvideoencoderspecification_enablelowlatencyratecontrol)
+describes profile restrictions and an infinite GOP. The installed SDK repeats
+those restrictions. They are not a compatibility guarantee for an endpoint.
+Low-latency tuning omits the default periodic-keyframe property; its caller
+must drive explicit recovery requests. Always inspect the actual SPS and
+independent decode behavior. A successfully created session is not measured
+quality/resource/latency admission, hardware-decoder proof or permission to
+advertise a profile a receiver does not support. The embedding app continues
+to use its existing encoder entry point.
+
+For example, add `--tuning=low-latency-constrained-high --warmup-frames=30
+--frames=180 --force-keyframe-period=60` to a hardware H.264 probe. Tuning names
+are `compatible`, `high`, `constrained-high`, `low-latency-compatible`,
+`low-latency-high`, and `low-latency-constrained-high`; HEVC can use the compatible
+profile in either mode. The probe never overwrites an existing output file.
+It excludes warmup from its raw latency list, byte total and percentile summary,
+while the output streams retain warmup for independent decoding. Explicit
+keyframe requests must produce actual keyframes. Boundaries and timestamps stay
+available in the optional framed stream, allowing a decoder to start fresh at
+a later forced keyframe. Sample counts are bounded (warmup at most 1800 frames,
+observation 1..18000, forced interval 1..1800); run with an external deadline.
+
+Summaries now state the nearest-rank percentile definition and nominal video
+duration used for bitrate. The older 60-frame summaries selected conservative
+upper order statistics (including index 57 for the p95 field); do not present
+that instrumentation correction as an encoder speedup. Raw historical samples
+remain available for reanalysis. The monochrome edge/bar workload is not a
+readable-text/color-region or full-desktop quality qualification. No low-latency
+mode or changed profile is automatically enabled in the application.
+
 
 With `--features webrtc`, the sender uses the caller's Tokio runtime, sends only
 video (H.264 or HEVC Main) and selects AWS-LC crypto explicitly. Register the actual encoder
