@@ -1789,8 +1789,13 @@ where
                 self.suspend_stun_gathering().await;
                 // Retire under the allocation's original username/socket before
                 // the wrapper replaces stream adapters or advances generations.
-                self.turn_relayer.update_configuration(Vec::new(), self.ice_gather_policy);
-                let result=self.poll_writes().await;
+                // Finish accepted writes while their old relay mapping still
+                // exists. The serialized owner cannot add RTP during the barrier.
+                let mut result=self.poll_writes().await;
+                if result.is_ok() {
+                    self.turn_relayer.update_configuration(Vec::new(), self.ice_gather_policy);
+                    result=self.poll_writes().await;
+                }
                 self.discovery=IceDiscovery::Idle;
                 if reply.try_send(result).is_err() { debug!("ICE barrier caller ended"); }
             }
