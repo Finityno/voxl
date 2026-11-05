@@ -91,6 +91,7 @@ fn live(relay:Option<RelayTransport>) {
                 assert!(video.connected());assert_eq!(video.signaling().unwrap().generation(),generation-1);
                 let offer=video.begin_ice_restart(config(generation)).await.unwrap();
                 assert_eq!(offer.generation,generation);assert!(!video.connected() && !video.ended());
+                assert!(!video.ice_connected(),"the old generation's ICE reachability cannot admit the new generation");
                 assert!(Arc::ptr_eq(&peer,&video.peer));assert_eq!(video.ssrc,ssrc);
                 assert_eq!(field(&offer.sdp,"a=fingerprint:"),fingerprint);assert_ne!(field(&offer.sdp,"a=ice-ufrag:"),ufrag);
                 ufrag=field(&offer.sdp,"a=ice-ufrag:").to_owned();
