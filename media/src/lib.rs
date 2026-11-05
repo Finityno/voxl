@@ -3,6 +3,11 @@
 
 pub mod codec;
 pub mod av1;
+#[cfg(target_os = "windows")]
+pub mod windows;
+#[cfg(all(test,not(target_os = "windows")))]
+#[path="windows/bitstream.rs"]
+mod windows_bitstream;
 use codec::VideoCodec;
 
 #[cfg(target_os = "macos")]
@@ -96,7 +101,7 @@ const MAX_FRAME_BYTES: usize = 8 * 1024 * 1024;
 
 /// Parse length-prefixed NAL units without trusting the native sample's length
 /// fields. Kept platform-independent so malformed boundaries are tested on Linux.
-#[cfg(any(target_os = "macos", test))]
+#[cfg(any(target_os = "macos", target_os = "windows", test))]
 fn nal_units_to_annex_b(data: &[u8], length_bytes: usize, codec: VideoCodec) -> Result<(Vec<u8>, bool), MediaError> {
     if codec == VideoCodec::Av1 { return Err(MediaError::UnsupportedCodec); }
     if !(1..=4).contains(&length_bytes) || data.is_empty() || data.len() > MAX_FRAME_BYTES {

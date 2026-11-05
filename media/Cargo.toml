@@ -9,6 +9,10 @@ description = "Bounded native desktop media primitives for the Fincode Voxl fork
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2-core-media = { version = "0.3", default-features = false, features = ["CMTime"] }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.61.3", default-features = false, features = ["std", "Win32_Foundation", "Win32_Security", "Win32_System_Com", "Win32_System_Threading", "Win32_System_Variant", "Win32_System_Ole", "Win32_Media_MediaFoundation", "Win32_Graphics_Direct3D", "Win32_Graphics_Direct3D11", "Win32_Graphics_Dxgi", "Win32_Graphics_Dxgi_Common"] }
+windows-core = { version = "0.61.2", default-features = false, features = ["std"] }
+
 [features]
 default = []
 webrtc = ["dep:webrtc", "dep:rtc", "dep:tokio", "dep:async-trait", "dep:bytes", "dep:rand", "dep:tokio-rustls", "dep:webpki-roots"]
