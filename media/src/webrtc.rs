@@ -511,6 +511,13 @@ impl WebRtcVideo {
             self.negotiation=Negotiation::Ready {payload,generation,setup:Some(setup),startup};
             guard.0=None;return Err(WebRtcError::Configuration);
         }
+        if !startup_only {
+            // The acknowledged barrier has delivered the old callbacks. Do not
+            // carry their reachability/DTLS-ready observations into this epoch;
+            // fresh driver callbacks must establish the replacement route.
+            self.events.transition(Connection::Waiting);
+            *self.events.ice.lock().unwrap_or_else(std::sync::PoisonError::into_inner)=RTCIceConnectionState::New;
+        }
         self.events.gathered.store(false,Ordering::Release);
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
         signals.advance();self.events.changes.changed();
