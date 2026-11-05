@@ -275,9 +275,12 @@ API contracts: [Windows capture frame ownership](https://learn.microsoft.com/en-
 [native capture interval](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.graphicscapturesession.minupdateinterval),
 [video processor input bindings](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11videodevice-createvideoprocessorinputview).
 
-`media/tools/desktop-workload.swift` generates a fixed offscreen coding fixture:
-30 warmup and 240 observed frames, split into still text, typing, scrolling and
-window movement at 30fps. It uses the installed Menlo font, fixed source text and
+`media/tools/desktop-workload.swift` generates an offscreen coding fixture at
+30fps (default) or 60fps: a one-second prefix and eight observed seconds, split
+into two-second still-text, typing, scrolling and window-movement phases. Its
+arguments are `<new-output-directory> [width height [30|60]]`. Motion and typing
+use wall time; the higher cadence renders intermediate motion positions rather
+than repeating 30fps frames. It uses the installed Menlo font, fixed source text and
 sRGB pixels, converted to full-range BT.709-matrix NV12. Its manifest records
 geometry, color interpretation, font identity, source hashes and explicit text
 regions. A separate original RGB crop retains small colored text/one-pixel
@@ -293,7 +296,7 @@ halo. Per-frame integer error sums determine aggregate and per-channel
 regressions against the declared baseline; these do not prove every individual
 pixel is no worse. The uncompressed 4:2:0-to-RGB control remains separate, so
 source chroma loss cannot be credited to a codec. RGB crops must contain exactly
-the requested observed frame count (default 240) with matching geometry/color
+the requested observed frame count (default one source cycle: 240 or 480) with matching geometry/color
 interpretation. Optional NumPy acceleration preserves exact integer metrics.
 Run decoding and analysis under external process-group deadlines and retain
 their commands.
@@ -316,8 +319,13 @@ Default H.264 Baseline 3000kbps and HEVC Main 1500kbps requests are comparison
 hypotheses, not equal-quality guarantees or bandwidth caps. The default plan is
 five independent runs, each with 30 seconds warmup and 300 seconds observation;
 `--runs=1 --warmup-seconds=1 --observation-seconds=8` is a diagnostic only.
-`--fixture` can reuse an immutable 270-frame fixture. `codec_probe` cycles its
-30-frame prefix during warmup and its 240 observed frames during observation,
+`--fps=60` selects the 1080p60 component profile; its fixture must contain 540
+frames, rather than the default 270 at 30fps. A mismatched fixture is rejected;
+there is no silent resampling. The 18,000-observed-frame/1,800-warmup-frame bounds
+stay in place, limiting 60fps plans to 300 observed/30 warmup seconds. SSIM phases,
+one-second payload windows, forced two-second keyframes and normalized timebases
+follow the selected cadence. `--fixture` reuses an immutable matching fixture.
+`codec_probe` cycles its one-second prefix during warmup and eight-second source cycle during observation,
 while capture timestamps keep increasing. This avoids duplicating a large raw
 input; repeated cycles within one session are not independent runs or a wider
 content corpus. Packed NV12 planes use whole-plane reads; padded native planes
@@ -327,6 +335,12 @@ hardware priority. Omit the fourth field for the unchanged default; an explicit
 `default` alias is rejected. Compatible HEVC Main supports ordinary or
 low-latency tuning requests. Profile/priority support is checked natively and
 does not replace independent decoded quality and resource comparisons.
+
+The [cadence contracts](results/2026-11-05-cadence-contracts/README.md) cover
+parser/metric clocks and refused plans only. Swift generator byte compatibility
+at 30fps and actual 60fps generation/encoding are pending; these contracts do not
+qualify a device, codec profile or any performance target. Earlier result packs
+retain their exact source and 30fps workload attribution.
 
 Results distinguish Annex B payload, nominal frame clocks, encode-to-callback
 latency and whole-probe CPU/RSS. They do not measure wire/relay billing,
