@@ -209,7 +209,7 @@ impl VideoEncoder {
                 let mut input_count=0;let mut output_count=0;checked("encoder stream count",transform.GetStreamCount(&mut input_count,&mut output_count))?;
                 if input_count!=1 || output_count!=1 {return Err(MediaError::Configuration);}
                 let mut inputs=[0];let mut outputs=[0];
-                if let Err(error)=transform.GetStreamIDs(&mut inputs,&mut outputs) {if error.code()!=E_NOTIMPL {return Err(platform("encoder stream IDs",error));}}
+                if let Err(error)=transform.GetStreamIDs(&mut inputs,&mut outputs) && error.code()!=E_NOTIMPL {return Err(platform("encoder stream IDs",error));}
                 let manager=if let Some(device)=&device {
                     if !hardware || attributes.GetUINT32(&MF_SA_D3D11_AWARE).unwrap_or(0)!=1 {return Err(MediaError::UnsupportedCodec);}
                     let immediate=checked("encoder device context",device.GetImmediateContext())?;
@@ -262,7 +262,7 @@ impl VideoEncoder {
     fn available(&self,pts:i64)->Result<(),MediaError> {
         self.signals.check()?;
         match self.flight {Flight::Closed=>return Err(MediaError::Closed),Flight::Submitted(_)=>return Err(MediaError::Backpressure),Flight::Idle=>{}}
-        if pts<0 || pts>i64::MAX/10 || self.last_pts.is_some_and(|last|pts<=last) {return Err(MediaError::InvalidFrame);}
+        if !(0..=i64::MAX/10).contains(&pts) || self.last_pts.is_some_and(|last|pts<=last) {return Err(MediaError::InvalidFrame);}
         if self.observation.asynchronous && self.signals.need_input.load(Ordering::Acquire)==0 {return Err(MediaError::Backpressure);}
         Ok(())
     }
