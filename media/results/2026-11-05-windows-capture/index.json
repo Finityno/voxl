@@ -1,0 +1,66 @@
+{
+  "runtime": "c976515bc3b71789c472a614ae20f301ab5a334b",
+  "app": "2e4d126037caf90de71efede8baade59a6b996f2",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5479,
+      "sha256": "af5e18a1cffd55d8f605ca159062cfeb0aa70b5bcea22cef2e9bda3a2635a98f"
+    },
+    {
+      "path": "app.json",
+      "bytes": 10189,
+      "sha256": "f0a230059dc8ca4df49ffe156c0741f09299bc05aeed9ce4aaa67a4a48ac0c36"
+    },
+    {
+      "path": "bindings.json",
+      "bytes": 9919,
+      "sha256": "94a3db41853ba51175961eec3005708a2d770b6eed4c6f7aaa90418be7daf42e"
+    },
+    {
+      "path": "cadence.json",
+      "bytes": 9917,
+      "sha256": "49df4bbf9ca70d69f35c2bd055ae514f2391bee4adcdcb77ec9fc575f5e437d8"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 2370,
+      "sha256": "3cbc06f10259bafb96afe2d910d79624e39e20b8278bbfe1ebb54567e798191f"
+    },
+    {
+      "path": "color.json",
+      "bytes": 9704,
+      "sha256": "bcf83181838ca5562933dbef1c715a588e83d19a16ec1f2ebd172975d08640c1"
+    },
+    {
+      "path": "comparison.json",
+      "bytes": 1551,
+      "sha256": "0295a57966030a713ea7c5e5c0ca17cf1276d603523695bfb948adc760e6bcc8"
+    },
+    {
+      "path": "final.json",
+      "bytes": 9913,
+      "sha256": "84daa1d77edc6214d1c426f051570435eaffb55098dbbdaf7f89067668c16f94"
+    },
+    {
+      "path": "initial.json",
+      "bytes": 8927,
+      "sha256": "210941f27cf21a02a47a7d294036043120c999980f72096bdc47b41ab89f2ebf"
+    },
+    {
+      "path": "native-plan.md",
+      "bytes": 3954,
+      "sha256": "245eeb26a36a8c1a45e7b6f98e3a18a6c05d406c1cc0a9e28d10876ac6a9bf0d"
+    },
+    {
+      "path": "pin-comparison.json",
+      "bytes": 1986,
+      "sha256": "62d55265e6aca455c6b84bf898393abef0af7130c915b6fc6ba6076b6df24564"
+    },
+    {
+      "path": "recovery.json",
+      "bytes": 9919,
+      "sha256": "972a6041bc0670426bf44b3b9cd4191a3674bae66e820fb2c2adf5c8826dae2b"
+    }
+  ]
+}

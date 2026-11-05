@@ -1,0 +1,43 @@
+{
+  "base": "0b365da584c7a24db01e41beb45f4da75651651c",
+  "runtime": "c976515bc3b71789c472a614ae20f301ab5a334b",
+  "unchanged": [
+    {
+      "path": "media/src/lib.rs",
+      "unchanged": true,
+      "baseTreeOrBlob": "0ef35c3ea1ea97471b09eb6c157c565e7ca8bbdb",
+      "finalTreeOrBlob": "0ef35c3ea1ea97471b09eb6c157c565e7ca8bbdb"
+    },
+    {
+      "path": "media/src/macos",
+      "unchanged": true,
+      "baseTreeOrBlob": "b95406c1dad92333183ea989fa5c0152f4913dd7",
+      "finalTreeOrBlob": "b95406c1dad92333183ea989fa5c0152f4913dd7"
+    },
+    {
+      "path": "media/src/webrtc.rs",
+      "unchanged": true,
+      "baseTreeOrBlob": "6eece75c2129a186508249611f81afb6928073f4",
+      "finalTreeOrBlob": "6eece75c2129a186508249611f81afb6928073f4"
+    },
+    {
+      "path": "media/src/webrtc",
+      "unchanged": true,
+      "baseTreeOrBlob": "636ba577f05ee325423d2b7f7a249424a787ff7a",
+      "finalTreeOrBlob": "636ba577f05ee325423d2b7f7a249424a787ff7a"
+    },
+    {
+      "path": "media/vendor",
+      "unchanged": true,
+      "baseTreeOrBlob": "50f4bd6d21b4b571c3fb8747f01b23e134e5d356",
+      "finalTreeOrBlob": "50f4bd6d21b4b571c3fb8747f01b23e134e5d356"
+    },
+    {
+      "path": "media/Cargo.lock",
+      "unchanged": true,
+      "baseTreeOrBlob": "a7904c366c0e1f2b4132f964d1a13f689b62e5fc",
+      "finalTreeOrBlob": "a7904c366c0e1f2b4132f964d1a13f689b62e5fc"
+    }
+  ],
+  "changedScope": "Windows media modules, target-only Windows API features and synthetic conversion example. No package/version changes or Mac/transport behavior edit."
+}

@@ -3,7 +3,8 @@
 This crate is maintained in the Fincode custom fork. It has no dependency on
 Voxl's process-owning server entry point, web asset build, libx264 or audio stack.
 It provides a macOS VideoToolbox H.264/HEVC encoder and an experimental Windows
-Media Foundation encoder component. Screen capture and native application integration belong to the embedder. An
+Media Foundation encoder with explicit Windows capture/conversion helpers.
+Application authority, display selection and host integration belong to the embedder. An
 optional WebRTC sender is implemented behind the `webrtc` feature; platform
 validation and receiver interoperability are still in progress.
 
@@ -150,8 +151,9 @@ immutable until the returned `SurfaceLease` reports actual native sample
 release, including after close. Output arrival alone permits no texture reuse.
 The embedding worker must provide a bounded surface pool and handle submission
 errors as documented. Device identity/format/size/subresource are checked.
-This API does not provide capture, BGRA conversion, HDR, input injection or a
-claim of a zero-copy driver path. The synchronous idle hook runs immediately
+The encoder alone provides no capture or conversion. Optional helpers described
+below add those operations after explicit embedding admission. HDR, input
+injection and a zero-copy driver claim remain outside this API. The synchronous idle hook runs immediately
 before a genuine event wait, after queued notifications have been consumed.
 Native callbacks contain no capture, application code or frame allocation.
 
@@ -167,6 +169,55 @@ run each native case under a process-tree deadline, then independently decode
 all 60 frames and inspect actual profile, keyframes, color and dimensions.
 Record CPU/RSS/GPU/adapter/driver separately before making performance claims.
 See `results/2026-11-05-windows-mf/` for exact-source coverage and remaining gaps.
+
+`windows::capture` adds Windows Graphics Capture monitor discovery and capture
+on the monitor's own hardware adapter. Discovery starts no capture or prompt.
+`DesktopCapture::open` must be called only after the embedder's current sharing
+and authenticated view admission. It retains the system cursor and capture
+border, uses two frame-pool buffers and preserves native QPC timestamps. Display
+identity/geometry/color and the active input desktop are checked; resize, item
+closure, lock/secure desktop or permission/device errors end capture rather
+than retargeting it. HDR is rejected pending a qualified tone-mapping path.
+This has no Windows input provider or authority of its own.
+
+The thread-owned session uses native frame events and bounded waits, coalesces
+up to two raw frames, and explicitly returns native buffers. A close handle may
+wake it from another thread; native teardown stays on its owner. Where the OS
+supports a minimum update interval, the requested rate and accepted interval
+are distinguished from measured cadence. Older systems leave the accepted
+interval unknown; the embedding worker must still pace its consumer.
+
+`windows::convert::Nv12Converter` checks progressive, zero-history GPU conversion
+from SDR BGRA to limited-range BT.709 NV12 and scales to the requested output.
+Automatic video enhancement is disabled. Eligible source bindings feed the
+video processor directly; incompatible bindings use one explicit private BGRA
+GPU copy. There is no CPU pixel readback on the device-encoder path. At most
+three converted surfaces are retained, with all tracked encoder leases held
+before any texture can be rewritten. A D3D11.4 completion fence finishes source
+reads before a WGC frame is returned. Driver-internal copies and native resource
+costs still need measurement. An explicit CPU-codec path reads back converted
+NV12, without hiding RGB conversion or changing encoder geometry/selection.
+
+Idle-desktop keyframe recovery can repeat only the last converted pixels while
+checking the same live capture. Duplicate-frame timestamps advance by elapsed
+monotonic time in the captured clock domain; they are not represented as newly
+captured frames. This does not continuously encode stills. Multiple samples of
+the same texture retain every release lease, and synthetic conversion clears
+the captured-frame recovery state.
+
+`windows_conversion_probe <new-nv12-output> [--shader-only]` is a prepared numeric
+oracle using eight exact synthetic color bars, 1280x720 input and 640x360 output.
+It selects/captures no display and sends no input. The second case requires the
+explicit source-copy path; each checks interior Y/U/V against an independent
+BT.709-limited matrix reference (three-code bound), records tightly packed NV12
+and requires no visual inspection. Neither case has run natively yet. The
+Windows-target check/Clippy evidence and unexecuted native plan are in
+`results/2026-11-05-windows-capture/`. Cross-checking establishes no native
+capture, color accuracy, encoder integration, performance or app-host pass.
+
+API contracts: [Windows capture frame ownership](https://learn.microsoft.com/en-us/windows/apps/develop/media-authoring-processing/screen-capture),
+[native capture interval](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.graphicscapturesession.minupdateinterval),
+[video processor input bindings](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11videodevice-createvideoprocessorinputview).
 
 `media/tools/desktop-workload.swift` generates a fixed offscreen coding fixture:
 30 warmup and 240 observed frames, split into still text, typing, scrolling and
