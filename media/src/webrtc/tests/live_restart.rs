@@ -15,14 +15,17 @@ impl PeerConnectionEventHandler for Receiver {
     }
 }
 
-async fn negotiate(video:&mut WebRtcVideo,receiver:Arc<dyn PeerConnection>,gathered:&AtomicBool,wake:&Notify,offer:&str,generation:u64) {
+async fn negotiate(video:&mut WebRtcVideo,receiver:Arc<dyn PeerConnection>,gathered:&AtomicBool,wake:&Notify,offer:&str,generation:u64)->usize {
     gathered.store(false,Ordering::Release);
     receiver.set_remote_description(RTCSessionDescription::offer(strip_candidates(offer)).unwrap()).await.unwrap();
     let outgoing=video.signaling().unwrap();let target=Arc::clone(&receiver);
     let upload=tokio::spawn(async move {
+        let mut relays=0;
         while let VideoIceSignal::Candidate {candidate,mid}=outgoing.next_signal().await.unwrap() {
+            relays+=usize::from(candidate.contains(" typ relay"));
             target.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
         }
+        relays
     });
     receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
     while !gathered.load(Ordering::Acquire) {wake.notified().await;}
@@ -33,28 +36,34 @@ async fn negotiate(video:&mut WebRtcVideo,receiver:Arc<dyn PeerConnection>,gathe
     }
     video.answer_generation(generation,strip_candidates(&answer)).await.unwrap();
     loop {match video.next_update().await {VideoUpdate::Connected=>break,VideoUpdate::Disconnected=>{},other=>panic!("unexpected negotiation update: {other:?}")}}
-    upload.await.unwrap();
+    upload.await.unwrap()
 }
 
 #[test]
-fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations() {live(None);}
+fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations() {live(None,false);}
 #[test]
 #[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
-fn live_relay_udp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Udp));}
+fn live_relay_udp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Udp),false);}
 #[test]
 #[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
-fn live_relay_tcp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tcp));}
+fn live_relay_tcp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tcp),false);}
 #[test]
 #[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
-fn live_relay_tls_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tls));}
+fn live_relay_tls_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tls),false);}
 
-fn live(relay:Option<RelayTransport>) {
+#[test]
+#[ignore = "requires isolated loopback coturn with two valid usernames"]
+fn live_automatic_restart_skips_unused_relay_allocations() {live(Some(RelayTransport::Udp),true);}
+
+fn live(relay:Option<RelayTransport>,automatic:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
         timeout(Duration::from_secs(20),async {
             let config=|generation:u64| {
                 let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
-                if let Some(transport)=relay {
-                    config.route_policy=RoutePolicy::RelayOnly;
+                // Begin server-free, add TURN, remove it, then add it again.
+                // A retained runtime must adopt each generation's grace policy.
+                if let Some(transport)=relay.filter(|_|!automatic || generation%2==1) {
+                    if !automatic {config.route_policy=RoutePolicy::RelayOnly;}
                     let key=match transport {RelayTransport::Udp=>"VOXL_TEST_TURN_UDP",RelayTransport::Tcp=>"VOXL_TEST_TURN_TCP",RelayTransport::Tls=>"VOXL_TEST_TURN_TLS",_=>unreachable!()};
                     let url=std::env::var(key).expect("isolated fixture URL");
                     assert!(rtc::ice::url::Url::parse_url(&url).unwrap().host.parse::<std::net::IpAddr>().unwrap().is_loopback());
@@ -79,7 +88,7 @@ fn live(relay:Option<RelayTransport>) {
             let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
                 .with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake),tracks:Arc::clone(&tracks)}))
                 .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
-            negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&initial,0).await;
+            let mut relay_candidates=vec![negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&initial,0).await];
             let peer=Arc::clone(&video.peer);let ssrc=video.ssrc;
             let frame=|generation:u64|EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9,8,generation as u8],keyframe:true,presentation_time_micros:(generation as i64+1)*1_000_000};
             video.send(frame(0)).await.unwrap();let mut previous=received.recv().await.unwrap();
@@ -100,14 +109,14 @@ fn live(relay:Option<RelayTransport>) {
                 assert_eq!(video.answer_generation(generation-1,stale_answer).await,Err(WebRtcError::Configuration));
                 assert_eq!(video.send_with_stamp(frame(generation)).await,Err(WebRtcError::NotConnected));
                 assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
-                negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await;
+                relay_candidates.push(negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await);
                 assert!(video.take_keyframe_request());let stamp=video.send_with_stamp(frame(generation)).await.unwrap();
                 let packet=received.recv().await.unwrap();assert_eq!(stamp.generation,generation);assert_eq!(stamp.rtp_timestamp,packet.header.timestamp);assert_eq!(&packet.payload[..],&[0x65,9,8,generation as u8]);
                 assert_eq!(packet.header.ssrc,previous.header.ssrc);assert_eq!(packet.header.timestamp.wrapping_sub(previous.header.timestamp),90_000);
                 assert_eq!(packet.header.sequence_number,previous.header.sequence_number.wrapping_add(1));previous=packet;
                 let route=video.route_statistics().await;
-                assert_eq!(route.route,if relay.is_some() {MediaRoute::Relayed} else {MediaRoute::Direct});
-                if let Some(transport)=relay {assert_eq!(route.local_relay_transport,transport);}
+                assert_eq!(route.route,if relay.is_some() && !automatic {MediaRoute::Relayed} else {MediaRoute::Direct});
+                if let Some(transport)=relay.filter(|_|!automatic) {assert_eq!(route.local_relay_transport,transport);}
                 let (adapters,allocations)=video.closer.relays.resource_counts();
                 assert_eq!(adapters,usize::from(matches!(relay,Some(RelayTransport::Tcp|RelayTransport::Tls))));
                 assert_eq!(allocations,adapters,"only the current adapter allocation remains tracked");
@@ -122,6 +131,10 @@ fn live(relay:Option<RelayTransport>) {
             assert_eq!(video.next_update().await,VideoUpdate::Connected);
             video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
             assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Ended)));
+            if automatic {
+                eprintln!("automatic_restart_relay_candidates={relay_candidates:?}");
+                assert_eq!(relay_candidates,[0,0,0,0],"completed direct generations must not retain unused TURN allocations");
+            }
         }).await.unwrap();
     });
 }
