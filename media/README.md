@@ -122,6 +122,19 @@ reproduces 33.01% fewer HEVC encoded bytes on one fixed clip, with slower encode
 callbacks. These are component observations with explicit resource/network
 limits, not production codec admission or provider-billed savings.
 
+`macos::VideoEncoder::new_tuned_with_options` additionally accepts
+`EncodingOptions { priority, max_frame_qp }`. An optional `MaxFrameQp::new(1..=51)`
+requires explicit hardware and exact native integer readback after preparation;
+unsupported/ignored values fail. Existing constructors leave this property
+untouched. The limit does not observe actual frame QP or guarantee image quality.
+Apple's [maximum-QP discussion](https://developer.apple.com/videos/play/wwdc2021/10158/)
+warns that the rate controller may drop frames to satisfy quality and bitrate;
+our dropped-output callback remains terminal. The probe accepts
+`--max-frame-qp=N`, and matched cases append `:qpN` after an optional
+`:speed`/`:quality` request. This is an opt-in experiment, not application codec
+admission; native support, decoded quality, exact frame counts, resources and
+timing still need qualification.
+
 The [failure/wake follow-up](results/2026-11-05-encoder-failures/README.md)
 retains the first terminal encoder cause and wakes waiting workers through the
 bounded output channel when a native callback fails. Later encode/output calls

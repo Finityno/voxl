@@ -109,6 +109,39 @@ fn encoding_priority_requires_hardware_without_constructing_a_native_session() {
 }
 
 #[test]
+fn maximum_frame_qp_rejects_invalid_limits_and_implicit_software_fallback() {
+    for value in [0,52,255] {assert_eq!(MaxFrameQp::new(value),Err(MediaError::Configuration));}
+    let mut config=EncoderConfig {codec:VideoCodec::H264,width:320,height:180,fps:30,bitrate_kbps:500,preference:EncoderPreference::Software};
+    for value in [1,28,51] {
+        let limit=MaxFrameQp::new(value).unwrap();assert_eq!(limit.get(),value);
+        let options=EncodingOptions {max_frame_qp:Some(limit),..Default::default()};
+        for preference in [EncoderPreference::Software,EncoderPreference::PreferHardware] {
+            config.preference=preference;
+            assert!(matches!(VideoEncoder::new_tuned_with_options(config,EncoderTuning::default(),options,|| {}),Err(MediaError::Configuration)));
+        }
+        config.preference=EncoderPreference::RequireHardware;assert!(options.validate(&config).is_ok());
+    }
+}
+
+#[test]
+fn maximum_frame_qp_readback_rejects_noninteger_or_mismatched_native_values() {
+    // SAFETY: these number inputs remain valid during creation; each returned
+    // owned CF object is released after inspecting its type and exact value.
+    unsafe {
+        let requested=28i64;let fractional=28.5f64;
+        let integer=CFNumberCreate(ptr::null(),4,(&requested as *const i64).cast());
+        let real=CFNumberCreate(ptr::null(),6,(&fractional as *const f64).cast());
+        assert!(!integer.is_null() && !real.is_null());
+        assert!(integer_property_matches(integer,28));
+        assert!(!integer_property_matches(integer,29));
+        assert!(!integer_property_matches(real,28));
+        assert!(!integer_property_matches(kCFBooleanTrue,1));
+        assert!(!integer_property_matches(ptr::null(),28));
+        CFRelease(integer);CFRelease(real);
+    }
+}
+
+#[test]
 fn color_configuration_preserves_stable_source_and_closes_on_transfer_change() {
     // SAFETY: these linked SDK constants are immortal CFStringRefs.
     let (bt709,srgb) = unsafe { (kCVImageBufferTransferFunction_ITU_R_709_2,kCVImageBufferTransferFunction_sRGB) };

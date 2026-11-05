@@ -93,6 +93,33 @@ impl EncodingPriority {
     }
 }
 
+/// Explicit upper quantizer limit, not an observed quality guarantee. A tighter
+/// limit can make the native rate controller drop frames; that remains a
+/// terminal encoder failure. Availability depends on the encoder and its mode.
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub struct MaxFrameQp(u8);
+impl MaxFrameQp {
+    pub fn new(value:u8)->Result<Self,MediaError> {
+        if !(1..=51).contains(&value) {return Err(MediaError::Configuration);}
+        Ok(Self(value))
+    }
+    pub fn get(self)->u8 {self.0}
+}
+
+/// Local opt-in experiments. Default leaves both native properties untouched.
+#[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
+pub struct EncodingOptions {
+    pub priority:EncodingPriority,
+    pub max_frame_qp:Option<MaxFrameQp>,
+}
+impl EncodingOptions {
+    fn validate(self,config:&EncoderConfig)->Result<(),MediaError> {
+        self.priority.validate(config)?;
+        if self.max_frame_qp.is_some() && config.preference!=EncoderPreference::RequireHardware {return Err(MediaError::Configuration);}
+        Ok(())
+    }
+}
+
 struct CallbackState {
     sender: SyncSender<Result<EncodedFrame,MediaError>>,
     failure: OnceLock<MediaError>,
@@ -129,7 +156,7 @@ pub struct VideoEncoder {
     receiver: Receiver<Result<EncodedFrame,MediaError>>,
     config: EncoderConfig,
     acceleration: EncoderAcceleration,
-    priority: EncodingPriority,
+    options: EncodingOptions,
     last_pts: Option<i64>,
     color: ColorConfiguration,
 }
@@ -156,17 +183,24 @@ impl VideoEncoder {
     /// ignored requests fail rather than silently running a different mode.
     /// No default preference is queried or changed for existing constructors.
     pub fn new_tuned_with_priority(config: EncoderConfig, tuning: EncoderTuning, priority: EncodingPriority, idle: fn()) -> Result<Self, MediaError> {
+        Self::new_tuned_with_options(config,tuning,EncodingOptions {priority,..Default::default()},idle)
+    }
+
+    /// Explicit options require hardware and matching native typed readback.
+    /// Setter acceptance alone does not establish support, actual frame QP,
+    /// speed, quality or profile admission. Dropped frames remain terminal.
+    pub fn new_tuned_with_options(config: EncoderConfig, tuning: EncoderTuning, options: EncodingOptions, idle: fn()) -> Result<Self, MediaError> {
         tuning.validate(&config)?;
-        priority.validate(&config)?;
+        options.validate(&config)?;
         match config.preference {
-            EncoderPreference::PreferHardware => Self::create(config, true, tuning, priority, idle)
-                .or_else(|_| Self::create(config, false, tuning, priority, idle)),
-            EncoderPreference::RequireHardware => Self::create(config, true, tuning, priority, idle),
-            EncoderPreference::Software => Self::create(config, false, tuning, priority, idle),
+            EncoderPreference::PreferHardware => Self::create(config, true, tuning, options, idle)
+                .or_else(|_| Self::create(config, false, tuning, options, idle)),
+            EncoderPreference::RequireHardware => Self::create(config, true, tuning, options, idle),
+            EncoderPreference::Software => Self::create(config, false, tuning, options, idle),
         }
     }
 
-    fn create(config: EncoderConfig, hardware: bool, tuning: EncoderTuning, priority: EncodingPriority, idle: fn()) -> Result<Self, MediaError> {
+    fn create(config: EncoderConfig, hardware: bool, tuning: EncoderTuning, options: EncodingOptions, idle: fn()) -> Result<Self, MediaError> {
         let codec = match config.codec {
             VideoCodec::H264 => u32::from_be_bytes(*b"avc1"),
             VideoCodec::Hevc => u32::from_be_bytes(*b"hvc1"),
@@ -175,8 +209,12 @@ impl VideoEncoder {
         let low_latency = if tuning.rate_control == EncoderRateControl::LowLatency {
             Some(optional_constant(c"kVTVideoEncoderSpecification_EnableLowLatencyRateControl").ok_or(MediaError::Configuration)?)
         } else { None };
+        let priority=options.priority;
         let priority_key = if priority!=EncodingPriority::Default {
             Some(optional_constant(c"kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality").ok_or(MediaError::Configuration)?)
+        } else {None};
+        let qp_key=if options.max_frame_qp.is_some() {
+            Some(optional_constant(c"kVTCompressionPropertyKey_MaxAllowedFrameQP").ok_or(MediaError::Configuration)?)
         } else {None};
         // SAFETY: this linked framework constant is an immortal CFStringRef.
         let profile = if config.codec == VideoCodec::Hevc { unsafe { kVTProfileLevel_HEVC_Main_AutoLevel } } else {
@@ -206,7 +244,7 @@ impl VideoEncoder {
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
         let mut encoder = Self { session, callback, receiver, config,
-            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, priority, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
+            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, options, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
@@ -215,6 +253,9 @@ impl VideoEncoder {
             encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
             if let Some(key)=priority_key {
                 encoder.property("encoding priority",key,if priority==EncodingPriority::Speed {kCFBooleanTrue} else {kCFBooleanFalse})?;
+            }
+            if let (Some(key),Some(limit))=(qp_key,options.max_frame_qp) {
+                encoder.number("maximum frame QP",key,i64::from(limit.get()))?;
             }
             // Low-latency rate control specifies an infinite GOP. Its caller
             // owns explicit recovery/periodic IDR requests; do not overwrite
@@ -228,6 +269,14 @@ impl VideoEncoder {
                 check("query encoding priority",VTSessionCopyProperty(encoder.session.as_ptr(),key,ptr::null(),&mut actual))?;
                 if actual.is_null() {return Err(MediaError::Configuration);}
                 let matches=CFGetTypeID(actual)==CFBooleanGetTypeID() && CFBooleanGetValue(actual)==(priority==EncodingPriority::Speed);
+                CFRelease(actual);
+                if !matches {return Err(MediaError::Configuration);}
+            }
+            if let (Some(key),Some(limit))=(qp_key,options.max_frame_qp) {
+                let mut actual=ptr::null();
+                check("query maximum frame QP",VTSessionCopyProperty(encoder.session.as_ptr(),key,ptr::null(),&mut actual))?;
+                if actual.is_null() {return Err(MediaError::Configuration);}
+                let matches=integer_property_matches(actual,i64::from(limit.get()));
                 CFRelease(actual);
                 if !matches {return Err(MediaError::Configuration);}
             }
@@ -265,7 +314,10 @@ impl VideoEncoder {
     pub fn acceleration_selection(&self) -> EncoderAcceleration { self.acceleration }
     /// Non-default values had matching native CFBoolean readback. Default is
     /// unspecified, not an observation of the encoder's internal preference.
-    pub fn encoding_priority(&self)->EncodingPriority {self.priority}
+    pub fn encoding_priority(&self)->EncodingPriority {self.options.priority}
+    /// A present request had matching native integer readback. None leaves the
+    /// property untouched and observes no internal default or actual frame QP.
+    pub fn max_frame_qp(&self)->Option<MaxFrameQp> {self.options.max_frame_qp}
 
     fn configure_source_color(&mut self, buffer: Object) -> Result<(), MediaError> {
         match &self.color {
@@ -380,6 +432,18 @@ fn optional_constant(name: &std::ffi::CStr) -> Option<Object> {
         if symbol.is_null() { return None; }
         let value = *symbol.cast::<Object>();
         (!value.is_null()).then_some(value)
+    }
+}
+
+fn integer_property_matches(value:Object,expected:i64)->bool {
+    if value.is_null() {return false;}
+    // SAFETY: callers retain a live CF object through this inspection. Check
+    // its type before number APIs and reject floating values rather than
+    // accepting rounded/coerced readback as proof of an integer property.
+    unsafe {
+        let mut actual=0i64;
+        CFGetTypeID(value)==CFNumberGetTypeID() && !CFNumberIsFloatType(value)
+            && CFNumberGetValue(value,4,(&mut actual as *mut i64).cast()) && actual==expected
     }
 }
 

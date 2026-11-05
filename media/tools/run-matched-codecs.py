@@ -119,12 +119,15 @@ def access_units(path, codec, total, warmup, fps):
 
 def profile(specification):
     parts = specification.split(":")
-    require(len(parts) in [3,4], "invalid native profile shape")
+    require(3 <= len(parts) <= 5, "invalid native profile shape")
     codec,tuning,bitrate = parts[:3]
     require(codec in ["h264","hevc"] and tuning in ["compatible","constrained-high","low-latency-compatible","low-latency-constrained-high"] and bitrate.isdigit() and 250 <= int(bitrate) <= 20000, "invalid native profile")
     require(codec == "h264" or tuning in ["compatible","low-latency-compatible"], "HEVC uses compatible Main profile")
-    require(len(parts) == 3 or parts[3] in ["speed","quality"], "explicit priority must be speed or quality; omit it for the default")
-    return codec,tuning,int(bitrate),parts[3] if len(parts) == 4 else "default"
+    options=parts[3:]
+    priority=options.pop(0) if options and options[0] in ["speed","quality"] else "default"
+    require(not options or len(options)==1 and re.fullmatch(r"qp([1-9]|[1-4][0-9]|5[01])",options[0]), "explicit options must be speed/quality followed by optional qp1..qp51; omit defaults")
+    maximum_qp=int(options[0][2:]) if options else None
+    return codec,tuning,int(bitrate),priority,maximum_qp
 
 
 class Runner:
@@ -236,7 +239,7 @@ class Runner:
         require(output.stat().st_size == region["width"]*region["height"]*3*frames, "normalized RGB frame count mismatch")
 
     def case(self, executable, specification, run, fixture, manifest, observation):
-        codec, tuning, bitrate, priority = profile(specification)
+        codec, tuning, bitrate, priority, maximum_qp = profile(specification)
         name = f"run-{run}-{specification.replace(':','-')}"
         folder = self.args.output/"private"/name
         folder.mkdir(mode=0o700)
@@ -244,6 +247,7 @@ class Runner:
         frames, warmup = self.args.observation_seconds*self.fps, self.args.warmup_seconds*self.fps
         before = digest(fixture/"reference.nv12")
         command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}","--width=1920","--height=1080",f"--fps={self.fps}","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix="+str(manifest["warmupFrames"]),"--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),f"--force-keyframe-period={self.fps*2}"]
+        if maximum_qp is not None:command.append("--max-frame-qp="+str(maximum_qp))
         log = self.run(name,command,self.args.warmup_seconds+self.args.observation_seconds+20,True)
         text = log.read_text()
         samples = ast.literal_eval(re.search(r"^encode_samples_ms=(\[.*\])$",text,re.M).group(1))
@@ -254,6 +258,8 @@ class Runner:
         require(acceleration in ["QueriedHardware","RequiredHardware"], "hardware selection not established")
         actual_priority = re.search(r"^encoding_priority=(Default|Speed|Quality) priority_property_verified=(true|false)$",text,re.M)
         require(actual_priority is not None and actual_priority.group(1).lower() == priority and (actual_priority.group(2) == "true") == (priority != "default"), "encoding priority readback does not match the requested mode")
+        actual_qp=re.search(r"^max_frame_qp=(\d+) qp_property_verified=true$",text,re.M)
+        require((actual_qp is None if maximum_qp is None else actual_qp is not None and int(actual_qp.group(1))==maximum_qp), "maximum frame QP readback does not match the requested limit")
         units = access_units(framed,codec,warmup+frames,warmup,self.fps)
         require(units["totalAnnexBBytes"] == video.stat().st_size and digest(fixture/"reference.nv12") == before, "stream or source changed")
         cpu = {key:float(re.search(r"^"+key+r"\s+([0-9.]+)$",text,re.M).group(1)) for key in ["real","user","sys"]}
@@ -275,6 +281,7 @@ class Runner:
         wall, nominal = float(summary.group(9)), (warmup+frames-1)/self.fps
         record = {"name":name,"specification":specification,"independentRun":run,"oraclesComplete":False,"encodingAndDecodeOraclesComplete":True,"inputSha256":before,"encodedSha256":digest(video),"framedSha256":digest(framed),"normalizedRgbSha256":digest(rgb),"actualDecodedMetadata":metadata,"hardwareSelection":acceleration,"accessUnits":units,"encodeLatencyMs":{"samples":samples,"p50":sorted(samples)[math.ceil(len(samples)*.5)-1],"p95":sorted(samples)[math.ceil(len(samples)*.95)-1],"maximum":max(samples),"scope":"encode call to output callback received, excludes source read/fill"},"probeWallSeconds":wall,"pacing":{"nominalFirstToLastFrameSeconds":nominal,"wallMinusNominalSeconds":wall-nominal,"scope":"Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."},"processResources":{"wallSeconds":cpu["real"],"userSeconds":cpu["user"],"systemSeconds":cpu["sys"],"averageCpuPercentOneCore":100*(cpu["user"]+cpu["sys"])/cpu["real"],"maximumResidentBytes":rss,"scope":"macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"},"quality":quality,"rgbPath":str(rgb)}
         record["encodingPriority"] = {"requested":priority,"nativePropertyVerified":priority != "default","scope":"Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."}
+        record["maximumFrameQp"] = {"requested":maximum_qp,"nativePropertyVerified":maximum_qp is not None,"scope":"Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."}
         self.cases.append(record)
         write(self.args.output/(name+".json"),record)
         self.save()
@@ -325,7 +332,7 @@ def main():
     parser.add_argument("--output",required=True,type=Path)
     parser.add_argument("--fixture",type=Path,help="reuse an immutable generated 1080p fixture at the selected cadence; hashes are validated")
     parser.add_argument("--fps",type=int,choices=[30,60],default=30)
-    parser.add_argument("--case",action="append",help="codec:tuning:kbps[:speed|quality]; h264:compatible:3000 is mandatory baseline")
+    parser.add_argument("--case",action="append",help="codec:tuning:kbps[:speed|quality][:qp1..qp51]; h264:compatible:3000 is mandatory baseline")
     parser.add_argument("--warmup-seconds",type=int,default=30)
     parser.add_argument("--observation-seconds",type=int,default=300)
     parser.add_argument("--runs",type=int,default=5)
