@@ -122,6 +122,13 @@ reproduces 33.01% fewer HEVC encoded bytes on one fixed clip, with slower encode
 callbacks. These are component observations with explicit resource/network
 limits, not production codec admission or provider-billed savings.
 
+The [failure/wake follow-up](results/2026-11-05-encoder-failures/README.md)
+retains the first terminal encoder cause and wakes waiting workers through the
+bounded output channel when a native callback fails. Later encode/output calls
+still return Closed; `failure_cause()` exposes the original diagnostic. The
+probe now identifies the low-latency HEVC failure as dropped output, without
+admitting that mode or attributing its underlying driver/rate-control cause.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly

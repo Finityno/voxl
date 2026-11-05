@@ -895,8 +895,8 @@
   },
   "supportFiles": {
     "README.md": {
-      "sha256": "99b2f1eee95c1844925efda77066beb8d17e5720d88e6bf972f1bc0f7ba50a40",
-      "bytes": 5487
+      "bytes": 5737,
+      "sha256": "791aa513ec7ce0e63845ec7e61fefca626eed35c20fab59dada3fb115504b6c2"
     },
     "integrity.json": {
       "sha256": "a7e1e337fcb918861e99a2d493dbfa18a87d060c716c0e0857485edee04d6af0",

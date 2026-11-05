@@ -1,0 +1,33 @@
+{
+  "originalArtifacts": {
+    "initial/previous-artifact.json": {
+      "originalSha256": "fedb1afeeddcc5befec6e2d6e4957a63ff5a3b4cab6a789e53e06bd2973eada8"
+    },
+    "initial/results.json": {
+      "originalSha256": "fe16125bf71904e0a7d35b292013479940e2a6e49e860cdf31e28722786f0e91"
+    },
+    "initial/default-controls.json": {
+      "originalSha256": "c17dc96bcb767758c28c2232e42860e88fbe206b674e75e047b41ef2d703c799"
+    },
+    "initial/compiler-artifact.json": {
+      "originalSha256": "d6218f261cdcf54b71768bf89113740a670bdd969cea50114c304cfa1e5540ac"
+    },
+    "initial/helper.py": {
+      "originalSha256": "2235cc1976f9185a90450685d8cfe6358d7858987c47d24ce04dbe633cd6bb62"
+    },
+    "completion/receipt-correction.json": {
+      "originalSha256": "a144f6994b0278623b8d67712e64bb39b5488aefbc8e8899113cdb638c673e87"
+    },
+    "completion/results.json": {
+      "originalSha256": "6565993b4da69a7ba59e9cd2f08f09cfec748d98940ff198af9f975aff318f63"
+    },
+    "completion/diagnosis.json": {
+      "originalSha256": "c50a0a4f3eadacf428abe58049d2a89b4aa5137595f2c398e6dfc2ee0a0a308f"
+    },
+    "completion/helper.py": {
+      "originalSha256": "ba13ab43684291b501a9ee8cd89e933516e59470ecf0249a7be8e5dbac6cc576"
+    }
+  },
+  "executedExporterSha256": "02c61a80767f7a64752c9b77c7825ef1a78cdafa1ca8a8fe5a3056afa2a00d8f",
+  "normalization": "Paths only. Original helper/log hashes distinguish original from normalized published text. No binary, bitstream, screen/decoded image, font, credential or private app source."
+}

@@ -68,6 +68,10 @@ mean error rises from 13.849086 to 14.072573. It also fails quality admission.
 The HEVC failure's native cause is not identified by the existing closed error;
 no missing latency/quality result is filled with zero or a passing result.
 
+The [later failure-diagnostic follow-up](../2026-11-05-encoder-failures/README.md)
+identifies dropped HEVC output at its own exact source. It preserves this failed
+matrix and does not establish the underlying reason or turn the profile into a pass.
+
 ## Evidence and limits
 
 `summary.json` separates API availability, complete priority pilot, and partial
