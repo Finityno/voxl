@@ -5,7 +5,7 @@ use super::{VideoEncoder,SurfaceLease,Nv12Color,Wake,checked,capture::{CaptureDe
 use crate::{EncoderConfig,MediaError};
 use std::{mem::ManuallyDrop,ptr,rc::Rc,time::Duration};
 use windows_core::{Interface,IUnknown};
-use ::windows::Win32::{Foundation::{E_FAIL,RECT,WAIT_OBJECT_0},Graphics::{Direct3D11::*,Dxgi::Common::*},System::Threading::{CreateEventW,WaitForSingleObject}};
+use ::windows::Win32::{Foundation::{E_FAIL,RECT,WAIT_OBJECT_0,WAIT_TIMEOUT},Graphics::{Direct3D11::*,Dxgi::Common::*},System::Threading::{CreateEventW,WaitForSingleObject}};
 
 struct Slot {texture:ID3D11Texture2D,view:ID3D11VideoProcessorOutputView,lease:Option<SurfaceLease>}
 /// Device/fence/conversion support is checked, never inferred from the encoder
@@ -27,10 +27,10 @@ impl Nv12Converter {
             let enumerator=checked("NV12 conversion enumerator",video.CreateVideoProcessorEnumerator(&desc))?;
             let color=checked("NV12 conversion color support",enumerator.cast::<ID3D11VideoProcessorEnumerator1>())?;
             if !checked("BGRA to NV12 color conversion",color.CheckVideoProcessorFormatConversion(DXGI_FORMAT_B8G8R8A8_UNORM,DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709,DXGI_FORMAT_NV12,DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P709))?.as_bool() {return Err(MediaError::UnsupportedCodec);}
-            let caps=checked("video conversion caps",enumerator.GetVideoProcessorCaps())?;let mut rate=None;
+            let mut caps=D3D11_VIDEO_PROCESSOR_CAPS::default();checked("video conversion caps",enumerator.GetVideoProcessorCaps(&mut caps))?;let mut rate=None;
             if caps.RateConversionCapsCount>32 {return Err(MediaError::Configuration);}
             for index in 0..caps.RateConversionCapsCount {
-                let caps=checked("video conversion history",enumerator.GetVideoProcessorRateConversionCaps(index))?;
+                let mut caps=D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS::default();checked("video conversion history",enumerator.GetVideoProcessorRateConversionCaps(index,&mut caps))?;
                 if caps.PastFrames==0 && caps.FutureFrames==0 {rate=Some(index);break;}
             }
             let processor=checked("create zero-history video processor",video.CreateVideoProcessor(&enumerator,rate.ok_or(MediaError::UnsupportedCodec)?))?;
@@ -77,6 +77,7 @@ impl Nv12Converter {
             self.device.context.Flush();checked("watch conversion fence",self.fence.SetEventOnCompletion(self.value,self.wake.0))?;
             let ready=WaitForSingleObject(self.wake.0,0);
             if ready!=WAIT_OBJECT_0 {
+                if ready!=WAIT_TIMEOUT {return Err(MediaError::Closed);}
                 (self.idle)();
                 if WaitForSingleObject(self.wake.0,200)!=WAIT_OBJECT_0 {return Err(MediaError::Platform {operation:"GPU conversion deadline",code:E_FAIL.0});}
             }
@@ -99,15 +100,18 @@ impl Nv12Converter {
                 || checked("source device identity",owner.cast::<IUnknown>())?.as_raw()!=checked("conversion device identity",self.device.device.cast::<IUnknown>())?.as_raw() {return Err(MediaError::InvalidFrame);}
             let desc=D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC {FourCC:0,ViewDimension:D3D11_VPIV_DIMENSION_TEXTURE2D,..Default::default()};let mut view=None;
             checked("BGRA processor input view",self.video.CreateVideoProcessorInputView(input,&self.enumerator,&desc,Some(&mut view)))?;
-            let mut stream=D3D11_VIDEO_PROCESSOR_STREAM {Enable:true.into(),pInputSurface:ManuallyDrop::new(view),..Default::default()};
-            let result=self.context.VideoProcessorBlt(&self.processor,&self.slots[slot].view,0,std::slice::from_ref(&stream));
-            let _view=ManuallyDrop::take(&mut stream.pInputSurface);checked("BGRA to NV12 GPU conversion",result)?;
             if readback {
                 if self.staging.is_none() {let mut staging=None;checked("NV12 staging texture",self.device.device.CreateTexture2D(&self.description(true),None,Some(&mut staging)))?;self.staging=staging;}
-                self.device.context.CopyResource(self.staging.as_ref().ok_or(MediaError::Configuration)?,&self.slots[slot].texture);
             }
+            let mut stream=D3D11_VIDEO_PROCESSOR_STREAM {Enable:true.into(),pInputSurface:ManuallyDrop::new(view),..Default::default()};
+            let result=self.context.VideoProcessorBlt(&self.processor,&self.slots[slot].view,0,std::slice::from_ref(&stream));
+            let _view=ManuallyDrop::take(&mut stream.pInputSurface);
+            if result.is_ok() && readback {self.device.context.CopyResource(self.staging.as_ref().ok_or(MediaError::Configuration)?,&self.slots[slot].texture);}
+            // Fence even a failed blit before returning its source buffer. No
+            // fallible allocation/type setup remains between submission/fence.
+            if let Err(error)=self.finish() {self.failed=true;return Err(error);}
+            checked("BGRA to NV12 GPU conversion",result)?;
         }
-        if let Err(error)=self.finish() {self.failed=true;return Err(error);}
         Ok(slot)
     }
     fn readback(&self)->Result<Vec<u8>,MediaError> {
@@ -141,7 +145,7 @@ impl Nv12Converter {
         // SAFETY: WGC retains immutable pixels until frame Drop. Our GPU fence
         // completes all reads before returning it. On failure stop the producer.
         let slot=match unsafe {self.render(&frame.texture,readback)} {Ok(slot)=>slot,Err(error)=>{frame.capture_close();self.failed=true;encoder.close();return Err(error)}};
-        frame.validate()?;
+        if let Err(error)=frame.validate() {self.failed=true;encoder.close();return Err(error);}
         if readback {encoder.encode_nv12(&self.readback()?,self.config.width as usize,frame.presentation_time_micros(),force)} else {
             // SAFETY: this slot is exclusively owned and never written until its
             // tracked native sample-release signal. The producer fence completed.
@@ -156,9 +160,11 @@ impl Nv12Converter {
     ///
     /// # Safety
     /// The input GPU texture must be immutable until this method returns, with
-    /// producer work explicitly ordered/completed on this protected device.
+    /// producer work explicitly ordered/completed on this protected device. On
+    /// error, do not reuse it until the converter/device has been torn down.
     pub unsafe fn fixture_nv12(&mut self,input:&ID3D11Texture2D)->Result<Vec<u8>,MediaError> {
         // SAFETY: caller supplies the immutable source contract above.
-        unsafe {self.render(input,true)?;}self.readback()
+        let result=unsafe {self.render(input,true)}.and_then(|_|self.readback());
+        if result.is_err() {self.failed=true;}result
     }
 }
