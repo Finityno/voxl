@@ -1,0 +1,61 @@
+{
+  "source": "ef7ed1071728a84ec439f7d0e78c4d42d5e7673f",
+  "helperSha256": "97ddfdc043235ceca838c159503ca961dbb79706312640f816735ea846e78457",
+  "terminal": true,
+  "exitCode": 1,
+  "steps": [
+    {
+      "name": "load",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "uptime"
+      ],
+      "deadlineSeconds": 10,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.038,
+      "pgid": 41313,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/load.log",
+      "logSha256": "2860de5ad1ad521fca23b5f78ec92e468f33413a4b2fc324ce06c42a51508763",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true
+    },
+    {
+      "name": "toolchain",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "cargo",
+        "--version"
+      ],
+      "deadlineSeconds": 15,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.105,
+      "pgid": 41318,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/toolchain.log",
+      "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true
+    }
+  ],
+  "productionAdmission": false,
+  "scope": "Scoped Mac QP integer/range/hardware contracts, exact native setter/readback availability and tiny independent decode plus old/current decoded default controls only. Not a matched quality/performance experiment, actual frame-QP observation, physical endpoint or app profile admission. Native unsupported properties retain their actual nonzero exit.",
+  "selectedTests": {},
+  "availability": [],
+  "defaultControls": [],
+  "boundedDriverSha256": "5a39fa76fa5ad1b0093f904d1994e8084d84272822efae7055afa8249d260467",
+  "oldControlSource": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "oldExecutableSha256": "0fa987fc7c1759c46d7b15425004a1b9e35a8e2c13ead400f1b826fce249c7aa",
+  "newExecutableSha256": null,
+  "totalDeadlineSeconds": 1200
+}

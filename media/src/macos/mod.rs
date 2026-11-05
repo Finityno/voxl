@@ -186,7 +186,7 @@ impl VideoEncoder {
         Self::new_tuned_with_options(config,tuning,EncodingOptions {priority,..Default::default()},idle)
     }
 
-    /// Explicit options require hardware and matching native typed readback.
+    /// Non-default options require hardware and matching native typed readback.
     /// Setter acceptance alone does not establish support, actual frame QP,
     /// speed, quality or profile admission. Dropped frames remain terminal.
     pub fn new_tuned_with_options(config: EncoderConfig, tuning: EncoderTuning, options: EncodingOptions, idle: fn()) -> Result<Self, MediaError> {

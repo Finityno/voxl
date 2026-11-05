@@ -123,8 +123,9 @@ callbacks. These are component observations with explicit resource/network
 limits, not production codec admission or provider-billed savings.
 
 `macos::VideoEncoder::new_tuned_with_options` additionally accepts
-`EncodingOptions { priority, max_frame_qp }`. An optional `MaxFrameQp::new(1..=51)`
-requires explicit hardware and exact native integer readback after preparation;
+`EncodingOptions { priority, max_frame_qp }`. Optional `MaxFrameQp::new(N)`
+accepts 1 through 51 and requires explicit hardware and exact native integer
+readback after preparation;
 unsupported/ignored values fail. Existing constructors leave this property
 untouched. The limit does not observe actual frame QP or guarantee image quality.
 Apple's [maximum-QP discussion](https://developer.apple.com/videos/play/wwdc2021/10158/)
@@ -134,6 +135,12 @@ our dropped-output callback remains terminal. The probe accepts
 `:speed`/`:quality` request. This is an opt-in experiment, not application codec
 admission; native support, decoded quality, exact frame counts, resources and
 timing still need qualification.
+The [maximum-QP experiment](results/2026-11-05-maximum-frame-qp/README.md)
+passes three Rust/two Python contracts, eight tiny native combinations and
+three old/current decoded default pairs. At1080p60, QP32/34/36 do not improve
+the measured payload/foreground results; QP28 drops output after two warmup
+frames. Failed receipts and analysis-only continuations remain explicit. No
+new limit is admitted, and the consuming application stays on its earlier pin.
 
 The [failure/wake follow-up](results/2026-11-05-encoder-failures/README.md)
 retains the first terminal encoder cause and wakes waiting workers through the

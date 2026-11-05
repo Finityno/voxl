@@ -1,0 +1,1 @@
+AttributeError: 'types.SimpleNamespace' object has no attribute 'ffmpeg'
