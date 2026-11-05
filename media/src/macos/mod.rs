@@ -81,6 +81,18 @@ impl Drop for SourceColor {
 }
 enum ColorConfiguration { AwaitingFirstFrame, Established(SourceColor) }
 
+/// Explicit local experiment, independent of profile and rate control.
+/// Default leaves VideoToolbox's preference unspecified. Speed can sacrifice
+/// quality at the same bitrate and requires independent decoded quality checks.
+#[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
+pub enum EncodingPriority {#[default] Default,Speed,Quality}
+impl EncodingPriority {
+    fn validate(self,config:&EncoderConfig)->Result<(),MediaError> {
+        if self!=Self::Default && config.preference!=EncoderPreference::RequireHardware {return Err(MediaError::Configuration);}
+        Ok(())
+    }
+}
+
 struct CallbackState {
     sender: SyncSender<EncodedFrame>,
     failed: AtomicBool,
@@ -99,6 +111,7 @@ pub struct VideoEncoder {
     receiver: Receiver<EncodedFrame>,
     config: EncoderConfig,
     acceleration: EncoderAcceleration,
+    priority: EncodingPriority,
     last_pts: Option<i64>,
     color: ColorConfiguration,
 }
@@ -116,16 +129,25 @@ impl VideoEncoder {
     /// require hardware and fail instead of substituting software or a mode.
     /// The actual SPS/profile and decoder interoperability still need probing.
     pub fn new_tuned(config: EncoderConfig, tuning: EncoderTuning, idle: fn()) -> Result<Self, MediaError> {
+        Self::new_tuned_with_priority(config,tuning,EncodingPriority::Default,idle)
+    }
+
+    /// An explicit non-default priority requires hardware, successful property
+    /// setting and matching typed readback after preparation. Unsupported or
+    /// ignored requests fail rather than silently running a different mode.
+    /// No default preference is queried or changed for existing constructors.
+    pub fn new_tuned_with_priority(config: EncoderConfig, tuning: EncoderTuning, priority: EncodingPriority, idle: fn()) -> Result<Self, MediaError> {
         tuning.validate(&config)?;
+        priority.validate(&config)?;
         match config.preference {
-            EncoderPreference::PreferHardware => Self::create(config, true, tuning, idle)
-                .or_else(|_| Self::create(config, false, tuning, idle)),
-            EncoderPreference::RequireHardware => Self::create(config, true, tuning, idle),
-            EncoderPreference::Software => Self::create(config, false, tuning, idle),
+            EncoderPreference::PreferHardware => Self::create(config, true, tuning, priority, idle)
+                .or_else(|_| Self::create(config, false, tuning, priority, idle)),
+            EncoderPreference::RequireHardware => Self::create(config, true, tuning, priority, idle),
+            EncoderPreference::Software => Self::create(config, false, tuning, priority, idle),
         }
     }
 
-    fn create(config: EncoderConfig, hardware: bool, tuning: EncoderTuning, idle: fn()) -> Result<Self, MediaError> {
+    fn create(config: EncoderConfig, hardware: bool, tuning: EncoderTuning, priority: EncodingPriority, idle: fn()) -> Result<Self, MediaError> {
         let codec = match config.codec {
             VideoCodec::H264 => u32::from_be_bytes(*b"avc1"),
             VideoCodec::Hevc => u32::from_be_bytes(*b"hvc1"),
@@ -134,6 +156,9 @@ impl VideoEncoder {
         let low_latency = if tuning.rate_control == EncoderRateControl::LowLatency {
             Some(optional_constant(c"kVTVideoEncoderSpecification_EnableLowLatencyRateControl").ok_or(MediaError::Configuration)?)
         } else { None };
+        let priority_key = if priority!=EncodingPriority::Default {
+            Some(optional_constant(c"kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality").ok_or(MediaError::Configuration)?)
+        } else {None};
         // SAFETY: this linked framework constant is an immortal CFStringRef.
         let profile = if config.codec == VideoCodec::Hevc { unsafe { kVTProfileLevel_HEVC_Main_AutoLevel } } else {
             match tuning.profile {
@@ -162,13 +187,16 @@ impl VideoEncoder {
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
         let mut encoder = Self { session, callback, receiver, config,
-            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
+            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, priority, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
             encoder.property("profile", kVTCompressionPropertyKey_ProfileLevel, profile)?;
             encoder.number("bitrate", kVTCompressionPropertyKey_AverageBitRate, i64::from(config.bitrate_kbps) * 1000)?;
             encoder.number("frame rate", kVTCompressionPropertyKey_ExpectedFrameRate, i64::from(config.fps))?;
+            if let Some(key)=priority_key {
+                encoder.property("encoding priority",key,if priority==EncodingPriority::Speed {kCFBooleanTrue} else {kCFBooleanFalse})?;
+            }
             // Low-latency rate control specifies an infinite GOP. Its caller
             // owns explicit recovery/periodic IDR requests; do not overwrite
             // that selection with the ordinary two-second interval.
@@ -176,6 +204,14 @@ impl VideoEncoder {
                 encoder.number("keyframe interval", kVTCompressionPropertyKey_MaxKeyFrameInterval, i64::from(config.fps) * 2)?;
             }
             check("prepare encoder",VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
+            if let Some(key)=priority_key {
+                let mut actual=ptr::null();
+                check("query encoding priority",VTSessionCopyProperty(encoder.session.as_ptr(),key,ptr::null(),&mut actual))?;
+                if actual.is_null() {return Err(MediaError::Configuration);}
+                let matches=CFGetTypeID(actual)==CFBooleanGetTypeID() && CFBooleanGetValue(actual)==(priority==EncodingPriority::Speed);
+                CFRelease(actual);
+                if !matches {return Err(MediaError::Configuration);}
+            }
             let mut actual = ptr::null();
             let code = VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual);
             if code == kVTPropertyNotSupportedErr {
@@ -208,6 +244,9 @@ impl VideoEncoder {
     }
     pub fn using_hardware(&self) -> bool { self.acceleration.using_hardware() }
     pub fn acceleration_selection(&self) -> EncoderAcceleration { self.acceleration }
+    /// Non-default values had matching native CFBoolean readback. Default is
+    /// unspecified, not an observation of the encoder's internal preference.
+    pub fn encoding_priority(&self)->EncodingPriority {self.priority}
 
     fn configure_source_color(&mut self, buffer: Object) -> Result<(), MediaError> {
         match &self.color {

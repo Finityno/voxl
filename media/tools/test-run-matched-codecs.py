@@ -11,6 +11,14 @@ spec.loader.exec_module(runner)
 
 
 class CodecEvidenceTests(unittest.TestCase):
+    def test_profile_priority_is_explicit_without_default_alias_or_codec_substitution(self):
+        self.assertEqual(runner.profile("h264:compatible:3000"),("h264","compatible",3000,"default"))
+        self.assertEqual(runner.profile("hevc:low-latency-compatible:1500:speed"),("hevc","low-latency-compatible",1500,"speed"))
+        self.assertEqual(runner.profile("h264:constrained-high:3000:quality"),("h264","constrained-high",3000,"quality"))
+        for profile in ["h264:compatible:3000:default","hevc:constrained-high:1500:speed","av1:compatible:1200:speed","h264:compatible:0:speed","h264:compatible:3000:speed:extra"]:
+            with self.assertRaises(ValueError):
+                runner.profile(profile)
+
     def stream(self, codec="h264", wrong_clock=False, wrong_flag=False):
         result = bytearray(b"VXFR\x01"+bytes([0 if codec == "h264" else 1]))
         for index in range(8):

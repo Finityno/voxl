@@ -49,6 +49,20 @@ fn submit(encoder: &mut VideoEncoder, image: &PixelBuffer, pts: i64) {
 }
 
 #[test]
+fn encoding_priority_requires_hardware_without_constructing_a_native_session() {
+    let mut config=EncoderConfig {codec:VideoCodec::H264,width:320,height:180,fps:30,bitrate_kbps:500,preference:EncoderPreference::Software};
+    for preference in [EncoderPreference::Software,EncoderPreference::PreferHardware] {
+        config.preference=preference;
+        assert!(EncodingPriority::Default.validate(&config).is_ok());
+        for priority in [EncodingPriority::Speed,EncodingPriority::Quality] {
+            assert!(matches!(VideoEncoder::new_tuned_with_priority(config,EncoderTuning::default(),priority,|| {}),Err(MediaError::Configuration)));
+        }
+    }
+    config.preference=EncoderPreference::RequireHardware;
+    for priority in [EncodingPriority::Default,EncodingPriority::Speed,EncodingPriority::Quality] {assert!(priority.validate(&config).is_ok());}
+}
+
+#[test]
 fn color_configuration_preserves_stable_source_and_closes_on_transfer_change() {
     // SAFETY: these linked SDK constants are immortal CFStringRefs.
     let (bt709,srgb) = unsafe { (kCVImageBufferTransferFunction_ITU_R_709_2,kCVImageBufferTransferFunction_sRGB) };

@@ -100,12 +100,27 @@ available in the optional framed stream, allowing a decoder to start fresh at
 a later forced keyframe. Sample counts are bounded (warmup at most 1800 frames,
 observation 1..18000, forced interval 1..1800); run with an external deadline.
 
+`macos::VideoEncoder::new_tuned_with_priority` additionally accepts the local
+`EncodingPriority::Speed` or `Quality` experiment. Both require explicitly
+selected hardware, successful setting and matching typed CFBoolean readback
+after native preparation. An unsupported/ignored property fails; it cannot
+silently choose software or another preference. Existing constructors retain
+`Default`, which neither sets nor queries this property. That value is
+unspecified, not a measured observation of an encoder's internal choice.
+`codec_probe --priority=default|speed|quality` exposes the same request and logs
+whether readback was verified. The [Apple property reference](https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_prioritizeencodingspeedoverquality)
+describes a speed/quality tradeoff, so support alone establishes no speed,
+bandwidth, text-quality or power improvement. No application default changes.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly
 into each native buffer's active planes, before the timed encode interval.
-Its exact byte length must match `(warmup + observed) * width * height * 3 / 2`
-before output files are created. It cannot combine with a generated color-bar
+Without `--input-cycle-prefix=N`, its exact byte length must match
+`(warmup + observed) * width * height * 3 / 2` before output files are created.
+With that option, the source instead contains 1..19800 whole frames and a
+prefix shorter than the source; warmup and observed pixels cycle separately
+without resetting timestamps. It cannot combine with a generated color-bar
 pattern. Supply the actual file's range/color tags explicitly; the probe does
 not infer them from a filename. Partial reads fail and release the native buffer.
 Input read/generation costs are not production capture or endpoint CPU evidence.
@@ -277,6 +292,11 @@ while capture timestamps keep increasing. This avoids duplicating a large raw
 input; repeated cycles within one session are not independent runs or a wider
 content corpus. Packed NV12 planes use whole-plane reads; padded native planes
 retain row reads. Timing excludes file read/fill from encode callback latency.
+Optional case syntax `codec:tuning:kbps:speed` or `:quality` requests verified
+hardware priority. Omit the fourth field for the unchanged default; an explicit
+`default` alias is rejected. Compatible HEVC Main supports ordinary or
+low-latency tuning requests. Profile/priority support is checked natively and
+does not replace independent decoded quality and resource comparisons.
 
 Results distinguish Annex B payload, nominal frame clocks, encode-to-callback
 latency and whole-probe CPU/RSS. They do not measure wire/relay billing,

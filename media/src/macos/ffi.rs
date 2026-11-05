@@ -51,6 +51,7 @@ unsafe extern "C" {
     pub fn CFDictionarySetValue(dictionary: Session, key: Object, value: Object);
     pub fn CFNumberCreate(allocator: Object, kind: isize, value: *const c_void) -> Object;
     pub fn CFBooleanGetValue(value: Object) -> bool;
+    pub fn CFBooleanGetTypeID() -> usize;
     pub fn CFGetTypeID(value: Object) -> usize;
     pub fn CFStringGetTypeID() -> usize;
     pub fn CFStringCreateCopy(allocator: Object, value: Object) -> Object;
