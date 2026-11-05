@@ -75,8 +75,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if input_path.is_some() && pattern!="mono" { return Err("file input cannot be combined with a generated pattern".into()); }
     let config = EncoderConfig { codec, width, height, fps, bitrate_kbps, preference };
     tuning.validate(&config)?;
-    if let Some(path)=&input_path {
-        if !std::fs::symlink_metadata(path)?.file_type().is_file() { return Err("NV12 input must be a regular non-symlink file".into()); }
+    if let Some(path)=&input_path && !std::fs::symlink_metadata(path)?.file_type().is_file() {
+        return Err("NV12 input must be a regular non-symlink file".into());
     }
     let mut input = input_path.as_ref().map(std::fs::File::open).transpose()?;
     if let Some(input) = &input {
