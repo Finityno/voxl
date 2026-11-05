@@ -98,7 +98,7 @@ fn live(relay:Option<RelayTransport>) {
                 assert_eq!(old.add_candidate("candidate:retired".into(),"0".into()),Err(WebRtcError::Ended));
                 assert!(matches!(old.next_signal().await,Err(WebRtcError::Ended)));
                 assert_eq!(video.answer_generation(generation-1,stale_answer).await,Err(WebRtcError::Configuration));
-                assert_eq!(video.send(frame(generation)).await,Err(WebRtcError::NotConnected));
+                assert_eq!(video.send_with_stamp(frame(generation)).await,Err(WebRtcError::NotConnected));
                 assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
                 negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await;
                 assert!(video.take_keyframe_request());let stamp=video.send_with_stamp(frame(generation)).await.unwrap();

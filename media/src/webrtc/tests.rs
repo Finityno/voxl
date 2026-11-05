@@ -270,6 +270,7 @@ fn loopback(format: VideoFormat) {
                 let mut annex_b = vec![0,0,0,1];annex_b.extend_from_slice(payload);
                 EncodedFrame {codec: format.codec(),annex_b,keyframe,presentation_time_micros: pts}
             };
+            video.timestamp=u32::MAX-45_000;
             let stamp=video.send_with_stamp(unit(&first,1_000_000,true)).await.unwrap();
             let one = packets.recv().await.unwrap();assert_eq!(stamp.generation,0);assert_eq!(stamp.rtp_timestamp,one.header.timestamp);
             assert_eq!(&one.payload[..],&first);
