@@ -26,14 +26,22 @@ def regular(path):
     require(path.is_file() and not path.is_symlink(), "expected regular non-symlink input")
 
 
+def clock(manifest):
+    require(isinstance(manifest,dict) and all(key in manifest and type(manifest[key]) is int
+        for key in ["fps","schemaVersion","warmupFrames","observedFrames","totalFrames"]), "unexpected workload clock fields")
+    fps = manifest["fps"]
+    require(type(fps) is int and fps in [30,60] and manifest["schemaVersion"] == 1
+        and manifest["warmupFrames"] == fps and manifest["observedFrames"] == fps*8
+        and manifest["totalFrames"] == fps*9, "unexpected workload clocks/counts")
+    return {"fps":fps,"prefix":fps,"cycle":fps*8,"total":fps*9}
+
+
 def reference(fixture):
     manifest_path = fixture / "manifest.json"
     regular(manifest_path)
     require(manifest_path.stat().st_size <= 32768, "manifest size bound")
     manifest = json.loads(manifest_path.read_text())
-    require(manifest["schemaVersion"] == 1 and manifest["totalFrames"] == 270
-        and manifest["warmupFrames"] == 30 and manifest["observedFrames"] == 240
-        and manifest["fps"] == 30, "unexpected workload clocks/counts")
+    source_clock = clock(manifest)
     width, height = manifest["width"], manifest["height"]
     require(isinstance(width, int) and isinstance(height, int) and 960 <= width <= 3840
         and 540 <= height <= 2160 and width % 2 == height % 2 == 0, "invalid geometry")
@@ -45,14 +53,14 @@ def reference(fixture):
     require([manifest[k] for k in ["pixelFormat","pixelRange","colorPrimaries","transferFunction","ycbcrMatrix"]]
         == ["nv12","full","bt709","iec61966-2-1","bt709"], "unexpected source interpretation")
     frame_bytes = crop_width*crop_height*3
-    for name, expected in [("reference.nv12", width*height*3//2*270), ("reference-thin.rgb",frame_bytes*270)]:
+    for name, expected in [("reference.nv12", width*height*3//2*source_clock["total"]), ("reference-thin.rgb",frame_bytes*source_clock["total"])]:
         path = fixture/name
         regular(path)
         record = manifest["files"][name]
         require(path.stat().st_size == record["bytes"] == expected and digest(path) == record["sha256"], "source bytes/hash mismatch")
     with (fixture/"reference-thin.rgb").open("rb") as stream:
         first = stream.read(frame_bytes)
-        for _ in range(269):
+        for _ in range(source_clock["total"]-1):
             require(stream.read(frame_bytes) == first, "thin reference changes; constant-region analysis is invalid")
         require(not stream.read(1), "extra reference frame bytes")
     background = Counter(first[i:i+3] for i in range(0,len(first),3)).most_common(1)[0][0]
@@ -68,7 +76,7 @@ def reference(fixture):
     def quantize(value):
         return min(255,max(0,(value+Fraction(1,2)).numerator//(value+Fraction(1,2)).denominator))
     with (fixture/"reference.nv12").open("rb") as stream:
-        for frame in [0,269]:
+        for frame in [0,source_clock["total"]-1]:
             offset = frame*width*height*3//2
             for pixel in samples:
                 px, py = pixel%crop_width,pixel//crop_width
@@ -87,10 +95,11 @@ def reference(fixture):
     require(largest <= 1, "source conversion differs from independent rational matrix check")
     return manifest, first, mask, {"backgroundRgb":list(background),"sourceInkPixels":len(foreground),"evaluatedPixelsIncludingHalo":len(mask),
         "totalRegionPixels":crop_width*crop_height,"contrastThresholdCodes":8,"haloPixels":1,"independentMatrixMaxCodeDifference":largest,
-        "matrixSamplesPerCheckedFrame":len(samples),"checkedSourceFrames":[0,269],"staticReferenceFramesVerified":270}
+        "matrixSamplesPerCheckedFrame":len(samples),"checkedSourceFrames":[0,source_clock["total"]-1],"staticReferenceFramesVerified":source_clock["total"]}
 
 
-def compare(path, original, mask, frames=240, capture_warmup=30, engine="python"):
+def compare(path, original, mask, frames=240, capture_warmup=30, engine="python", source_prefix=30, source_cycle=240):
+    require(type(source_prefix) is int and type(source_cycle) is int and (source_prefix,source_cycle) in [(30,240),(60,480)], "invalid source clock")
     regular(path)
     size = len(original)
     require(path.stat().st_size == size*frames, "decoded region must contain exactly the requested observed frame count")
@@ -116,9 +125,9 @@ def compare(path, original, mask, frames=240, capture_warmup=30, engine="python"
                         error = abs(frame[pixel+channel]-original[pixel+channel])
                         sums[channel] += error
                         maximum = max(maximum,error)
-            rows.append({"observedFrame":index,"sourceFrame":30+index%240,"sumAbsoluteCodeErrorByRgbChannel":sums,
+            rows.append({"observedFrame":index,"sourceFrame":source_prefix+index%source_cycle,"sumAbsoluteCodeErrorByRgbChannel":sums,
                 "meanAbsoluteForegroundRgbCodeError":sum(sums)/(3*len(mask)),"maxAbsoluteForegroundCodeError":maximum})
-            if frames != 240 or capture_warmup != 30:
+            if frames != 240 or capture_warmup != 30 or source_prefix != 30 or source_cycle != 240:
                 rows[-1]["captureFrame"] = capture_warmup+index
         require(not stream.read(1), "unexpected decoded bytes")
     errors = sorted(row["meanAbsoluteForegroundRgbCodeError"] for row in rows)
@@ -145,11 +154,10 @@ def main():
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--floor", required=True)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--observed-frames", type=int, default=240, help="1..18000; long input repeats the source's 240 observed frames")
-    parser.add_argument("--capture-warmup-frames", type=int, default=30, help="0..1800; source file still has its fixed 30-frame prefix")
+    parser.add_argument("--observed-frames", type=int, help="1..18000; defaults to one source cycle; longer input repeats it")
+    parser.add_argument("--capture-warmup-frames", type=int, help="0..1800; defaults to the source's one-second prefix")
     parser.add_argument("--engine", choices=["python","numpy"], default="python", help="optional exact-integer NumPy acceleration; no metric/tolerance change")
     args = parser.parse_args()
-    require(1 <= args.observed_frames <= 18000 and 0 <= args.capture_warmup_frames <= 1800, "observation/capture clock exceeds bounds")
     require(2 <= len(args.decoded) <= 8, "expected two to eight decoded variants")
     variants = {}
     for value in args.decoded:
@@ -158,7 +166,11 @@ def main():
         variants[label] = Path(path)
     require(args.baseline in variants and args.floor in variants and args.baseline != args.floor, "baseline/floor must identify distinct variants")
     manifest, original, mask, calibration = reference(args.fixture)
-    results = {label:compare(path,original,mask,args.observed_frames,args.capture_warmup_frames,args.engine) for label,path in variants.items()}
+    source_clock = clock(manifest)
+    frames = args.observed_frames if args.observed_frames is not None else source_clock["cycle"]
+    warmup = args.capture_warmup_frames if args.capture_warmup_frames is not None else source_clock["prefix"]
+    require(1 <= frames <= 18000 and 0 <= warmup <= 1800, "observation/capture clock exceeds bounds")
+    results = {label:compare(path,original,mask,frames,warmup,args.engine,source_clock["prefix"],source_clock["cycle"]) for label,path in variants.items()}
     baseline = results[args.baseline]["rows"]
     for label,value in results.items():
         if label == args.floor:
@@ -167,7 +179,7 @@ def main():
     result = {"schemaVersion":1,"manifestSha256":digest(args.fixture/"manifest.json"),"geometry":[manifest["width"],manifest["height"]],
         "region":manifest["regions"]["thinColoredText"],"baseline":args.baseline,"uncompressed420Floor":args.floor,
         "calibration":calibration,"variants":results,"scope":"Reference-derived ink plus one-pixel halo, absolute original sRGB code errors per frame. Full ROI SSIM and original RGB/source-subsampling controls remain separate. Pointwise comparison uses exact integer error sums, not a tolerance or average-only nonregression claim. One synthetic clip is not codec/resource admission."}
-    result["frameMapping"] = {"captureWarmupFrames":args.capture_warmup_frames,"sourcePrefixFrames":30,"sourceObservedCycleFrames":240,"observedFrames":args.observed_frames}
+    result["frameMapping"] = {"captureWarmupFrames":warmup,"sourcePrefixFrames":source_clock["prefix"],"sourceObservedCycleFrames":source_clock["cycle"],"observedFrames":frames}
     result["analysisEngine"] = args.engine
     with args.output.open("x") as stream:
         json.dump(result,stream,indent=2)

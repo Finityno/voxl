@@ -19,13 +19,13 @@ class CodecEvidenceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runner.profile(profile)
 
-    def stream(self, codec="h264", wrong_clock=False, wrong_flag=False):
+    def stream(self, codec="h264", wrong_clock=False, wrong_flag=False, fps=2, total=8):
         result = bytearray(b"VXFR\x01"+bytes([0 if codec == "h264" else 1]))
-        for index in range(8):
-            key = index%4 == 0
+        for index in range(total):
+            key = index%(fps*2) == 0
             types = ([7,8,5] if key else [1]) if codec == "h264" else ([32,33,34,19] if key else [1])
             payload = b"".join(b"\0\0\0\1"+bytes([value if codec == "h264" else value<<1])+b"\x80" for value in types)
-            pts = index*1_000_000//2+(1 if wrong_clock and index == 5 else 0)
+            pts = index*1_000_000//fps+(1 if wrong_clock and index == 5 else 0)
             flag = int(key)^(1 if wrong_flag and index == 5 else 0)
             result += pts.to_bytes(8,"big",signed=True)+bytes([flag])+len(payload).to_bytes(4,"big")+payload
         return bytes(result)
@@ -50,6 +50,19 @@ class CodecEvidenceTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     runner.access_units(path,"h264",8,2,2)
 
+    def test_sixty_fps_clock_and_one_second_payload_windows(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"frames.vxfr"
+            path.write_bytes(self.stream(fps=60,total=180))
+            value=runner.access_units(path,"h264",180,60,60)
+            self.assertEqual(value["keyframeIndices"],[0,120])
+            self.assertEqual(value["observedFrames"],120)
+            self.assertEqual(value["observedAnnexBBytes"],732)
+            self.assertAlmostEqual(value["meanAnnexBMbps"],.002928)
+            self.assertAlmostEqual(value["peakOneSecondAnnexBMbps"],.002976)
+            with self.assertRaisesRegex(ValueError,"clock"):
+                runner.access_units(path,"h264",180,60,30)
+
     def test_ssim_rows_preserve_channels_and_phase_boundaries(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder)/"thin.ssim"
@@ -69,6 +82,15 @@ class CodecEvidenceTests(unittest.TestCase):
             path.write_text("n:1 Y:1 U:1 V:1 All:1")
             with self.assertRaisesRegex(ValueError,"count"):
                 runner.parse_ssim(path,2)
+
+    def test_sixty_fps_ssim_uses_two_second_phases(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"phases.ssim"
+            path.write_text("\n".join(f"n:{i+1} Y:{[.1,.2,.3,.4][i//120]} U:1 V:1 All:1"for i in range(480)))
+            value=runner.parse_ssim(path,480,60)["channels"]["Y"]
+            self.assertEqual(value["phaseFrames"],{"still":120,"typing":120,"scrolling":120,"window-movement":120})
+            for key,expected in zip(["still","typing","scrolling","window-movement"],[.1,.2,.3,.4]):
+                self.assertAlmostEqual(value["phaseMeans"][key],expected)
 
 
 if __name__ == "__main__":

@@ -14,11 +14,13 @@ func exclusive(_ path: URL) throws -> FileHandle {
     return FileHandle(fileDescriptor: fd, closeOnDealloc: true)
 }
 let args = CommandLine.arguments
-try require(args.count == 2 || args.count == 4, "desktop-workload <new-output-directory> [width height]")
-let width = args.count == 4 ? Int(args[2]) ?? 0 : 1920
-let height = args.count == 4 ? Int(args[3]) ?? 0 : 1080
+try require(args.count == 2 || args.count == 4 || args.count == 5, "desktop-workload <new-output-directory> [width height [30|60]]")
+let width = args.count >= 4 ? Int(args[2]) ?? 0 : 1920
+let height = args.count >= 4 ? Int(args[3]) ?? 0 : 1080
 try require(width >= 960 && height >= 540 && width <= 3840 && height <= 2160 && width % 2 == 0 && height % 2 == 0, "unsupported workload geometry")
-let fps = 30, warmup = 30, observed = 240, frames = warmup + observed
+let fps = args.count == 5 ? Int(args[4]) ?? 0 : 30
+try require(fps == 30 || fps == 60, "unsupported workload cadence")
+let warmup = fps, observed = fps*8, frames = warmup + observed, phaseFrames = fps*2
 let destination = URL(fileURLWithPath: args[1], isDirectory: true)
 try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
 let nv12File = try exclusive(destination.appendingPathComponent("reference.nv12"))
@@ -55,13 +57,14 @@ var nvHash = SHA256(), thinHash = SHA256()
 var phases: [[String: Any]] = []
 func quantize(_ value: Double) -> UInt8 { UInt8(min(255, max(0, value.rounded()))) }
 for index in 0..<frames {
-    let observation = max(0, index-warmup), phase = min(3, observation/60), step = observation%60
+    let observation = max(0, index-warmup), phase = min(3, observation/phaseFrames), step = observation%phaseFrames
+    let sequence = step*30/fps
     rectangle(0,0,width,height,[0.075,0.075,0.085])
     rectangle(0,0,width,32,[0.16,0.16,0.18]); text("Project   src / view.rs       Generated desktop workload",16,6)
     rectangle(0,32,160,height-56,[0.10,0.11,0.13])
     for (n,name) in ["src", "  main.rs", "  view.rs", "  transport.rs", "tests", "Cargo.toml"].enumerated() { text(name,12,52+n*24,n%3) }
     rectangle(164,36,width-172,height-138,[0.055,0.060,0.070])
-    let scroll = phase == 2 ? step*4 : 0
+    let scroll = phase == 2 ? step*120/fps : 0
     context.saveGState(); context.clip(to: CGRect(x: 166,y: 105,width: width-172,height: height-150))
     for row in 0..<(height/20+3) {
         let top = 54 + row*20 - scroll%20
@@ -71,7 +74,8 @@ for index in 0..<frames {
     }
     if phase == 1 {
         let typing = "let decoded_frame = receiver.next().await?;"
-        let count = min(typing.count,step*typing.count/59)
+        // Preserve the original wall-time typing schedule at either cadence.
+        let count = min(typing.count,step*30*typing.count/(fps*59))
         rectangle(208,height-164,width-230,24,[0.055,0.060,0.070]);text(String(typing.prefix(count)),210,height-162,3)
         rectangle(210+count*8,height-160,1,15,[0.9,0.9,0.9])
     }
@@ -86,12 +90,12 @@ for index in 0..<frames {
         // Keep the declared static reference strip unobscured at every
         // accepted geometry, including the minimum 960x540 fixture.
         let verticalSpan = max(1,min(130,thinY-130-196-12))
-        let dx = 180+(step*11)%(width-580), dy = 130+(step*3)%verticalSpan
+        let dx = 180+(step*330/fps)%(width-580), dy = 130+(step*90/fps)%verticalSpan
         rectangle(dx,dy,400,196,[0.25,0.26,0.29]); rectangle(dx+2,dy+28,396,166,[0.11,0.12,0.14])
         text("Generated task output",dx+12,dy+5,0)
-        for n in 0..<6 {text("chunk \(n): ready  sequence=\(step)",dx+12,dy+42+n*21,3)}
+        for n in 0..<6 {text("chunk \(n): ready  sequence=\(sequence)",dx+12,dy+42+n*21,3)}
     }
-    rectangle(0,height-28,width,28,[0.08,0.19,0.28]);text("UTF-8    Rust    30 fps    phase \(phase)",12,height-26,0,small:true)
+    rectangle(0,height-28,width,28,[0.08,0.19,0.28]);text("UTF-8    Rust    \(fps) fps    phase \(phase)",12,height-26,0,small:true)
     // A top-left red calibration pixel establishes raw memory orientation and
     // RGBA channel order without taking or inspecting an image.
     rectangle(0,0,2,2,[1,0,0])
@@ -119,8 +123,8 @@ for index in 0..<frames {
     var thin = [UInt8]();thin.reserveCapacity(textW*thinH*3)
     for y in thinY..<thinY+thinH {for x in textX..<textX+textW {let p = (y*width+x)*4;thin.append(bytes[p]);thin.append(bytes[p+1]);thin.append(bytes[p+2])}}
     let rgb = Data(thin);try thinFile.write(contentsOf: rgb);thinHash.update(data: rgb)
-    if index == warmup {phases.append(["name":"still","firstFrame":index,"frames":60])}
-    if index > warmup && (index-warmup)%60 == 0 {phases.append(["name":["still","typing","scrolling","window-movement"][phase],"firstFrame":index,"frames":60])}
+    if index == warmup {phases.append(["name":"still","firstFrame":index,"frames":phaseFrames])}
+    if index > warmup && (index-warmup)%phaseFrames == 0 {phases.append(["name":["still","typing","scrolling","window-movement"][phase],"firstFrame":index,"frames":phaseFrames])}
 }
 try nv12File.synchronize();try thinFile.synchronize()
 let hex: (SHA256.Digest) -> String = { $0.map { String(format:"%02x",$0) }.joined() }

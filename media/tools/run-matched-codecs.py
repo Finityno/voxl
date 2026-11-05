@@ -65,7 +65,8 @@ def stop(process):
     return actions
 
 
-def parse_ssim(path, frames):
+def parse_ssim(path, frames, fps=30):
+    require(type(fps) is int and fps in [30,60], "unsupported SSIM source cadence")
     rows = []
     for line in path.read_text().splitlines():
         values = dict(re.findall(r"([A-Za-z]+):([-+0-9.eE]+|inf)", line))
@@ -78,7 +79,7 @@ def parse_ssim(path, frames):
     result = {"frames":frames,"channels":{}}
     for channel in ["Y","U","V","All"]:
         samples = [row[channel] for row in rows]
-        phase_values = {name:[row[channel] for index,row in enumerate(rows) if index%240//60 == phase] for phase,name in enumerate(phases)}
+        phase_values = {name:[row[channel] for index,row in enumerate(rows) if index%(fps*8)//(fps*2) == phase] for phase,name in enumerate(phases)}
         result["channels"][channel] = {"mean":sum(samples)/frames,"minimum":min(samples),"phaseMeans":{name:sum(values)/len(values) if values else None for name,values in phase_values.items()},"phaseFrames":{name:len(values) for name,values in phase_values.items()}}
     return result
 
@@ -129,6 +130,7 @@ def profile(specification):
 class Runner:
     def __init__(self, args):
         self.args, self.steps, self.cases = args, [], []
+        self.fps = getattr(args,"fps",30)
         self.terminal, self.exit_code = False, None
         self.environment = os.environ | {"CARGO_TARGET_DIR":str(args.workspace/"media/target"),"CARGO_BUILD_JOBS":"2","CARGO_BUILD_WARNINGS":"deny","CARGO_INCREMENTAL":"0","RUSTC_WRAPPER":"","CI":"true","GIT_OPTIONAL_LOCKS":"0","PYTHONDONTWRITEBYTECODE":"1","LC_ALL":"C","OMP_NUM_THREADS":"1","OPENBLAS_NUM_THREADS":"1"}
         if args.developer_dir:
@@ -141,7 +143,7 @@ class Runner:
 
     def save(self):
         expected = [f"run-{run+1}-{case.replace(':','-')}" for run in range(self.args.runs) for case in self.args.case]
-        value = {"source":self.args.revision,"helperSha256":digest(__file__),"terminal":self.terminal,"exitCode":self.exit_code,"steps":self.steps,"cases":self.cases,"unexecutedCases":[name for name in expected if name not in {case["name"] for case in self.cases if case.get("oraclesComplete")}],"plan":{"warmupSeconds":self.args.warmup_seconds,"observationSeconds":self.args.observation_seconds,"independentRuns":self.args.runs,"cases":self.args.case},"productionAdmission":False,"unsupportedCurrentNativeProfiles":["av1"],"limits":"Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission."}
+        value = {"source":self.args.revision,"helperSha256":digest(__file__),"terminal":self.terminal,"exitCode":self.exit_code,"steps":self.steps,"cases":self.cases,"unexecutedCases":[name for name in expected if name not in {case["name"] for case in self.cases if case.get("oraclesComplete")}],"plan":{"fps":self.fps,"warmupSeconds":self.args.warmup_seconds,"observationSeconds":self.args.observation_seconds,"independentRuns":self.args.runs,"cases":self.args.case},"productionAdmission":False,"unsupportedCurrentNativeProfiles":["av1"],"limits":"Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission."}
         write(self.args.output/"results.json",value)
 
     def run(self, name, command, seconds, locked=False):
@@ -195,7 +197,7 @@ class Runner:
             generator = self.args.output/"private/desktop-workload"
             self.run("generator-build",["xcrun","--sdk","macosx","swiftc","-O","-swift-version","6","-strict-concurrency=complete","-warnings-as-errors","media/tools/desktop-workload.swift","-o",str(generator)],120,True)
             fixture = self.args.output/"private/fixture"
-            self.run("generate",[str(generator),str(fixture)],180)
+            self.run("generate",[str(generator),str(fixture),"1920","1080",str(self.fps)],180)
         require(fixture.is_dir() and not fixture.is_symlink(), "expected an owned generated fixture directory")
         import importlib.util
         path = self.args.workspace/"media/tools/analyze-text-workload.py"
@@ -203,24 +205,24 @@ class Runner:
         metrics = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(metrics)
         manifest, _, _, validation = metrics.reference(fixture)
-        require(manifest["width"] == 1920 and manifest["height"] == 1080 and manifest["fps"] == 30, "this matrix compares the fixed 1080p30 hardware profile only")
+        require(manifest["width"] == 1920 and manifest["height"] == 1080 and manifest["fps"] == self.fps, "fixture geometry/cadence must match the requested 1080p profile")
         raw = fixture/"reference.nv12"
         font = Path(manifest["fontURL"])
         require(font == Path("/System/Library/Fonts/Menlo.ttc") and manifest["fontPostScriptName"] == "Menlo-Regular", "unexpected installed font")
         write(self.args.output/"fixture.json",{"manifest":manifest,"manifestSha256":digest(fixture/"manifest.json"),"validation":validation,"currentGeneratorSourceSha256":digest(self.args.workspace/"media/tools/desktop-workload.swift"),"currentlyInstalledFontSha256":digest(font),"reuse":self.args.fixture is not None,"scope":"Reused assets are identified by their byte hashes; current source/font hashes do not establish their historical generation environment."})
         observation = self.args.output/"private/observation-reference.nv12"
-        prefix = 1920*1080*3//2*30
+        prefix = 1920*1080*3//2*manifest["warmupFrames"]
         with raw.open("rb") as source, observation.open("xb") as destination:
             source.seek(prefix)
             shutil.copyfileobj(source,destination,1024*1024)
-        require(observation.stat().st_size == 1920*1080*3//2*240, "observed reference length mismatch")
+        require(observation.stat().st_size == 1920*1080*3//2*manifest["observedFrames"], "observed reference length mismatch")
         return fixture, manifest, observation
 
     def source_args(self):
-        return ["-f","rawvideo","-pixel_format","nv12","-video_size","1920x1080","-framerate","30","-color_range","pc","-colorspace","bt709","-color_primaries","bt709","-color_trc","iec61966-2-1"]
+        return ["-f","rawvideo","-pixel_format","nv12","-video_size","1920x1080","-framerate",str(self.fps),"-color_range","pc","-colorspace","bt709","-color_primaries","bt709","-color_trc","iec61966-2-1"]
 
     def rgb(self, name, path, manifest, output, raw=False):
-        frames, warmup = self.args.observation_seconds*30, self.args.warmup_seconds*30
+        frames, warmup = self.args.observation_seconds*self.fps, self.args.warmup_seconds*self.fps
         region = manifest["regions"]["thinColoredText"]
         command = [str(self.args.ffmpeg),"-nostdin","-hide_banner","-loglevel","error","-threads","2","-filter_threads","1"]
         if raw:
@@ -228,7 +230,7 @@ class Runner:
         command += ["-i",str(path)]
         trim = f"trim=end_frame={frames}" if raw else f"trim=start_frame={warmup}:end_frame={warmup+frames}"
         crop = "crop="+":".join(str(region[key]) for key in ["width","height","x","y"])
-        graph = trim+",settb=1/30,setpts=N,"+crop+",colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24"
+        graph = trim+f",settb=1/{self.fps},setpts=N,"+crop+",colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24"
         command += ["-vf",graph,"-frames:v",str(frames),"-fps_mode","passthrough","-f","rawvideo",str(output)]
         self.run(name,command,180)
         require(output.stat().st_size == region["width"]*region["height"]*3*frames, "normalized RGB frame count mismatch")
@@ -239,20 +241,20 @@ class Runner:
         folder = self.args.output/"private"/name
         folder.mkdir(mode=0o700)
         video, framed, rgb = folder/("encoded."+codec), folder/"frames.vxfr", folder/"thin.rgb"
-        frames, warmup = self.args.observation_seconds*30, self.args.warmup_seconds*30
+        frames, warmup = self.args.observation_seconds*self.fps, self.args.warmup_seconds*self.fps
         before = digest(fixture/"reference.nv12")
-        command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}","--width=1920","--height=1080","--fps=30","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix=30","--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),"--force-keyframe-period=60"]
+        command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}","--width=1920","--height=1080",f"--fps={self.fps}","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix="+str(manifest["warmupFrames"]),"--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),f"--force-keyframe-period={self.fps*2}"]
         log = self.run(name,command,self.args.warmup_seconds+self.args.observation_seconds+20,True)
         text = log.read_text()
         samples = ast.literal_eval(re.search(r"^encode_samples_ms=(\[.*\])$",text,re.M).group(1))
         require(len(samples) == frames and all(isinstance(v,(int,float)) and math.isfinite(v) and 0 <= v <= 2500 for v in samples), "encode sample count/value mismatch")
         summary = re.search(r"^codec=(H264|Hevc) hardware=(true|false) width=(\d+) height=(\d+) fps=(\d+) target_bitrate_kbps=(\d+) frames=(\d+) warmup_frames=(\d+) .+ wall_seconds=([0-9.]+)",text,re.M)
-        require(summary is not None and summary.group(1) == ("H264" if codec == "h264" else "Hevc") and summary.group(2) == "true" and list(map(int,summary.group(3,4,5,6,7,8))) == [1920,1080,30,bitrate,frames,warmup], "native requested/observed profile mismatch")
+        require(summary is not None and summary.group(1) == ("H264" if codec == "h264" else "Hevc") and summary.group(2) == "true" and list(map(int,summary.group(3,4,5,6,7,8))) == [1920,1080,self.fps,bitrate,frames,warmup], "native requested/observed profile mismatch")
         acceleration = re.search(r"^hardware_selection=(\w+)$",text,re.M).group(1)
         require(acceleration in ["QueriedHardware","RequiredHardware"], "hardware selection not established")
         actual_priority = re.search(r"^encoding_priority=(Default|Speed|Quality) priority_property_verified=(true|false)$",text,re.M)
         require(actual_priority is not None and actual_priority.group(1).lower() == priority and (actual_priority.group(2) == "true") == (priority != "default"), "encoding priority readback does not match the requested mode")
-        units = access_units(framed,codec,warmup+frames,warmup,30)
+        units = access_units(framed,codec,warmup+frames,warmup,self.fps)
         require(units["totalAnnexBBytes"] == video.stat().st_size and digest(fixture/"reference.nv12") == before, "stream or source changed")
         cpu = {key:float(re.search(r"^"+key+r"\s+([0-9.]+)$",text,re.M).group(1)) for key in ["real","user","sys"]}
         rss = int(re.search(r"^\s*(\d+)\s+maximum resident set size",text,re.M).group(1))
@@ -262,15 +264,15 @@ class Runner:
         require(len(streams) == 1, "unexpected decoded stream count")
         metadata = streams[0]
         require(metadata["codec_name"] == codec and metadata["width"] == 1920 and metadata["height"] == 1080 and int(metadata["nb_read_frames"]) == warmup+frames and [metadata[k] for k in ["color_range","color_space","color_transfer","color_primaries"]] == ["pc","bt709","iec61966-2-1","bt709"], "independent decode/format mismatch")
-        graph = f"[0:v]trim=start_frame={warmup}:end_frame={warmup+frames},settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame={frames},settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file="+str(folder/"full.ssim")+"[full];"
+        graph = f"[0:v]trim=start_frame={warmup}:end_frame={warmup+frames},settb=1/{self.fps},setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame={frames},settb=1/{self.fps},setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file="+str(folder/"full.ssim")+"[full];"
         for index,label,key in [(1,"text","codeText"),(2,"thin","thinColoredText")]:
             region = manifest["regions"][key]
             crop = "crop="+":".join(str(region[k]) for k in ["width","height","x","y"])
             graph += f"[a{index}]{crop}[ar{index}];[b{index}]{crop}[br{index}];[ar{index}][br{index}]ssim=shortest=1:repeatlast=0:stats_file="+str(folder/(label+".ssim"))+f"[{label}];"
         self.run(name+"-quality",[str(self.args.ffmpeg),"-nostdin","-hide_banner","-loglevel","error","-threads","2","-filter_complex_threads","1","-i",str(video),"-stream_loop","-1",*self.source_args(),"-i",str(observation),"-filter_complex",graph.rstrip(";"),"-map","[full]","-map","[text]","-map","[thin]","-f","null","-"],240)
-        quality = {label:parse_ssim(folder/(label+".ssim"),frames) for label in ["full","text","thin"]}
+        quality = {label:parse_ssim(folder/(label+".ssim"),frames,self.fps) for label in ["full","text","thin"]}
         self.rgb(name+"-rgb",video,manifest,rgb)
-        wall, nominal = float(summary.group(9)), (warmup+frames-1)/30
+        wall, nominal = float(summary.group(9)), (warmup+frames-1)/self.fps
         record = {"name":name,"specification":specification,"independentRun":run,"oraclesComplete":False,"encodingAndDecodeOraclesComplete":True,"inputSha256":before,"encodedSha256":digest(video),"framedSha256":digest(framed),"normalizedRgbSha256":digest(rgb),"actualDecodedMetadata":metadata,"hardwareSelection":acceleration,"accessUnits":units,"encodeLatencyMs":{"samples":samples,"p50":sorted(samples)[math.ceil(len(samples)*.5)-1],"p95":sorted(samples)[math.ceil(len(samples)*.95)-1],"maximum":max(samples),"scope":"encode call to output callback received, excludes source read/fill"},"probeWallSeconds":wall,"pacing":{"nominalFirstToLastFrameSeconds":nominal,"wallMinusNominalSeconds":wall-nominal,"scope":"Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."},"processResources":{"wallSeconds":cpu["real"],"userSeconds":cpu["user"],"systemSeconds":cpu["sys"],"averageCpuPercentOneCore":100*(cpu["user"]+cpu["sys"])/cpu["real"],"maximumResidentBytes":rss,"scope":"macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"},"quality":quality,"rgbPath":str(rgb)}
         record["encodingPriority"] = {"requested":priority,"nativePropertyVerified":priority != "default","scope":"Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."}
         self.cases.append(record)
@@ -290,15 +292,15 @@ class Runner:
                 records.append(self.case(executable,specification,run,fixture,manifest,observation))
             baseline = next(record for record in records if record["specification"] == "h264:compatible:3000")
             output = self.args.output/f"foreground-run-{run}.json"
-            command = [sys.executable,"-B","media/tools/analyze-text-workload.py","--fixture",str(fixture),"--baseline",baseline["name"],"--floor","uncompressed420","--decoded","uncompressed420="+str(floor),"--observed-frames",str(self.args.observation_seconds*30),"--capture-warmup-frames",str(self.args.warmup_seconds*30),"--engine",self.args.analysis_engine,"--output",str(output)]
+            command = [sys.executable,"-B","media/tools/analyze-text-workload.py","--fixture",str(fixture),"--baseline",baseline["name"],"--floor","uncompressed420","--decoded","uncompressed420="+str(floor),"--observed-frames",str(self.args.observation_seconds*self.fps),"--capture-warmup-frames",str(self.args.warmup_seconds*self.fps),"--engine",self.args.analysis_engine,"--output",str(output)]
             for record in records:
                 command += ["--decoded",record["name"]+"="+record["rgbPath"]]
             self.run(f"foreground-run-{run}",command,300)
             foreground = json.loads(output.read_text())
-            require(foreground["frameMapping"]["observedFrames"] == self.args.observation_seconds*30 and foreground["baseline"] == baseline["name"] and foreground["manifestSha256"] == digest(fixture/"manifest.json"), "foreground result attribution mismatch")
+            require(foreground["frameMapping"] == {"captureWarmupFrames":self.args.warmup_seconds*self.fps,"sourcePrefixFrames":manifest["warmupFrames"],"sourceObservedCycleFrames":manifest["observedFrames"],"observedFrames":self.args.observation_seconds*self.fps} and foreground["baseline"] == baseline["name"] and foreground["manifestSha256"] == digest(fixture/"manifest.json"), "foreground result attribution mismatch")
             for record in records:
                 metrics = foreground["variants"][record["name"]]
-                require(metrics["sha256"] == record["normalizedRgbSha256"] and metrics["frames"] == self.args.observation_seconds*30, "foreground variant count/hash mismatch")
+                require(metrics["sha256"] == record["normalizedRgbSha256"] and metrics["frames"] == self.args.observation_seconds*self.fps, "foreground variant count/hash mismatch")
                 record["foregroundAnalysis"] = {"file":output.name,"sha256":digest(output),"meanAbsoluteForegroundRgbCodeError":metrics["meanAbsoluteForegroundRgbCodeError"],"worseAggregateFrames":len(metrics["foregroundErrorWorseThanBaselineFrames"]),"worseAggregateChannelFrames":{key:len(value) for key,value in metrics["foregroundChannelErrorWorseThanBaselineFrames"].items()},"scope":"Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."}
                 record["oraclesComplete"] = True
             # Crops can be regenerated from the hashed encoded/reference files.
@@ -313,7 +315,7 @@ class Runner:
             self.save()
         floor_hash = digest(floor)
         floor.unlink()
-        write(self.args.output/"floor.json",{"sha256":floor_hash,"frames":self.args.observation_seconds*30,"regenerableIntermediateRemoved":True,"scope":"Uncompressed 4:2:0 reconstruction control, not additive codec loss or hardware decode proof"})
+        write(self.args.output/"floor.json",{"sha256":floor_hash,"frames":self.args.observation_seconds*self.fps,"regenerableIntermediateRemoved":True,"scope":"Uncompressed 4:2:0 reconstruction control, not additive codec loss or hardware decode proof"})
 
 
 def main():
@@ -321,7 +323,8 @@ def main():
     parser.add_argument("--workspace",type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument("--revision",required=True)
     parser.add_argument("--output",required=True,type=Path)
-    parser.add_argument("--fixture",type=Path,help="reuse an immutable generated 270-frame 1080p30 fixture; hashes are validated")
+    parser.add_argument("--fixture",type=Path,help="reuse an immutable generated 1080p fixture at the selected cadence; hashes are validated")
+    parser.add_argument("--fps",type=int,choices=[30,60],default=30)
     parser.add_argument("--case",action="append",help="codec:tuning:kbps[:speed|quality]; h264:compatible:3000 is mandatory baseline")
     parser.add_argument("--warmup-seconds",type=int,default=30)
     parser.add_argument("--observation-seconds",type=int,default=300)
@@ -334,7 +337,7 @@ def main():
     require(sys.platform == "darwin", "native codec matrix requires macOS")
     require(re.fullmatch(r"[0-9a-f]{40}",args.revision), "full source revision required")
     require(0 <= args.warmup_seconds <= 60 and 1 <= args.observation_seconds <= 600 and 1 <= args.runs <= 5, "observation plan exceeds bounds")
-    require(args.observation_seconds*30 <= 18000, "probe frame budget exceeded")
+    require(args.observation_seconds*args.fps <= 18000 and args.warmup_seconds*args.fps <= 1800, "probe frame budget exceeded")
     args.workspace, args.output = args.workspace.resolve(), args.output.resolve()
     require(not args.output.is_relative_to(args.workspace) and not args.output.exists(), "new output must be outside the source checkout")
     require((args.workspace/"media/target").resolve().is_relative_to(args.workspace), "target must belong to this checkout")
@@ -353,7 +356,7 @@ def main():
     # Requested bitrate is not an output cap. Reserve three times it for both
     # retained stream copies, plus all crops in one run and a free-space margin.
     retained = sum(int(value.split(":")[2])*1000/8 for value in args.case)*2*3*(args.warmup_seconds+args.observation_seconds)*args.runs
-    crops = 1720*56*3*args.observation_seconds*30*(len(args.case)+1)
+    crops = 1720*56*3*args.observation_seconds*args.fps*(len(args.case)+1)
     require(shutil.disk_usage(args.output).free >= retained+crops+2*1024**3+12*1024**3, "insufficient free disk for planned retained outputs and private intermediates")
     def interrupted(signum,frame):
         raise KeyboardInterrupt()

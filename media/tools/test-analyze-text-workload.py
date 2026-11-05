@@ -11,6 +11,16 @@ spec.loader.exec_module(metrics)
 
 
 class TextMetricsTests(unittest.TestCase):
+    def test_fixture_cadence_requires_consistent_clock_counts(self):
+        for fps,total,prefix,cycle in [(30,270,30,240),(60,540,60,480)]:
+            manifest={"schemaVersion":1,"fps":fps,"totalFrames":total,"warmupFrames":prefix,"observedFrames":cycle}
+            self.assertEqual(metrics.clock(manifest),{"fps":fps,"total":total,"prefix":prefix,"cycle":cycle})
+            for field in ["fps","totalFrames","warmupFrames","observedFrames"]:
+                changed=manifest|{field:True}
+                with self.assertRaises(ValueError):metrics.clock(changed)
+            with self.assertRaises(ValueError):metrics.clock(manifest|{"fps":120})
+        with self.assertRaises(ValueError):metrics.clock({"schemaVersion":1,"fps":60,"totalFrames":270,"warmupFrames":30,"observedFrames":240})
+
     @unittest.skipUnless(importlib.util.find_spec("numpy"), "NumPy engine is optional")
     def test_vectorized_errors_equal_scalar_including_255_differences(self):
         original = bytes([0,255,0,255,0,255,16,80,200,200,80,16])
@@ -31,6 +41,13 @@ class TextMetricsTests(unittest.TestCase):
             value = metrics.compare(path,bytes([10,20,30]),[0],241,900)
             self.assertEqual([(v["sourceFrame"],v["captureFrame"])for v in value["rows"][-2:]],[(269,1139),(30,1140)])
             self.assertEqual(value["frames"],241)
+            self.assertEqual(value["frameMeanErrorP95"],0)
+
+    def test_sixty_fps_source_cycle_preserves_capture_clock(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"decoded.rgb";path.write_bytes(bytes([10,20,30])*481)
+            value=metrics.compare(path,bytes([10,20,30]),[0],481,1800,source_prefix=60,source_cycle=480)
+            self.assertEqual([(row["sourceFrame"],row["captureFrame"])for row in value["rows"][-2:]],[(539,2279),(60,2280)])
             self.assertEqual(value["frameMeanErrorP95"],0)
 
     def test_partial_and_linked_decoded_data_are_rejected(self):
