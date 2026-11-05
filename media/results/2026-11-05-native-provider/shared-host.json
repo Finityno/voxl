@@ -1,0 +1,75 @@
+{
+  "origin": "/tmp/fincode-native-host-initial",
+  "files": [
+    {
+      "name": "check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "clippy.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "dependency-guard.log",
+      "sha256": "5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad",
+      "originalSha256": "5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad",
+      "redacted": false,
+      "text": "workspace deps: no literal versions outside the allowlist\n"
+    },
+    {
+      "name": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "load.log",
+      "sha256": "d3a133fe0075d2c71348f8ea3eed6522463de5ed59205e39b1d30b7d7f108352",
+      "originalSha256": "d3a133fe0075d2c71348f8ea3eed6522463de5ed59205e39b1d30b7d7f108352",
+      "redacted": false,
+      "text": "15:04  up 20 days,  1:52, 1 user, load averages: 1.52 1.84 1.81\n"
+    },
+    {
+      "name": "queue.json",
+      "sha256": "8d8164346251a55ad72ef147bdf386c9ea9f206a5a31b8409f0bb55bc1a2dfcb",
+      "originalSha256": "8d8164346251a55ad72ef147bdf386c9ea9f206a5a31b8409f0bb55bc1a2dfcb",
+      "redacted": false,
+      "text": "{\n  \"source\": \"c0d7ca95d6a87ff9c1c7456999d3ac4d5c9242e0\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/usr/local/bin/python3\",\n        \"/tmp/fincode-native-host-initial/run.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 0,\n      \"seconds\": 2.914,\n      \"pgid\": 27960,\n      \"groupGone\": true,\n      \"logSha256\": \"bc9728b2ecf6b2d8604fb898f1ca1398f495ebe80657e47d7e23e3719d500c41\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"414e3c9c2096860b6c3ec8788cf44c8dea01609e534bde864e7abbeb36e45227\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "queue.log",
+      "sha256": "bc9728b2ecf6b2d8604fb898f1ca1398f495ebe80657e47d7e23e3719d500c41",
+      "originalSha256": "bc9728b2ecf6b2d8604fb898f1ca1398f495ebe80657e47d7e23e3719d500c41",
+      "redacted": false,
+      "text": "load 0\ntoolchain 0\ncheck 0\nclippy 0\ndependency-guard 0\ndiff 0\n"
+    },
+    {
+      "name": "results.json",
+      "sha256": "1835226b65bd740eb77702d4917bfbf23070ff76dfa9a4f9f748efc28e295c15",
+      "originalSha256": "1835226b65bd740eb77702d4917bfbf23070ff76dfa9a4f9f748efc28e295c15",
+      "redacted": false,
+      "text": "{\n  \"source\": \"c0d7ca95d6a87ff9c1c7456999d3ac4d5c9242e0\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.051,\n      \"pgid\": 27964,\n      \"groupGone\": true,\n      \"logSha256\": \"d3a133fe0075d2c71348f8ea3eed6522463de5ed59205e39b1d30b7d7f108352\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"seconds\": 0.067,\n      \"pgid\": 27969,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"check\",\n      \"command\": [\n        \"cargo\",\n        \"check\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 1.104,\n      \"pgid\": 27974,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 0.964,\n      \"pgid\": 28026,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"dependency-guard\",\n      \"command\": [\n        \"bash\",\n        \"scripts/check-workspace-deps.sh\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 0.284,\n      \"pgid\": 28041,\n      \"groupGone\": true,\n      \"logSha256\": \"5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"diff\",\n      \"command\": [\n        \"git\",\n        \"diff\",\n        \"--check\",\n        \"9c2f214672e8387acb6ab3632720f4d50a45e006\",\n        \"c0d7ca95d6a87ff9c1c7456999d3ac4d5c9242e0\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"seconds\": 0.061,\n      \"pgid\": 28245,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"414e3c9c2096860b6c3ec8788cf44c8dea01609e534bde864e7abbeb36e45227\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "run.py",
+      "sha256": "414e3c9c2096860b6c3ec8788cf44c8dea01609e534bde864e7abbeb36e45227",
+      "originalSha256": "414e3c9c2096860b6c3ec8788cf44c8dea01609e534bde864e7abbeb36e45227",
+      "redacted": false,
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation');OUT=P(__file__).parent;SHA='c0d7ca95d6a87ff9c1c7456999d3ac4d5c9242e0';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','FINCODE_COMMIT_SHA':SHA,'GIT_OPTIONAL_LOCKS':'0','CI':'true'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\nfor k in ['CARGO_HOME','RUSTUP_TOOLCHAIN']:assert k not in ENV\n\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'root':str(ROOT),'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'scope':'Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.'},indent=2)+'\\n')\ndef stop():\n global child\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):\n   os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef run(name,command,deadline):\n global child\n clean();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  timed=False\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':exitcode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'timedOut':timed,'sourceCleanBefore':True,'sourceCleanAfter':True});save();print(name,exitcode,flush=True);assert gone(child.pid);child=None;assert exitcode==0\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  run('toolchain',['cargo','--version'],30)\n  run('check',['cargo','check','--locked','-p','desktop_media','--lib','-j2','-q','--message-format=short'],900)\n  run('clippy',['cargo','clippy','--locked','-p','desktop_media','--lib','-j2','-q','--message-format=short','--','-D','warnings'],600)\n  run('dependency-guard',['bash','scripts/check-workspace-deps.sh'],45)\n  run('diff',['git','diff','--check','9c2f214672e8387acb6ab3632720f4d50a45e006',SHA],15)\n code=0\nexcept BaseException as e:\n print(type(e).__name__,str(e),flush=True)\nfinally:\n stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    {
+      "name": "toolchain.log",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "originalSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "redacted": false,
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    }
+  ]
+}

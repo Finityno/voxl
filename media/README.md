@@ -116,8 +116,10 @@ Input read/generation costs are not production capture or endpoint CPU evidence.
 from the standalone server and the application's host provider. It can request
 hardware H.264 Baseline, HEVC Main and AV1 Main system encoders. Availability,
 native execution, driver compatibility and performance are not established by
-Windows-target checks from a Mac. No Windows desktop-host capability is enabled
-by this component. The current application host provider remains macOS-only.
+Windows-target checks from a Mac. This component supplies no account or host
+authority. The consuming draft application now wires a Windows provider into
+its shared admitted-view lifecycle; native Windows application qualification
+remains required. See `results/2026-11-05-native-provider/README.md`.
 
 Hardware registrations are enumerated explicitly. `EncoderObservation` separates
 the registration class from D3D11 device input; neither proves active GPU work,
@@ -182,10 +184,19 @@ This has no Windows input provider or authority of its own.
 
 The thread-owned session uses native frame events and bounded waits, coalesces
 up to two raw frames, and explicitly returns native buffers. A close handle may
-wake it from another thread; native teardown stays on its owner. Where the OS
+wake it from another thread; native teardown stays on its owner. `CaptureStop`
+also coalesces demand/recovery wake notifications without closing capture,
+including notifications before the next native wait. Queued raw frames are
+consumed before a pending control wake. Where the OS
 supports a minimum update interval, the requested rate and accepted interval
 are distinguished from measured cadence. Older systems leave the accepted
 interval unknown; the embedding worker must still pace its consumer.
+`set_frame_rate` reapplies the selected encoder rate, including bounded CPU
+fallback. Display proofs include the exact opaque monitor identity, adapter,
+name, size and SDR format; the handle is only queried through the OS. Raw-frame
+observations expose actual coalesced count and optional QPC capture age. An
+unavailable/inconsistent clock stays unknown instead of claiming zero latency
+or a duplicated frame.
 
 `windows::convert::Nv12Converter` checks progressive, zero-history GPU conversion
 from SDR BGRA to limited-range BT.709 NV12 and scales to the requested output.

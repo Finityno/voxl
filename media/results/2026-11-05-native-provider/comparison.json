@@ -1,0 +1,56 @@
+{
+  "appEarlier": "5482fe96bfac0ed467f1b35c2f7a05498a11460e",
+  "appFinal": "a519edf252ff0fcbcb65c4d74434228f0c4b52fb",
+  "appEquivalentInputs": [
+    {
+      "path": "crates/desktop_media/src/native_host",
+      "earlierTreeOrBlob": "403869c94d48e8a9c3770875105d49e61b71c4ee",
+      "finalTreeOrBlob": "403869c94d48e8a9c3770875105d49e61b71c4ee"
+    },
+    {
+      "path": "crates/desktop_media/src/macos",
+      "earlierTreeOrBlob": "a480ca55115689a88d87cbe4041075a4ac6e846a",
+      "finalTreeOrBlob": "a480ca55115689a88d87cbe4041075a4ac6e846a"
+    },
+    {
+      "path": "crates/desktop_media/src/statistics.rs",
+      "earlierTreeOrBlob": "1d4333cd25de1c46ac3d3e131ca8fc10b37dbf49",
+      "finalTreeOrBlob": "1d4333cd25de1c46ac3d3e131ca8fc10b37dbf49"
+    },
+    {
+      "path": "crates/desktop_media/src/geometry.rs",
+      "earlierTreeOrBlob": "d20b6c351c2dcac24014f4854d6cef8c440c935d",
+      "finalTreeOrBlob": "d20b6c351c2dcac24014f4854d6cef8c440c935d"
+    }
+  ],
+  "mediaEarlier": "c976515bc3b71789c472a614ae20f301ab5a334b",
+  "mediaFinal": "f81e553ba5c1da15223c3374e57d44531c64ca8c",
+  "mediaEquivalentInputs": [
+    {
+      "path": "media/src/macos",
+      "earlierTreeOrBlob": "b95406c1dad92333183ea989fa5c0152f4913dd7",
+      "finalTreeOrBlob": "b95406c1dad92333183ea989fa5c0152f4913dd7"
+    },
+    {
+      "path": "media/src/webrtc.rs",
+      "earlierTreeOrBlob": "6eece75c2129a186508249611f81afb6928073f4",
+      "finalTreeOrBlob": "6eece75c2129a186508249611f81afb6928073f4"
+    },
+    {
+      "path": "media/src/webrtc",
+      "earlierTreeOrBlob": "636ba577f05ee325423d2b7f7a249424a787ff7a",
+      "finalTreeOrBlob": "636ba577f05ee325423d2b7f7a249424a787ff7a"
+    },
+    {
+      "path": "media/vendor",
+      "earlierTreeOrBlob": "50f4bd6d21b4b571c3fb8747f01b23e134e5d356",
+      "finalTreeOrBlob": "50f4bd6d21b4b571c3fb8747f01b23e134e5d356"
+    },
+    {
+      "path": "media/Cargo.lock",
+      "earlierTreeOrBlob": "a7904c366c0e1f2b4132f964d1a13f689b62e5fc",
+      "finalTreeOrBlob": "a7904c366c0e1f2b4132f964d1a13f689b62e5fc"
+    }
+  ],
+  "coverageRule": "Earlier results remain attributed to their exact sources. Equal trees/blobs justify unchanged-input comparison only; they do not constitute new test executions or native Windows coverage."
+}
