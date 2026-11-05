@@ -400,6 +400,12 @@ impl VideoEncoder {
     }
     fn wait_signal(&mut self,deadline:Instant)->Result<bool,MediaError> {
         let remaining=deadline.saturating_duration_since(Instant::now());if remaining.is_zero() {return Ok(false);}
+        // Consume queued notifications before announcing allocator idle. A
+        // callback burst must not spend the hook's budget between ready events.
+        // SAFETY: the Arc-owned event is live, and a zero timeout never blocks.
+        let ready=unsafe {WaitForSingleObject(self.signals.wake.0,0)};
+        if ready==WAIT_OBJECT_0 {return Ok(true);}
+        if ready!=WAIT_TIMEOUT {self.close();return Err(MediaError::Platform {operation:"check encoder event",code:E_FAIL.0});}
         (self.idle)();
         // SAFETY: Arc retains the event through this bounded kernel wait.
         let result=unsafe {WaitForSingleObject(self.signals.wake.0,remaining.as_millis().max(1)as u32)};
