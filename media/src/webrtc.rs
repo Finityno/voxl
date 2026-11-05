@@ -232,6 +232,11 @@ impl Negotiation {
 /// Carry this offer and generation inside the same authenticated view. SDP
 /// and relay authentication must never be placed in diagnostics or public IPC.
 pub struct VideoRestartOffer {pub generation:u64,pub sdp:String}
+/// Receipt for a complete successfully written video access unit. An embedder
+/// can authenticate a keyframe boundary with its signaling generation and
+/// compare it to the receiver's per-frame RTP metadata. This grants no rights.
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub struct VideoFrameStamp {pub generation:u64,pub rtp_timestamp:u32}
 struct NegotiationGuard(Option<VideoCloseHandle>);
 impl Drop for NegotiationGuard {fn drop(&mut self) {if let Some(close)=self.0.take() {close.close();}}}
 
@@ -542,9 +547,14 @@ impl WebRtcVideo {
     }
 
     pub async fn send(&mut self, frame: EncodedFrame) -> Result<(), WebRtcError> {
+        self.send_with_stamp(frame).await.map(|_|())
+    }
+    /// Like `send`, with the actual packet timestamp after the whole access
+    /// unit succeeds. No receipt escapes on invalid, disconnected or failed send.
+    pub async fn send_with_stamp(&mut self,frame:EncodedFrame)->Result<VideoFrameStamp,WebRtcError> {
         if self.ended() { return Err(WebRtcError::Ended); }
         if !self.connected() { return Err(WebRtcError::NotConnected); }
-        let payload_type = self.negotiation.payload().ok_or(WebRtcError::NotConnected)?;
+        let (payload_type,generation)=match self.negotiation {Negotiation::Ready {payload,generation,..}=>(payload,generation),_=>return Err(WebRtcError::NotConnected)};
         if frame.codec != self.format.codec() || frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
             || self.last_pts.is_some_and(|last| frame.presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
@@ -571,7 +581,7 @@ impl WebRtcVideo {
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
         if result.is_err() { self.close(); }
         self.last_pts = Some(frame.presentation_time_micros);
-        result
+        result.map(|()|VideoFrameStamp {generation,rtp_timestamp:timestamp})
     }
 
     pub fn close_handle(&self) -> VideoCloseHandle { self.closer.clone() }

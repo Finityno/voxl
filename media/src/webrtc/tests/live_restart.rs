@@ -101,8 +101,8 @@ fn live(relay:Option<RelayTransport>) {
                 assert_eq!(video.send(frame(generation)).await,Err(WebRtcError::NotConnected));
                 assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
                 negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await;
-                assert!(video.take_keyframe_request());video.send(frame(generation)).await.unwrap();
-                let packet=received.recv().await.unwrap();assert_eq!(&packet.payload[..],&[0x65,9,8,generation as u8]);
+                assert!(video.take_keyframe_request());let stamp=video.send_with_stamp(frame(generation)).await.unwrap();
+                let packet=received.recv().await.unwrap();assert_eq!(stamp.generation,generation);assert_eq!(stamp.rtp_timestamp,packet.header.timestamp);assert_eq!(&packet.payload[..],&[0x65,9,8,generation as u8]);
                 assert_eq!(packet.header.ssrc,previous.header.ssrc);assert_eq!(packet.header.timestamp.wrapping_sub(previous.header.timestamp),90_000);
                 assert_eq!(packet.header.sequence_number,previous.header.sequence_number.wrapping_add(1));previous=packet;
                 let route=video.route_statistics().await;

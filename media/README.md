@@ -411,3 +411,13 @@ oracle that fails before its seven-line production fix. Earlier weaker passes,
 compile/setup failures, cleanup and missing application/physical/resource
 coverage remain separately attributed. No caller pin or performance target is
 changed by this qualification.
+
+
+`WebRtcVideo::send_with_stamp` is an additive version of `send` returning the
+actual RTP timestamp and signaling generation only after the complete access
+unit succeeds. Owners can authenticate a new keyframe boundary alongside ICE
+signaling and compare it to decoded per-frame RTP metadata, without guessing
+from an old video-track callback or aggregate decoder counters. The existing
+`send` method keeps its unit return and packet/clock behavior. No new per-frame
+buffer, timer, dependency or authority is added. A receipt proves local send
+completion, not remote decode, display, hardware acceleration or quality.
