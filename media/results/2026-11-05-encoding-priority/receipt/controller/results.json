@@ -1,0 +1,56 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "helperSha256": "9422378ca237fb7536f26ddd4a33289dfa6341f69c818ce31454c78050ce5e3e",
+  "terminal": true,
+  "exitCode": 0,
+  "steps": [
+    {
+      "name": "queue",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/usr/bin/lockf",
+        "-k",
+        "-t",
+        "360",
+        "/tmp/fincode-build.lock",
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "$RECEIPT/run.py",
+        "--inside-lock"
+      ],
+      "deadlineSeconds": 405,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 65.892,
+      "pgid": 5870,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/queue.log",
+      "logSha256": "8fe14db650f281a51ada5facda97c514e1e7f453a5ce555cf070d635fb01bf7b",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "logs/queue.log.gz"
+    }
+  ],
+  "cases": [],
+  "unexecutedCases": [],
+  "plan": {
+    "warmupSeconds": 0,
+    "observationSeconds": 1,
+    "independentRuns": 1,
+    "cases": []
+  },
+  "productionAdmission": false,
+  "unsupportedCurrentNativeProfiles": [
+    "av1"
+  ],
+  "limits": "Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission.",
+  "scope": "Separate parent/worker receipt namespaces; reuse original command evidence and add default software H264 decoded control",
+  "globalSharedLockBudgetSeconds": null
+}

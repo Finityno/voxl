@@ -1,0 +1,11 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "verifiedIndexEntries": 160,
+  "casePayloadSumsP95sAndQualityRecomputed": 7,
+  "encodeRows": 1680,
+  "regionSsimRows": 5040,
+  "foregroundRowsIncludingControl": 2160,
+  "initialQueueAndLowLatencyMatrixFailuresPreserved": true,
+  "executedVerifierSha256": "b7c898715f0c3f70b73e0f15644299a68453390cb37fe346263168dfc70766b9",
+  "scope": "Offline artifact verification; no new encoder run, native provider execution or admission."
+}

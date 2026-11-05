@@ -1,0 +1,93 @@
+{
+  "manifest": {
+    "chromaSampling": "2x2 RGB box average then quantize",
+    "colorPrimaries": "bt709",
+    "files": {
+      "reference-thin.rgb": {
+        "bytes": 78019200,
+        "sha256": "7eff53332664f1013fdbc8579072fcad3863fc37bd18ba5dcde999796ec8f655"
+      },
+      "reference.nv12": {
+        "bytes": 839808000,
+        "sha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6"
+      }
+    },
+    "fontPointSize": 14,
+    "fontPostScriptName": "Menlo-Regular",
+    "fontURL": "/System/Library/Fonts/Menlo.ttc",
+    "fps": 30,
+    "generator": "CoreText offscreen coding workload v1",
+    "height": 1080,
+    "observedFrames": 240,
+    "phases": [
+      {
+        "firstFrame": 30,
+        "frames": 60,
+        "name": "still"
+      },
+      {
+        "firstFrame": 90,
+        "frames": 60,
+        "name": "typing"
+      },
+      {
+        "firstFrame": 150,
+        "frames": 60,
+        "name": "scrolling"
+      },
+      {
+        "firstFrame": 210,
+        "frames": 60,
+        "name": "window-movement"
+      }
+    ],
+    "pixelFormat": "nv12",
+    "pixelRange": "full",
+    "regions": {
+      "codeText": {
+        "height": 924,
+        "width": 1720,
+        "x": 180,
+        "y": 48
+      },
+      "thinColoredText": {
+        "height": 56,
+        "width": 1720,
+        "x": 180,
+        "y": 990
+      }
+    },
+    "schemaVersion": 1,
+    "scope": "Generated pixels only. Original RGB thin region is retained before source 4:2:0 conversion. No screen, UI, input, codec or performance qualification.",
+    "smallFontPointSize": 11,
+    "totalFrames": 270,
+    "transferFunction": "iec61966-2-1",
+    "warmupFrames": 30,
+    "width": 1920,
+    "ycbcrMatrix": "bt709"
+  },
+  "manifestSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+  "validation": {
+    "backgroundRgb": [
+      14,
+      15,
+      18
+    ],
+    "sourceInkPixels": 3856,
+    "evaluatedPixelsIncludingHalo": 9792,
+    "totalRegionPixels": 96320,
+    "contrastThresholdCodes": 8,
+    "haloPixels": 1,
+    "independentMatrixMaxCodeDifference": 0,
+    "matrixSamplesPerCheckedFrame": 163,
+    "checkedSourceFrames": [
+      0,
+      269
+    ],
+    "staticReferenceFramesVerified": 270
+  },
+  "currentGeneratorSourceSha256": "dff0026e95b5f68aef01dc78e55a9ba5b719a087a6122312645808695910293d",
+  "currentlyInstalledFontSha256": "f2d400484a6aace67980730ec0a9ef24ce9e535a2604f118e6fdc2510021b85f",
+  "reuse": true,
+  "scope": "Reused assets are identified by their byte hashes; current source/font hashes do not establish their historical generation environment."
+}

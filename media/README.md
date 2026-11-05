@@ -112,6 +112,16 @@ whether readback was verified. The [Apple property reference](https://developer.
 describes a speed/quality tradeoff, so support alone establishes no speed,
 bandwidth, text-quality or power improvement. No application default changes.
 
+The [native priority experiment](results/2026-11-05-encoding-priority/README.md)
+retains four supported ordinary priority combinations, four unavailable
+low-latency/priority combinations, matching default decoded controls and two
+short matched pilots. Speed-priority HEVC and low-latency H.264 regress measured
+foreground quality, and low-latency HEVC closes during encoding. None is
+promoted. The separate [five-session ordinary-codec comparison](results/2026-11-05-codec-repeatability/README.md)
+reproduces 33.01% fewer HEVC encoded bytes on one fixed clip, with slower encode
+callbacks. These are component observations with explicit resource/network
+limits, not production codec admission or provider-billed savings.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly

@@ -1,0 +1,6 @@
+{
+  "scope": "Aggregation-only correction before publication; no codec rerun or measured value change",
+  "initialExporterSha256": "9c6074bf664e5209c1efb2fe4c5881df64d738c895d86f2e45d0bcaef9179341",
+  "initialSummarySha256": "e221e155068b5b869f6b4ab8642332576d4f7ed9cb2d7dc4fc4c3a97ec3e4f74",
+  "correction": "Omit uncomputed baseline comparison fields on the uncompressed floor; do not turn absence into zero/passed. Add explicit references to existing pilot SSIM rows."
+}

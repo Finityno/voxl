@@ -1,0 +1,42 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "terminal": true,
+  "exitCode": 1,
+  "scope": "Mac priority build/contracts/availability only; generated 320x180 bars, no screen/input, matched quality or performance admission",
+  "steps": [
+    {
+      "name": "queue",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/usr/bin/lockf",
+        "-k",
+        "-t",
+        "360",
+        "/tmp/fincode-build.lock",
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "$API/run.py",
+        "--inside-lock"
+      ],
+      "deadlineSeconds": 435,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 16.166,
+      "pgid": 2700,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/queue.log",
+      "logSha256": "a389ac71a2a1f41b33eae24f0f21885ae5134a224526b1d37e4b25212d7b43f8",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "logs/queue.log.gz"
+    }
+  ],
+  "helperSha256": "44936448661ccd96e1a65f7b65900ef9699e85cec1bc3e590167e2804e6425e9"
+}
