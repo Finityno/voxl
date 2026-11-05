@@ -83,7 +83,7 @@ impl StreamRelays {
         if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
         Ok(())
     }
-    pub async fn replace(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>)->Result<(),WebRtcError> {
+    pub async fn replace(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>,turn_delay:Duration)->Result<(),WebRtcError> {
         // The driver barrier has sent releases and retired old candidate events.
         // Advancing the owner before abort means late adapter drops cannot mark
         // a new allocation failed, even if the server reuses a relay address.
@@ -97,10 +97,12 @@ impl StreamRelays {
         self.allocations.lock().unwrap_or_else(|error|error.into_inner()).clear();
         let additional=Self {listeners:Mutex::new(RelayListeners::default()),allocations:Arc::clone(&self.allocations),
             failures:Arc::clone(&self.failures),epoch:Arc::clone(&self.epoch),runtime:Arc::default()};
-        let additional=Self::prepare_into(additional,servers,bindings,tls,changes,Duration::ZERO).await?;
+        let additional=Self::prepare_into(additional,servers,bindings,tls,changes,turn_delay).await?;
         let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
         let RelayListeners::Active(listeners)=&mut *listeners else {return Err(WebRtcError::Ended);};
-        self.runtime.replace_ipc(&additional.runtime);
+        // The retained driver runtime must adopt the new grace as well as IPC
+        // addresses, including when its first generation had no TURN servers.
+        self.runtime.replace_configuration(&additional.runtime);
         let adopted=std::mem::replace(&mut *additional.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);
         if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
         Ok(())

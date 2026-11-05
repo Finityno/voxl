@@ -6,25 +6,27 @@
 use std::{collections::HashSet,fmt,future::Future,io,net::{IpAddr,SocketAddr,UdpSocket},pin::Pin,sync::{Arc,Mutex},time::{Duration,Instant}};
 use webrtc::runtime::{AsyncInterval,AsyncTcpListener,AsyncTcpStream,AsyncUdpSocket,JoinHandle,Runtime,TokioRuntime};
 
-pub(super) struct RelayRuntime {inner:TokioRuntime,ipc:Mutex<HashSet<SocketAddr>>,turn_delay:Duration}
+#[derive(Clone)]
+struct RelayConfiguration {ipc:HashSet<SocketAddr>,turn_delay:Duration}
+pub(super) struct RelayRuntime {inner:TokioRuntime,configuration:Mutex<RelayConfiguration>}
 impl Default for RelayRuntime {fn default()->Self {Self::new(HashSet::new())}}
 impl fmt::Debug for RelayRuntime {
-    fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.debug_struct("RelayRuntime").field("ipc_endpoints",&self.ipc.lock().unwrap_or_else(|error|error.into_inner()).len()).finish()}
+    fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.debug_struct("RelayRuntime").field("ipc_endpoints",&self.configuration.lock().unwrap_or_else(|error|error.into_inner()).ipc.len()).finish()}
 }
 impl RelayRuntime {
-    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,ipc:Mutex::new(ipc),turn_delay:Duration::ZERO}}
-    pub fn with_turn_delay(mut self,delay:Duration)->Self {self.turn_delay=delay;self}
+    pub fn new(ipc:HashSet<SocketAddr>)->Self {Self {inner:TokioRuntime,configuration:Mutex::new(RelayConfiguration {ipc,turn_delay:Duration::ZERO})}}
+    pub fn with_turn_delay(self,delay:Duration)->Self {self.configuration.lock().unwrap_or_else(|error|error.into_inner()).turn_delay=delay;self}
     pub fn include_ipc(&self,other:&Self) {
-        let added=other.ipc.lock().unwrap_or_else(|error|error.into_inner()).clone();
-        self.ipc.lock().unwrap_or_else(|error|error.into_inner()).extend(added);
+        let added=other.configuration.lock().unwrap_or_else(|error|error.into_inner()).ipc.clone();
+        self.configuration.lock().unwrap_or_else(|error|error.into_inner()).ipc.extend(added);
     }
-    pub fn replace_ipc(&self,other:&Self) {
-        let current=other.ipc.lock().unwrap_or_else(|error|error.into_inner()).clone();
-        *self.ipc.lock().unwrap_or_else(|error|error.into_inner())=current;
+    pub fn replace_configuration(&self,other:&Self) {
+        let current=other.configuration.lock().unwrap_or_else(|error|error.into_inner()).clone();
+        *self.configuration.lock().unwrap_or_else(|error|error.into_inner())=current;
     }
     fn preferred(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {
         let family=|address:&&SocketAddr|address.is_ipv4()==server.is_ipv4();
-        let selected=if self.ipc.lock().unwrap_or_else(|error|error.into_inner()).contains(&server) {
+        let selected=if self.configuration.lock().unwrap_or_else(|error|error.into_inner()).ipc.contains(&server) {
             // IPC remains local. The adapter's TCP connection independently
             // follows the OS route to the original TURN endpoint.
             available.iter().filter(family).min()
@@ -45,7 +47,7 @@ fn route_ip(server:SocketAddr)->Option<IpAddr> {
     socket.connect(server).ok()?;Some(socket.local_addr().ok()?.ip())
 }
 impl Runtime for RelayRuntime {
-    fn turn_gathering_delay(&self)->Duration {self.turn_delay}
+    fn turn_gathering_delay(&self)->Duration {self.configuration.lock().unwrap_or_else(|error|error.into_inner()).turn_delay}
     fn preferred_turn_local_address(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {self.preferred(server,available)}
     fn spawn(&self,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn(future)}
     fn spawn_reactor(&self,size:usize,future:Pin<Box<dyn Future<Output=()>+Send>>)->Box<dyn JoinHandle> {self.inner.spawn_reactor(size,future)}
@@ -65,12 +67,14 @@ impl Runtime for RelayRuntime {
 mod tests {
     use super::*;
     #[test]
-    fn restart_replaces_ipc_addresses_instead_of_retaining_old_generations() {
+    fn restart_replaces_ipc_addresses_and_turn_grace_instead_of_retaining_old_generations() {
         let old:SocketAddr="127.0.0.1:41000".parse().unwrap();let current:SocketAddr="127.0.0.1:42000".parse().unwrap();
         let runtime=RelayRuntime::new([old].into_iter().collect());
-        runtime.replace_ipc(&RelayRuntime::new([current].into_iter().collect()));
-        assert_eq!(*runtime.ipc.lock().unwrap(),[current].into_iter().collect::<HashSet<_>>());
-        runtime.replace_ipc(&RelayRuntime::default());assert!(runtime.ipc.lock().unwrap().is_empty());
+        runtime.replace_configuration(&RelayRuntime::new([current].into_iter().collect()).with_turn_delay(Duration::from_millis(250)));
+        assert_eq!(runtime.configuration.lock().unwrap().ipc,[current].into_iter().collect::<HashSet<_>>());
+        assert_eq!(runtime.turn_gathering_delay(),Duration::from_millis(250));
+        runtime.replace_configuration(&RelayRuntime::default());assert!(runtime.configuration.lock().unwrap().ipc.is_empty());
+        assert_eq!(runtime.turn_gathering_delay(),Duration::ZERO);
     }
     #[test]
     fn relay_interfaces_follow_udp_route_and_keep_explicit_alternatives() {

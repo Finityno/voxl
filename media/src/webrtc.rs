@@ -111,6 +111,9 @@ impl PeerConnectionEventHandler for Events {
 /// for forced-fallback tests, not as the normal production policy.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum RoutePolicy { #[default] Automatic, RelayOnly }
+impl RoutePolicy {
+    fn turn_grace(self)->Duration {if self==Self::Automatic {Duration::from_millis(250)} else {Duration::ZERO}}
+}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum MediaRoute { Direct, Relayed, #[default] Unknown }
@@ -270,7 +273,7 @@ impl WebRtcVideo {
         Self::open_mode(config,tls,false).await
     }
     async fn open_mode(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool)->Result<Self,WebRtcError> {
-        let turn_delay=if trickle && config.route_policy==RoutePolicy::Automatic {Duration::from_millis(250)} else {Duration::ZERO};
+        let turn_delay=if trickle {config.route_policy.turn_grace()} else {Duration::ZERO};
         Self::open_with_grace(config,tls,trickle,turn_delay).await
     }
     async fn open_with_grace(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration)->Result<Self,WebRtcError> {
@@ -527,7 +530,7 @@ impl WebRtcVideo {
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
         signals.advance();self.events.changes.changed();
         if startup_only {self.closer.relays.add_fallback(&mut config.ice_servers,&setup.bindings,setup.tls.clone(),Arc::clone(&self.events.changes)).await?;}
-        else {self.closer.relays.replace(&mut config.ice_servers,&setup.bindings,setup.tls.clone(),Arc::clone(&self.events.changes)).await?;}
+        else {self.closer.relays.replace(&mut config.ice_servers,&setup.bindings,setup.tls.clone(),Arc::clone(&self.events.changes),setup.policy.turn_grace()).await?;}
         let current=self.peer.get_configuration().await;
         let configuration=RTCConfigurationBuilder::new().with_ice_servers(std::mem::take(&mut config.ice_servers))
             .with_ice_transport_policy(current.ice_transport_policy()).with_bundle_policy(current.bundle_policy())
