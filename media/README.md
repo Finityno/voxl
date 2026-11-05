@@ -189,6 +189,15 @@ physical-device measurement. `results/2026-11-04-lazy-turn/` records zero native
 LAN allocations and actual UDP/TCP/TLS fallback with direct packet paths blocked.
 Browser viewers and credential lookup have separate remaining allocation/startup
 work; these tests establish no measured CPU/RSS saving.
+Live Automatic restart now preserves that 250 ms grace when introducing TURN on
+a retained peer. Replacement updates the driver's delay together with adapter
+addresses; RelayOnly and the distinct one-time startup fallback stay immediate.
+`results/2026-11-05-lazy-restart/` reproduces three unused allocations before the
+fix and zero after, plus forced-relay rotation and close-cancellation checks.
+The companion actual Mac-to-phone case drops from two allocations to one with
+real HTTP issuance, video recovery and revocation. This does not establish video
+egress/CPU/RSS savings or physical handover. Empty ICE-server updates retain the
+imported core's old server list and remain a separate unqualified API edge.
 Late incremental candidates explicitly wake the SDK driver so ICE can replace
 its previous parked deadline. The identical controlled test fails without this
 wake and passes with it while old waits stay held and new ICE timers may run;

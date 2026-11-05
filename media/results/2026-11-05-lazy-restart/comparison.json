@@ -1,0 +1,111 @@
+{
+  "pinReview": {
+    "before": "8208e7e05f81cbe32ba1e2584c5df76382ce53fb",
+    "after": "826ec4b55f0842950896f96f0c02ee6ad7ac34ee",
+    "pairedForkBefore": "6279c1f57fb268945ea9567643eb8e4331411091",
+    "pairedForkAfter": "f7bc0059588727dc08637552d5d1866492f685e0",
+    "checks": [
+      {
+        "path": "Cargo.toml",
+        "onlyPairedGitSourceChanged": true,
+        "beforeSha256": "606699ed04a8a5156913a1a3b6615e284e10a6b02fb7dfb93eb83d2256aea42c",
+        "afterSha256": "e3a52e400b1d5b67e0aa35fdbe24b76bc48e0fd728ca621abbab4cf546874b7a"
+      },
+      {
+        "path": "Cargo.lock",
+        "onlyPairedGitSourceChanged": true,
+        "beforeSha256": "22fc7248ed5fba0d3dcffff1e5617e05864fc5c740fe8092f23be83fc50f554f",
+        "afterSha256": "2094c8b61053d057d11a34dacc2114d3b505a046967b2f6646233cc276a56f13"
+      },
+      {
+        "path": "media/Cargo.toml",
+        "byteIdenticalRefinedBaselineAndFixed": true,
+        "sha256": "22d180c0fe789ada120db05bc9950ede8974144bba0a3c6ab839a4098415f5a7"
+      },
+      {
+        "path": "media/Cargo.lock",
+        "byteIdenticalRefinedBaselineAndFixed": true,
+        "sha256": "8d2ec9e9b15b93208f836afbe451abe293adad1c325a4d1ecfd2a11a5bfa0b87"
+      },
+      {
+        "path": "media/vendor/webrtc/Cargo.toml",
+        "byteIdenticalRefinedBaselineAndFixed": true,
+        "sha256": "3f66e8db95dfc5ff5df65d66f290f40fb12ebcb5622747bcc1f88b01b52d2f1f"
+      },
+      {
+        "path": "media/src/webrtc/tests/live_restart.rs",
+        "byteIdenticalRefinedBaselineAndFixed": true,
+        "sha256": "f19a2c13ba53130b806cfe37d14e0385ab8533f5c2fa6992dbde2e540e705f14"
+      },
+      {
+        "path": "media/vendor/webrtc",
+        "byteIdenticalFromPreviousPin": true,
+        "treeListingSha256": "74d8141ae83a64619b5bf9a3a2ed4023625d23fc5a4e3ac632eddd9cc82329cb"
+      },
+      {
+        "path": "crates/environments/tests/native_desktop_phone.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "f2fe68d3ec63d2310924876dd533a033e79b64a3db5a9d1c7a1bfba821ef5557"
+      },
+      {
+        "path": "crates/environments/tests/support/relay.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "cdb427f9c21ef0bdd68806f6e6c46f33d6188da1cda4d80a66e8037e3deec3a4"
+      },
+      {
+        "path": "crates/environment_host/src/connect_hosting.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "d1f09d4d09af584668b94d8fec3290515a47d887b0b9538e500d4a6c07eebaef"
+      },
+      {
+        "path": "crates/environment_host/src/desktop_relay.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "b4f50e06549fea5bba5f464b666ba0c9ed6c4796170b4b18ed674476c612dfd6"
+      },
+      {
+        "path": "crates/desktop_media/src/macos/mod.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "9c94865c95f6fbd50717aa7c4e1776016d4d51cb33e27c66492238502200d184"
+      },
+      {
+        "path": "crates/desktop_media/src/macos/recovery.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "b2eb9e1a45c2afd1d478412bee7319e917c0893b3e8202112f8429d64d420993"
+      },
+      {
+        "path": "crates/connect_relay/src/desktop_turn.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "96fb6926c4b4aa053654df4c6bb891d713cb2a12e086de8917bc14f26983ff3b"
+      },
+      {
+        "path": "crates/connect_relay/src/store/desktop_turn.rs",
+        "byteIdenticalApplicationHarnessAndProductionRuntime": true,
+        "sha256": "4cfab1633ddc4ab1a5276d9fd1ceef5126f62571834330e82a230ae9f6c166cb"
+      }
+    ],
+    "scope": "Only voxl-media and paired vendored webrtc Git source IDs change in application manifest/lock. No versions/features/other resolution changed. SDK tree and fork manifests/lock unchanged; same native application scenario/provider/issuer/authority sources."
+  },
+  "texts": [
+    {
+      "name": "pin-review.json",
+      "text": "{\n  \"before\": \"8208e7e05f81cbe32ba1e2584c5df76382ce53fb\",\n  \"after\": \"826ec4b55f0842950896f96f0c02ee6ad7ac34ee\",\n  \"pairedForkBefore\": \"6279c1f57fb268945ea9567643eb8e4331411091\",\n  \"pairedForkAfter\": \"f7bc0059588727dc08637552d5d1866492f685e0\",\n  \"checks\": [\n    {\n      \"path\": \"Cargo.toml\",\n      \"onlyPairedGitSourceChanged\": true,\n      \"beforeSha256\": \"606699ed04a8a5156913a1a3b6615e284e10a6b02fb7dfb93eb83d2256aea42c\",\n      \"afterSha256\": \"e3a52e400b1d5b67e0aa35fdbe24b76bc48e0fd728ca621abbab4cf546874b7a\"\n    },\n    {\n      \"path\": \"Cargo.lock\",\n      \"onlyPairedGitSourceChanged\": true,\n      \"beforeSha256\": \"22fc7248ed5fba0d3dcffff1e5617e05864fc5c740fe8092f23be83fc50f554f\",\n      \"afterSha256\": \"2094c8b61053d057d11a34dacc2114d3b505a046967b2f6646233cc276a56f13\"\n    },\n    {\n      \"path\": \"media/Cargo.toml\",\n      \"byteIdenticalRefinedBaselineAndFixed\": true,\n      \"sha256\": \"22d180c0fe789ada120db05bc9950ede8974144bba0a3c6ab839a4098415f5a7\"\n    },\n    {\n      \"path\": \"media/Cargo.lock\",\n      \"byteIdenticalRefinedBaselineAndFixed\": true,\n      \"sha256\": \"8d2ec9e9b15b93208f836afbe451abe293adad1c325a4d1ecfd2a11a5bfa0b87\"\n    },\n    {\n      \"path\": \"media/vendor/webrtc/Cargo.toml\",\n      \"byteIdenticalRefinedBaselineAndFixed\": true,\n      \"sha256\": \"3f66e8db95dfc5ff5df65d66f290f40fb12ebcb5622747bcc1f88b01b52d2f1f\"\n    },\n    {\n      \"path\": \"media/src/webrtc/tests/live_restart.rs\",\n      \"byteIdenticalRefinedBaselineAndFixed\": true,\n      \"sha256\": \"f19a2c13ba53130b806cfe37d14e0385ab8533f5c2fa6992dbde2e540e705f14\"\n    },\n    {\n      \"path\": \"media/vendor/webrtc\",\n      \"byteIdenticalFromPreviousPin\": true,\n      \"treeListingSha256\": \"74d8141ae83a64619b5bf9a3a2ed4023625d23fc5a4e3ac632eddd9cc82329cb\"\n    },\n    {\n      \"path\": \"crates/environments/tests/native_desktop_phone.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"f2fe68d3ec63d2310924876dd533a033e79b64a3db5a9d1c7a1bfba821ef5557\"\n    },\n    {\n      \"path\": \"crates/environments/tests/support/relay.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"cdb427f9c21ef0bdd68806f6e6c46f33d6188da1cda4d80a66e8037e3deec3a4\"\n    },\n    {\n      \"path\": \"crates/environment_host/src/connect_hosting.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"d1f09d4d09af584668b94d8fec3290515a47d887b0b9538e500d4a6c07eebaef\"\n    },\n    {\n      \"path\": \"crates/environment_host/src/desktop_relay.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"b4f50e06549fea5bba5f464b666ba0c9ed6c4796170b4b18ed674476c612dfd6\"\n    },\n    {\n      \"path\": \"crates/desktop_media/src/macos/mod.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"9c94865c95f6fbd50717aa7c4e1776016d4d51cb33e27c66492238502200d184\"\n    },\n    {\n      \"path\": \"crates/desktop_media/src/macos/recovery.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"b2eb9e1a45c2afd1d478412bee7319e917c0893b3e8202112f8429d64d420993\"\n    },\n    {\n      \"path\": \"crates/connect_relay/src/desktop_turn.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"96fb6926c4b4aa053654df4c6bb891d713cb2a12e086de8917bc14f26983ff3b\"\n    },\n    {\n      \"path\": \"crates/connect_relay/src/store/desktop_turn.rs\",\n      \"byteIdenticalApplicationHarnessAndProductionRuntime\": true,\n      \"sha256\": \"4cfab1633ddc4ab1a5276d9fd1ceef5126f62571834330e82a230ae9f6c166cb\"\n    }\n  ],\n  \"scope\": \"Only voxl-media and paired vendored webrtc Git source IDs change in application manifest/lock. No versions/features/other resolution changed. SDK tree and fork manifests/lock unchanged; same native application scenario/provider/issuer/authority sources.\"\n}\n",
+      "sha256": "9747999713acf8fa97bcbf17838bd35dc56167d68a5064510fdbee8e4b2cc471"
+    },
+    {
+      "name": "export-evidence.py",
+      "text": "import pathlib,json,hashlib,os,re,subprocess,datetime,shutil\nP=pathlib.Path;FORK=P('/Users/sondre/Documents/GitHub/voxl-fincode-streaming');APP=P('/Users/sondre/Documents/GitHub/fincode-desktop-access');PHONE=P('/Users/sondre/Documents/GitHub/FincodeApplication-desktop-access')\nDEST=[FORK/'media/results/2026-11-05-lazy-restart',APP/'docs/desktop-streaming-results/2026-11-05/lazy-restart',PHONE/'Tools/desktop-video/results/2026-11-05-lazy-restart']\ndef sha(raw):return hashlib.sha256(raw).hexdigest()\ndef gone(group):\n try:os.killpg(group,0);return False\n except ProcessLookupError:return True\ndef item(root,name,actual=None):\n original=(root/name).read_bytes();raw=(root/(actual or name)).read_bytes()\n return {'name':name,'text':raw.decode(),'sha256':sha(raw),'originalPrivateSha256':sha(original),'fixtureTokenRedacted':original!=raw}\ndef write(name,data):\n raw=(json.dumps(data,indent=2)+'\\n').encode();assert not re.search(rb'TEST_RUNNER_FINCODE_DESKTOP_AUTH_PROBE_TOKEN=[0-9a-f]{64}',raw)\n for dest in DEST:dest.mkdir(exist_ok=True);(dest/name).write_bytes(raw)\n print(name,len(raw),len(data.get('texts',[])),len(data.get('postRunGroups',[])))\nfor name,folder,helper in [('before-initial','voxl-lazy-restart-before','run.py'),('before','voxl-lazy-restart-before-refined','run.py'),('after','voxl-lazy-restart-after','/tmp/fincode-lazy-restart-fixed.py'),('units','voxl-lazy-restart-units','/tmp/fincode-lazy-restart-units.py')]:\n root=P('/tmp')/folder;r=json.loads((root/'results.json').read_text());q=json.loads((root/'queue.json').read_text());assert r['terminal']and q['terminal']\n raw=(root/helper).read_bytes();assert sha(raw)==r['helperSha256']\n (root/'run-export.py').write_bytes(raw)\n for s in r['steps']+q['steps']:\n  if 'logSha256'in s:assert sha((root/(s['name']+'.log')).read_bytes())==s['logSha256']\n groups={x['pgid']for d in [r,q]for x in d['steps']if 'pgid'in x}\n groups.update(x['pgid']for x in r['turns'])\n if name=='before':\n  cleanup=json.loads((root/'cleanup-followup.json').read_text());groups.add(cleanup['pgid']);assert cleanup['groupGoneByProcessInventory']and cleanup['allOwnedUDPPortsRebound']and cleanup['successfulAllocations']==3\n  assert q['exitCode']==1 and r['exitCode']==0\n else:assert q['exitCode']==r['exitCode']==(101 if name=='before-initial'else 0)\n assert all(gone(g)for g in groups)\n names=['run-export.py','turn-fixture.py','results.json','queue.json','queue.log','toolchain.log','clippy.log','build-selection.json']\n names+=[s['name']+'.log'for s in r['steps']if s['name']not in ['load','toolchain','build','clippy']]\n if name=='before':names+=['cleanup-followup.json']\n for config in root.glob('private-turn-*/server.conf'):raise AssertionError('private TURN configuration remains: '+str(config))\n if name in ['before','before-initial']:\n  case=[s for s in r['steps']if s['name']=='live_automatic_restart_skips_unused_relay_allocations'];assert len(case)==1 and case[0]['exitCode']==101\n  assert 'automatic_restart_relay_candidates=[0, 1, 1, 1]'in(root/(case[0]['name']+'.log')).read_text()\n elif name=='after':\n  assert len(r['turns'])==2 and [x['successfulAllocations']for x in r['turns']]==[0,4]\n  assert 'automatic_restart_relay_candidates=[0, 0, 0, 0]'in(root/'live_automatic_restart_skips_unused_relay_allocations.log').read_text()\n for s in r['steps']:\n  if s['name'].startswith(('live_','restart_'))and name in ['after','units']:assert s['exitCode']==0 and '1 passed; 0 failed; 0 ignored;'in(root/(s['name']+'.log')).read_text()\n write(name+'.json',{'source':r['source'],'texts':[item(root,n)for n in names],'postRunGroups':[{'pgid':g,'goneAtExport':True}for g in sorted(groups)],'privateBuildLog':{'sha256':sha((root/'build.log').read_bytes()),'bytes':(root/'build.log').stat().st_size},'limits':'One local synthetic-media scope per selected test. No capture/decoder, physical networking, resource or quality/bandwidth saving claim. The refined baseline test exits 101; its supervisor exits 1 after a cleanup PermissionError, while its inner exitCode incorrectly says 0. Independent follow-up verifies its server group absent and all owned UDP ports rebound; no original server exit status is available. Failed attempts remain failed. The first fixture alternated an empty ICE-server list, which the imported core retained; the refined, byte-identical regression retains TURN on all three restarts. Empty-list removal is not qualified.'})\n\nroot=P('/tmp/fincode-native-http-grace-826ec4b');r=json.loads((root/'results.json').read_text());q=json.loads((root/'queue.json').read_text());assert r['terminal']and q['terminal']and r['exitCode']==q['exitCode']==0\nassert sha((root/'run.py').read_bytes())==r['helperSha256']\nfor s in r['steps']+q['steps']:\n if 'logSha256'in s:assert sha((root/(s['name']+'.log')).read_bytes())==s['logSha256']\ngroups=sorted({s['pgid']for d in [r,q]for s in d['steps']if'pgid'in s});assert all(gone(g)for g in groups)\nsummary=json.loads((root/'summary.log').read_text());assert summary['passedTests']==1 and summary['failedTests']==summary['skippedTests']==0\nassert '1 passed; 0 failed; 0 ignored;'in(root/'backend.log').read_text()\nreport=json.loads((root/'observations.json').read_text());issuer=json.loads((root/'issuer-observations.json').read_text());server=json.loads((root/'turn-summary.json').read_text())\nassert report['realHttpTurnIssuer']and report['httpIssuerStatuses']==[200]and report['httpIssuerNoStore']and report['httpIssuerAccountQuotaMatched']and not report['osInputPosted']\nassert issuer=={'statuses':[200,403],'successfulIssuances':1,'capturedFreshGrantDeniedAfterRevocation':True,'fixtureIssuerCalls':0,'productionHostingStopped':True}\nassert server['successfulAllocations']==1 and server['groupGone']and server['allOwnedUDPPortsRebound']\nfor path in ['private/config.json','private/issuer.secret','private/turn/server.conf']:assert not(root/path).exists()\ndiagnostics=[x for x in(root/'phone-build.log').read_text().splitlines()if re.search(r'(?i)(?:^|\\s)(?:warning:|error:)',x)];assert not diagnostics\nraw=(root/'private/turn/server-private.log').read_bytes();events=[];ids={}\nfor i,line in enumerate(raw.decode().splitlines(),1):\n m=re.search(r'session ([0-9]+)',line);sid=None\n if m:\n  value=m.group(1)\n  if value not in ids:ids[value]=len(ids)+1\n  sid=ids[value]\n life=re.search(r'lifetime\\s*[=:]\\s*(\\d+)',line)\n kind='lifetime'if life else'refresh_success'if'REFRESH processed, success'in line else'closed'if'closed ('in line else'shutdown'if any(x in line.lower()for x in ['shutting','terminat','shutdown'])else None\n if kind:events.append({'line':i,'sessionOrdinal':sid,'kind':kind,**({'lifetime':int(life.group(1))}if life else{})})\nassert len(ids)==1;shutdown=min(x['line']for x in events if x['kind']=='shutdown');zero=min(x['line']for x in events if x['kind']=='lifetime'and x['lifetime']==0);success=min(x['line']for x in events if x['kind']=='refresh_success'and x['line']>zero);closed=min(x['line']for x in events if x['kind']=='closed'and x['line']>success);assert zero<success<closed<shutdown\nallocation={'privateLogSha256':sha(raw),'versionFromRunLog':re.search(rb'Coturn Version Coturn-([0-9.]+)',raw).group(1).decode(),'sessionCount':1,'clientDeallocationsBeforeServerShutdown':1,'events':events,'limits':'Client release ordering only, no release latency or maximum allocation lifetime guarantee.'};(root/'allocation-events.json').write_text(json.dumps(allocation,indent=2)+'\\n')\nnames=['run.py','turn-fixture.py','results.json','queue.json','build-selection.json','summary.log','backend.log','native-clippy.log','workspace-deps.log','phone-build.log','phone-tests.log','shutdown.log','shutdown-confirmation.json','observations.json','issuer-observations.json','turn-summary.json','allocation-events.json']\ntexts=[item(root,n,'phone-tests.redacted.log'if n=='phone-tests.log'else None)for n in names]\nwrite('native-http.json',{'sources':r['sources'],'texts':texts,'postRunGroups':[{'pgid':g,'goneAtExport':True}for g in groups],'phoneBuildDiagnostics':diagnostics,'observation':report,'issuer':issuer,'server':server,'allocationEvents':allocation,'privateNativeBuildLog':{'sha256':sha((root/'native-build.log').read_bytes()),'bytes':(root/'native-build.log').stat().st_size},'limits':'Same unchanged Mac/owned Simulator native scenario with paired media pin change only. Actual HTTP issuance and H.264 media; receiver-policy switch/callback injection, no physical loss or OS input. Single trial timings are not percentiles or resource/quality/bandwidth qualification. Server exit is recorded independently from client release.'})\nraw=P('/tmp/desktop-lazy-restart-pin-review.json').read_bytes();helper=P(__file__).read_bytes()\nbefore=APP/'docs/desktop-streaming-results/2026-11-05/native-http-issuer/authenticated.json';b=json.loads(before.read_text());assert b['observation']['statistics']['localType']=='relay'\nwrite('comparison.json',{'pinReview':json.loads(raw),'texts':[{'name':'pin-review.json','text':raw.decode(),'sha256':sha(raw)},{'name':'export-evidence.py','text':helper.decode(),'sha256':sha(helper)}],'applicationBaseline':{'path':str(before),'sha256':sha(before.read_bytes()),'root':'8208e7e05f81cbe32ba1e2584c5df76382ce53fb','phone':'38a919ddcd06bbdc8ebe9aaaa1184165046fe713','turnAllocations':2,'clientDeallocations':2,'recoveryMillis':743,'serverExit':-9},'limits':'Only allocation counts are compared. Application fixture/provider/issuer/phone sources are byte-identical, but real scheduling/timings vary. No universal allocation factor, media-egress reduction, measured CPU/RSS/power saving or performance budget follows. Older empty-list configuration behavior and forced/failed server cleanup remain explicit.'})\n",
+      "sha256": "95bf68450bf6e7f3b49c31176c9f05f6057ae25bcec34834b9c730a2d36cb03b"
+    }
+  ],
+  "applicationBaseline": {
+    "path": "/Users/sondre/Documents/GitHub/fincode-desktop-access/docs/desktop-streaming-results/2026-11-05/native-http-issuer/authenticated.json",
+    "sha256": "9fd41665d79e52f87d4b7e1cbb877dd9acab4a95fdc22a633f39b64dcd8b6b7c",
+    "root": "8208e7e05f81cbe32ba1e2584c5df76382ce53fb",
+    "phone": "38a919ddcd06bbdc8ebe9aaaa1184165046fe713",
+    "turnAllocations": 2,
+    "clientDeallocations": 2,
+    "recoveryMillis": 743,
+    "serverExit": -9
+  },
+  "limits": "Only allocation counts are compared. Application fixture/provider/issuer/phone sources are byte-identical, but real scheduling/timings vary. No universal allocation factor, media-egress reduction, measured CPU/RSS/power saving or performance budget follows. Older empty-list configuration behavior and forced/failed server cleanup remain explicit."
+}

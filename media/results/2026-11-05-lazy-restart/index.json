@@ -1,0 +1,256 @@
+{
+  "verifiedAt": "2026-11-05T11:21:20.521010+00:00",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 7654,
+      "sha256": "de8234f2b6caaef2a3ff5be2b351c177075796e385ace0395056b9452792ac86"
+    },
+    {
+      "file": "after.json",
+      "bytes": 26034,
+      "sha256": "3349e3af1d6ead152065b2d04dc4c054d66f8214bf0d2657019cc2a899e22f67"
+    },
+    {
+      "file": "before-initial.json",
+      "bytes": 24123,
+      "sha256": "6f10b6586d67320dab005cf540770b22d6b0794e758fc9a04acab48c229b59c0"
+    },
+    {
+      "file": "before.json",
+      "bytes": 26019,
+      "sha256": "6b5bc904562f8a9c41fe4ff22b32775598290dae91f855847a0f92aef42a4987"
+    },
+    {
+      "file": "comparison.json",
+      "bytes": 18950,
+      "sha256": "163a154b3bead3f03b04eb3d266ddab4b5810066e98b698a3284aab93284e415"
+    },
+    {
+      "file": "native-http.json",
+      "bytes": 93642,
+      "sha256": "49e5f596cfdd6b31d3634405e0a29bec3194fabcbb34a42fe5c76ce3992943dc"
+    },
+    {
+      "file": "units.json",
+      "bytes": 25091,
+      "sha256": "2cec0f6a6884ebf3b862c67e181502e9379e7909f89f43ef78794930d19e4bf2"
+    }
+  ],
+  "embeddedTextHashes": 58,
+  "postRunGroups": [
+    {
+      "pgid": 28315,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28321,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28326,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28332,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28337,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28342,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28377,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28394,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28397,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28417,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 28420,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19546,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19552,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19557,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19563,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19568,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19573,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19608,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19625,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 19629,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24316,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24325,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24330,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24336,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24341,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24347,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24379,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24392,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 24397,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 34536,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 34546,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 34555,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 34564,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 34573,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 35823,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36492,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36501,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36707,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36795,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36796,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 36801,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 37885,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 37895,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30539,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30545,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30550,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30556,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30561,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30566,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30577,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30593,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 30600,
+      "goneAtExport": true
+    }
+  ],
+  "ownedSimulator": {
+    "udid": "4A894872-174F-4DE8-8147-93D22AAB1058",
+    "state": "Shutdown"
+  },
+  "scope": "Four separate passing fork cases and one native Swift/Rust pair, with two failed baseline attempts retained. Counts are bookkeeping, not extra tests. Refined baseline cleanup wrapper fails and has an inaccurate inner exit field; independent cleanup follow-up supplies group/port evidence, not original server exit status."
+}
