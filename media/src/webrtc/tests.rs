@@ -7,6 +7,7 @@ use tokio::sync::mpsc;
 
 mod relay_fallback;
 mod live_restart;
+mod av1;
 
 #[test]
 fn webrtc_h264_offers_preserve_baseline_high_and_constrained_high_profiles() {
@@ -265,6 +266,7 @@ fn loopback(format: VideoFormat) {
             let (first,second) = match format {
                 VideoFormat::H264 {..} => (vec![0x65,0x88,0x84,0x00,0x31],vec![0x41,0x9a,0x20,0x00,0x11]),
                 VideoFormat::HevcMain(_) => (vec![0x26,1,0x31,0x20],vec![0x28,1,0x11,0x40]),
+                VideoFormat::Av1Main(_) => unreachable!("AV1 has a separate OBU transport fixture"),
             };
             let unit = |payload: &[u8],pts,keyframe| {
                 let mut annex_b = vec![0,0,0,1];annex_b.extend_from_slice(payload);

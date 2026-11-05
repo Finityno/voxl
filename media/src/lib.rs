@@ -2,6 +2,7 @@
 //! an application event loop, or link the standalone server's x264 dependency.
 
 pub mod codec;
+pub mod av1;
 use codec::VideoCodec;
 
 #[cfg(target_os = "macos")]

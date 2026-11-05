@@ -1,15 +1,16 @@
-//! Send-only H.264/HEVC over WebRTC using the embedder's Tokio runtime. Offers and
+//! Send-only H.264/HEVC/AV1 over WebRTC using the embedder's Tokio runtime. Offers and
 //! answers belong inside the authenticated application session. No signaling
 //! listener, public token endpoint or process-wide runtime is created here.
 
 use crate::{EncodedFrame, HevcProfile, MAX_FRAME_BYTES};
 use crate::codec::VideoCodec;
+use crate::av1::{Av1Frame,Av1MainProfile,validate_temporal_unit};
 use async_trait::async_trait;
 use bytes::Bytes;
 use rtc::media_stream::MediaStreamTrack;
 use rtc::peer_connection::configuration::media_engine::MediaEngine;
 use rtc::peer_connection::configuration::RTCOfferOptions;
-use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader};
+use rtc::rtp::codec::{h264::H264Payloader,h265::HevcPayloader,av1::Av1Payloader};
 use rtc::rtp::packetizer::Payloader;
 use rtc::rtp_transceiver::rtp_sender::{RTCPFeedback, RTCRtpCodec, RTCRtpCodecParameters, RTCRtpCodingParameters, RTCRtpEncodingParameters, RtpCodecKind};
 use std::sync::{Arc, OnceLock, Mutex, atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering}};
@@ -130,16 +131,17 @@ pub struct RouteStatistics {
 }
 
 /// Offer only the actual encoded profile, with a separate negotiated payload
-/// type for that codec. AV1 needs its own OBU and RTP path before it can appear.
+/// type for that codec. AV1 uses sized OBU temporal units, never Annex B NALs.
 #[derive(Debug, Clone, Copy)]
-pub enum VideoFormat { H264 { profile_level_id: [u8; 3] }, HevcMain(HevcProfile) }
+pub enum VideoFormat { H264 { profile_level_id: [u8; 3] }, HevcMain(HevcProfile), Av1Main(Av1MainProfile) }
 impl VideoFormat {
-    fn codec(self) -> VideoCodec { match self { Self::H264 {..} => VideoCodec::H264, Self::HevcMain(_) => VideoCodec::Hevc } }
-    fn mime(self) -> &'static str { match self { Self::H264 {..} => "video/H264", Self::HevcMain(_) => "video/H265" } }
+    fn codec(self) -> VideoCodec { match self { Self::H264 {..} => VideoCodec::H264, Self::HevcMain(_) => VideoCodec::Hevc, Self::Av1Main(_) => VideoCodec::Av1 } }
+    fn mime(self) -> &'static str { match self { Self::H264 {..} => "video/H264", Self::HevcMain(_) => "video/H265", Self::Av1Main(_) => "video/AV1" } }
     fn fmtp(self) -> String {
         match self {
             Self::H264 { profile_level_id: profile } => format!("level-asymmetry-allowed=1;packetization-mode=1;profile-level-id={:02x}{:02x}{:02x}",profile[0],profile[1],profile[2]),
             Self::HevcMain(profile) => profile.fmtp(),
+            Self::Av1Main(profile) => profile.fmtp(),
         }
     }
 }
@@ -284,6 +286,7 @@ impl WebRtcVideo {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if !matches!(profile_level_id,[66,_,_]|[100,0|12,_]))
+            || matches!(config.format,VideoFormat::Av1Main(profile) if profile.validate().is_err())
         { return Err(WebRtcError::Configuration); }
         let discovery=trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.iter().all(|server|
             server.username.is_empty() && server.credential.is_empty() && server.urls().ok().is_some_and(|urls|
@@ -351,7 +354,7 @@ impl WebRtcVideo {
         let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
         Ok(Self { peer,sender,track,events,closer,offer,negotiation:Negotiation::InitialAnswer {setup,startup},ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
-                VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
+                VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default(),VideoFormat::Av1Main(_) => Box::<Av1Payloader>::default() },
             keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0 })
     }
 
@@ -465,10 +468,16 @@ impl WebRtcVideo {
         };
         if sdp.is_empty() || sdp.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
-        self.peer.set_remote_description(RTCSessionDescription::answer(sdp).map_err(transport)?).await.map_err(transport)?;
+        let answer=RTCSessionDescription::answer(sdp).map_err(transport)?;
+        let av1_answer=if matches!(self.format,VideoFormat::Av1Main(_)) {Some(answer.unmarshal().map_err(transport)?)} else {None};
+        self.peer.set_remote_description(answer).await.map_err(transport)?;
         let payload = self.sender.get_parameters().await.map_err(transport)?.rtp_parameters.codecs.iter()
             .find(|codec| codec.rtp_codec.mime_type.eq_ignore_ascii_case(self.format.mime())).map(|codec| codec.payload_type);
         let Some(payload)=payload else {return Err(WebRtcError::Transport);};
+        if let (VideoFormat::Av1Main(profile),Some(answer))=(self.format,av1_answer) {
+            let codec=answer.get_codec_for_payload_type(payload).map_err(transport)?;
+            if !codec.name.eq_ignore_ascii_case("AV1") || codec.clock_rate!=90_000 || !profile.receiver_supports(&codec.fmtp) {return Err(WebRtcError::Configuration);}
+        }
         if self.ended() {return Err(WebRtcError::Ended);}
         self.negotiation=Negotiation::Ready {payload,generation,setup,startup};
         guard.0=None;
@@ -555,17 +564,32 @@ impl WebRtcVideo {
     /// Like `send`, with the actual packet timestamp after the whole access
     /// unit succeeds. No receipt escapes on invalid, disconnected or failed send.
     pub async fn send_with_stamp(&mut self,frame:EncodedFrame)->Result<VideoFrameStamp,WebRtcError> {
+        if frame.codec==VideoCodec::Av1 {return Err(WebRtcError::InvalidFrame);}
+        self.send_payload(frame.codec,Bytes::from(frame.annex_b),frame.keyframe,frame.presentation_time_micros).await
+    }
+    /// Send one validated AV1 temporal unit. This is separate from the Annex B
+    /// API so neither an IVF header nor RTP aggregation bytes can be mistaken
+    /// for native encoder output. Capture timestamps use the same RTP clock.
+    pub async fn send_av1(&mut self,frame:Av1Frame)->Result<(),WebRtcError> {self.send_av1_with_stamp(frame).await.map(|_|())}
+    pub async fn send_av1_with_stamp(&mut self,frame:Av1Frame)->Result<VideoFrameStamp,WebRtcError> {
+        if self.ended() {return Err(WebRtcError::Ended);}
+        if !self.connected() {return Err(WebRtcError::NotConnected);}
+        let VideoFormat::Av1Main(profile)=self.format else {return Err(WebRtcError::InvalidFrame);};
+        validate_temporal_unit(&frame.temporal_unit,Some(profile),frame.keyframe).map_err(|_|WebRtcError::InvalidFrame)?;
+        self.send_payload(VideoCodec::Av1,Bytes::from(frame.temporal_unit),frame.keyframe,frame.presentation_time_micros).await
+    }
+    async fn send_payload(&mut self,codec:VideoCodec,data:Bytes,keyframe:bool,presentation_time_micros:i64)->Result<VideoFrameStamp,WebRtcError> {
         if self.ended() { return Err(WebRtcError::Ended); }
         if !self.connected() { return Err(WebRtcError::NotConnected); }
         let (payload_type,generation)=match self.negotiation {Negotiation::Ready {payload,generation,..}=>(payload,generation),_=>return Err(WebRtcError::NotConnected)};
-        if frame.codec != self.format.codec() || frame.annex_b.is_empty() || frame.annex_b.len() > MAX_FRAME_BYTES || frame.presentation_time_micros < 0
-            || self.last_pts.is_some_and(|last| frame.presentation_time_micros <= last)
+        if codec != self.format.codec() || data.is_empty() || data.len() > MAX_FRAME_BYTES || presentation_time_micros < 0
+            || self.last_pts.is_some_and(|last| presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
-        if self.first_pts.is_none() && !frame.keyframe { return Err(WebRtcError::InvalidFrame); }
-        let first_pts = *self.first_pts.get_or_insert(frame.presentation_time_micros);
-        let ticks = (i128::from(frame.presentation_time_micros)-i128::from(first_pts))*90_000/1_000_000;
+        if self.first_pts.is_none() && !keyframe { return Err(WebRtcError::InvalidFrame); }
+        let first_pts = *self.first_pts.get_or_insert(presentation_time_micros);
+        let ticks = (i128::from(presentation_time_micros)-i128::from(first_pts))*90_000/1_000_000;
         let timestamp = self.timestamp.wrapping_add(ticks as u32);
-        let payloads = self.payloader.payload(1100,&Bytes::from(frame.annex_b)).map_err(transport)?;
+        let payloads = self.payloader.payload(1100,&data).map_err(transport)?;
         if payloads.is_empty() { self.close(); return Err(WebRtcError::InvalidFrame); }
         let last = payloads.len() - 1;
         let result = tokio::time::timeout(Duration::from_millis(200),async {
@@ -583,7 +607,7 @@ impl WebRtcVideo {
             Ok::<_,WebRtcError>(())
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
         if result.is_err() { self.close(); }
-        self.last_pts = Some(frame.presentation_time_micros);
+        self.last_pts = Some(presentation_time_micros);
         result.map(|()|VideoFrameStamp {generation,rtp_timestamp:timestamp})
     }
 

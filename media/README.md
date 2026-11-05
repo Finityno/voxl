@@ -171,7 +171,7 @@ mode or changed profile is automatically enabled in the application.
 
 
 With `--features webrtc`, the sender uses the caller's Tokio runtime, sends only
-video (H.264 or HEVC Main) and selects AWS-LC crypto explicitly. Register the actual encoder
+video (H.264, HEVC Main or bounded AV1 Main temporal units) and selects AWS-LC crypto explicitly. Register the actual encoder
 SPS profile/level, exchange offer/answer inside authenticated Connect, and keep
 native media tied to that session. `open` retains the full gathered SDP path.
 Opt-in `open_trickle` returns without waiting for gathering: exchange its
@@ -441,3 +441,30 @@ Clippy pass at `6279c1f57fb268945ea9567643eb8e4331411091`. Tests compare
 receipts with received RTP headers through clock wrap and three live ICE
 restarts; pending replacements issue no receipt. This does not establish
 native decode, physical network, resource budgets or new TURN coverage.
+
+## AV1 transport and qualification
+
+`av1::Av1Frame` / `WebRtcVideo::send_av1_with_stamp` carry sized low-overhead OBU
+temporal units separately from `EncodedFrame`'s Annex B NAL units. Register
+`VideoFormat::Av1Main(av1_main_profile(first_keyframe)?)` from actual encoder
+output. Units are bounded to 8 MiB / 256 OBUs, one picture and one operating
+point/layer. Complete OBU_FRAME or frame-header/tile-group layouts are supported.
+Still-picture, timing/HRD and scalable-layer modes need explicit support. Every
+random-access unit includes its sequence header; profile/level/tier changes
+require new negotiation. Framing checks do not validate every AV1 syntax bit.
+
+The existing RTP library performs AV1 aggregation/fragmentation; capture clocks,
+marker placement, finite write deadline, keyframe feedback, route statistics and
+terminal close use the same bounded writer. The answer's actual AV1 profile,
+level and tier limits are checked before media admission, including the RTP
+parameter defaults. This adds no dependency or crypto-provider feature.
+
+This transport does not add an AV1 native encoder or advertise AV1 from an
+application provider. The current VideoToolbox encoder remains H.264/HEVC; AV1
+needs actual encoder/decoder admission, native application integration and
+measured quality/resource/latency qualification before automatic selection.
+CPU AV1 fixture generation does not admit software AV1 for interactive use.
+
+References: [AV1 RTP payload format](https://aomediacodec.github.io/av1-rtp-spec/),
+[approved AV1 bitstream specification](https://aomediacodec.github.io/av1-spec/av1-spec.pdf),
+[SVT-AV1 parameters](https://github.com/AOMediaCodec/SVT-AV1/blob/main/Docs/Parameters.md).
