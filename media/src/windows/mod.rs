@@ -363,9 +363,9 @@ impl VideoEncoder {
                 result.and_then(|()|if output[0].dwStatus!=0 || status!=0 {Err(E_FAIL.into())} else {Ok(sample)})
             };
             match result {
-                Ok(Some(sample))=>return Ok(sample),
-                Ok(None)=>return Err(MediaError::InvalidFrame),
-                Err(error)=>return Err(platform("take encoder output",error)),
+                Ok(Some(sample))=>Ok(sample),
+                Ok(None)=>Err(MediaError::InvalidFrame),
+                Err(error)=>Err(platform("take encoder output",error)),
             }
     }
     fn decode_output(&self,sample:IMFSample,pts:i64)->Result<EncodedOutput,MediaError> {
