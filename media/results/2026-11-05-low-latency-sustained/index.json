@@ -1,0 +1,513 @@
+{
+  "compressedFiles": {
+    "run-1-h264-samples.csv.gz": {
+      "sha256": "761a994e08d654d028d052447c2838d28e06ee4907373c20ace5d0a7e79b6206",
+      "bytes": 99804,
+      "uncompressedSha256": "f9f585b6474fc575c7fbf62aa956fd2bba4412d16019c0b5ad75e8faf8a2a8ec",
+      "uncompressedBytes": 264724,
+      "dataRows": 9000
+    },
+    "run-1-h264-full.ssim.gz": {
+      "sha256": "1d91c0aa2cabe0c5374ec9ba264916eb07e0fbacbef7a0cde3a7fff3c1290909",
+      "bytes": 31628,
+      "uncompressedSha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-h264-text.ssim.gz": {
+      "sha256": "1fe8c8c4a13f3ecd9622e39144d8a773c75050f8d78de22e35aedbe67e4a1129",
+      "bytes": 31590,
+      "uncompressedSha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-h264-thin.ssim.gz": {
+      "sha256": "89b73132aaa0c2de5213e2f6eeb8d5868454bea980727b628fe86208ffad553c",
+      "bytes": 26046,
+      "uncompressedSha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-hevc-samples.csv.gz": {
+      "sha256": "d301e7b3abf918bf96d618c61e37be729bd1eae2ada86664e34263728c6d49a2",
+      "bytes": 94217,
+      "uncompressedSha256": "85fab9a9febe580942bd0073efe6930464718b5b8b4582bb9dbbdd4e749931e3",
+      "uncompressedBytes": 262579,
+      "dataRows": 9000
+    },
+    "run-1-hevc-full.ssim.gz": {
+      "sha256": "052d41b31e5810c6220724a90caff4147aabf6ccd478e678fdc1a0cd04a74fc0",
+      "bytes": 33282,
+      "uncompressedSha256": "44b30e651358bb4a8c23da97556ab01b77e069afa7c29d58fa784b889234e352",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-hevc-text.ssim.gz": {
+      "sha256": "1224984a40d4407ce5f39920dadbac1dc5fc0d63b7b0ea049e53a722f4c71584",
+      "bytes": 31388,
+      "uncompressedSha256": "a84076ee2b6afcff38eff968d67691c675c98869e44d11467df881a09ee4f7ba",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-hevc-thin.ssim.gz": {
+      "sha256": "d9e6a837d94dbf2a1544db921ef0d544addd72cde26069c9302b2bafc885edf4",
+      "bytes": 26317,
+      "uncompressedSha256": "67652162977bcf9087616950dceba4f338ec20b86465cf2a0bea4776f35bd5f2",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-1-uncompressed420-foreground.csv.gz": {
+      "sha256": "69aea41e2b5e7520e42aec522a5ed128df5cbc8bd295d4b9f2379d622bb05f0a",
+      "bytes": 55664,
+      "uncompressedSha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-1-h264-foreground.csv.gz": {
+      "sha256": "5da4901340695bca4986b9e78794406ab48e42e8ded81bf3c95de26e508bf800",
+      "bytes": 57634,
+      "uncompressedSha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-1-hevc-foreground.csv.gz": {
+      "sha256": "4789352306786395572d72a92e1a10ce862297841979232b61ce272e32a66fd7",
+      "bytes": 58079,
+      "uncompressedSha256": "9e5474c59baa1878affb4b6c1210fb8c2ca75650c4d8ff668c7cfc4b6bcf283f",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-2-hevc-samples.csv.gz": {
+      "sha256": "cb64ebad1da4ca358550229e3b8ed1854c32f19d46a34227ed6706d0f3fcf7f9",
+      "bytes": 94516,
+      "uncompressedSha256": "c44bf31ba31975336d5cee78464292ca6dae279a44eefec2da10bd62a2c6c37f",
+      "uncompressedBytes": 263215,
+      "dataRows": 9000
+    },
+    "run-2-hevc-full.ssim.gz": {
+      "sha256": "052d41b31e5810c6220724a90caff4147aabf6ccd478e678fdc1a0cd04a74fc0",
+      "bytes": 33282,
+      "uncompressedSha256": "44b30e651358bb4a8c23da97556ab01b77e069afa7c29d58fa784b889234e352",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-hevc-text.ssim.gz": {
+      "sha256": "1224984a40d4407ce5f39920dadbac1dc5fc0d63b7b0ea049e53a722f4c71584",
+      "bytes": 31388,
+      "uncompressedSha256": "a84076ee2b6afcff38eff968d67691c675c98869e44d11467df881a09ee4f7ba",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-hevc-thin.ssim.gz": {
+      "sha256": "d9e6a837d94dbf2a1544db921ef0d544addd72cde26069c9302b2bafc885edf4",
+      "bytes": 26317,
+      "uncompressedSha256": "67652162977bcf9087616950dceba4f338ec20b86465cf2a0bea4776f35bd5f2",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-h264-samples.csv.gz": {
+      "sha256": "27091ee5415f3e4bfc1a0509592b7a0a8e7881e30392ea933f3efa0306420135",
+      "bytes": 100006,
+      "uncompressedSha256": "85bac11997796c926afdca8eae67900df9569c3c15c343cfc775a21001f1099c",
+      "uncompressedBytes": 265193,
+      "dataRows": 9000
+    },
+    "run-2-h264-full.ssim.gz": {
+      "sha256": "1d91c0aa2cabe0c5374ec9ba264916eb07e0fbacbef7a0cde3a7fff3c1290909",
+      "bytes": 31628,
+      "uncompressedSha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-h264-text.ssim.gz": {
+      "sha256": "1fe8c8c4a13f3ecd9622e39144d8a773c75050f8d78de22e35aedbe67e4a1129",
+      "bytes": 31590,
+      "uncompressedSha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-h264-thin.ssim.gz": {
+      "sha256": "89b73132aaa0c2de5213e2f6eeb8d5868454bea980727b628fe86208ffad553c",
+      "bytes": 26046,
+      "uncompressedSha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-2-uncompressed420-foreground.csv.gz": {
+      "sha256": "69aea41e2b5e7520e42aec522a5ed128df5cbc8bd295d4b9f2379d622bb05f0a",
+      "bytes": 55664,
+      "uncompressedSha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-2-hevc-foreground.csv.gz": {
+      "sha256": "4789352306786395572d72a92e1a10ce862297841979232b61ce272e32a66fd7",
+      "bytes": 58079,
+      "uncompressedSha256": "9e5474c59baa1878affb4b6c1210fb8c2ca75650c4d8ff668c7cfc4b6bcf283f",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-2-h264-foreground.csv.gz": {
+      "sha256": "5da4901340695bca4986b9e78794406ab48e42e8ded81bf3c95de26e508bf800",
+      "bytes": 57634,
+      "uncompressedSha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-3-h264-samples.csv.gz": {
+      "sha256": "af073c57bd64674d1f0373559ec12ad88ca479a18f5953fb9e59ed4e10f82cc3",
+      "bytes": 100004,
+      "uncompressedSha256": "d2b0ea72d0cbcabe3014f960184b16216fafecc6cda203cbaf4e6d05af895ca2",
+      "uncompressedBytes": 265659,
+      "dataRows": 9000
+    },
+    "run-3-h264-full.ssim.gz": {
+      "sha256": "1d91c0aa2cabe0c5374ec9ba264916eb07e0fbacbef7a0cde3a7fff3c1290909",
+      "bytes": 31628,
+      "uncompressedSha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-h264-text.ssim.gz": {
+      "sha256": "1fe8c8c4a13f3ecd9622e39144d8a773c75050f8d78de22e35aedbe67e4a1129",
+      "bytes": 31590,
+      "uncompressedSha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-h264-thin.ssim.gz": {
+      "sha256": "89b73132aaa0c2de5213e2f6eeb8d5868454bea980727b628fe86208ffad553c",
+      "bytes": 26046,
+      "uncompressedSha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-hevc-samples.csv.gz": {
+      "sha256": "5542d7ca08d2c837c66fcbe5c07eed5ebbb0e34d96ef1a89d33391afd60fa200",
+      "bytes": 93836,
+      "uncompressedSha256": "97f49b84eb0aebb2d52dbec6cb96ebd6136f8204e00d41d5d11bd00a764ba004",
+      "uncompressedBytes": 262490,
+      "dataRows": 9000
+    },
+    "run-3-hevc-full.ssim.gz": {
+      "sha256": "052d41b31e5810c6220724a90caff4147aabf6ccd478e678fdc1a0cd04a74fc0",
+      "bytes": 33282,
+      "uncompressedSha256": "44b30e651358bb4a8c23da97556ab01b77e069afa7c29d58fa784b889234e352",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-hevc-text.ssim.gz": {
+      "sha256": "1224984a40d4407ce5f39920dadbac1dc5fc0d63b7b0ea049e53a722f4c71584",
+      "bytes": 31388,
+      "uncompressedSha256": "a84076ee2b6afcff38eff968d67691c675c98869e44d11467df881a09ee4f7ba",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-hevc-thin.ssim.gz": {
+      "sha256": "d9e6a837d94dbf2a1544db921ef0d544addd72cde26069c9302b2bafc885edf4",
+      "bytes": 26317,
+      "uncompressedSha256": "67652162977bcf9087616950dceba4f338ec20b86465cf2a0bea4776f35bd5f2",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-3-uncompressed420-foreground.csv.gz": {
+      "sha256": "69aea41e2b5e7520e42aec522a5ed128df5cbc8bd295d4b9f2379d622bb05f0a",
+      "bytes": 55664,
+      "uncompressedSha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-3-h264-foreground.csv.gz": {
+      "sha256": "5da4901340695bca4986b9e78794406ab48e42e8ded81bf3c95de26e508bf800",
+      "bytes": 57634,
+      "uncompressedSha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-3-hevc-foreground.csv.gz": {
+      "sha256": "4789352306786395572d72a92e1a10ce862297841979232b61ce272e32a66fd7",
+      "bytes": 58079,
+      "uncompressedSha256": "9e5474c59baa1878affb4b6c1210fb8c2ca75650c4d8ff668c7cfc4b6bcf283f",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-4-hevc-samples.csv.gz": {
+      "sha256": "20f192a90f60ed257f586efb12d982fd82e9a1f371ee0938968d0fa453e29700",
+      "bytes": 94149,
+      "uncompressedSha256": "9f5d8560a482f4ac7628e80c80b1a312f3f255f5574d1f8a52a9b063ef6b5208",
+      "uncompressedBytes": 262645,
+      "dataRows": 9000
+    },
+    "run-4-hevc-full.ssim.gz": {
+      "sha256": "052d41b31e5810c6220724a90caff4147aabf6ccd478e678fdc1a0cd04a74fc0",
+      "bytes": 33282,
+      "uncompressedSha256": "44b30e651358bb4a8c23da97556ab01b77e069afa7c29d58fa784b889234e352",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-hevc-text.ssim.gz": {
+      "sha256": "1224984a40d4407ce5f39920dadbac1dc5fc0d63b7b0ea049e53a722f4c71584",
+      "bytes": 31388,
+      "uncompressedSha256": "a84076ee2b6afcff38eff968d67691c675c98869e44d11467df881a09ee4f7ba",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-hevc-thin.ssim.gz": {
+      "sha256": "d9e6a837d94dbf2a1544db921ef0d544addd72cde26069c9302b2bafc885edf4",
+      "bytes": 26317,
+      "uncompressedSha256": "67652162977bcf9087616950dceba4f338ec20b86465cf2a0bea4776f35bd5f2",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-h264-samples.csv.gz": {
+      "sha256": "69611116df601b5dd2e3cd3e983d2e3349f0f5e3f8e78184f70decfd4509232c",
+      "bytes": 99930,
+      "uncompressedSha256": "c124c209c33694f031896890dc10dbf2719f25eed840497abf5d710e7f008481",
+      "uncompressedBytes": 266178,
+      "dataRows": 9000
+    },
+    "run-4-h264-full.ssim.gz": {
+      "sha256": "1d91c0aa2cabe0c5374ec9ba264916eb07e0fbacbef7a0cde3a7fff3c1290909",
+      "bytes": 31628,
+      "uncompressedSha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-h264-text.ssim.gz": {
+      "sha256": "1fe8c8c4a13f3ecd9622e39144d8a773c75050f8d78de22e35aedbe67e4a1129",
+      "bytes": 31590,
+      "uncompressedSha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-h264-thin.ssim.gz": {
+      "sha256": "89b73132aaa0c2de5213e2f6eeb8d5868454bea980727b628fe86208ffad553c",
+      "bytes": 26046,
+      "uncompressedSha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-4-uncompressed420-foreground.csv.gz": {
+      "sha256": "69aea41e2b5e7520e42aec522a5ed128df5cbc8bd295d4b9f2379d622bb05f0a",
+      "bytes": 55664,
+      "uncompressedSha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-4-hevc-foreground.csv.gz": {
+      "sha256": "4789352306786395572d72a92e1a10ce862297841979232b61ce272e32a66fd7",
+      "bytes": 58079,
+      "uncompressedSha256": "9e5474c59baa1878affb4b6c1210fb8c2ca75650c4d8ff668c7cfc4b6bcf283f",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-4-h264-foreground.csv.gz": {
+      "sha256": "5da4901340695bca4986b9e78794406ab48e42e8ded81bf3c95de26e508bf800",
+      "bytes": 57634,
+      "uncompressedSha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-5-h264-samples.csv.gz": {
+      "sha256": "f18ef6b61f3766f726685d9169ed0be8c76f795456762c2ec28e3512e1971959",
+      "bytes": 100008,
+      "uncompressedSha256": "7bd7257d6a53398fe39e40cc54815beacb5e58cde8dcf147d3b17727c7e056d0",
+      "uncompressedBytes": 266036,
+      "dataRows": 9000
+    },
+    "run-5-h264-full.ssim.gz": {
+      "sha256": "1d91c0aa2cabe0c5374ec9ba264916eb07e0fbacbef7a0cde3a7fff3c1290909",
+      "bytes": 31628,
+      "uncompressedSha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-h264-text.ssim.gz": {
+      "sha256": "1fe8c8c4a13f3ecd9622e39144d8a773c75050f8d78de22e35aedbe67e4a1129",
+      "bytes": 31590,
+      "uncompressedSha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-h264-thin.ssim.gz": {
+      "sha256": "89b73132aaa0c2de5213e2f6eeb8d5868454bea980727b628fe86208ffad553c",
+      "bytes": 26046,
+      "uncompressedSha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-hevc-samples.csv.gz": {
+      "sha256": "c88896513b52a3d6dded5a0256f601253fde7beb39943e7c60e3acae54f1397c",
+      "bytes": 94102,
+      "uncompressedSha256": "178f16c89602ea9939109b697fe0e6f1214d0d8b2c378f87a310cd6c3ddc6ce3",
+      "uncompressedBytes": 262366,
+      "dataRows": 9000
+    },
+    "run-5-hevc-full.ssim.gz": {
+      "sha256": "052d41b31e5810c6220724a90caff4147aabf6ccd478e678fdc1a0cd04a74fc0",
+      "bytes": 33282,
+      "uncompressedSha256": "44b30e651358bb4a8c23da97556ab01b77e069afa7c29d58fa784b889234e352",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-hevc-text.ssim.gz": {
+      "sha256": "1224984a40d4407ce5f39920dadbac1dc5fc0d63b7b0ea049e53a722f4c71584",
+      "bytes": 31388,
+      "uncompressedSha256": "a84076ee2b6afcff38eff968d67691c675c98869e44d11467df881a09ee4f7ba",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-hevc-thin.ssim.gz": {
+      "sha256": "d9e6a837d94dbf2a1544db921ef0d544addd72cde26069c9302b2bafc885edf4",
+      "bytes": 26317,
+      "uncompressedSha256": "67652162977bcf9087616950dceba4f338ec20b86465cf2a0bea4776f35bd5f2",
+      "uncompressedBytes": 583893,
+      "dataRows": 9000
+    },
+    "run-5-uncompressed420-foreground.csv.gz": {
+      "sha256": "69aea41e2b5e7520e42aec522a5ed128df5cbc8bd295d4b9f2379d622bb05f0a",
+      "bytes": 55664,
+      "uncompressedSha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-5-h264-foreground.csv.gz": {
+      "sha256": "5da4901340695bca4986b9e78794406ab48e42e8ded81bf3c95de26e508bf800",
+      "bytes": 57634,
+      "uncompressedSha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-5-hevc-foreground.csv.gz": {
+      "sha256": "4789352306786395572d72a92e1a10ce862297841979232b61ce272e32a66fd7",
+      "bytes": 58079,
+      "uncompressedSha256": "9e5474c59baa1878affb4b6c1210fb8c2ca75650c4d8ff668c7cfc4b6bcf283f",
+      "uncompressedBytes": 329226,
+      "dataRows": 9000
+    },
+    "run-1-h264-resource.log.gz": {
+      "sha256": "b523ccd1e9bdcae917f2831497b1fc40f055a257f0a514a9bfef43a43843ec47",
+      "bytes": 1156,
+      "uncompressedSha256": "8cfce9e541c95ab7ec30d57c843bf8edcd9e735771ea954f20260c9e101dd964",
+      "uncompressedBytes": 2626,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "3c86edfb30db0d0aa76410f379769b50baf15c76e6a502593e34df1f2e906418",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-1-hevc-resource.log.gz": {
+      "sha256": "ba81eaa9a5e6b60ea7c9bdefc70b1aa0563f0a9b80f70dc8a940ef6d072cb35d",
+      "bytes": 1246,
+      "uncompressedSha256": "f3214b367badf3fd7f9d67824de817398aa994376b9c230066489a34eae71611",
+      "uncompressedBytes": 2780,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "9bedaed9119d132d919e40da35ef50e3a9d8bc2635dff714bc8261ea293e0e71",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-2-hevc-resource.log.gz": {
+      "sha256": "0733acc98b1afcfbbf3faa6da0cb4ef7c021bacd665c05ef387f6763d9c899a1",
+      "bytes": 1242,
+      "uncompressedSha256": "dbb68e2b05ed0e2b2601afbad6c3d72406094e5b09bd2073e93ce457eb3b90d2",
+      "uncompressedBytes": 2780,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "c8bd620820bd27b154fabef017b397c90b3ae740fe45cbc458de3c55503638a8",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-2-h264-resource.log.gz": {
+      "sha256": "c6e8e6eba2bab32765ed8ddfc49ab1c81bcbfa46cc1a80a4cd829f11bd721c46",
+      "bytes": 1154,
+      "uncompressedSha256": "6f763654a332403cef9c865e1f7243d21b9faea55460994a6a91676d82df7ef7",
+      "uncompressedBytes": 2626,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "5638361308e80af87016d16e43925fce9d8414465f112aaf0acc79588e2ed99c",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-3-h264-resource.log.gz": {
+      "sha256": "f709c81290873d42d5a6fac0e9205896e2d16f5924c84621149dd158c7f7ac9c",
+      "bytes": 1158,
+      "uncompressedSha256": "d6244c43ce28dde4dbeb82936e43e920ed27cec88acb87055a3a9e4c0ccb2ea1",
+      "uncompressedBytes": 2626,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "0fd11a46e6e7a43e358f6dfa255bdc974b6f19cb516b82ae71cf0908125b9b0e",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-3-hevc-resource.log.gz": {
+      "sha256": "b4facb6373ce05ed8374d1684ea14dc9aa43ffeda186ba43881ca5b622371107",
+      "bytes": 1242,
+      "uncompressedSha256": "b2d0c5a5cfbd2adf7e4b1de561db3a77c826dd3bb7b479d30959460dec4d00b0",
+      "uncompressedBytes": 2780,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "a468f948dca298639919d37a61ffbdf17dc1074e05dd429c2a2a1a5e5c0fc0c6",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-4-hevc-resource.log.gz": {
+      "sha256": "c0768337c980c69bc29c829578d307488a2b11f49a127077b705a19388e138f7",
+      "bytes": 1246,
+      "uncompressedSha256": "66381c2085acd0f141b514b7fe04ba17216ce3df63e8f090df7b2b7c5fd92497",
+      "uncompressedBytes": 2780,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "6612b0d12dbf815065b79107cc45c99e94a927c6affcd89affd44844a960e7c2",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-4-h264-resource.log.gz": {
+      "sha256": "605908b02d99067e75d44bd5189a742c395b8c22d91885774e83e0b4dc430005",
+      "bytes": 1157,
+      "uncompressedSha256": "2acd2d2433cff5e9b9d99cff6a61565b90a50d2c9c6d8e80de1deb7c184a7020",
+      "uncompressedBytes": 2626,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "a2402b0160ab5b8f573c58647ffedf66dfd3ab5dce7fddaa33820b784ad7e226",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-5-h264-resource.log.gz": {
+      "sha256": "dfd4e151e6547eadf946af6ad890db536a9ad20cf61f446b068354fed50c2222",
+      "bytes": 1158,
+      "uncompressedSha256": "1f91c8660b4233835c4493fe22dd0b9f08f855ea6bf01f0dc663534c416e0cc0",
+      "uncompressedBytes": 2626,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "8042d77a151de038269d2d19c9bd04b08292bbc3966ecf168882b6fb6156e6b3",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    },
+    "run-5-hevc-resource.log.gz": {
+      "sha256": "0a60672eb48460cfbd4d610ab34c9c243de6c09474ef02697cb6970e0a09f06d",
+      "bytes": 1242,
+      "uncompressedSha256": "8ecd84bcb9ce6244c35f9386bf5641777808fbb4e91f475bac8255ee9189d94e",
+      "uncompressedBytes": 2780,
+      "dataRows": 30,
+      "type": "resource-log-projection",
+      "originalPrivateLogSha256": "e1cc0451a5d2a6ad11439b96dd9bafd89d79df480e06a7fb46c809b15c596746",
+      "projection": "Only encode_samples_ms line omitted; exact observed latencies retained in indexed sample CSV. Owned paths replaced by documented placeholders."
+    }
+  },
+  "jsonFiles": {
+    "summary.json": {
+      "bytes": 169877,
+      "sha256": "c500d92ee6159e41ad847a08dc171bb8080bc47d825c4c7cf759c6bc82cd9949"
+    },
+    "validation.json": {
+      "bytes": 86389,
+      "sha256": "f2af0a77132655387c6112c1cb86369eccf31fa819b822144ccfc26e3519dc70"
+    }
+  },
+  "supportFiles": {
+    "exporter-snapshot.py": {
+      "bytes": 9297,
+      "sha256": "77fe75d99cbfdd2adebc48ab277c6d313eb155bdef0cce95e89e40a367c3290a"
+    },
+    "README.md": {
+      "bytes": 3827,
+      "sha256": "a99cb809fbe13ee122f9f4cb200e6b43315811cfd17178a0043e8668eb1f3b6c"
+    },
+    "verify.py": {
+      "bytes": 8596,
+      "sha256": "2bad41979934fa36ae00339a2df319538fd37335ebcd10cd203bd3338754dab2"
+    }
+  }
+}

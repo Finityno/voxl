@@ -137,10 +137,29 @@ H.264. Lower requests still regress foreground quality. This is a candidate
 for sustained qualification; requested bitrate is no ceiling, and no default,
 profile admission or billed-cost claim follows from this clip.
 
+The [five-session low-latency comparison](results/2026-11-05-low-latency-sustained/README.md)
+now completes 30s warmup and 300s observed per fresh session at 1080p30.
+HEVC reproduces 16.63% fewer payload bytes and a median individual-session
+encode p95 of 5.58ms versus H.264's 12.27ms. Peak process memory and the first
+frame are larger; scrolling text SSIM is lower, despite no worse foreground
+aggregate/channel sums in all 45,000 paired frames. Exact numeric records and
+an independent verifier retain those tradeoffs. This does not admit 1080p60,
+full application resources, hardware decoding or network/billed-cost savings.
+
+The [native 60fps pilot](results/2026-11-05-cadence-native/README.md) verifies
+fresh 60fps source generation and unchanged default30 bytes, then independently
+decodes five short streams. Low-latency HEVC encodes faster and uses fewer
+payload bytes, but all three tested rate requests regress some foreground
+frames/channels near keyframes and use more whole-probe CPU. These short
+experiments do not promote a profile or establish sustained 60fps budgets.
+
 A consuming application draft now pins the measured failure-wakeup source
-`f098e462a62833b73d6a6103e4f50ff810fb7ffb`. Its own Rust/native validation is
-pending. It requests none of the new priority/tuning modes and keeps its codec
-defaults; these component packs do not establish application qualification.
+`f098e462a62833b73d6a6103e4f50ff810fb7ffb`. Its Mac host library checks,
+strict library Clippy and four selected consent/cancellation unit contracts
+pass at the consuming draft's recorded source. Integrated viewer/application
+and physical endpoint qualification remain separate. It requests none of the
+new priority/tuning modes and keeps its codec defaults; these component packs
+do not establish application performance qualification.
 
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
