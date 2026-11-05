@@ -106,7 +106,7 @@ fn live_restart_clears_old_turn_servers_and_keeps_direct_media() {
             assert!(timeout(Duration::from_millis(50),socket.recv_from(&mut bytes)).await.is_err(),"old gathering must be quiet before the acknowledged restart barrier");
             let offer=video.begin_ice_restart(config(None)).await.unwrap();
             let visible_servers=video.peer.get_configuration().await.ice_servers().len();
-            let stale=timeout(Duration::from_millis(400),socket.recv_from(&mut bytes)).await;
+            let stale=timeout(Duration::from_millis(400),socket.recv_from(&mut bytes)).await.map(|result|result.expect("owned UDP probe remains open"));
             let old_allocate=stale.as_ref().is_ok_and(|(length,_)| {
                 let mut request=rtc::stun::message::Message::new();request.raw=bytes[..*length].to_vec();
                 request.decode().is_ok() && request.typ.method==rtc::stun::message::METHOD_ALLOCATE && request.typ.class==rtc::stun::message::CLASS_REQUEST
