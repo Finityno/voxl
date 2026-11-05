@@ -1,0 +1,751 @@
+{
+  "source": "7677d66abe68be42572b838c5460fd8583bc5f34",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "requestedBitrateKbps": 2500,
+  "warmupFrames": 30,
+  "observedFrames": 180,
+  "explicitKeyframePeriod": 60,
+  "rows": [
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "compatible",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        6.539667,
+        6.984916,
+        7.1427499999999995,
+        7.165459,
+        7.169708
+      ],
+      "medianEncodeP95Millis": 7.1427499999999995,
+      "annexBBytesPerRun": [
+        227567,
+        227567,
+        227567,
+        227567,
+        227567
+      ],
+      "lumaSsimPerRun": [
+        0.9999415444444444,
+        0.9999415444444444,
+        0.9999415444444444,
+        0.9999415444444444,
+        0.9999415444444444
+      ],
+      "lumaSsimMinPerRun": [
+        0.999636,
+        0.999636,
+        0.999636,
+        0.999636,
+        0.999636
+      ],
+      "advertisedProfile": "profile_level_id=[42, c0, 1f]",
+      "encoderSelection": "QueriedHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.28,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.822695035460993,
+          "wholeProcessPeakRssBytes": 39043072
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.29,
+          "wholeProcessSystemSeconds": 0.07,
+          "wholeProcessCpuPercentOneCore": 5.1063829787234045,
+          "wholeProcessPeakRssBytes": 39026688
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.31,
+          "wholeProcessSystemSeconds": 0.07,
+          "wholeProcessCpuPercentOneCore": 5.3977272727272725,
+          "wholeProcessPeakRssBytes": 38961152
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.07,
+          "wholeProcessCpuPercentOneCore": 5.255681818181818,
+          "wholeProcessPeakRssBytes": 39092224
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.31,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.255681818181818,
+          "wholeProcessPeakRssBytes": 39075840
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "low-latency-compatible",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        6.361000000000001,
+        6.4306659999999995,
+        6.4157090000000006,
+        6.419041,
+        6.407042
+      ],
+      "medianEncodeP95Millis": 6.4157090000000006,
+      "annexBBytesPerRun": [
+        214915,
+        214915,
+        214915,
+        214915,
+        214915
+      ],
+      "lumaSsimPerRun": [
+        0.9997393666666667,
+        0.9997393666666667,
+        0.9997393666666667,
+        0.9997393666666667,
+        0.9997393666666667
+      ],
+      "lumaSsimMinPerRun": [
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365
+      ],
+      "advertisedProfile": "profile_level_id=[42, c0, 1f]",
+      "encoderSelection": "RequiredHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.3,
+          "wholeProcessUserSeconds": 0.35,
+          "wholeProcessSystemSeconds": 0.12,
+          "wholeProcessCpuPercentOneCore": 6.438356164383562,
+          "wholeProcessPeakRssBytes": 45105152
+        },
+        {
+          "wholeProcessRealSeconds": 7.2,
+          "wholeProcessUserSeconds": 0.32,
+          "wholeProcessSystemSeconds": 0.11,
+          "wholeProcessCpuPercentOneCore": 5.972222222222222,
+          "wholeProcessPeakRssBytes": 45006848
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.857740585774059,
+          "wholeProcessPeakRssBytes": 44990464
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.34,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.997210599721061,
+          "wholeProcessPeakRssBytes": 45023232
+        },
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.35,
+          "wholeProcessSystemSeconds": 0.11,
+          "wholeProcessCpuPercentOneCore": 6.406685236768802,
+          "wholeProcessPeakRssBytes": 45056000
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "high",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        7.162,
+        7.288959,
+        7.337958,
+        7.277167,
+        7.265375
+      ],
+      "medianEncodeP95Millis": 7.277167,
+      "annexBBytesPerRun": [
+        100182,
+        100182,
+        100182,
+        100182,
+        100182
+      ],
+      "lumaSsimPerRun": [
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223
+      ],
+      "lumaSsimMinPerRun": [
+        0.999794,
+        0.999794,
+        0.999794,
+        0.999794,
+        0.999794
+      ],
+      "advertisedProfile": "profile_level_id=[64, 00, 1f]",
+      "encoderSelection": "QueriedHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.31,
+          "wholeProcessSystemSeconds": 0.07,
+          "wholeProcessCpuPercentOneCore": 5.3977272727272725,
+          "wholeProcessPeakRssBytes": 38715392
+        },
+        {
+          "wholeProcessRealSeconds": 7.03,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.120910384068279,
+          "wholeProcessPeakRssBytes": 40222720
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.29,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.971590909090909,
+          "wholeProcessPeakRssBytes": 38846464
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.113636363636363,
+          "wholeProcessPeakRssBytes": 38862848
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.1063829787234045,
+          "wholeProcessPeakRssBytes": 38895616
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "low-latency-high",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        6.3767499999999995,
+        6.3883339999999995,
+        6.426375,
+        6.467,
+        6.360791
+      ],
+      "medianEncodeP95Millis": 6.3883339999999995,
+      "annexBBytesPerRun": [
+        120550,
+        120550,
+        120550,
+        120550,
+        120550
+      ],
+      "lumaSsimPerRun": [
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666
+      ],
+      "lumaSsimMinPerRun": [
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365
+      ],
+      "advertisedProfile": "profile_level_id=[64, 00, 1f]",
+      "encoderSelection": "RequiredHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.11,
+          "wholeProcessCpuPercentOneCore": 6.128133704735376,
+          "wholeProcessPeakRssBytes": 44810240
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.35,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 6.276150627615062,
+          "wholeProcessPeakRssBytes": 44990464
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.34,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.997210599721061,
+          "wholeProcessPeakRssBytes": 44908544
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.857740585774059,
+          "wholeProcessPeakRssBytes": 44875776
+        },
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.32,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.710306406685237,
+          "wholeProcessPeakRssBytes": 44777472
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "constrained-high",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        7.201499999999999,
+        7.315541,
+        7.2528749999999995,
+        7.222,
+        7.2649170000000005
+      ],
+      "medianEncodeP95Millis": 7.2528749999999995,
+      "annexBBytesPerRun": [
+        100182,
+        100182,
+        100182,
+        100182,
+        100182
+      ],
+      "lumaSsimPerRun": [
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223,
+        0.9999672722222223
+      ],
+      "lumaSsimMinPerRun": [
+        0.999794,
+        0.999794,
+        0.999794,
+        0.999794,
+        0.999794
+      ],
+      "advertisedProfile": "profile_level_id=[64, 0c, 1f]",
+      "encoderSelection": "QueriedHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.31,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.255681818181818,
+          "wholeProcessPeakRssBytes": 38797312
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.113636363636363,
+          "wholeProcessPeakRssBytes": 38682624
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.25,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.397163120567376,
+          "wholeProcessPeakRssBytes": 38748160
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.31,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.255681818181818,
+          "wholeProcessPeakRssBytes": 38862848
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.29,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.971590909090909,
+          "wholeProcessPeakRssBytes": 38928384
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "hardware",
+      "tuning": "low-latency-constrained-high",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        6.273584,
+        6.496833,
+        6.3636669999999995,
+        6.416334,
+        6.405916
+      ],
+      "medianEncodeP95Millis": 6.405916,
+      "annexBBytesPerRun": [
+        120550,
+        120550,
+        120550,
+        120550,
+        120550
+      ],
+      "lumaSsimPerRun": [
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666,
+        0.9995629166666666
+      ],
+      "lumaSsimMinPerRun": [
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365,
+        0.998365
+      ],
+      "advertisedProfile": "profile_level_id=[64, 0c, 1f]",
+      "encoderSelection": "RequiredHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.34,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 6.128133704735378,
+          "wholeProcessPeakRssBytes": 44728320
+        },
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.34,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 6.128133704735378,
+          "wholeProcessPeakRssBytes": 44826624
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.25,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 4.741980474198048,
+          "wholeProcessPeakRssBytes": 44974080
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.32,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 5.718270571827057,
+          "wholeProcessPeakRssBytes": 44826624
+        },
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 5.988857938718664,
+          "wholeProcessPeakRssBytes": 44924928
+        }
+      ]
+    },
+    {
+      "codec": "hevc",
+      "preference": "hardware",
+      "tuning": "compatible",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        8.076,
+        8.341209000000001,
+        8.260541,
+        8.363458000000001,
+        8.249041
+      ],
+      "medianEncodeP95Millis": 8.260541,
+      "annexBBytesPerRun": [
+        199082,
+        199082,
+        199082,
+        199082,
+        199082
+      ],
+      "lumaSsimPerRun": [
+        0.9998461611111111,
+        0.9998461611111111,
+        0.9998461611111111,
+        0.9998461611111111,
+        0.9998461611111111
+      ],
+      "lumaSsimMinPerRun": [
+        0.99948,
+        0.99948,
+        0.99948,
+        0.99948,
+        0.99948
+      ],
+      "advertisedProfile": "hevc_fmtp=profile-space=0;profile-id=1;tier-flag=0;level-id=93;profile-compatibility-indicator=60000000;interop-constraints=b00000000000;tx-mode=SRST;sprop-max-don-diff=0",
+      "encoderSelection": "QueriedHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 5.113636363636363,
+          "wholeProcessPeakRssBytes": 39075840
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.3,
+          "wholeProcessSystemSeconds": 0.07,
+          "wholeProcessCpuPercentOneCore": 5.24822695035461,
+          "wholeProcessPeakRssBytes": 39092224
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.26,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.539007092198582,
+          "wholeProcessPeakRssBytes": 39272448
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.23,
+          "wholeProcessSystemSeconds": 0.05,
+          "wholeProcessCpuPercentOneCore": 3.977272727272728,
+          "wholeProcessPeakRssBytes": 40566784
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.29,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.971590909090909,
+          "wholeProcessPeakRssBytes": 39124992
+        }
+      ]
+    },
+    {
+      "codec": "hevc",
+      "preference": "hardware",
+      "tuning": "low-latency-compatible",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        6.745374999999999,
+        6.846625,
+        6.756042,
+        6.828291999999999,
+        6.721792
+      ],
+      "medianEncodeP95Millis": 6.756042,
+      "annexBBytesPerRun": [
+        139007,
+        139007,
+        139007,
+        139007,
+        139007
+      ],
+      "lumaSsimPerRun": [
+        0.9997396444444444,
+        0.9997396444444444,
+        0.9997396444444444,
+        0.9997396444444444,
+        0.9997396444444444
+      ],
+      "lumaSsimMinPerRun": [
+        0.998364,
+        0.998364,
+        0.998364,
+        0.998364,
+        0.998364
+      ],
+      "advertisedProfile": "hevc_fmtp=profile-space=0;profile-id=1;tier-flag=0;level-id=93;profile-compatibility-indicator=60000000;interop-constraints=b00000000000;tx-mode=SRST;sprop-max-don-diff=0",
+      "encoderSelection": "RequiredHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.2,
+          "wholeProcessUserSeconds": 0.32,
+          "wholeProcessSystemSeconds": 0.11,
+          "wholeProcessCpuPercentOneCore": 5.972222222222222,
+          "wholeProcessPeakRssBytes": 44974080
+        },
+        {
+          "wholeProcessRealSeconds": 7.19,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.11,
+          "wholeProcessCpuPercentOneCore": 6.119610570236439,
+          "wholeProcessPeakRssBytes": 46252032
+        },
+        {
+          "wholeProcessRealSeconds": 7.18,
+          "wholeProcessUserSeconds": 0.33,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 5.988857938718664,
+          "wholeProcessPeakRssBytes": 44859392
+        },
+        {
+          "wholeProcessRealSeconds": 7.17,
+          "wholeProcessUserSeconds": 0.26,
+          "wholeProcessSystemSeconds": 0.09,
+          "wholeProcessCpuPercentOneCore": 4.881450488145049,
+          "wholeProcessPeakRssBytes": 44875776
+        },
+        {
+          "wholeProcessRealSeconds": 7.19,
+          "wholeProcessUserSeconds": 0.35,
+          "wholeProcessSystemSeconds": 0.1,
+          "wholeProcessCpuPercentOneCore": 6.258692628650903,
+          "wholeProcessPeakRssBytes": 44892160
+        }
+      ]
+    },
+    {
+      "codec": "h264",
+      "preference": "software",
+      "tuning": "compatible",
+      "runs": 5,
+      "encodeP95MillisPerRun": [
+        10.666542,
+        3.665708,
+        7.412208,
+        7.553458,
+        7.609875000000001
+      ],
+      "medianEncodeP95Millis": 7.553458,
+      "annexBBytesPerRun": [
+        284561,
+        284561,
+        284561,
+        284561,
+        284561
+      ],
+      "lumaSsimPerRun": [
+        0.9999600722222222,
+        0.9999600722222222,
+        0.9999600722222222,
+        0.9999600722222222,
+        0.9999600722222222
+      ],
+      "lumaSsimMinPerRun": [
+        0.999863,
+        0.999863,
+        0.999863,
+        0.999863,
+        0.999863
+      ],
+      "advertisedProfile": "profile_level_id=[42, e0, 1f]",
+      "encoderSelection": "DisabledHardware",
+      "wholeProbeResources": [
+        {
+          "wholeProcessRealSeconds": 7.06,
+          "wholeProcessUserSeconds": 0.26,
+          "wholeProcessSystemSeconds": 0.06,
+          "wholeProcessCpuPercentOneCore": 4.53257790368272,
+          "wholeProcessPeakRssBytes": 38731776
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.1,
+          "wholeProcessSystemSeconds": 0.03,
+          "wholeProcessCpuPercentOneCore": 1.8465909090909092,
+          "wholeProcessPeakRssBytes": 38731776
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.23,
+          "wholeProcessSystemSeconds": 0.05,
+          "wholeProcessCpuPercentOneCore": 3.9716312056737593,
+          "wholeProcessPeakRssBytes": 38731776
+        },
+        {
+          "wholeProcessRealSeconds": 7.05,
+          "wholeProcessUserSeconds": 0.23,
+          "wholeProcessSystemSeconds": 0.05,
+          "wholeProcessCpuPercentOneCore": 3.9716312056737593,
+          "wholeProcessPeakRssBytes": 38731776
+        },
+        {
+          "wholeProcessRealSeconds": 7.04,
+          "wholeProcessUserSeconds": 0.25,
+          "wholeProcessSystemSeconds": 0.05,
+          "wholeProcessCpuPercentOneCore": 4.261363636363637,
+          "wholeProcessPeakRssBytes": 38780928
+        }
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "codec": "h264",
+      "profile": "compatible",
+      "pairedLatencyP95ChangesPercent": [
+        -2.732050423974175,
+        -7.934955839125346,
+        -10.178726680900196,
+        -10.416890250854838,
+        -10.637336973834921
+      ],
+      "annexBChangePercent": -5.55968132462088,
+      "lumaSsimChange": -0.00020217777777764567,
+      "sameInputSameProfileSameExplicitKeyframes": true,
+      "qualityMatched": false
+    },
+    {
+      "codec": "h264",
+      "profile": "high",
+      "pairedLatencyP95ChangesPercent": [
+        -10.964116168667982,
+        -12.356016819411398,
+        -12.422842976206738,
+        -11.132999971005209,
+        -12.450616795416614
+      ],
+      "annexBChangePercent": 20.330997584396403,
+      "lumaSsimChange": -0.0004043555555556244,
+      "sameInputSameProfileSameExplicitKeyframes": true,
+      "qualityMatched": false
+    },
+    {
+      "codec": "h264",
+      "profile": "constrained-high",
+      "pairedLatencyP95ChangesPercent": [
+        -12.88503783933902,
+        -11.191352765297879,
+        -12.26007617668855,
+        -11.155718637496548,
+        -11.823961650215686
+      ],
+      "annexBChangePercent": 20.330997584396403,
+      "lumaSsimChange": -0.0004043555555556244,
+      "sameInputSameProfileSameExplicitKeyframes": true,
+      "qualityMatched": false
+    },
+    {
+      "codec": "hevc",
+      "profile": "compatible",
+      "pairedLatencyP95ChangesPercent": [
+        -16.47628776622092,
+        -17.918073986636717,
+        -18.21308071711042,
+        -18.355637106087,
+        -18.514261233517935
+      ],
+      "annexBChangePercent": -30.176007876151534,
+      "lumaSsimChange": -0.00010651666666672277,
+      "sameInputSameProfileSameExplicitKeyframes": true,
+      "qualityMatched": false
+    }
+  ],
+  "scope": "Five independent fresh encoders per candidate; alternating paired order, identical input/profile/recovery boundaries, equal requested bitrate. Six-second monochrome observations with one-second warmup are not matched-quality savings, colored/readable-text ROI, browser/hardware-decoder, full endpoint CPU/power or five 300-second qualification.",
+  "resourceScope": "Whole standalone probe, including warmup, synthetic pixel generation and stream I/O, with 0.01-second time precision. Excludes codec/GPU helpers and baseline subtraction; cannot rank total hardware/software power or compare to application endpoint budgets. Darwin getrusage documents ru_maxrss in bytes; RSS is not physical footprint.",
+  "qualityAlignmentVerification": {
+    "artifact": "quality-alignment.json",
+    "decodes": 45,
+    "framesPerStream": 180,
+    "changedScoreRows": 0,
+    "allScoresUnchanged": true,
+    "filter": "trim=start_frame=30:end_frame=210,settb=expr=1/30,setpts=N,format=yuv420p",
+    "scope": "Separate retained-stream decoder rerun with equal time bases and frame-index clocks, not encoder execution. Original warning logs retained."
+  }
+}
