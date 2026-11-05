@@ -47,6 +47,22 @@ impl EncoderTuning {
     }
 }
 
+/// How native acceleration was established. A required/disabled encoder
+/// specification is deliberately distinguished from a successful status query.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EncoderAcceleration { QueriedHardware, QueriedSoftware, RequiredHardware, DisabledHardware }
+impl EncoderAcceleration {
+    pub fn using_hardware(self) -> bool { matches!(self,Self::QueriedHardware|Self::RequiredHardware) }
+    #[cfg(any(target_os = "macos",test))]
+    pub(crate) fn without_status(hardware: bool, preference: EncoderPreference, tuning: EncoderTuning) -> Option<Self> {
+        if !hardware && tuning == EncoderTuning::default() && matches!(preference,EncoderPreference::PreferHardware|EncoderPreference::Software) {
+            Some(Self::DisabledHardware)
+        } else if hardware && preference == EncoderPreference::RequireHardware && tuning.rate_control == EncoderRateControl::LowLatency {
+            Some(Self::RequiredHardware)
+        } else { None }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct EncoderConfig {
     pub codec: VideoCodec,
@@ -140,6 +156,20 @@ mod tests {
         assert_eq!(EncoderTuning::default().validate(&config),Err(MediaError::UnsupportedCodec));
         config.codec = VideoCodec::H264;config.width = 1;
         assert_eq!(EncoderTuning::default().validate(&config),Err(MediaError::Configuration));
+    }
+    #[test]
+    fn encoder_tuning_acceleration_observation_retains_strict_query_guards() {
+        let standard = EncoderTuning::default();
+        let low = EncoderTuning { rate_control: EncoderRateControl::LowLatency, ..standard };
+        assert_eq!(EncoderAcceleration::without_status(false,EncoderPreference::Software,standard),Some(EncoderAcceleration::DisabledHardware));
+        assert_eq!(EncoderAcceleration::without_status(false,EncoderPreference::PreferHardware,standard),Some(EncoderAcceleration::DisabledHardware));
+        assert_eq!(EncoderAcceleration::without_status(true,EncoderPreference::RequireHardware,low),Some(EncoderAcceleration::RequiredHardware));
+        for (hardware,preference,tuning) in [(true,EncoderPreference::RequireHardware,standard),(true,EncoderPreference::PreferHardware,standard),
+            (true,EncoderPreference::PreferHardware,low),(false,EncoderPreference::RequireHardware,standard),(false,EncoderPreference::Software,low)] {
+            assert_eq!(EncoderAcceleration::without_status(hardware,preference,tuning),None);
+        }
+        assert!(EncoderAcceleration::RequiredHardware.using_hardware());assert!(EncoderAcceleration::QueriedHardware.using_hardware());
+        assert!(!EncoderAcceleration::DisabledHardware.using_hardware());assert!(!EncoderAcceleration::QueriedSoftware.using_hardware());
     }
     #[test]
     fn avcc_rejects_truncation_and_preserves_nal_boundaries() {

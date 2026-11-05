@@ -65,6 +65,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("requested_tuning={tuning_name} warmup_frames={warmup} observed_frames={count} force_keyframe_period={force_period:?}");
     let mut encoder = VideoEncoder::new_tuned(config,tuning,|| {})?;
+    println!("hardware_selection={:?}",encoder.acceleration_selection());
     let started = Instant::now();
     let mut bytes = 0;
     let mut total_bytes = 0;

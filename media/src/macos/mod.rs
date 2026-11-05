@@ -4,7 +4,7 @@
 
 mod ffi;
 use ffi::*;
-use crate::{EncodedFrame, EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
+use crate::{EncodedFrame, EncoderAcceleration, EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
 use crate::codec::VideoCodec;
 use objc2_core_media::{CMTime, CMTimeFlags};
 use std::ffi::c_void;
@@ -49,7 +49,7 @@ pub struct VideoEncoder {
     callback: Box<CallbackState>,
     receiver: Receiver<EncodedFrame>,
     config: EncoderConfig,
-    hardware: bool,
+    acceleration: EncoderAcceleration,
     last_pts: Option<i64>,
 }
 // SAFETY: ownership moves as a whole; mutating session calls require &mut self.
@@ -110,7 +110,8 @@ impl VideoEncoder {
         unsafe { CFRelease(specification); }
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
-        let mut encoder = Self { session, callback, receiver, config, hardware: false, last_pts: None };
+        let mut encoder = Self { session, callback, receiver, config,
+            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, last_pts: None };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
@@ -126,20 +127,21 @@ impl VideoEncoder {
             check("prepare encoder",VTCompressionSessionPrepareToEncodeFrames(encoder.session.as_ptr()))?;
             let mut actual = ptr::null();
             let code = VTSessionCopyProperty(encoder.session.as_ptr(), kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder, ptr::null(), &mut actual);
-            if code == kVTPropertyNotSupportedErr && !hardware {
-                // EnableHardwareAcceleratedVideoEncoder=false guarantees that
-                // hardware will never be used. Software sessions need not
-                // expose UsingHardwareAcceleratedVideoEncoder; Apple documents
-                // querying it after enabling hardware. Other errors still fail.
-                encoder.hardware = false;
+            if code == kVTPropertyNotSupportedErr {
+                // Explicitly disabled hardware and hardware-required low-delay
+                // sessions can omit this property. Creation's specification
+                // still guarantees the selection. Keep that observation source
+                // distinct and retain strict status checks for ordinary HW.
+                encoder.acceleration = EncoderAcceleration::without_status(hardware,config.preference,tuning)
+                    .ok_or(MediaError::Platform { operation: "query hardware encoder", code })?;
             } else {
                 check("query hardware encoder",code)?;
                 if actual.is_null() { return Err(MediaError::Configuration); }
-                encoder.hardware = CFBooleanGetValue(actual);
+                encoder.acceleration = if CFBooleanGetValue(actual) { EncoderAcceleration::QueriedHardware } else { EncoderAcceleration::QueriedSoftware };
                 CFRelease(actual);
             }
         }
-        if hardware != encoder.hardware { return Err(MediaError::Configuration); }
+        if hardware != encoder.using_hardware() { return Err(MediaError::Configuration); }
         Ok(encoder)
     }
 
@@ -153,7 +155,8 @@ impl VideoEncoder {
         unsafe { CFRelease(number); }
         result
     }
-    pub fn using_hardware(&self) -> bool { self.hardware }
+    pub fn using_hardware(&self) -> bool { self.acceleration.using_hardware() }
+    pub fn acceleration_selection(&self) -> EncoderAcceleration { self.acceleration }
 
     pub fn encode(&mut self, image: &PixelBuffer, pts_micros: i64, force_keyframe: bool) -> Result<(), MediaError> {
         if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }

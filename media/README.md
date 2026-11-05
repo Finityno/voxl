@@ -19,9 +19,15 @@ full native interoperability with the setting must be validated separately.
 Give the encoder immutable NV12 buffers from the capture API. The hardware-first
 mode tries a required hardware encoder, then an explicitly software encoder;
 the actual hardware property is queried and exposed when supported. Explicitly
-disabling hardware guarantees software encoding; only that path accepts the
+disabling hardware guarantees software encoding; in ordinary real-time mode only that path accepts the
 documented unsupported-property error from the hardware-status query. Other
 errors, missing successful query values and mismatched selection still fail.
+The opt-in low-latency case below also accepts only the unsupported-property
+status when hardware was required at creation. `acceleration_selection`
+distinguishes queried hardware/software from required/disabled specifications;
+`using_hardware` retains the corresponding boolean. Ordinary hardware paths
+remain strict. Successful required-hardware creation guarantees no software
+substitution, but is not reported as a successful hardware-status query.
 Software-only and
 hardware-required modes make matched experiments possible. Hardware H.264 now
 requests Constrained Baseline when the optional macOS 12+ constant is available;
