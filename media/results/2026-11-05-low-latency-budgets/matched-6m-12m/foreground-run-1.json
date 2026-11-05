@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "manifestSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+  "geometry": [
+    1920,
+    1080
+  ],
+  "region": {
+    "height": 56,
+    "width": 1720,
+    "x": 180,
+    "y": 990
+  },
+  "baseline": "run-1-h264-compatible-3000",
+  "uncompressed420Floor": "uncompressed420",
+  "calibration": {
+    "backgroundRgb": [
+      14,
+      15,
+      18
+    ],
+    "sourceInkPixels": 3856,
+    "evaluatedPixelsIncludingHalo": 9792,
+    "totalRegionPixels": 96320,
+    "contrastThresholdCodes": 8,
+    "haloPixels": 1,
+    "independentMatrixMaxCodeDifference": 0,
+    "matrixSamplesPerCheckedFrame": 163,
+    "checkedSourceFrames": [
+      0,
+      269
+    ],
+    "staticReferenceFramesVerified": 270
+  },
+  "variants": {
+    "uncompressed420": {
+      "sha256": "c6cc6a4100a831a6c6e2e831c215ff9ef35c8add9b8eb123548d78832e912c6a",
+      "frames": 240,
+      "meanAbsoluteForegroundRgbCodeError": 12.794560185185185,
+      "frameMeanErrorP95": 12.794560185185185,
+      "worstFrameMeanError": 12.794560185185185
+    },
+    "run-1-h264-compatible-3000": {
+      "sha256": "0ba6de861f4d17752bedd10fe5b4c7c044033a415308cbe4c90e7cf05716ac5e",
+      "frames": 240,
+      "meanAbsoluteForegroundRgbCodeError": 13.849085846722948,
+      "frameMeanErrorP95": 14.303206699346406,
+      "worstFrameMeanError": 14.400224673202615,
+      "foregroundErrorWorseThanBaselineFrames": [],
+      "sameOrLowerAggregateForegroundErrorEveryFrame": true,
+      "foregroundChannelErrorWorseThanBaselineFrames": {
+        "r": [],
+        "g": [],
+        "b": []
+      },
+      "sameOrLowerAggregateChannelErrorEveryFrame": true
+    },
+    "run-1-hevc-low-latency-compatible-6000": {
+      "sha256": "60a547d72733781478acbf1d40f4540c0d329f3b9a91e1f3f57065ba7c8ec014",
+      "frames": 240,
+      "meanAbsoluteForegroundRgbCodeError": 13.194044174382716,
+      "frameMeanErrorP95": 13.65284586056645,
+      "worstFrameMeanError": 14.060321350762527,
+      "foregroundErrorWorseThanBaselineFrames": [
+        90,
+        91,
+        92,
+        150,
+        151,
+        152,
+        153,
+        210,
+        211,
+        212,
+        213
+      ],
+      "sameOrLowerAggregateForegroundErrorEveryFrame": false,
+      "foregroundChannelErrorWorseThanBaselineFrames": {
+        "r": [
+          90,
+          91,
+          92,
+          150,
+          151,
+          152,
+          210,
+          211,
+          212
+        ],
+        "g": [
+          30,
+          90,
+          91,
+          92,
+          93,
+          150,
+          151,
+          152,
+          153,
+          210,
+          211,
+          212,
+          213
+        ],
+        "b": [
+          90,
+          91,
+          92,
+          150,
+          151,
+          152,
+          153,
+          210,
+          211,
+          212,
+          213
+        ]
+      },
+      "sameOrLowerAggregateChannelErrorEveryFrame": false
+    },
+    "run-1-hevc-low-latency-compatible-12000": {
+      "sha256": "810a6b61b1e287626915d644c969a8059b9ec09e5227df33d18681e8909c571b",
+      "frames": 240,
+      "meanAbsoluteForegroundRgbCodeError": 13.155528606118374,
+      "frameMeanErrorP95": 13.204963235294118,
+      "worstFrameMeanError": 13.353894335511983,
+      "foregroundErrorWorseThanBaselineFrames": [],
+      "sameOrLowerAggregateForegroundErrorEveryFrame": true,
+      "foregroundChannelErrorWorseThanBaselineFrames": {
+        "r": [],
+        "g": [],
+        "b": []
+      },
+      "sameOrLowerAggregateChannelErrorEveryFrame": true
+    }
+  },
+  "scope": "Reference-derived ink plus one-pixel halo, absolute original sRGB code errors per frame. Full ROI SSIM and original RGB/source-subsampling controls remain separate. Pointwise comparison uses exact integer error sums, not a tolerance or average-only nonregression claim. One synthetic clip is not codec/resource admission.",
+  "frameMapping": {
+    "captureWarmupFrames": 30,
+    "sourcePrefixFrames": 30,
+    "sourceObservedCycleFrames": 240,
+    "observedFrames": 240
+  },
+  "analysisEngine": "numpy"
+}
