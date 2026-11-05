@@ -39,3 +39,8 @@ original hashes remain distinct. No bitstream, binary, screen/decoded image,
 font, credential or private application source is included. App integration,
 1080p60, full resources/GPU/power, native Windows/Linux/physical phone/LAN/NAT/
 input and wire/relay/deployment qualification remain open. Targets stay unchanged.
+
+A subsequent consuming application draft pins this measured source for the
+failure-wakeup behavior. Its own Rust/native validation is pending; it does not
+request the experimental priority/tuning modes. Component checks here do not
+qualify that updated application.

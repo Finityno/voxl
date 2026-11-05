@@ -2,8 +2,11 @@
 
 Measured source `53cf75a21adcd3cb4d322a2492a320a767cf0495`, Apple M5 Pro
 (Mac17,8), macOS 27.2 build 26B5101f. This is an optional component experiment.
-The application still consumes its separately frozen earlier media revision;
-this API does not change application defaults, performance targets or admission.
+The initial application measurement used its separately frozen earlier media
+revision. A subsequent consuming draft pins the failure-wakeup follow-up, which
+also contains this API; its own validation is pending and it requests no new
+priority/tuning. Application defaults, performance targets and admission stay
+unchanged by these component experiments.
 
 ## API and compatibility checks
 

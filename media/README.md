@@ -137,6 +137,11 @@ H.264. Lower requests still regress foreground quality. This is a candidate
 for sustained qualification; requested bitrate is no ceiling, and no default,
 profile admission or billed-cost claim follows from this clip.
 
+A consuming application draft now pins the measured failure-wakeup source
+`f098e462a62833b73d6a6103e4f50ff810fb7ffb`. Its own Rust/native validation is
+pending. It requests none of the new priority/tuning modes and keeps its codec
+defaults; these component packs do not establish application qualification.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly

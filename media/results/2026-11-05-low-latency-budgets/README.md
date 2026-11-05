@@ -1,9 +1,11 @@
 # Low-latency bitrate candidates: availability and short pilots
 
 Measured source `f098e462a62833b73d6a6103e4f50ff810fb7ffb`, Apple M5 Pro,
-macOS 27.2. The application still consumes its earlier media pin; no application
-default, target or codec/profile admission changes. All priority settings are
-Default (property neither set nor queried).
+macOS 27.2. A subsequent consuming draft pins this source for the failure-wakeup
+fix; its own validation is pending and it requests none of the new tuning modes.
+No application default, target or codec/profile admission changes follow from
+these component runs. All priority settings are Default (property neither set
+nor queried).
 
 The earlier HEVC low-latency 1500-kbps case drops output after one completed
 frame. A bounded availability follow-up completes and independently decodes all
