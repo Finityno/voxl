@@ -48,6 +48,52 @@ fn submit(encoder: &mut VideoEncoder, image: &PixelBuffer, pts: i64) {
     assert!(encoder.wait_output(Duration::from_secs(2)).unwrap().is_some());
 }
 
+fn callback_state()->(CallbackState,Receiver<Result<EncodedFrame,MediaError>>) {
+    let(sender,receiver)=mpsc::sync_channel(2);
+    (CallbackState {sender,failure:OnceLock::new(),pending:AtomicUsize::new(1),idle:|| {},codec:VideoCodec::H264},receiver)
+}
+
+#[test]
+fn callback_failures_preserve_first_cause_and_wake_the_output_receiver() {
+    for(status,flags,expected)in [
+        (-12909,0,MediaError::Platform {operation:"encoder output callback",code:-12909}),
+        (0,2,MediaError::Platform {operation:"encoder dropped output",code:2}),
+        (0,0,MediaError::InvalidFrame),
+    ] {
+        let(state,receiver)=callback_state();
+        output_inner(&state,status,flags,ptr::null());
+        assert_eq!(state.pending.load(Ordering::Acquire),0);
+        assert_eq!(state.failure.get(),Some(&expected));
+        assert_eq!(receiver.recv_timeout(Duration::from_millis(20)).unwrap().unwrap_err(),expected);
+        state.fail(MediaError::Closed);
+        assert_eq!(state.failure.get(),Some(&expected));
+        assert!(matches!(receiver.try_recv(),Err(mpsc::TryRecvError::Empty)));
+    }
+}
+
+#[test]
+fn callback_full_queue_is_terminal_without_discarding_the_first_failure() {
+    let(state,receiver)=callback_state();
+    let frame=||EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65],keyframe:true,presentation_time_micros:0};
+    state.publish(frame());state.publish(frame());state.publish(frame());
+    assert_eq!(state.failure.get(),Some(&MediaError::Backpressure));
+    state.fail(MediaError::Closed);state.publish(frame());
+    assert_eq!(state.failure.get(),Some(&MediaError::Backpressure));
+    assert!(receiver.try_recv().unwrap().is_ok());assert!(receiver.try_recv().unwrap().is_ok());
+    assert!(matches!(receiver.try_recv(),Err(mpsc::TryRecvError::Empty)));
+}
+
+#[test]
+fn callback_idle_panic_cannot_escape_or_overwrite_a_native_failure() {
+    let(mut state,receiver)=callback_state();state.idle=||panic!("injected idle failure");
+    // SAFETY: this stack-owned callback context stays live for this synchronous
+    // invocation. A nonzero status prevents inspecting the null sample.
+    unsafe {output((&mut state as *mut CallbackState).cast(),ptr::null_mut(),-12909,0,ptr::null());}
+    let expected=MediaError::Platform {operation:"encoder output callback",code:-12909};
+    assert_eq!(state.failure.get(),Some(&expected));
+    assert_eq!(receiver.recv_timeout(Duration::from_millis(20)).unwrap().unwrap_err(),expected);
+}
+
 #[test]
 fn encoding_priority_requires_hardware_without_constructing_a_native_session() {
     let mut config=EncoderConfig {codec:VideoCodec::H264,width:320,height:180,fps:30,bitrate_kbps:500,preference:EncoderPreference::Software};

@@ -223,7 +223,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Use the native callback wake, as the application's dedicated worker
         // does. Record arrival before logging or writing the encoded stream so
         // the measured interval excludes file and profile-output overhead.
-        let output = encoder.wait_output(Duration::from_secs(2))?.ok_or("encoder output deadline")?;
+        let output = encoder.wait_output(Duration::from_secs(2)).map_err(|error|encoder.failure_cause().unwrap_or(error))?.ok_or("encoder output deadline")?;
         let latency = submitted.elapsed().as_secs_f64()*1000.0;
         if forced && !output.keyframe { return Err("forced keyframe was not observed".into()); }
         if index == 0 {

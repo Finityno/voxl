@@ -9,7 +9,7 @@ use crate::codec::VideoCodec;
 use objc2_core_media::{CMTime, CMTimeFlags};
 use std::ffi::c_void;
 use std::ptr::{self, NonNull};
-use std::sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, mpsc::{self, Receiver, SyncSender}};
+use std::sync::{OnceLock, atomic::{AtomicUsize, Ordering}, mpsc::{self, Receiver, SyncSender}};
 
 /// Retained immutable native image. No safe API exposes writable pixel memory.
 pub struct PixelBuffer(NonNull<c_void>);
@@ -94,13 +94,31 @@ impl EncodingPriority {
 }
 
 struct CallbackState {
-    sender: SyncSender<EncodedFrame>,
-    failed: AtomicBool,
+    sender: SyncSender<Result<EncodedFrame,MediaError>>,
+    failure: OnceLock<MediaError>,
     pending: AtomicUsize,
     // Embedders using a collecting allocator supply its synchronous idle hook.
     // Every foreign callback announces an idle point, including early failures.
     idle: fn(),
     codec: VideoCodec,
+}
+impl CallbackState {
+    fn fail(&self,error:MediaError) {
+        if self.failure.set(error).is_ok() {
+            // Wake a waiting worker on failure without blocking the native
+            // callback. A full queue already has output to wake that worker;
+            // its terminal-state check prevents publishing those deltas.
+            let _=self.sender.try_send(Err(error));
+        }
+    }
+    fn publish(&self,frame:EncodedFrame) {
+        if self.failure.get().is_some() {return;}
+        match self.sender.try_send(Ok(frame)) {
+            Ok(())=>{},
+            Err(mpsc::TrySendError::Full(_))=>self.fail(MediaError::Backpressure),
+            Err(mpsc::TrySendError::Disconnected(_))=>self.fail(MediaError::Closed),
+        }
+    }
 }
 
 /// A single producer. Poll output promptly; a blocked consumer closes the
@@ -108,7 +126,7 @@ struct CallbackState {
 pub struct VideoEncoder {
     session: NonNull<c_void>,
     callback: Box<CallbackState>,
-    receiver: Receiver<EncodedFrame>,
+    receiver: Receiver<Result<EncodedFrame,MediaError>>,
     config: EncoderConfig,
     acceleration: EncoderAcceleration,
     priority: EncodingPriority,
@@ -116,7 +134,8 @@ pub struct VideoEncoder {
     color: ColorConfiguration,
 }
 // SAFETY: ownership moves as a whole; mutating session calls require &mut self.
-// VideoToolbox is thread-safe and callbacks access only atomics and a sender.
+// VideoToolbox is thread-safe; callbacks access synchronized failure/pending
+// state and a sender, never the owning producer.
 // Copied color tags are immutable CFStrings owned by this producer.
 unsafe impl Send for VideoEncoder {}
 
@@ -168,7 +187,7 @@ impl VideoEncoder {
             }
         };
         let (sender, receiver) = mpsc::sync_channel(2);
-        let mut callback = Box::new(CallbackState { sender, failed: AtomicBool::new(false), pending: AtomicUsize::new(0), idle, codec: config.codec });
+        let mut callback = Box::new(CallbackState { sender, failure: OnceLock::new(), pending: AtomicUsize::new(0), idle, codec: config.codec });
         let mut session = ptr::null_mut();
         // Specification borrows only immortal framework constants; callbacks
         // are intentionally null so the dictionary does not own those values.
@@ -271,7 +290,7 @@ impl VideoEncoder {
     /// The first frame establishes source color tags and NV12 range. A later
     /// change closes this encoder; the caller must create a new generation.
     pub fn encode(&mut self, image: &PixelBuffer, pts_micros: i64, force_keyframe: bool) -> Result<(), MediaError> {
-        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
+        if self.callback.failure.get().is_some() { return Err(MediaError::Closed); }
         if pts_micros < 0 || self.last_pts.is_some_and(|last| pts_micros <= last) { return Err(MediaError::InvalidFrame); }
         let buffer = image.0.as_ptr();
         // Both NV12 video range and full range are accepted. VideoToolbox keeps
@@ -281,12 +300,12 @@ impl VideoEncoder {
             || !matches!(unsafe { CVPixelBufferGetPixelFormatType(buffer) }, 0x34323076 | 0x34323066)
         { return Err(MediaError::InvalidFrame); }
         if let Err(error) = self.configure_source_color(buffer) {
-            self.callback.failed.store(true, Ordering::Release);
+            self.callback.fail(error);
             return Err(error);
         }
         if self.callback.pending.fetch_add(1, Ordering::AcqRel) >= 3 {
             self.callback.pending.fetch_sub(1, Ordering::AcqRel);
-            self.callback.failed.store(true, Ordering::Release);
+            self.callback.fail(MediaError::Backpressure);
             return Err(MediaError::Backpressure);
         }
         let properties = if force_keyframe { unsafe {
@@ -306,7 +325,7 @@ impl VideoEncoder {
         if result != 0 {
             // An immediate failure has no output callback. Close permanently;
             // do not continue a dependency chain after a failed encode.
-            self.callback.failed.store(true, Ordering::Release);
+            self.callback.fail(MediaError::Platform {operation:"encode frame",code:result});
             return Err(MediaError::Platform { operation: "encode frame", code: result });
         }
         self.last_pts = Some(pts_micros);
@@ -314,24 +333,32 @@ impl VideoEncoder {
     }
 
     pub fn take_output(&self) -> Result<Option<EncodedFrame>, MediaError> {
-        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
-        match self.receiver.try_recv() {
-            Ok(frame) => Ok(Some(frame)),
+        if self.callback.failure.get().is_some() { return Err(MediaError::Closed); }
+        let result=match self.receiver.try_recv() {
+            Ok(Ok(frame)) => Ok(Some(frame)),
+            Ok(Err(_)) => Err(MediaError::Closed),
             Err(mpsc::TryRecvError::Empty) => Ok(None),
             Err(mpsc::TryRecvError::Disconnected) => Err(MediaError::Closed),
-        }
+        };
+        if self.callback.failure.get().is_some() {return Err(MediaError::Closed);}
+        result
     }
+
+    /// First terminal cause, retained without replacing it with a later close.
+    /// Later output/encode calls keep their existing permanent Closed contract.
+    pub fn failure_cause(&self)->Option<MediaError> {self.callback.failure.get().copied()}
 
     /// Block only a dedicated native worker until output or the supplied bound.
     /// This avoids a one-millisecond polling loop between native callbacks.
     pub fn wait_output(&self, timeout: std::time::Duration) -> Result<Option<EncodedFrame>, MediaError> {
-        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
+        if self.callback.failure.get().is_some() { return Err(MediaError::Closed); }
         let result = match self.receiver.recv_timeout(timeout) {
-            Ok(frame) => Ok(Some(frame)),
+            Ok(Ok(frame)) => Ok(Some(frame)),
+            Ok(Err(_)) => Err(MediaError::Closed),
             Err(mpsc::RecvTimeoutError::Timeout) => Ok(None),
             Err(mpsc::RecvTimeoutError::Disconnected) => Err(MediaError::Closed),
         };
-        if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
+        if self.callback.failure.get().is_some() { return Err(MediaError::Closed); }
         result
     }
 
@@ -385,21 +412,18 @@ unsafe extern "C" fn output(context: *mut c_void, _source: *mut c_void, status: 
         output_inner(state, status, flags, sample);
     }));
     let idle = std::panic::catch_unwind(state.idle);
-    if result.is_err() || idle.is_err() { state.failed.store(true, Ordering::Release); }
+    if result.is_err() || idle.is_err() { state.fail(MediaError::Closed); }
 }
 
 fn output_inner(state: &CallbackState, status: i32, flags: u32, sample: Object) {
     state.pending.fetch_sub(1, Ordering::AcqRel);
-    if status != 0 || flags & 2 != 0 || sample.is_null() {
-        state.failed.store(true, Ordering::Release);
-        return;
-    }
+    if status != 0 {state.fail(MediaError::Platform {operation:"encoder output callback",code:status});return;}
+    if flags & 2 != 0 {state.fail(MediaError::Platform {operation:"encoder dropped output",code:flags as i32});return;}
+    if sample.is_null() {state.fail(MediaError::InvalidFrame);return;}
     let parsed = unsafe { read_sample(sample,state.codec) };
     match parsed {
-        Ok(frame) if !state.failed.load(Ordering::Acquire) => {
-            if state.sender.try_send(frame).is_err() { state.failed.store(true, Ordering::Release); }
-        }
-        _ => { state.failed.store(true, Ordering::Release); }
+        Ok(frame) => state.publish(frame),
+        Err(error) => state.fail(error),
     }
 }
 
