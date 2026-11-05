@@ -100,9 +100,7 @@ impl Nv12Converter {
                 || checked("source device identity",owner.cast::<IUnknown>())?.as_raw()!=checked("conversion device identity",self.device.device.cast::<IUnknown>())?.as_raw() {return Err(MediaError::InvalidFrame);}
             let desc=D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC {FourCC:0,ViewDimension:D3D11_VPIV_DIMENSION_TEXTURE2D,..Default::default()};let mut view=None;
             checked("BGRA processor input view",self.video.CreateVideoProcessorInputView(input,&self.enumerator,&desc,Some(&mut view)))?;
-            if readback {
-                if self.staging.is_none() {let mut staging=None;checked("NV12 staging texture",self.device.device.CreateTexture2D(&self.description(true),None,Some(&mut staging)))?;self.staging=staging;}
-            }
+            if readback && self.staging.is_none() {let mut staging=None;checked("NV12 staging texture",self.device.device.CreateTexture2D(&self.description(true),None,Some(&mut staging)))?;self.staging=staging;}
             let mut stream=D3D11_VIDEO_PROCESSOR_STREAM {Enable:true.into(),pInputSurface:ManuallyDrop::new(view),..Default::default()};
             let result=self.context.VideoProcessorBlt(&self.processor,&self.slots[slot].view,0,std::slice::from_ref(&stream));
             let _view=ManuallyDrop::take(&mut stream.pInputSurface);

@@ -103,15 +103,16 @@ struct Resources {pool:Option<Direct3D11CaptureFramePool>,session:Option<Graphic
 impl Drop for Resources {fn drop(&mut self) {
     self.signal.close();
     if let Some(token)=self.closed.take() {let _=self.item.RemoveClosed(token);}
-    if let Some(pool)=&self.pool {if let Some(token)=self.arrived.take() {let _=pool.RemoveFrameArrived(token);}}
+    if let Some(pool)=&self.pool && let Some(token)=self.arrived.take() {let _=pool.RemoveFrameArrived(token);}
     if let Some(session)=self.session.take() {let _=session.Close();}
     if let Some(pool)=self.pool.take() {let _=pool.Close();}
 }}
-pub struct DesktopCapture {resources:Resources,output:IDXGIOutput6,info:DisplayInfo,device:Rc<CaptureDevice>,idle:fn()}
+pub struct DesktopCapture {resources:Resources,output:IDXGIOutput6,info:DisplayInfo,device:Rc<CaptureDevice>,native_interval:Option<i64>,idle:fn()}
 impl DesktopCapture {
     /// Start only after current local sharing and authenticated view admission.
     /// Uses Win32 monitor interop; it does not open a picker or confer consent.
-    pub fn open(info:&DisplayInfo,idle:fn())->Result<Self,MediaError> {
+    pub fn open(info:&DisplayInfo,fps:u32,idle:fn())->Result<Self,MediaError> {
+        if !(1..=60).contains(&fps) {return Err(MediaError::Configuration);}
         let apartment=Apartment::new()?;let factory=factory()?;let mut found=None;
         // SAFETY: match the saved adapter LUID and revalidate the entire display
         // proof before creating any capture session. Never switch desktop/session.
@@ -143,13 +144,22 @@ impl DesktopCapture {
         let session=checked("capture session",pool.CreateCaptureSession(&resources.item))?;resources.session=Some(session.clone());
         checked("capture system cursor",session.SetIsCursorCaptureEnabled(true))?;
         if !checked("capture border required",session.IsBorderRequired())? {return Err(MediaError::Configuration);}
+        let interval=(10_000_000+i64::from(fps)-1)/i64::from(fps);
+        let native_interval=match session.SetMinUpdateInterval(::windows::Foundation::TimeSpan {Duration:interval}) {
+            Ok(())=>{let actual=checked("capture native interval",session.MinUpdateInterval())?.Duration;if actual<interval {return Err(MediaError::Configuration);}Some(actual)},
+            Err(error)if error.code()==::windows::Win32::Foundation::E_NOINTERFACE=>None,
+            Err(error)=>return Err(super::platform("set capture native interval",error)),
+        };
         let arrived=Arc::clone(&signal);resources.arrived=Some(checked("capture frame event",pool.FrameArrived(&TypedEventHandler::<Direct3D11CaptureFramePool,IInspectable>::new(move|_,_|{arrived.notify();Ok(())})))?);
         resources.closed=Some(checked("capture close event",resources.item.Closed(&TypedEventHandler::<GraphicsCaptureItem,IInspectable>::new(move|_,_|{signal.close();Ok(())})))?);
         checked("start screen capture",session.StartCapture())?;
-        Ok(Self {resources,output,info:info.clone(),device,idle})
+        Ok(Self {resources,output,info:info.clone(),device,native_interval,idle})
     }
     pub fn device(&self)->Rc<CaptureDevice> {Rc::clone(&self.device)}
     pub fn stop_handle(&self)->CaptureStop {CaptureStop(Arc::clone(&self.resources.signal))}
+    /// Accepted OS interval in 100ns units, not measured frame cadence. Older
+    /// systems return None; the embedding worker must still pace its consumer.
+    pub fn native_interval_100ns(&self)->Option<i64> {self.native_interval}
     pub fn close(&self) {
         self.resources.signal.close();
         if let Some(session)=&self.resources.session {let _=session.Close();}
@@ -170,17 +180,21 @@ impl DesktopCapture {
         loop {
             self.current()?;let mut latest=None;
             for _ in 0..2 {
-                let Some(frame)=self.pull()? else {break;};latest=Some(frame);
+                let next=match self.pull() {Ok(frame)=>frame,Err(error)=>{self.close();return Err(error)}};
+                let Some(frame)=next else {break;};latest=Some(frame);
             }
             if let Some(frame)=latest {return Ok(Some(frame));}
             let remaining=deadline.saturating_duration_since(Instant::now());if remaining.is_zero() {return Ok(None);}
             // SAFETY: callback/state own the same live auto-reset event. Check
             // ready work first; the idle hook is only before a bounded real wait.
             let ready=unsafe {WaitForSingleObject(self.resources.signal.wake.0,0)};
-            if ready==WAIT_OBJECT_0 {continue;}if ready!=WAIT_TIMEOUT {self.close();return Err(MediaError::Closed);}
+            if ready==WAIT_OBJECT_0 {continue;}
+            if ready!=WAIT_TIMEOUT {self.close();return Err(MediaError::Closed);}
             (self.idle)();
+            // SAFETY: resources/signal retain the same event during this wait.
             let result=unsafe {WaitForSingleObject(self.resources.signal.wake.0,remaining.as_millis().max(1)as u32)};
-            if result==WAIT_TIMEOUT {self.current()?;return Ok(None);}if result!=WAIT_OBJECT_0 {self.close();return Err(MediaError::Closed);}
+            if result==WAIT_TIMEOUT {self.current()?;return Ok(None);}
+            if result!=WAIT_OBJECT_0 {self.close();return Err(MediaError::Closed);}
         }
     }
     fn pull(&self)->Result<Option<CapturedFrame<'_>>,MediaError> {
