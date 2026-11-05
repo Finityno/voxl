@@ -25,9 +25,10 @@ let nv12File = try exclusive(destination.appendingPathComponent("reference.nv12"
 let thinFile = try exclusive(destination.appendingPathComponent("reference-thin.rgb"))
 defer { try? nv12File.close(); try? thinFile.close() }
 let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
-let rgba = UnsafeMutableRawPointer.allocate(byteCount: width * height * 4, alignment: 64)
-defer { rgba.deallocate() }
-guard let context = CGContext(data: rgba, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4, space: colorSpace, bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue) else { throw Failure(message: "bitmap context unavailable") }
+// Let CoreGraphics own the backing allocation for the context's full lifetime.
+// Its data pointer is borrowed only while this retained context remains live.
+guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4, space: colorSpace, bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue),
+      let rgba = context.data else { throw Failure(message: "bitmap context unavailable") }
 context.setShouldAntialias(true)
 context.setShouldSmoothFonts(false)
 let font = CTFontCreateWithName("Menlo-Regular" as CFString, 14, nil)
@@ -91,6 +92,7 @@ for index in 0..<frames {
     // A top-left red calibration pixel establishes raw memory orientation and
     // RGBA channel order without taking or inspecting an image.
     rectangle(0,0,2,2,[1,0,0])
+    context.flush()
     let bytes = rgba.assumingMemoryBound(to: UInt8.self)
     try require(bytes[0] == 255 && bytes[1] == 0 && bytes[2] == 0 && bytes[3] == 255,"unexpected bitmap orientation/channel layout")
     for y in 0..<height {
