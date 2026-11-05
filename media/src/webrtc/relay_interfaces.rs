@@ -69,7 +69,7 @@ mod tests {
         let old:SocketAddr="127.0.0.1:41000".parse().unwrap();let current:SocketAddr="127.0.0.1:42000".parse().unwrap();
         let runtime=RelayRuntime::new([old].into_iter().collect());
         runtime.replace_ipc(&RelayRuntime::new([current].into_iter().collect()));
-        assert_eq!(*runtime.ipc.lock().unwrap(),[current].into_iter().collect());
+        assert_eq!(*runtime.ipc.lock().unwrap(),[current].into_iter().collect::<HashSet<_>>());
         runtime.replace_ipc(&RelayRuntime::default());assert!(runtime.ipc.lock().unwrap().is_empty());
     }
     #[test]
