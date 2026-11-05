@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "kind": "coding",
+      "case": "h264-compatible-3000",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 1387648,
+        "codec": "video/H264",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "foregroundPixels": 9792,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 115,
+          "meanAbsoluteForegroundRgbCodeError": 15.409041394335512,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            219179,
+            64937,
+            168540
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f",
+        "framesDecoded": 270,
+        "height": 1080,
+        "keyFramesDecoded": 5,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1920
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 20
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    },
+    {
+      "kind": "coding",
+      "case": "h264-constrained-high-3000",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 1133886,
+        "codec": "video/H264",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "foregroundPixels": 9792,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 115,
+          "meanAbsoluteForegroundRgbCodeError": 15.396173747276688,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            218869,
+            65213,
+            168196
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f",
+        "framesDecoded": 270,
+        "height": 1080,
+        "keyFramesDecoded": 5,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1920
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 20
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    },
+    {
+      "kind": "coding",
+      "case": "hevc-compatible-1500",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 863260,
+        "codec": "video/H265",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "foregroundPixels": 9792,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 111,
+          "meanAbsoluteForegroundRgbCodeError": 15.237983387799565,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            216573,
+            65079,
+            165979
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-id=93;tx-mode=SRST",
+        "framesDecoded": 270,
+        "height": 1080,
+        "keyFramesDecoded": 5,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1920
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 20
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    }
+  ],
+  "scope": "Unmodified embedding production page in an isolated native WebKit wrapper. Synthetic loopback, numeric sRGB readback only; no full app authority, screen/input, decoder-hardware identity or resource/admission claim."
+}

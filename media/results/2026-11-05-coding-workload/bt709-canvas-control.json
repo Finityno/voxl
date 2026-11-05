@@ -1,0 +1,447 @@
+{
+  "cases": [
+    {
+      "case": "h264-hardware-compatible-full-bt709",
+      "senderTransportSource": "0473a75bb6e4551271d7af3579383fe59fc13ef0",
+      "encodedSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+      "measurementSucceeded": true,
+      "statistics": {
+        "bytesReceived": 12398,
+        "codec": "video/H264",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "flatBars": [
+            {
+              "bar": 0,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 1,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                -2
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                3
+              ]
+            },
+            {
+              "bar": 2,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                3,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 3,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -1,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 4,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -3
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 5,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                254,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 6,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -2
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                253
+              ]
+            },
+            {
+              "bar": 7,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 8,
+              "maxAbsoluteRgbCodeError": 13,
+              "meanAbsoluteRgbCodeError": [
+                13,
+                13,
+                11
+              ],
+              "meanSignedRgbCodeError": [
+                -13,
+                -13,
+                -11
+              ],
+              "sourceRgb": [
+                140,
+                140,
+                140
+              ]
+            },
+            {
+              "bar": 9,
+              "maxAbsoluteRgbCodeError": 15,
+              "meanAbsoluteRgbCodeError": [
+                15,
+                15,
+                14
+              ],
+              "meanSignedRgbCodeError": [
+                -15,
+                -15,
+                -14
+              ],
+              "sourceRgb": [
+                79,
+                79,
+                79
+              ]
+            },
+            {
+              "bar": 10,
+              "maxAbsoluteRgbCodeError": 7,
+              "meanAbsoluteRgbCodeError": [
+                7,
+                7,
+                5
+              ],
+              "meanSignedRgbCodeError": [
+                -7,
+                -7,
+                -5
+              ],
+              "sourceRgb": [
+                198,
+                198,
+                198
+              ]
+            },
+            {
+              "bar": 11,
+              "maxAbsoluteRgbCodeError": 11,
+              "meanAbsoluteRgbCodeError": [
+                3,
+                11,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -3,
+                -11,
+                0
+              ],
+              "sourceRgb": [
+                255,
+                140,
+                0
+              ]
+            },
+            {
+              "bar": 12,
+              "maxAbsoluteRgbCodeError": 13,
+              "meanAbsoluteRgbCodeError": [
+                13,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -13,
+                0,
+                -1
+              ],
+              "sourceRgb": [
+                140,
+                1,
+                255
+              ]
+            },
+            {
+              "bar": 13,
+              "maxAbsoluteRgbCodeError": 13,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                13,
+                10
+              ],
+              "meanSignedRgbCodeError": [
+                2,
+                -13,
+                -10
+              ],
+              "sourceRgb": [
+                0,
+                140,
+                140
+              ]
+            },
+            {
+              "bar": 14,
+              "maxAbsoluteRgbCodeError": 12,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                12,
+                10
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -12,
+                -10
+              ],
+              "sourceRgb": [
+                255,
+                140,
+                199
+              ]
+            },
+            {
+              "bar": 15,
+              "maxAbsoluteRgbCodeError": 17,
+              "meanAbsoluteRgbCodeError": [
+                13,
+                16,
+                17
+              ],
+              "meanSignedRgbCodeError": [
+                -13,
+                -16,
+                -17
+              ],
+              "sourceRgb": [
+                139,
+                80,
+                49
+              ]
+            }
+          ],
+          "foregroundPixels": 20480,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 181,
+          "meanAbsoluteForegroundRgbCodeError": 5.668098958333333,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            103734,
+            119938,
+            124576
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f",
+        "framesDecoded": 20,
+        "height": 720,
+        "keyFramesDecoded": 2,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1280
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 3
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    }
+  ],
+  "scope": "One numeric sRGB canvas readback per decoded synthetic stream; not color accuracy admission or physical video-layer output. Original private wrapper/configuration/SDP remain in embedding-app evidence.",
+  "independentExpectedSource": {
+    "normalizedReferenceSha256": "f9bf9dca5aed3433ca9ea41ff8bfcfc331967b8066aa85e1de5bac02c48337eb",
+    "sourceRange": "full",
+    "sourcePrimaries": "bt709",
+    "sourceTransfer": "bt709",
+    "sourceMatrix": "bt709",
+    "comparisonTransfer": "srgb",
+    "expectedSrgbCenters": [
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        3
+      ],
+      [
+        3,
+        255,
+        255
+      ],
+      [
+        0,
+        255,
+        0
+      ],
+      [
+        255,
+        0,
+        255
+      ],
+      [
+        254,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        253
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        140,
+        140,
+        140
+      ],
+      [
+        79,
+        79,
+        79
+      ],
+      [
+        198,
+        198,
+        198
+      ],
+      [
+        255,
+        140,
+        0
+      ],
+      [
+        140,
+        1,
+        255
+      ],
+      [
+        0,
+        140,
+        140
+      ],
+      [
+        255,
+        140,
+        199
+      ],
+      [
+        139,
+        80,
+        49
+      ]
+    ],
+    "scope": "Reuse independently generated uncompressed NV12/color-normalized BT709 source reference from af9 color matrix; compare only flat centers, not boundaries."
+  },
+  "observedFlatCenterMaxError": 17,
+  "colorAccuracyQualified": false
+}

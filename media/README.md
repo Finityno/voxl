@@ -127,6 +127,13 @@ loss cannot be credited to a codec. RGB crops must contain exactly the 240
 observed frames with matching geometry/color interpretation; run decoding and
 analysis under external process-group deadlines and retain their commands.
 
+`results/2026-11-05-coding-workload/` records the first controlled 1080p30
+coding comparisons, foreground metrics and native receiver replays. Single
+short-clip byte/quality differences do not admit a device/profile. The sRGB
+controls have unchanged before/after readback metrics; a BT.709-transfer canvas
+control differs from its independent reference, so that observer cannot yet
+qualify every source color space or diagnose the separate video compositor.
+
 The encoder initializes its compression color properties from the first input
 buffer's primaries, transfer function and matrix attachments. Absent tags remain
 unspecified; source colorimetry is not replaced with fixed display assumptions.

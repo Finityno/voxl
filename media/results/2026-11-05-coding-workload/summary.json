@@ -1,0 +1,108 @@
+{
+  "encoderSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
+  "analysisTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+  "finalGeneratorSource": "0473a75bb6e4551271d7af3579383fe59fc13ef0",
+  "geometry": [
+    1920,
+    1080
+  ],
+  "fps": 30,
+  "warmupFrames": 30,
+  "observedFrames": 240,
+  "runsPerCodec": 1,
+  "counts": {
+    "nativeCodingEncodersPassed": 3,
+    "defaultMonochromeControlEncodesPassed": 1,
+    "defaultDecodedFrameHashesMatched": 210,
+    "expectedInputGuardRefusals": 4,
+    "expectedAnalysisGuardRefusals": 2,
+    "rustTestsExecuted": 0,
+    "ssimRows": 3120,
+    "browserCodingCasesPassed": 3,
+    "browserFlatCasesPassed": 3,
+    "browserCodingFramesEach": 270,
+    "browserFlatFramesEach": 20,
+    "browserSrgbBeforeAfterCases": 2,
+    "browserBt709TransferCase": 1,
+    "browserMeasurementCasesTotal": 9
+  },
+  "candidates": [
+    {
+      "case": "h264-compatible-3000",
+      "requestedKbps": 3000,
+      "observedAnnexBBytes": 1248875,
+      "observedEncodedKbps": 1248.9,
+      "encodeToWorkerOutputP95Ms": 12.58,
+      "encodeToWorkerOutputP50Ms": 10.66,
+      "textYuvSsimAllMean": 0.9992167999999999,
+      "textYuvSsimAllMin": 0.998023,
+      "thinOriginalRgbSsimAllMean": 0.9856845083333333,
+      "foregroundMeanAbsRgbCodeError": 13.849085846722948,
+      "foregroundFrameMeanErrorP95": 14.303206699346406,
+      "aggregateForegroundWorseThanBaselineFrames": 0,
+      "oneBrowserForegroundMeanAbsRgbCodeError": 15.409041394335512
+    },
+    {
+      "case": "h264-constrained-high-3000",
+      "requestedKbps": 3000,
+      "observedAnnexBBytes": 1030567,
+      "observedEncodedKbps": 1030.6,
+      "encodeToWorkerOutputP95Ms": 12.8,
+      "encodeToWorkerOutputP50Ms": 9.8,
+      "textYuvSsimAllMean": 0.9992500333333333,
+      "textYuvSsimAllMin": 0.998016,
+      "thinOriginalRgbSsimAllMean": 0.9858477041666667,
+      "foregroundMeanAbsRgbCodeError": 13.812442271468772,
+      "foregroundFrameMeanErrorP95": 14.261608115468409,
+      "aggregateForegroundWorseThanBaselineFrames": 26,
+      "oneBrowserForegroundMeanAbsRgbCodeError": 15.396173747276688
+    },
+    {
+      "case": "hevc-compatible-1500",
+      "requestedKbps": 1500,
+      "observedAnnexBBytes": 772445,
+      "observedEncodedKbps": 772.4,
+      "encodeToWorkerOutputP95Ms": 15.02,
+      "encodeToWorkerOutputP50Ms": 12.41,
+      "textYuvSsimAllMean": 0.9994314083333333,
+      "textYuvSsimAllMin": 0.9988,
+      "thinOriginalRgbSsimAllMean": 0.9868803083333333,
+      "foregroundMeanAbsRgbCodeError": 13.356075679693173,
+      "foregroundFrameMeanErrorP95": 13.925483387799565,
+      "aggregateForegroundWorseThanBaselineFrames": 0,
+      "oneBrowserForegroundMeanAbsRgbCodeError": 15.237983387799565
+    }
+  ],
+  "uncompressed420ControlForegroundError": 12.794560185185185,
+  "maskCalibration": {
+    "backgroundRgb": [
+      14,
+      15,
+      18
+    ],
+    "sourceInkPixels": 3856,
+    "evaluatedPixelsIncludingHalo": 9792,
+    "totalRegionPixels": 96320,
+    "contrastThresholdCodes": 8,
+    "haloPixels": 1,
+    "independentMatrixMaxCodeDifference": 0,
+    "matrixSamplesPerCheckedFrame": 163,
+    "checkedSourceFrames": [
+      0,
+      269
+    ],
+    "staticReferenceFramesVerified": 270
+  },
+  "codecAdmission": false,
+  "matchedQualitySavingsQualified": false,
+  "resourceBudgetsQualified": false,
+  "visualInspection": false,
+  "scope": "Single fixed generated clip. YUV SSIM against already-subsampled source, original RGB/foreground metrics and one WebKit crop are distinct. 4:2:0 control is not a theoretical bound and MAEs cannot be subtracted as additive physical error components. Runtime and optimistic targets unchanged.",
+  "observedEncodedByteReductionVsBaseline": {
+    "h264-constrained-high-3000": 0.1748037233510159,
+    "hevc-compatible-1500": 0.38148733860474426
+  },
+  "srgbBeforeAfterReadbackIdentical": true,
+  "bt709CanvasNormalizedCenterMaxCodeError": 17,
+  "canvasIsUniversalColorOracle": false
+}

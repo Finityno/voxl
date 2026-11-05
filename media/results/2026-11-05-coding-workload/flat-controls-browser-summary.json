@@ -1,0 +1,1055 @@
+{
+  "cases": [
+    {
+      "kind": "flat-controls",
+      "case": "h264-hardware-compatible-full-srgb",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 12398,
+        "codec": "video/H264",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "flatBars": [
+            {
+              "bar": 0,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 1,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 2,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 3,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -1,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 4,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -3
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 5,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 6,
+              "maxAbsoluteRgbCodeError": 4,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                4
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -4
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 7,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 8,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                1
+              ],
+              "sourceRgb": [
+                128,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 9,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                1
+              ],
+              "sourceRgb": [
+                64,
+                64,
+                64
+              ]
+            },
+            {
+              "bar": 10,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                1
+              ],
+              "sourceRgb": [
+                192,
+                192,
+                192
+              ]
+            },
+            {
+              "bar": 11,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                3,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -3,
+                1,
+                0
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                0
+              ]
+            },
+            {
+              "bar": 12,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -1
+              ],
+              "sourceRgb": [
+                128,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 13,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                1,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                2,
+                -1,
+                2
+              ],
+              "sourceRgb": [
+                0,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 14,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -3
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                192
+              ]
+            },
+            {
+              "bar": 15,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                128,
+                64,
+                32
+              ]
+            }
+          ],
+          "foregroundPixels": 20480,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 181,
+          "meanAbsoluteForegroundRgbCodeError": 1.5960611979166666,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            32428,
+            15266,
+            50368
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f",
+        "framesDecoded": 20,
+        "height": 720,
+        "keyFramesDecoded": 2,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1280
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 3
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    },
+    {
+      "kind": "flat-controls",
+      "case": "h264-hardware-constrained-high-full-srgb",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 3087,
+        "codec": "video/H264",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "flatBars": [
+            {
+              "bar": 0,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 1,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 2,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 3,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -1,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 4,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -3
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 5,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 6,
+              "maxAbsoluteRgbCodeError": 4,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                4
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -4
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 7,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                2
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 8,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                1
+              ],
+              "sourceRgb": [
+                128,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 9,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                1
+              ],
+              "sourceRgb": [
+                64,
+                64,
+                64
+              ]
+            },
+            {
+              "bar": 10,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                1
+              ],
+              "sourceRgb": [
+                192,
+                192,
+                192
+              ]
+            },
+            {
+              "bar": 11,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                3,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -3,
+                1,
+                0
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                0
+              ]
+            },
+            {
+              "bar": 12,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -1
+              ],
+              "sourceRgb": [
+                128,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 13,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                1,
+                2
+              ],
+              "meanSignedRgbCodeError": [
+                2,
+                -1,
+                2
+              ],
+              "sourceRgb": [
+                0,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 14,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -3
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                192
+              ]
+            },
+            {
+              "bar": 15,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                128,
+                64,
+                32
+              ]
+            }
+          ],
+          "foregroundPixels": 20480,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 181,
+          "meanAbsoluteForegroundRgbCodeError": 1.5960611979166666,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            32428,
+            15266,
+            50368
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f",
+        "framesDecoded": 20,
+        "height": 720,
+        "keyFramesDecoded": 2,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1280
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 3
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    },
+    {
+      "kind": "flat-controls",
+      "case": "hevc-hardware-compatible-full-srgb",
+      "mediaTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+      "encodedSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+      "passedMeasurementOracles": true,
+      "stats": {
+        "bytesReceived": 5565,
+        "codec": "video/H265",
+        "colorProbe": {
+          "canvasColorSpace": "srgb",
+          "flatBars": [
+            {
+              "bar": 0,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 1,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -1,
+                1
+              ],
+              "sourceRgb": [
+                255,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 2,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "bar": 3,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                1,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                -1,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                255,
+                0
+              ]
+            },
+            {
+              "bar": 4,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                0,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 5,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                255,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 6,
+              "maxAbsoluteRgbCodeError": 3,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                3
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -3
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 7,
+              "maxAbsoluteRgbCodeError": 0,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "bar": 8,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                0,
+                -1
+              ],
+              "sourceRgb": [
+                128,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 9,
+              "maxAbsoluteRgbCodeError": 0,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                64,
+                64,
+                64
+              ]
+            },
+            {
+              "bar": 10,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                -1,
+                -1
+              ],
+              "sourceRgb": [
+                192,
+                192,
+                192
+              ]
+            },
+            {
+              "bar": 11,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                0
+              ]
+            },
+            {
+              "bar": 12,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                1,
+                1,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                -1,
+                1,
+                -1
+              ],
+              "sourceRgb": [
+                128,
+                0,
+                255
+              ]
+            },
+            {
+              "bar": 13,
+              "maxAbsoluteRgbCodeError": 0,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                0,
+                128,
+                128
+              ]
+            },
+            {
+              "bar": 14,
+              "maxAbsoluteRgbCodeError": 1,
+              "meanAbsoluteRgbCodeError": [
+                0,
+                0,
+                1
+              ],
+              "meanSignedRgbCodeError": [
+                0,
+                0,
+                -1
+              ],
+              "sourceRgb": [
+                255,
+                128,
+                192
+              ]
+            },
+            {
+              "bar": 15,
+              "maxAbsoluteRgbCodeError": 2,
+              "meanAbsoluteRgbCodeError": [
+                2,
+                0,
+                0
+              ],
+              "meanSignedRgbCodeError": [
+                -2,
+                0,
+                0
+              ],
+              "sourceRgb": [
+                128,
+                64,
+                32
+              ]
+            }
+          ],
+          "foregroundPixels": 20480,
+          "imageDataColorSpace": "srgb",
+          "maxAbsoluteForegroundCodeError": 181,
+          "meanAbsoluteForegroundRgbCodeError": 1.2041666666666666,
+          "qualified": true,
+          "scope": "One numeric crop after decoding all frames; original RGB region verified static for all source frames. No frame persistence, screenshot or timing/resource claim.",
+          "sumAbsoluteCodeErrorByRgbChannel": [
+            27184,
+            11040,
+            35760
+          ]
+        },
+        "connection": "connected",
+        "dtls": "connected",
+        "fmtp": "level-id=93;tx-mode=SRST",
+        "framesDecoded": 20,
+        "height": 720,
+        "keyFramesDecoded": 2,
+        "localType": "prflx",
+        "nominated": true,
+        "peerCount": 1,
+        "remoteType": "host",
+        "selected": true,
+        "width": 1280
+      },
+      "events": {
+        "answer": 1,
+        "diagnostic": 9,
+        "frame": 1,
+        "profile-probe": 3
+      },
+      "scope": "Generated coding stream through the exact production receiver page, one sRGB canvas crop with source-derived foreground error. No screen/capture/input, app authority, hardware-decoder identity, complete image-quality or performance qualification."
+    }
+  ],
+  "scope": "Unmodified embedding production page in an isolated native WebKit wrapper. Synthetic loopback, numeric sRGB readback only; no full app authority, screen/input, decoder-hardware identity or resource/admission claim."
+}
