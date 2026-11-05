@@ -31,8 +31,8 @@ class CodecEvidenceTests(unittest.TestCase):
                 self.assertEqual(value["keyframeIndices"],[0,4])
                 self.assertEqual(value["observedFrames"],6)
                 self.assertEqual(value["observedAnnexBBytes"],sum(value["observedFrameBytes"]))
-                self.assertEqual(value["firstFrameAnnexBBytes"],18)
-                self.assertAlmostEqual(value["meanAnnexBMbps"],48*8/3/1_000_000)
+                self.assertEqual(value["firstFrameAnnexBBytes"],18 if codec == "h264" else 24)
+                self.assertAlmostEqual(value["meanAnnexBMbps"],(48 if codec == "h264" else 54)*8/3/1_000_000)
 
     def test_partial_extra_and_misclocked_streams_are_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
