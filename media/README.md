@@ -106,6 +106,13 @@ the caller must create a new generation rather than continue with stale signalin
 Unsupported native color properties fail explicitly. These session settings alone
 do not prove the emitted bitstream's tags or receiver color conversion.
 
+Exact-source before/after color results and all retained failed attempts are in
+`results/2026-11-05-source-color/`. Initial explicit input attachments alone
+were absent from all sixteen tagged output cases; setting native compression
+properties preserves them in all sixteen final cases. Twenty-frame color bars,
+four transition tests and flat-region numeric scores do not qualify text,
+wide-gamut/HDR, receiver conversion or sustained performance admission.
+
 `--pattern=color-bars --pixel-range=video|full --color-tags=none|bt709|srgb`
 adds controlled color/range inputs. Sixteen bars include primaries, mixed colors
 and gray levels, generated with the BT.709 YCbCr matrix in the requested 420v
