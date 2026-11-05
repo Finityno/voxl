@@ -20,7 +20,7 @@ impl Drop for Apartment {fn drop(&mut self) {
 /// Locally discovered display proof. Revalidated before opening and every read;
 /// an old output ordinal cannot silently select another monitor after hotplug.
 #[derive(Clone,Debug,PartialEq,Eq)]
-pub struct DisplayInfo {pub adapter_high:i32,pub adapter_low:u32,pub output:u32,pub name:String,pub bounds:[i32;4],pub sdr:bool}
+pub struct DisplayInfo {pub adapter_high:i32,pub adapter_low:u32,pub output:u32,pub name:String,pub bounds:[i32;4],pub sdr:bool,pub monitor:usize}
 impl DisplayInfo {
     pub fn id(&self)->String {format!("{:08x}-{:08x}-{}-{}",self.adapter_high as u32,self.adapter_low,self.output,self.name)}
     pub fn size(&self)->Result<(u32,u32),MediaError> {
@@ -40,7 +40,7 @@ fn describe(adapter:&IDXGIAdapter1,output:u32,value:&IDXGIOutput6)->Result<Displ
         if !desc.AttachedToDesktop.as_bool() {return Err(MediaError::Closed);}
         let end=desc.DeviceName.iter().position(|c|*c==0).ok_or(MediaError::Configuration)?;
         let name=String::from_utf16(&desc.DeviceName[..end]).map_err(|_|MediaError::Configuration)?;
-        let info=DisplayInfo {adapter_high:gpu.AdapterLuid.HighPart,adapter_low:gpu.AdapterLuid.LowPart,output,name,bounds:[desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom],sdr:desc.ColorSpace==DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709};info.size()?;Ok(info)
+        let info=DisplayInfo {adapter_high:gpu.AdapterLuid.HighPart,adapter_low:gpu.AdapterLuid.LowPart,output,name,bounds:[desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom],sdr:desc.ColorSpace==DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709,monitor:desc.Monitor.0 as usize};info.size()?;Ok(info)
     }
 }
 /// No capture session, screen pixels, consent prompt or application authority.
@@ -154,12 +154,7 @@ impl DesktopCapture {
         checked("capture system cursor",session.SetIsCursorCaptureEnabled(true))?;
         checked("retain capture border",session.SetIsBorderRequired(true))?;
         if !checked("capture border required",session.IsBorderRequired())? || !checked("capture cursor enabled",session.IsCursorCaptureEnabled())? {return Err(MediaError::Configuration);}
-        let interval=(10_000_000+i64::from(fps)-1)/i64::from(fps);
-        let native_interval=match session.SetMinUpdateInterval(::windows::Foundation::TimeSpan {Duration:interval}) {
-            Ok(())=>{let actual=checked("capture native interval",session.MinUpdateInterval())?.Duration;if actual<interval {return Err(MediaError::Configuration);}Some(actual)},
-            Err(error)if error.code()==::windows::Win32::Foundation::E_NOINTERFACE=>None,
-            Err(error)=>return Err(super::platform("set capture native interval",error)),
-        };
+        let native_interval=capture_interval(&session,fps)?;
         let arrived=Arc::clone(&signal);resources.arrived=Some(checked("capture frame event",pool.FrameArrived(&TypedEventHandler::<Direct3D11CaptureFramePool,IInspectable>::new(move|_,_|{arrived.notify();Ok(())})))?);
         resources.closed=Some(checked("capture close event",resources.item.Closed(&TypedEventHandler::<GraphicsCaptureItem,IInspectable>::new(move|_,_|{signal.close();Ok(())})))?);
         checked("start screen capture",session.StartCapture())?;
@@ -170,6 +165,12 @@ impl DesktopCapture {
     /// Accepted OS interval in 100ns units, not measured frame cadence. Older
     /// systems return None; the embedding worker must still pace its consumer.
     pub fn native_interval_100ns(&self)->Option<i64> {self.native_interval}
+    /// Apply the chosen codec's rate after bounded software fallback changes
+    /// it. Accepted OS configuration is still not measured delivered cadence.
+    pub fn set_frame_rate(&mut self,fps:u32)->Result<Option<i64>,MediaError> {
+        self.current()?;
+        self.native_interval=capture_interval(self.resources.session.as_ref().ok_or(MediaError::Closed)?,fps)?;Ok(self.native_interval)
+    }
     pub fn close(&self) {
         self.resources.signal.close();
         if let Some(session)=&self.resources.session {let _=session.Close();}
@@ -183,7 +184,7 @@ impl DesktopCapture {
         // SAFETY: current live output metadata only; never capture another output.
         let desc=checked("current capture output",unsafe {self.output.GetDesc1()})?;
         let name_end=desc.DeviceName.iter().position(|value|*value==0).ok_or(MediaError::Closed)?;
-        if !active_desktop()? || !desc.AttachedToDesktop.as_bool() || desc.ColorSpace!=DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709
+        if !active_desktop()? || !desc.AttachedToDesktop.as_bool() || desc.Monitor.0 as usize!=self.info.monitor || desc.ColorSpace!=DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709
             || !desc.DeviceName[..name_end].iter().copied().eq(self.info.name.encode_utf16())
             || [desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom]!=self.info.bounds {return Err(MediaError::Closed);}
         Ok(())
@@ -194,12 +195,14 @@ impl DesktopCapture {
         let deadline=Instant::now()+timeout.min(Duration::from_millis(200));
         loop {
             self.current()?;let mut latest=None;
-            if self.resources.signal.control.swap(false,Ordering::AcqRel) {return Ok(None);}
             for _ in 0..2 {
                 let next=match self.pull() {Ok(frame)=>frame,Err(error)=>{self.close();return Err(error)}};
-                let Some(frame)=next else {break;};latest=Some(frame);
+                let Some(mut frame)=next else {break;};
+                if let Some(old)=latest.take() {let old:CapturedFrame<'_>=old;frame.coalesced=old.coalesced+1;}
+                latest=Some(frame);
             }
             if let Some(frame)=latest {return Ok(Some(frame));}
+            if self.resources.signal.control.swap(false,Ordering::AcqRel) {return Ok(None);}
             let remaining=deadline.saturating_duration_since(Instant::now());if remaining.is_zero() {return Ok(None);}
             // SAFETY: callback/state own the same live auto-reset event. Check
             // ready work first; the idle hook is only before a bounded real wait.
@@ -230,18 +233,40 @@ impl DesktopCapture {
         // SAFETY: the frame retains this resource; its wrapper cannot be closed
         // until conversion's GPU fence has completed all reads of these pixels.
         let texture=checked("captured texture",unsafe {access.GetInterface::<ID3D11Texture2D>()})?;
-        Ok(Some(CapturedFrame {frame:owned,texture,pts:timestamp/10,arrival:Instant::now(),capture:self}))
+        Ok(Some(CapturedFrame {frame:owned,texture,pts:timestamp/10,arrival:Instant::now(),coalesced:0,capture:self}))
     }
 }
 impl Drop for DesktopCapture {fn drop(&mut self) {self.close();}}
 struct Frame(Direct3D11CaptureFrame);
 impl Drop for Frame {fn drop(&mut self) {let _=self.0.Close();}}
-pub struct CapturedFrame<'a> {frame:Frame,pub(super) texture:ID3D11Texture2D,pts:i64,pub(super) arrival:Instant,capture:&'a DesktopCapture}
+pub struct CapturedFrame<'a> {frame:Frame,pub(super) texture:ID3D11Texture2D,pts:i64,pub(super) arrival:Instant,coalesced:u32,capture:&'a DesktopCapture}
 impl CapturedFrame<'_> {
     pub fn presentation_time_micros(&self)->i64 {self.pts}
+    pub fn coalesced_frames(&self)->u32 {self.coalesced}
+    /// Native QPC capture timestamp to this read; unknown clocks remain unknown.
+    pub fn capture_age(&self)->Option<Duration> {
+        let mut now=0;let mut frequency=0;
+        // SAFETY: bounded writable counter outputs; no frame or OS input work.
+        unsafe {
+            ::windows::Win32::System::Performance::QueryPerformanceCounter(&mut now).ok()?;
+            ::windows::Win32::System::Performance::QueryPerformanceFrequency(&mut frequency).ok()?;
+        }
+        if now<0 || frequency<=0 {return None;}
+        let micros=u64::try_from(now as u128*1_000_000/frequency as u128).ok()?;
+        Some(Duration::from_micros(micros.checked_sub(u64::try_from(self.pts).ok()?)?))
+    }
     pub(super) fn validate(&self)->Result<(),MediaError> {let _=&self.frame;self.capture.current()}
     pub(super) fn capture_close(&self) {self.capture.close();}
     pub(super) fn stop_handle(&self)->CaptureStop {self.capture.stop_handle()}
+}
+fn capture_interval(session:&GraphicsCaptureSession,fps:u32)->Result<Option<i64>,MediaError> {
+    if !(1..=60).contains(&fps) {return Err(MediaError::Configuration);}
+    let interval=(10_000_000+i64::from(fps)-1)/i64::from(fps);
+    match session.SetMinUpdateInterval(::windows::Foundation::TimeSpan {Duration:interval}) {
+        Ok(())=>{let actual=checked("capture native interval",session.MinUpdateInterval())?.Duration;if actual<interval {return Err(MediaError::Configuration);}Ok(Some(actual))},
+        Err(error)if error.code()==::windows::Win32::Foundation::E_NOINTERFACE=>Ok(None),
+        Err(error)=>Err(super::platform("set capture native interval",error)),
+    }
 }
 #[derive(PartialEq,Eq)]
 struct DesktopName {value:[u16;128],length:usize}
