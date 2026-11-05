@@ -179,7 +179,9 @@ impl DesktopCapture {
         self.resources.signal.check()?;
         // SAFETY: current live output metadata only; never capture another output.
         let desc=checked("current capture output",unsafe {self.output.GetDesc1()})?;
+        let name_end=desc.DeviceName.iter().position(|value|*value==0).ok_or(MediaError::Closed)?;
         if !active_desktop()? || !desc.AttachedToDesktop.as_bool() || desc.ColorSpace!=DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709
+            || !desc.DeviceName[..name_end].iter().copied().eq(self.info.name.encode_utf16())
             || [desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom]!=self.info.bounds {return Err(MediaError::Closed);}
         Ok(())
     }

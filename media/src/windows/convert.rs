@@ -187,11 +187,11 @@ impl Nv12Converter {
             // several samples; every lease is kept until all reads have ended.
             unsafe {encoder.encode_surface(&self.slots[slot].texture,0,pts,true)}.map(|lease|self.slots[slot].leases.push(lease))
         } else {
-            if self.staging.is_none() {return Err(MediaError::Configuration);}
+            let staging=self.staging.as_ref().ok_or(MediaError::Configuration)?;
             // SAFETY: no writes to this source slot; only its active NV12 pixels
             // are copied, and the completion fence precedes CPU Map.
-            unsafe {self.device.context.CopyResource(self.staging.as_ref().unwrap(),&self.slots[slot].texture);}
-            self.finish().and_then(|_|self.readback()).and_then(|data|{self.latest.as_ref().unwrap().capture.current(capture)?;encoder.encode_nv12(&data,self.config.width as usize,pts,true)})
+            unsafe {self.device.context.CopyResource(staging,&self.slots[slot].texture);}
+            self.finish().and_then(|_|self.readback()).and_then(|data|{self.latest.as_ref().ok_or(MediaError::Closed)?.capture.current(capture)?;encoder.encode_nv12(&data,self.config.width as usize,pts,true)})
         };
         if let Err(error)=result {self.failed=true;encoder.close();return Err(error);}
         Ok(pts)

@@ -1,7 +1,8 @@
 //! Thread-owned Media Foundation encoders. D3D11 surfaces stay on the GPU when
 //! the selected hardware MFT accepts a device manager. System-memory NV12 is
-//! available for explicit, bounded H.264 CPU fallback. No capture, process
-//! runtime, signaling endpoint or long-lived Rust thread is created here.
+//! available for explicit, bounded H.264 CPU fallback. The encoder starts no
+//! capture. Optional capture/conversion helpers require explicit embedding
+//! admission; this module creates no runtime, signaling endpoint or Rust worker.
 
 mod bitstream;
 pub mod capture;
