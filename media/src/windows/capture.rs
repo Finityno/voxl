@@ -149,7 +149,8 @@ impl DesktopCapture {
         resources.pool=Some(pool.clone());
         let session=checked("capture session",pool.CreateCaptureSession(&resources.item))?;resources.session=Some(session.clone());
         checked("capture system cursor",session.SetIsCursorCaptureEnabled(true))?;
-        if !checked("capture border required",session.IsBorderRequired())? {return Err(MediaError::Configuration);}
+        checked("retain capture border",session.SetIsBorderRequired(true))?;
+        if !checked("capture border required",session.IsBorderRequired())? || !checked("capture cursor enabled",session.IsCursorCaptureEnabled())? {return Err(MediaError::Configuration);}
         let interval=(10_000_000+i64::from(fps)-1)/i64::from(fps);
         let native_interval=match session.SetMinUpdateInterval(::windows::Foundation::TimeSpan {Duration:interval}) {
             Ok(())=>{let actual=checked("capture native interval",session.MinUpdateInterval())?.Duration;if actual<interval {return Err(MediaError::Configuration);}Some(actual)},
@@ -172,11 +173,14 @@ impl DesktopCapture {
         if let Some(pool)=&self.resources.pool {let _=pool.Close();}
     }
     pub fn current(&self)->Result<(),MediaError> {
-        if let Err(error)=self.resources.signal.check() {self.close();return Err(error);}
+        let result=self.check_current();if result.is_err() {self.close();}result
+    }
+    fn check_current(&self)->Result<(),MediaError> {
+        self.resources.signal.check()?;
         // SAFETY: current live output metadata only; never capture another output.
         let desc=checked("current capture output",unsafe {self.output.GetDesc1()})?;
         if !active_desktop()? || !desc.AttachedToDesktop.as_bool() || desc.ColorSpace!=DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709
-            || [desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom]!=self.info.bounds {self.close();return Err(MediaError::Closed);}
+            || [desc.DesktopCoordinates.left,desc.DesktopCoordinates.top,desc.DesktopCoordinates.right,desc.DesktopCoordinates.bottom]!=self.info.bounds {return Err(MediaError::Closed);}
         Ok(())
     }
     /// Coalesce at most the two frame-pool entries. Returned native frames keep

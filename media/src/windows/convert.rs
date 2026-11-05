@@ -14,7 +14,7 @@ struct Latest {slot:usize,pts:i64,converted:Instant,capture:CaptureStop}
 pub struct Nv12Converter {
     video:ID3D11VideoDevice,context:ID3D11VideoContext1,enumerator:ID3D11VideoProcessorEnumerator,processor:ID3D11VideoProcessor,
     fence:ID3D11Fence,queue:ID3D11DeviceContext4,wake:Wake,value:u64,
-    slots:Vec<Slot>,staging:Option<ID3D11Texture2D>,latest:Option<Latest>,source:(u32,u32),config:EncoderConfig,failed:bool,idle:fn(),device:Rc<CaptureDevice>,
+    slots:Vec<Slot>,staging:Option<ID3D11Texture2D>,source_copy:Option<ID3D11Texture2D>,latest:Option<Latest>,source:(u32,u32),config:EncoderConfig,failed:bool,idle:fn(),device:Rc<CaptureDevice>,
 }
 impl Nv12Converter {
     pub fn new(device:Rc<CaptureDevice>,source:(u32,u32),config:EncoderConfig,idle:fn())->Result<Self,MediaError> {
@@ -48,9 +48,12 @@ impl Nv12Converter {
             let modern=checked("GPU completion device",device.device.cast::<ID3D11Device5>())?;let mut fence=None;
             checked("create GPU completion fence",modern.CreateFence::<ID3D11Fence>(0,D3D11_FENCE_FLAG_NONE,&mut fence))?;
             let wake=Wake(checked("GPU completion event",CreateEventW(None,false,false,None))?);
-            Ok(Self {video,context,enumerator,processor,fence:fence.ok_or(MediaError::Configuration)?,queue,wake,value:0,slots:Vec::with_capacity(3),staging:None,latest:None,source,config,failed:false,idle,device})
+            Ok(Self {video,context,enumerator,processor,fence:fence.ok_or(MediaError::Configuration)?,queue,wake,value:0,slots:Vec::with_capacity(3),staging:None,source_copy:None,latest:None,source,config,failed:false,idle,device})
         }
     }
+    /// True only if this converter has required an explicit BGRA GPU copy for
+    /// incompatible input bindings. It says nothing about driver-internal copies.
+    pub fn uses_source_copy(&self)->bool {self.source_copy.is_some()}
     fn slot(&mut self)->Result<usize,MediaError> {
         for (index,slot) in self.slots.iter_mut().enumerate() {
             slot.leases.retain(|lease|!lease.released());
@@ -100,9 +103,17 @@ impl Nv12Converter {
             let owner=checked("conversion texture device",input.GetDevice())?;
             if desc.Format!=DXGI_FORMAT_B8G8R8A8_UNORM || desc.Width!=self.source.0 || desc.Height!=self.source.1 || desc.MipLevels!=1 || desc.ArraySize!=1 || desc.SampleDesc.Count!=1
                 || checked("source device identity",owner.cast::<IUnknown>())?.as_raw()!=checked("conversion device identity",self.device.device.cast::<IUnknown>())?.as_raw() {return Err(MediaError::InvalidFrame);}
+            let allowed=(D3D11_BIND_DECODER|D3D11_BIND_VIDEO_ENCODER|D3D11_BIND_RENDER_TARGET|D3D11_BIND_UNORDERED_ACCESS).0 as u32;
+            let copy=desc.Usage!=D3D11_USAGE_DEFAULT || desc.BindFlags!=0 && desc.BindFlags&allowed==0;
+            if copy && self.source_copy.is_none() {
+                let desc=D3D11_TEXTURE2D_DESC {Width:self.source.0,Height:self.source.1,MipLevels:1,ArraySize:1,Format:DXGI_FORMAT_B8G8R8A8_UNORM,SampleDesc:DXGI_SAMPLE_DESC {Count:1,Quality:0},Usage:D3D11_USAGE_DEFAULT,BindFlags:D3D11_BIND_RENDER_TARGET.0 as u32,..Default::default()};let mut texture=None;
+                checked("compatible capture GPU texture",self.device.device.CreateTexture2D(&desc,None,Some(&mut texture)))?;self.source_copy=Some(texture.ok_or(MediaError::Configuration)?);
+            }
+            let source=if copy {self.source_copy.as_ref().ok_or(MediaError::Configuration)?} else {input};
             let desc=D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC {FourCC:0,ViewDimension:D3D11_VPIV_DIMENSION_TEXTURE2D,..Default::default()};let mut view=None;
-            checked("BGRA processor input view",self.video.CreateVideoProcessorInputView(input,&self.enumerator,&desc,Some(&mut view)))?;
+            checked("BGRA processor input view",self.video.CreateVideoProcessorInputView(source,&self.enumerator,&desc,Some(&mut view)))?;
             if readback && self.staging.is_none() {let mut staging=None;checked("NV12 staging texture",self.device.device.CreateTexture2D(&self.description(true),None,Some(&mut staging)))?;self.staging=staging;}
+            if copy {self.device.context.CopyResource(source,input);}
             let mut stream=D3D11_VIDEO_PROCESSOR_STREAM {Enable:true.into(),pInputSurface:ManuallyDrop::new(view),..Default::default()};
             let result=self.context.VideoProcessorBlt(&self.processor,&self.slots[slot].view,0,std::slice::from_ref(&stream));
             let _view=ManuallyDrop::take(&mut stream.pInputSurface);
@@ -169,6 +180,7 @@ impl Nv12Converter {
         let slot=latest.slot;let pts=latest.pts.saturating_add(i64::try_from(latest.converted.elapsed().as_micros()).unwrap_or(i64::MAX)).max(encoder.last_pts.map_or(0,|last|last.saturating_add(1)));
         if encoder.config.width!=self.config.width || encoder.config.height!=self.config.height || encoder.observation.color_requested!=Nv12Color::Bt709Limited {return Err(MediaError::Configuration);}
         if !encoder.wait_ready(Duration::from_millis(200))? {return Err(MediaError::Backpressure);}
+        self.latest.as_ref().ok_or(MediaError::Backpressure)?.capture.current(capture)?;
         self.slots[slot].leases.retain(|lease|!lease.released());if self.slots[slot].leases.len()>=3 {return Err(MediaError::Backpressure);}
         let result=if encoder.device.is_some() {
             // SAFETY: the same immutable converted texture may be retained by
@@ -179,7 +191,7 @@ impl Nv12Converter {
             // SAFETY: no writes to this source slot; only its active NV12 pixels
             // are copied, and the completion fence precedes CPU Map.
             unsafe {self.device.context.CopyResource(self.staging.as_ref().unwrap(),&self.slots[slot].texture);}
-            self.finish().and_then(|_|self.readback()).and_then(|data|encoder.encode_nv12(&data,self.config.width as usize,pts,true))
+            self.finish().and_then(|_|self.readback()).and_then(|data|{self.latest.as_ref().unwrap().capture.current(capture)?;encoder.encode_nv12(&data,self.config.width as usize,pts,true)})
         };
         if let Err(error)=result {self.failed=true;encoder.close();return Err(error);}
         Ok(pts)
