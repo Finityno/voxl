@@ -17,7 +17,7 @@ fn main()->Result<(),Box<dyn std::error::Error>> {
         unsafe {D3D11CreateDevice(None,D3D_DRIVER_TYPE_HARDWARE,HMODULE::default(),D3D11_CREATE_DEVICE_VIDEO_SUPPORT|D3D11_CREATE_DEVICE_BGRA_SUPPORT,Some(&[D3D_FEATURE_LEVEL_11_0]),D3D11_SDK_VERSION,Some(&mut device),None,None)?;}
         // SAFETY: this fixture exclusively owns the new device. The transform
         // may use its immediate context from native Media Foundation workers.
-        unsafe {let context=device.as_ref().ok_or("missing device")?.GetImmediateContext()?;let threading=context.cast::<ID3D11Multithread>()?;threading.SetMultithreadProtected(true);}
+        unsafe {let context=device.as_ref().ok_or("missing device")?.GetImmediateContext()?;let threading=context.cast::<ID3D11Multithread>()?;let _previous=threading.SetMultithreadProtected(true);}
     }
     let mut encoder=if let Some(device)=&device {VideoEncoder::with_device(config,Nv12Color::Bt709Limited,device,||{})?} else {VideoEncoder::new(config,Nv12Color::Bt709Limited,||{})?};
     let setup_us=started.elapsed().as_micros();let observation=encoder.observation();
