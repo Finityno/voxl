@@ -83,7 +83,10 @@ for index in 0..<frames {
     text("AaBbCc []{}() <> != == -> &mut self   RED GREEN BLUE",textX+8,thinY+23,2,small:true)
     for n in 0..<32 {rectangle(width-190+n*5,thinY+4,1,44,palette[1+n%5])}
     if phase == 3 {
-        let dx = 180+(step*11)%(width-580), dy = 130+(step*3)%130
+        // Keep the declared static reference strip unobscured at every
+        // accepted geometry, including the minimum 960x540 fixture.
+        let verticalSpan = max(1,min(130,thinY-130-196-12))
+        let dx = 180+(step*11)%(width-580), dy = 130+(step*3)%verticalSpan
         rectangle(dx,dy,400,196,[0.25,0.26,0.29]); rectangle(dx+2,dy+28,396,166,[0.11,0.12,0.14])
         text("Generated task output",dx+12,dy+5,0)
         for n in 0..<6 {text("chunk \(n): ready  sequence=\(step)",dx+12,dy+42+n*21,3)}
