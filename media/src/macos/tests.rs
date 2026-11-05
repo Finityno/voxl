@@ -20,14 +20,14 @@ fn image(full: bool, transfer: Option<Object>) -> PixelBuffer {
     // SAFETY: this fixture owns the buffer while filling pixels and attaching
     // live CF values. After from_raw all pixels/attachments are immutable.
     unsafe {
-        assert_eq!(CVPixelBufferCreate(ptr::null(),64,64,u32::from_be_bytes(if full { *b"420f" } else { *b"420v" }),ptr::null(),&mut raw),0);
+        assert_eq!(CVPixelBufferCreate(ptr::null(),320,180,u32::from_be_bytes(if full { *b"420f" } else { *b"420v" }),ptr::null(),&mut raw),0);
         assert!(!raw.is_null());
         assert_eq!(CVPixelBufferLockBaseAddress(raw,0),0);
-        for (plane,rows,value) in [(0,64,if full { 0 } else { 16 }),(1,32,128)] {
+        for (plane,rows,value) in [(0,180,if full { 0 } else { 16 }),(1,90,128)] {
             let base = CVPixelBufferGetBaseAddressOfPlane(raw,plane);
             let stride = CVPixelBufferGetBytesPerRowOfPlane(raw,plane);
             assert!(!base.is_null());
-            for row in 0..rows { ptr::write_bytes(base.add(row*stride),value,64); }
+            for row in 0..rows { ptr::write_bytes(base.add(row*stride),value,320); }
         }
         assert_eq!(CVPixelBufferUnlockBaseAddress(raw,0),0);
         if let Some(transfer) = transfer {
@@ -41,7 +41,7 @@ fn image(full: bool, transfer: Option<Object>) -> PixelBuffer {
     }
 }
 fn encoder() -> VideoEncoder {
-    VideoEncoder::new(EncoderConfig { codec: VideoCodec::H264, width: 64, height: 64, fps: 30, bitrate_kbps: 500, preference: EncoderPreference::Software },|| {}).unwrap()
+    VideoEncoder::new(EncoderConfig { codec: VideoCodec::H264, width: 320, height: 180, fps: 30, bitrate_kbps: 500, preference: EncoderPreference::Software },|| {}).unwrap()
 }
 fn submit(encoder: &mut VideoEncoder, image: &PixelBuffer, pts: i64) {
     encoder.encode(image,pts,true).unwrap();
