@@ -490,6 +490,7 @@ pub(crate) enum PeerConnectionDriverEvent {
     },
     IceGathering,
     QuiesceStunGathering(Sender<()>),
+    QuiesceIceGathering(Sender<Result<()>>),
     Close,
 }
 
@@ -1783,6 +1784,15 @@ where
                 // now retired; only a later restart can start fresh discovery.
                 self.discovery = IceDiscovery::Idle;
                 if reply.try_send(()).is_err() { debug!("STUN barrier caller ended"); }
+            }
+            PeerConnectionDriverEvent::QuiesceIceGathering(reply) => {
+                self.suspend_stun_gathering().await;
+                // Retire under the allocation's original username/socket before
+                // the wrapper replaces stream adapters or advances generations.
+                self.turn_relayer.update_configuration(Vec::new(), self.ice_gather_policy);
+                let result=self.poll_writes().await;
+                self.discovery=IceDiscovery::Idle;
+                if reply.try_send(result).is_err() { debug!("ICE barrier caller ended"); }
             }
             PeerConnectionDriverEvent::IceGathering => {
                 if matches!(self.discovery, IceDiscovery::Suspended) { return false; }

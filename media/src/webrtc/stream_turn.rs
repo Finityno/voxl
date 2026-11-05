@@ -25,6 +25,7 @@ pub(super) struct StreamRelays {
     listeners: Mutex<RelayListeners>,
     allocations: Arc<Mutex<HashMap<SocketAddr,(RelayTransport,bool)>>>,
     failures: Arc<AtomicU64>,
+    epoch:Arc<AtomicU64>,
     runtime: Arc<RelayRuntime>,
 }
 enum RelayListeners {Active(Vec<AbortHandle>),Closed}
@@ -57,7 +58,7 @@ impl StreamRelays {
                 if ipv4 && ipv6 {sockets.push(UdpSocket::bind(SocketAddr::new(IpAddr::V6(std::net::Ipv6Addr::LOCALHOST),port)).await.map_err(|_|WebRtcError::Transport)?);}
                 for socket in sockets {
                     ipc.insert(socket.local_addr().map_err(|_|WebRtcError::Transport)?);
-                    let state=AllocationState {allocations:Arc::clone(&relays.allocations),failures:Arc::clone(&relays.failures),changes:Arc::clone(&changes),address:None};
+                    let state=AllocationState {allocations:Arc::clone(&relays.allocations),failures:Arc::clone(&relays.failures),changes:Arc::clone(&changes),epoch:Arc::clone(&relays.epoch),generation:relays.epoch.load(Ordering::Acquire),address:None};
                     let task=tokio::spawn(listen(Arc::new(socket),Arc::clone(&target),allowed.clone(),state));
                     let mut listeners=relays.listeners.lock().unwrap_or_else(|error|error.into_inner());
                     if let RelayListeners::Active(listeners)=&mut *listeners {listeners.push(task.abort_handle());}
@@ -71,13 +72,35 @@ impl StreamRelays {
     }
     pub async fn add_fallback(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>)->Result<(),WebRtcError> {
         let additional=Self {listeners:Mutex::new(RelayListeners::default()),allocations:Arc::clone(&self.allocations),
-            failures:Arc::clone(&self.failures),runtime:Arc::default()};
+            failures:Arc::clone(&self.failures),epoch:Arc::clone(&self.epoch),runtime:Arc::default()};
         let additional=Self::prepare_into(additional,servers,bindings,tls,changes,Duration::ZERO).await?;
         let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
         let RelayListeners::Active(listeners)=&mut *listeners else {return Err(WebRtcError::Ended);};
         // Publish adapter addresses before the driver can gather the new TURN
         // configuration. Close and adoption share this one ownership boundary.
         self.runtime.include_ipc(&additional.runtime);
+        let adopted=std::mem::replace(&mut *additional.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);
+        if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
+        Ok(())
+    }
+    pub async fn replace(&self,servers:&mut Vec<RTCIceServer>,bindings:&[String],tls:Option<Arc<ClientConfig>>,changes:Arc<ChangeSignal>)->Result<(),WebRtcError> {
+        // The driver barrier has sent releases and retired old candidate events.
+        // Advancing the owner before abort means late adapter drops cannot mark
+        // a new allocation failed, even if the server reuses a relay address.
+        self.epoch.fetch_add(1,Ordering::AcqRel);
+        let retired={
+            let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
+            let RelayListeners::Active(active)=&mut *listeners else {return Err(WebRtcError::Ended);};
+            std::mem::take(active)
+        };
+        for task in retired {task.abort();}
+        self.allocations.lock().unwrap_or_else(|error|error.into_inner()).clear();
+        let additional=Self {listeners:Mutex::new(RelayListeners::default()),allocations:Arc::clone(&self.allocations),
+            failures:Arc::clone(&self.failures),epoch:Arc::clone(&self.epoch),runtime:Arc::default()};
+        let additional=Self::prepare_into(additional,servers,bindings,tls,changes,Duration::ZERO).await?;
+        let mut listeners=self.listeners.lock().unwrap_or_else(|error|error.into_inner());
+        let RelayListeners::Active(listeners)=&mut *listeners else {return Err(WebRtcError::Ended);};
+        self.runtime.replace_ipc(&additional.runtime);
         let adopted=std::mem::replace(&mut *additional.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);
         if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
         Ok(())
@@ -112,12 +135,17 @@ struct AllocationState {
     allocations:Arc<Mutex<HashMap<SocketAddr,(RelayTransport,bool)>>>,
     failures:Arc<AtomicU64>,
     changes:Arc<ChangeSignal>,
+    epoch:Arc<AtomicU64>,
+    generation:u64,
     address:Option<SocketAddr>,
 }
 impl Drop for AllocationState {
     fn drop(&mut self) {
         if let Some(address)=self.address {
-            if let Some(value)=self.allocations.lock().unwrap_or_else(|error|error.into_inner()).get_mut(&address) {value.1=true;}
+            let mut allocations=self.allocations.lock().unwrap_or_else(|error|error.into_inner());
+            if self.epoch.load(Ordering::Acquire)!=self.generation {return;}
+            if let Some(value)=allocations.get_mut(&address) {value.1=true;}
+            drop(allocations);
             self.failures.fetch_add(1,Ordering::AcqRel);self.changes.changed();
         }
     }
@@ -178,7 +206,7 @@ async fn forward<S:AsyncRead+AsyncWrite+Unpin>(stream:S,socket:Arc<UdpSocket>,so
             // One reader future owns the frame across awaits. Cancelling a
             // read_exact on every outbound packet would lose partial headers.
             let data=timeout(Duration::from_secs(120),read_frame(&mut read)).await.map_err(|_|deadline())??;
-            if state.address.is_none() {state.address=record_allocation(&data,transport,&state.allocations);}
+            if state.address.is_none() {state.address=record_allocation(&data,transport,&state);}
             timeout(Duration::from_millis(200),socket.send_to(&data,source)).await.map_err(|_|deadline())??;
         }
         #[allow(unreachable_code)]
@@ -216,7 +244,7 @@ async fn read_frame<R:AsyncRead+Unpin>(read:&mut R) -> io::Result<Vec<u8>> {
     Ok(data)
 }
 
-fn record_allocation(data:&[u8],transport:RelayTransport,allocations:&Mutex<HashMap<SocketAddr,(RelayTransport,bool)>>) -> Option<SocketAddr> {
+fn record_allocation(data:&[u8],transport:RelayTransport,state:&AllocationState) -> Option<SocketAddr> {
     use rtc::stun::message::{Getter,Message,CLASS_SUCCESS_RESPONSE,METHOD_ALLOCATE};
     use rtc::turn::proto::relayaddr::RelayedAddress;
     if data.len()<20 || data[0]>>6!=0 {return None;}
@@ -225,8 +253,9 @@ fn record_allocation(data:&[u8],transport:RelayTransport,allocations:&Mutex<Hash
     let mut address=RelayedAddress::default();
     if address.get_from(&message).is_ok() {
         let address=SocketAddr::new(address.ip,address.port);
-        allocations.lock().unwrap_or_else(|error|error.into_inner()).insert(address,(transport,false));
-        return Some(address);
+        let mut allocations=state.allocations.lock().unwrap_or_else(|error|error.into_inner());
+        if state.epoch.load(Ordering::Acquire)!=state.generation {return None;}
+        allocations.insert(address,(transport,false));return Some(address);
     }
     None
 }

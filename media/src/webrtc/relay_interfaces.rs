@@ -18,6 +18,10 @@ impl RelayRuntime {
         let added=other.ipc.lock().unwrap_or_else(|error|error.into_inner()).clone();
         self.ipc.lock().unwrap_or_else(|error|error.into_inner()).extend(added);
     }
+    pub fn replace_ipc(&self,other:&Self) {
+        let current=other.ipc.lock().unwrap_or_else(|error|error.into_inner()).clone();
+        *self.ipc.lock().unwrap_or_else(|error|error.into_inner())=current;
+    }
     fn preferred(&self,server:SocketAddr,available:&[SocketAddr])->Option<SocketAddr> {
         let family=|address:&&SocketAddr|address.is_ipv4()==server.is_ipv4();
         let selected=if self.ipc.lock().unwrap_or_else(|error|error.into_inner()).contains(&server) {
@@ -60,6 +64,14 @@ impl Runtime for RelayRuntime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn restart_replaces_ipc_addresses_instead_of_retaining_old_generations() {
+        let old:SocketAddr="127.0.0.1:41000".parse().unwrap();let current:SocketAddr="127.0.0.1:42000".parse().unwrap();
+        let runtime=RelayRuntime::new([old].into_iter().collect());
+        runtime.replace_ipc(&RelayRuntime::new([current].into_iter().collect()));
+        assert_eq!(*runtime.ipc.lock().unwrap(),[current].into_iter().collect());
+        runtime.replace_ipc(&RelayRuntime::default());assert!(runtime.ipc.lock().unwrap().is_empty());
+    }
     #[test]
     fn relay_interfaces_follow_udp_route_and_keep_explicit_alternatives() {
         let runtime=RelayRuntime::default();let server="127.0.0.1:3478".parse().unwrap();

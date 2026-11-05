@@ -63,7 +63,7 @@ mod enabled {
             loop { match video.next_update().await {
                 VideoUpdate::Connected => return Ok::<_,Box<dyn Error>>(()),
                 VideoUpdate::KeyframeRequested => {},
-                VideoUpdate::Ended => return Err("transport ended before connection".into()),
+                VideoUpdate::Disconnected|VideoUpdate::Ended => return Err("transport ended before connection".into()),
             } }
         }).await??;
         let started = tokio::time::Instant::now();

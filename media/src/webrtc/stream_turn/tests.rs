@@ -116,7 +116,7 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
         let source=socket.local_addr().unwrap();
         let (sender,receiver)=mpsc::channel(1);
         sender.try_send(vec![0,1,0,0,0x21,0x12,0xa4,0x42,1,2,3,4,5,6,7,8,9,10,11,12]).unwrap();
-        let state=AllocationState {allocations:Arc::default(),failures:Arc::default(),changes:Arc::default(),address:None};
+        let state=AllocationState {allocations:Arc::default(),failures:Arc::default(),changes:Arc::default(),epoch:Arc::default(),generation:0,address:None};
         let target=Arc::new(Target {host:url.host,port:url.port,transport:RelayTransport::Tls,tls:Some(default_tls().unwrap())});
         let error=timeout(Duration::from_secs(5),session(socket,source,target,receiver,state)).await.unwrap().unwrap_err();
         assert!(matches!(error.get_ref().and_then(|value|value.downcast_ref::<rustls::Error>()),Some(rustls::Error::InvalidCertificate(rustls::CertificateError::UnknownIssuer))));
@@ -374,4 +374,21 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             receiver.close().await.unwrap();receiver_relays.close();
         }).await.expect("bounded forced-relay fixture");
     });
+}
+
+
+#[test]
+fn retired_stream_allocation_callbacks_cannot_relabel_or_fail_a_reused_address() {
+    use rtc::stun::message::{Message,MessageType,CLASS_SUCCESS_RESPONSE,METHOD_ALLOCATE};
+    use rtc::turn::proto::relayaddr::RelayedAddress;
+    let address:SocketAddr="127.0.0.1:41000".parse().unwrap();
+    let epoch=Arc::new(AtomicU64::new(0));let allocations=Arc::new(Mutex::new(HashMap::new()));let failures=Arc::new(AtomicU64::new(0));
+    let old=AllocationState {allocations:Arc::clone(&allocations),failures:Arc::clone(&failures),changes:Arc::default(),epoch:Arc::clone(&epoch),generation:0,address:Some(address)};
+    epoch.store(1,Ordering::Release);allocations.lock().unwrap().insert(address,(RelayTransport::Tls,false));
+    let mut response=Message::new();response.build(&[Box::new(MessageType::new(METHOD_ALLOCATE,CLASS_SUCCESS_RESPONSE)),Box::new(RelayedAddress {ip:address.ip(),port:address.port()})]).unwrap();
+    assert_eq!(record_allocation(&response.raw,RelayTransport::Tcp,&old),None);
+    drop(old);assert_eq!(allocations.lock().unwrap()[&address],(RelayTransport::Tls,false));assert_eq!(failures.load(Ordering::Acquire),0);
+    let current=AllocationState {allocations:Arc::clone(&allocations),failures:Arc::clone(&failures),changes:Arc::default(),epoch,generation:1,address:Some(address)};
+    assert_eq!(record_allocation(&response.raw,RelayTransport::Tls,&current),Some(address));
+    drop(current);assert_eq!(allocations.lock().unwrap()[&address],(RelayTransport::Tls,true));assert_eq!(failures.load(Ordering::Acquire),1);
 }

@@ -614,6 +614,9 @@ pub trait PeerConnection: crate::sealed::Sealed + Send + Sync + 'static {
     /// cancellation, then set configuration and create a restart offer.
     async fn quiesce_stun_gathering_for_restart(&self) -> Result<()>;
 
+    /// Retire discovery/allocations before a restart that replaces local sockets.
+    async fn quiesce_ice_gathering_for_restart(&self) -> Result<()>;
+
     /// Creates a data channel.
     ///
     /// The channel is not usable immediately: unless it was negotiated out-of-band, its SCTP
@@ -1359,6 +1362,16 @@ impl PeerConnection for PeerConnectionImpl {
         self.inner.driver_event_tx.send(PeerConnectionDriverEvent::QuiesceStunGathering(reply))
             .await.map_err(|_| Error::Other("peer connection driver stopped".to_owned()))?;
         acknowledged.recv().await.ok_or_else(|| Error::Other("peer connection driver stopped".to_owned()))
+    }
+
+    async fn quiesce_ice_gathering_for_restart(&self) -> Result<()> {
+        if !self.inner.discard_local_candidates_during_ice_restart {
+            return Err(Error::Other("restart must discard local candidates".to_owned()));
+        }
+        let (reply, mut acknowledged) = channel(1);
+        self.inner.driver_event_tx.send(PeerConnectionDriverEvent::QuiesceIceGathering(reply))
+            .await.map_err(|_| Error::Other("peer connection driver stopped".to_owned()))?;
+        acknowledged.recv().await.ok_or_else(|| Error::Other("peer connection driver stopped".to_owned()))?
     }
 
     async fn set_configuration(&self, configuration: RTCConfiguration) -> Result<()> {

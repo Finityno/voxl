@@ -37,7 +37,7 @@ fn transport(_: webrtc::error::Error) -> WebRtcError { WebRtcError::Transport }
 
 #[repr(u8)]
 #[derive(Clone,Copy,PartialEq,Eq)]
-enum Connection {Waiting,Connected,Ended}
+enum Connection {Waiting,Connected,Disconnected,Ended}
 struct Events {
     gathered: AtomicBool,
     gather_wake: Notify,
@@ -48,7 +48,7 @@ struct Events {
     media_mid:OnceLock<String>,
 }
 impl Events {
-    fn connection(&self)->Connection {match self.connection.load(Ordering::Acquire) {0=>Connection::Waiting,1=>Connection::Connected,_=>Connection::Ended}}
+    fn connection(&self)->Connection {match self.connection.load(Ordering::Acquire) {0=>Connection::Waiting,1=>Connection::Connected,2=>Connection::Disconnected,_=>Connection::Ended}}
     fn transition(&self,next:Connection) {
         // Terminal transport/candidate failure cannot be revived by a late
         // connection callback from the same driver.
@@ -99,7 +99,8 @@ impl PeerConnectionEventHandler for Events {
     async fn on_connection_state_change(&self, state: RTCPeerConnectionState) {
         self.transition(match state {
             RTCPeerConnectionState::Connected=>Connection::Connected,
-            RTCPeerConnectionState::Failed|RTCPeerConnectionState::Disconnected|RTCPeerConnectionState::Closed=>Connection::Ended,
+            RTCPeerConnectionState::Disconnected=>Connection::Disconnected,
+            RTCPeerConnectionState::Failed|RTCPeerConnectionState::Closed=>Connection::Ended,
             _=>Connection::Waiting,
         });
         self.changes.changed();
@@ -216,16 +217,17 @@ pub struct WebRtcVideo {
 }
 
 #[derive(Clone)]
-struct FallbackSetup {bindings:Vec<String>,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>}
+struct RestartSetup {bindings:Vec<String>,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,policy:RoutePolicy}
+#[derive(Clone,Copy)]
+enum Startup {Discovery,Configured}
 enum Negotiation {
-    InitialAnswer {fallback:Option<FallbackSetup>},
-    Ready {payload:u8,fallback:Option<FallbackSetup>},
-    PreparingFallback,
-    FallbackAnswer,
-    FallbackReady {payload:u8},
+    InitialAnswer {setup:Option<RestartSetup>,startup:Startup},
+    Ready {payload:u8,generation:u64,setup:Option<RestartSetup>,startup:Startup},
+    PreparingRestart,
+    RestartAnswer {generation:u64,setup:RestartSetup},
 }
 impl Negotiation {
-    fn payload(&self)->Option<u8> {match self {Self::Ready {payload,..}|Self::FallbackReady {payload}=>Some(*payload),_=>None}}
+    fn payload(&self)->Option<u8> {match self {Self::Ready {payload,..}=>Some(*payload),_=>None}}
 }
 /// Carry this offer and generation inside the same authenticated view. SDP
 /// and relay authentication must never be placed in diagnostics or public IPC.
@@ -234,9 +236,9 @@ struct NegotiationGuard(Option<VideoCloseHandle>);
 impl Drop for NegotiationGuard {fn drop(&mut self) {if let Some(close)=self.0.take() {close.close();}}}
 
 #[derive(Clone,Copy)]
-enum UpdatePhase {Waiting,Connected}
+enum UpdatePhase {Waiting,Connected,Disconnected}
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
-pub enum VideoUpdate {Connected,KeyframeRequested,Ended}
+pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,Ended}
 
 struct OpeningPeer(Option<Arc<dyn PeerConnection>>, tokio::runtime::Handle);
 impl Drop for OpeningPeer {
@@ -275,10 +277,11 @@ impl WebRtcVideo {
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
             || matches!(config.format,VideoFormat::H264 {profile_level_id} if !matches!(profile_level_id,[66,_,_]|[100,0|12,_]))
         { return Err(WebRtcError::Configuration); }
-        let fallback=(trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.iter().all(|server|
+        let discovery=trickle && config.route_policy==RoutePolicy::Automatic && config.ice_servers.iter().all(|server|
             server.username.is_empty() && server.credential.is_empty() && server.urls().ok().is_some_and(|urls|
-                urls.iter().all(|url|url.scheme==rtc::ice::url::SchemeType::Stun && url.proto==rtc::ice::url::ProtoType::Udp))))
-            .then(||FallbackSetup {bindings:config.bind_addresses.clone(),tls:tls.clone()});
+                urls.iter().all(|url|url.scheme==rtc::ice::url::SchemeType::Stun && url.proto==rtc::ice::url::ProtoType::Udp)));
+        let startup=if discovery {Startup::Discovery} else {Startup::Configured};
+        let setup=trickle.then(||RestartSetup {bindings:config.bind_addresses.clone(),tls:tls.clone(),policy:config.route_policy});
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes),turn_delay).await?);
@@ -301,7 +304,8 @@ impl WebRtcVideo {
         let settings=SettingEngineBuilder::new()
             .with_srflx_acceptance_min_wait(Some(Duration::ZERO))
             .with_prflx_acceptance_min_wait(Some(Duration::ZERO))
-            .with_relay_acceptance_min_wait((fallback.is_some() || config.route_policy==RoutePolicy::RelayOnly).then_some(Duration::ZERO))
+            .with_relay_acceptance_min_wait((discovery || config.route_policy==RoutePolicy::RelayOnly).then_some(Duration::ZERO))
+            .with_discard_local_candidates_during_ice_restart(trickle)
             .build();
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
             .with_runtime(adapt_runtime(relays.runtime()))
@@ -337,7 +341,7 @@ impl WebRtcVideo {
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
         let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
-        Ok(Self { peer,sender,track,events,closer,offer,negotiation:Negotiation::InitialAnswer {fallback},ssrc,
+        Ok(Self { peer,sender,track,events,closer,offer,negotiation:Negotiation::InitialAnswer {setup,startup},ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default() },
             keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0 })
@@ -381,7 +385,10 @@ impl WebRtcVideo {
                 self.checked_relay_failure=failure_revision;
             }
             let connected=self.connected();
-            if connected && matches!(self.updates,UpdatePhase::Waiting) {
+            if self.events.connection()==Connection::Disconnected && !matches!(self.updates,UpdatePhase::Disconnected) {
+                self.updates=UpdatePhase::Disconnected;return VideoUpdate::Disconnected;
+            }
+            if connected && !matches!(self.updates,UpdatePhase::Connected) {
                 self.updates=UpdatePhase::Connected;
                 return VideoUpdate::Connected;
             }
@@ -443,9 +450,9 @@ impl WebRtcVideo {
 
     pub async fn answer_generation(&mut self,generation:u64,sdp:String)->Result<(),WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
-        let fallback=match &self.negotiation {
-            Negotiation::InitialAnswer {fallback} if generation==0=>fallback.clone(),
-            Negotiation::FallbackAnswer if generation==1=>None,
+        let (setup,startup)=match &self.negotiation {
+            Negotiation::InitialAnswer {setup,startup} if generation==0=>(setup.clone(),*startup),
+            Negotiation::RestartAnswer {generation:expected,setup} if generation==*expected=>(Some(setup.clone()),Startup::Configured),
             _=>return Err(WebRtcError::Configuration),
         };
         if sdp.is_empty() || sdp.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
@@ -455,7 +462,7 @@ impl WebRtcVideo {
             .find(|codec| codec.rtp_codec.mime_type.eq_ignore_ascii_case(self.format.mime())).map(|codec| codec.payload_type);
         let Some(payload)=payload else {return Err(WebRtcError::Transport);};
         if self.ended() {return Err(WebRtcError::Ended);}
-        self.negotiation=if generation==0 {Negotiation::Ready {payload,fallback}} else {Negotiation::FallbackReady {payload}};
+        self.negotiation=Negotiation::Ready {payload,generation,setup,startup};
         guard.0=None;
         Ok(())
     }
@@ -465,34 +472,50 @@ impl WebRtcVideo {
     /// short-lived credentials and calls this only while still unconnected.
     /// It must stop old signaling, authenticate the new offer/generation and
     /// replace its signaling handle. No codec, bindings, policy or DTLS identity
-    /// may change. Credential renewal after connection is separate work.
+    /// may change. Use `begin_ice_restart` for an established trickle peer.
     pub async fn begin_relay_fallback(&mut self,mut config:WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {
         tokio::time::timeout(Duration::from_secs(6),self.relay_fallback(&mut config)).await.map_err(|_|WebRtcError::Deadline)?
     }
-    async fn relay_fallback(&mut self,config:&mut WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {
+    /// Begin a serialized live ICE restart on the same peer/DTLS identity.
+    /// The owner must release control, mark media reconnecting and authenticate
+    /// the new generation/answer/candidates. Call `next_update` before resuming
+    /// video and send a fresh keyframe. This method grants no application rights.
+    /// Only unchanged explicit ephemeral bindings, codec and route policy are
+    /// accepted; interface replacement and retry/credential schedules belong to
+    /// the owner. Old allocations/adapters are retired, not accumulated.
+    pub async fn begin_ice_restart(&mut self,mut config:WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {
+        tokio::time::timeout(Duration::from_secs(6),self.restart(&mut config,false)).await.map_err(|_|WebRtcError::Deadline)?
+    }
+    async fn relay_fallback(&mut self,config:&mut WebRtcConfig)->Result<VideoRestartOffer,WebRtcError> {self.restart(config,true).await}
+    async fn restart(&mut self,config:&mut WebRtcConfig,startup_only:bool)->Result<VideoRestartOffer,WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
-        let (setup,payload)=match &self.negotiation {
-            Negotiation::Ready {fallback:Some(setup),payload} if !self.connected() && !self.ice_connected()=>(setup.clone(),*payload),
+        let (setup,payload,generation,startup)=match &self.negotiation {
+            Negotiation::Ready {setup:Some(setup),payload,generation,startup}=>(setup.clone(),*payload,*generation,*startup),
             _=>return Err(WebRtcError::Configuration),
         };
-        if config.route_policy!=RoutePolicy::Automatic || config.bind_addresses!=setup.bindings
+        if startup_only && (generation!=0 || !matches!(startup,Startup::Discovery) || self.connected() || self.ice_connected()) {return Err(WebRtcError::Configuration);}
+        let next=generation.checked_add(1).filter(|next|*next<=u64::from(u32::MAX)).ok_or(WebRtcError::Configuration)?;
+        if config.route_policy!=setup.policy || config.bind_addresses!=setup.bindings
             || config.format.mime()!=self.format.mime() || config.format.fmtp()!=self.format.fmtp()
-            || config.ice_servers.is_empty() || config.ice_servers.len()>4 {return Err(WebRtcError::Configuration);}
+            || config.ice_servers.len()>4 || (startup_only && config.ice_servers.is_empty())
+            || (!startup_only && setup.bindings.iter().any(|binding|binding.parse::<std::net::SocketAddr>().map_or(true,|address|address.port()!=0)))
+        {return Err(WebRtcError::Configuration);}
         let mut validated=WebRtcConfig::direct_first(config.format,setup.bindings.clone());
         for server in &config.ice_servers {validated.add_ice_server(server.urls.clone(),server.username.clone(),server.credential.clone())?;}
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
-        self.negotiation=Negotiation::PreparingFallback;
-        self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;
+        self.negotiation=Negotiation::PreparingRestart;
+        if startup_only {self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;}
+        else {self.peer.quiesce_ice_gathering_for_restart().await.map_err(transport)?;}
         if self.ended() {return Err(WebRtcError::Ended);}
-        if self.events.connection()==Connection::Connected || self.ice_connected() {
-            self.negotiation=Negotiation::Ready {payload,fallback:Some(setup)};
-            guard.0=None;
-            return Err(WebRtcError::Configuration);
+        if startup_only && (self.events.connection()==Connection::Connected || self.ice_connected()) {
+            self.negotiation=Negotiation::Ready {payload,generation,setup:Some(setup),startup};
+            guard.0=None;return Err(WebRtcError::Configuration);
         }
         self.events.gathered.store(false,Ordering::Release);
         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;
         signals.advance();self.events.changes.changed();
-        self.closer.relays.add_fallback(&mut config.ice_servers,&setup.bindings,setup.tls,Arc::clone(&self.events.changes)).await?;
+        if startup_only {self.closer.relays.add_fallback(&mut config.ice_servers,&setup.bindings,setup.tls.clone(),Arc::clone(&self.events.changes)).await?;}
+        else {self.closer.relays.replace(&mut config.ice_servers,&setup.bindings,setup.tls.clone(),Arc::clone(&self.events.changes)).await?;}
         let current=self.peer.get_configuration().await;
         let configuration=RTCConfigurationBuilder::new().with_ice_servers(std::mem::take(&mut config.ice_servers))
             .with_ice_transport_policy(current.ice_transport_policy()).with_bundle_policy(current.bundle_policy())
@@ -506,10 +529,9 @@ impl WebRtcVideo {
         if !sdp.lines().any(|line|line.strip_prefix("a=ice-options:").is_some_and(|options|options.split_whitespace().any(|option|option=="trickle"))) {sdp.push_str("a=ice-options:trickle\r\n");}
         if self.ended() {return Err(WebRtcError::Ended);}
         if sdp.is_empty() || sdp.len()>256*1024 {return Err(WebRtcError::Configuration);}
-        self.offer=sdp.clone();self.negotiation=Negotiation::FallbackAnswer;self.updates=UpdatePhase::Waiting;
+        self.offer=sdp.clone();self.negotiation=Negotiation::RestartAnswer {generation:next,setup};self.updates=UpdatePhase::Waiting;
         self.keyframe.store(true,Ordering::Release);self.last_keyframe_request=None;
-        guard.0=None;
-        Ok(VideoRestartOffer {generation:1,sdp})
+        guard.0=None;Ok(VideoRestartOffer {generation:next,sdp})
     }
 
     pub async fn send(&mut self, frame: EncodedFrame) -> Result<(), WebRtcError> {

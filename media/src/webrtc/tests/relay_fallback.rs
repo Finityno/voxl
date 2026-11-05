@@ -296,10 +296,10 @@ fn late_relay_close_while_awaiting_restart_answer_stops_retries() {
     }).await.unwrap();});
 }
 
-fn strip_candidates(sdp:&str)->String {
+pub(super) fn strip_candidates(sdp:&str)->String {
     sdp.lines().filter(|line|!line.starts_with("a=candidate:") && *line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n"
 }
-fn field<'a>(sdp:&'a str,prefix:&str)->&'a str {sdp.lines().find_map(|line|line.strip_prefix(prefix)).unwrap()}
+pub(super) fn field<'a>(sdp:&'a str,prefix:&str)->&'a str {sdp.lines().find_map(|line|line.strip_prefix(prefix)).unwrap()}
 
 fn late_configuration(relay:Option<RelayTransport>,restart:bool,initial:InitialDiscovery) {
     install_diagnostics();

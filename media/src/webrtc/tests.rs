@@ -6,6 +6,7 @@ use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication
 use tokio::sync::mpsc;
 
 mod relay_fallback;
+mod live_restart;
 
 #[test]
 fn webrtc_h264_offers_preserve_baseline_high_and_constrained_high_profiles() {
@@ -42,7 +43,7 @@ fn ice_reachability_precedes_dtls_and_terminal_connection_stays_closed() {
             assert!(video.ice_connected() && !video.connected(),"ICE reachability never grants DTLS/RTP readiness");
             // Model an accepted answer while DTLS is pending. A relay request
             // must be refused before it changes the negotiation or allocates.
-            video.negotiation=Negotiation::Ready {payload:102,fallback:Some(FallbackSetup {bindings:vec!["127.0.0.1:0".into()],tls:None})};
+            video.negotiation=Negotiation::Ready {payload:102,generation:0,setup:Some(RestartSetup {bindings:vec!["127.0.0.1:0".into()],tls:None,policy:RoutePolicy::Automatic}),startup:Startup::Discovery};
             let mut fallback=WebRtcConfig::direct_first(video.format,vec!["127.0.0.1:0".into()]);
             fallback.add_ice_server(vec!["turn:127.0.0.1:9?transport=udp".into()],"fixture".into(),"unused".into()).unwrap();
             assert!(matches!(video.begin_relay_fallback(fallback).await,Err(WebRtcError::Configuration)));
