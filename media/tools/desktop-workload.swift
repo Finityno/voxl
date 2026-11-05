@@ -13,6 +13,7 @@ func exclusive(_ path: URL) throws -> FileHandle {
     try require(fd >= 0, "exclusive output creation failed")
     return FileHandle(fileDescriptor: fd, closeOnDealloc: true)
 }
+@MainActor func run() throws {
 let args = CommandLine.arguments
 try require(args.count == 2 || args.count == 4 || args.count == 5, "desktop-workload <new-output-directory> [width height [30|60]]")
 let width = args.count >= 4 ? Int(args[2]) ?? 0 : 1920
@@ -132,3 +133,10 @@ let manifest: [String: Any] = ["schemaVersion":1,"generator":"CoreText offscreen
 let json = try JSONSerialization.data(withJSONObject: manifest,options:[.prettyPrinted,.sortedKeys])
 try json.write(to: destination.appendingPathComponent("manifest.json"),options:.withoutOverwriting)
 print("generated \(frames) frames at \(width)x\(height); manifest: \(destination.appendingPathComponent("manifest.json").path)")
+}
+
+do {try run()}
+catch {
+    try? FileHandle.standardError.write(contentsOf: Data("desktop-workload: \(error)\n".utf8))
+    exit(1)
+}
