@@ -75,6 +75,7 @@ features = ["log"]
 default-features = false
 
 [dependencies.rtc]
+path = "../rtc"
 version = "0.21.1"
 default-features = false
 

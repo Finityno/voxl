@@ -122,3 +122,9 @@ this change even though earlier packet-delivery tests passed. Source identities,
 the identical before/after test and final UDP/TCP/TLS evidence are retained in
 `results/2026-11-05-live-ice-restart/` in the parent media package. This changes
 wrapper readiness, not the peer's certificate or RTP timeline.
+
+The normalized SDK manifest now uses sibling `../rtc` at the same 0.21.1 version
+and production features. That checksum-verified core import fixes empty-list ICE
+configuration replacement; see its `PROVENANCE.md` and `IMPORT.json`. The SDK's
+public getter, driver update and restart barrier need no shadow configuration or
+behavior change for this patch. The original packaged SDK manifest is retained.
