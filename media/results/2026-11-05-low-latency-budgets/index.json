@@ -566,8 +566,8 @@
   },
   "supportFiles": {
     "README.md": {
-      "bytes": 3999,
-      "sha256": "c6dbeb4aabc059488e8c30ab5950a2078fcb2ac8cee99bca6587f00fb3d3e7b2"
+      "bytes": 4016,
+      "sha256": "3de475e67ac3b7163222ac217c6d1f84b62e766e71c42287bfe0f84e463a136e"
     },
     "exporter-snapshot.py": {
       "bytes": 7152,

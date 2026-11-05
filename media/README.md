@@ -131,7 +131,7 @@ admitting that mode or attributing its underlying driver/rate-control cause.
 
 The [bitrate follow-up](results/2026-11-05-low-latency-budgets/README.md)
 completes low-latency HEVC at higher requested rates. In one short matched pilot,
-the12000-kbps request yields0.955590Mbps of observed encoded payload and5.55ms
+the 12000-kbps request yields 0.955590 Mbps of observed encoded payload and 5.55 ms
 callback p95 with no worse aggregate foreground frames/channels than paired
 H.264. Lower requests still regress foreground quality. This is a candidate
 for sustained qualification; requested bitrate is no ceiling, and no default,
