@@ -244,11 +244,45 @@ The fixture and component metrics alone do not qualify codec/device admission.
 `media/tools/analyze-text-workload.py` consumes independently normalized RGB
 crops. It verifies all source hashes, a static original RGB region and rational
 RGB-to-NV12 spot checks, then measures only source-derived ink plus a one-pixel
-halo. Per-frame integer error sums determine regressions against the declared
-baseline. The uncompressed 4:2:0-to-RGB control remains separate, so source chroma
-loss cannot be credited to a codec. RGB crops must contain exactly the 240
-observed frames with matching geometry/color interpretation; run decoding and
-analysis under external process-group deadlines and retain their commands.
+halo. Per-frame integer error sums determine aggregate and per-channel
+regressions against the declared baseline; these do not prove every individual
+pixel is no worse. The uncompressed 4:2:0-to-RGB control remains separate, so
+source chroma loss cannot be credited to a codec. RGB crops must contain exactly
+the requested observed frame count (default 240) with matching geometry/color
+interpretation. Optional NumPy acceleration preserves exact integer metrics.
+Run decoding and analysis under external process-group deadlines and retain
+their commands.
+
+`media/tools/run-matched-codecs.py` runs a bounded native Mac comparison at a
+full clean source revision, with an owned target, shared build lock, nice 19,
+two build jobs and process-group watchdogs. It builds the probe and runs strict
+library/example Clippy, validates generated source hashes, then independently
+decodes every frame and measures full/text/thin-region YUV SSIM and original
+RGB foreground errors. Private bitstreams and raw numeric rows remain in the
+new output directory; large RGB intermediates are removed only after analysis
+and can be regenerated from the hashed inputs. For example:
+
+```bash
+python3 -B media/tools/run-matched-codecs.py --revision <full-clean-sha> \
+  --output /tmp/unique-codec-comparison --analysis-engine numpy
+```
+
+Default H.264 Baseline 3000kbps and HEVC Main 1500kbps requests are comparison
+hypotheses, not equal-quality guarantees or bandwidth caps. The default plan is
+five independent runs, each with 30 seconds warmup and 300 seconds observation;
+`--runs=1 --warmup-seconds=1 --observation-seconds=8` is a diagnostic only.
+`--fixture` can reuse an immutable 270-frame fixture. `codec_probe` cycles its
+30-frame prefix during warmup and its 240 observed frames during observation,
+while capture timestamps keep increasing. This avoids duplicating a large raw
+input; repeated cycles within one session are not independent runs or a wider
+content corpus. Packed NV12 planes use whole-plane reads; padded native planes
+retain row reads. Timing excludes file read/fill from encode callback latency.
+
+Results distinguish Annex B payload, nominal frame clocks, encode-to-callback
+latency and whole-probe CPU/RSS. They do not measure wire/relay billing,
+input-to-display latency, app baseline, OS helpers, GPU utilization, power,
+hardware decoding or physical endpoints. AV1 has no implementation in this Mac
+probe. No target, production default, codec policy or application pin changes.
 
 `results/2026-11-05-coding-workload/` records the first controlled 1080p30
 coding comparisons, foreground metrics and native receiver replays. Single
