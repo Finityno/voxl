@@ -3,7 +3,8 @@
 Encoder/data source `2a316411ce07b1c326e0e3e47a80e4ee3a91915a`;
 foreground analysis and replay transport source
 `cfb756373d0b23842c57e6e81b3da4a793aaa613`;
-final generator source `0473a75bb6e4551271d7af3579383fe59fc13ef0`.
+storage-ownership source `0473a75bb6e4551271d7af3579383fe59fc13ef0`;
+final generator source `a45117e30483e609a337f38b4783b1d7e9fb0839`.
 Only tools/examples/documentation change. All fourteen tracked media source files
 and all 36 protected manifest/lock/vendor/config inputs match the preceding
 checkpoint. No production encoder, transport, default or application pin changes.
@@ -133,6 +134,13 @@ before reading. Its strict Swift build/regeneration reproduces **identical**
 NV12, original RGB and manifest bytes. No encoder is rerun or attributed to that
 source; all 85 Rust/manifest/config blobs match cfb. The data identity supports
 reuse, not a claim of new performance samples.
+
+At the accepted minimum 960x540 geometry, the moving window could occlude the
+strip intended to stay static. Final a451 clamps that motion within the code
+area. The same checker rejects the old generator's minimum reference and
+accepts all 270 new reference frames with exact rational matrix samples.
+Default 1080p NV12/RGB/manifest hashes remain identical. This is a native
+fixture regression, not a new codec/fps/resource result.
 
 Every run has exact clean source checks, its own target, shared build lock,
 nice 19, two jobs and process-group watchdogs. All completed owned groups are

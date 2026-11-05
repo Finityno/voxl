@@ -1,7 +1,7 @@
 {
   "encoderSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
   "analysisTransportSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
-  "finalGeneratorSource": "0473a75bb6e4551271d7af3579383fe59fc13ef0",
+  "finalGeneratorSource": "a45117e30483e609a337f38b4783b1d7e9fb0839",
   "geometry": [
     1920,
     1080
@@ -24,7 +24,8 @@
     "browserFlatFramesEach": 20,
     "browserSrgbBeforeAfterCases": 2,
     "browserBt709TransferCase": 1,
-    "browserMeasurementCasesTotal": 9
+    "browserMeasurementCasesTotal": 9,
+    "minimumGeometryReferenceRegression": 1
   },
   "candidates": [
     {
@@ -104,5 +105,15 @@
   },
   "srgbBeforeAfterReadbackIdentical": true,
   "bt709CanvasNormalizedCenterMaxCodeError": 17,
-  "canvasIsUniversalColorOracle": false
+  "canvasIsUniversalColorOracle": false,
+  "storageOwnershipGeneratorSource": "0473a75bb6e4551271d7af3579383fe59fc13ef0",
+  "minimumGeometryRegression": {
+    "geometry": [
+      960,
+      540
+    ],
+    "oldReferenceRejected": true,
+    "newReferencePasses": true,
+    "default1080DataUnchanged": true
+  }
 }

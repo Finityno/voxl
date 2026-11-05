@@ -1,13 +1,13 @@
 {
   "encoderSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
   "analysisSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
-  "finalGeneratorSource": "0473a75bb6e4551271d7af3579383fe59fc13ef0",
-  "embeddedTextHashesVerified": 102,
+  "finalGeneratorSource": "a45117e30483e609a337f38b4783b1d7e9fb0839",
+  "embeddedTextHashesVerified": 118,
   "files": [
     {
       "path": "README.md",
-      "bytes": 9510,
-      "sha256": "373d6d8edfabef1f9e43f1568271c160121bd78ccb0302ef40abe575943a93a6"
+      "bytes": 10012,
+      "sha256": "057db82809b7944c44c41a7b336a40917edb772c839f748f288d09130739f256"
     },
     {
       "path": "bt709-canvas-control.json",
@@ -45,6 +45,11 @@
       "sha256": "47b32373865d6727ddb2111a171d87f8d8c038719adbc85ae0980d4e91785fbc"
     },
     {
+      "path": "minimum-geometry-regression.json",
+      "bytes": 28587,
+      "sha256": "f969643068c525a9220ae870c78c09bb903be716d1fc28b5c2f69266cbf90c47"
+    },
+    {
       "path": "native-codecs.json",
       "bytes": 409269,
       "sha256": "9d7f18b2e7d1871b3c90f333ac7e55f8272c5c38f3436b12a9b379975bd53b84"
@@ -61,8 +66,8 @@
     },
     {
       "path": "summary.json",
-      "bytes": 3950,
-      "sha256": "d38a80cdb9677747abbf3dfeae118f5c93c1c172b1437fa144253f06d8bdb2a9"
+      "bytes": 4263,
+      "sha256": "14608cffc983294a8df517b795e86dd859b7cf75bb9e5359c905172617ab5893"
     },
     {
       "path": "transfer-control-picture-comparison.json",
