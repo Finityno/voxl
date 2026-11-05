@@ -157,9 +157,12 @@ A consuming application draft now pins the measured failure-wakeup source
 `f098e462a62833b73d6a6103e4f50ff810fb7ffb`. Its Mac host library checks,
 strict library Clippy and four selected consent/cancellation unit contracts
 pass at the consuming draft's recorded source. Integrated viewer/application
-and physical endpoint qualification remain separate. It requests none of the
-new priority/tuning modes and keeps its codec defaults; these component packs
-do not establish application performance qualification.
+compile checks and one updated-source native Mac/owned Simulator scenario also
+pass, including capture/Connect/H.264 decode, lease expiry and signed revocation.
+Physical endpoints and full application performance qualification remain open.
+The app requests none of the new priority/tuning modes and keeps its codec
+defaults; these component packs do not establish application performance
+qualification.
 
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.

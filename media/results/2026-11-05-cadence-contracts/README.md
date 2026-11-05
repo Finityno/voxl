@@ -32,3 +32,9 @@ at this checkpoint. The ongoing 30fps five-session measurement stays frozen at
 its earlier exact source and is not disturbed. No result here establishes
 hardware support, decoder identity, app/resource/power/wire budgets, production
 profile admission or a default/target/application-pin change.
+
+The subsequent [native generation and short 60fps pack](../2026-11-05-cadence-native/README.md)
+verifies the previously unexecuted generator/default30 controls and native
+codec pilots at its later exact source. It does not rerun or reattribute these
+13 parser/metric tests, and the measured HEVC foreground regressions prevent
+profile promotion.
