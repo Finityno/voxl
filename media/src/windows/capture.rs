@@ -98,7 +98,13 @@ impl CaptureSignal {
 /// Close from any thread without sending COM/capture objects across apartments.
 #[derive(Clone)]
 pub struct CaptureStop(Arc<CaptureSignal>);
-impl CaptureStop {pub fn close(&self) {self.0.close();}}
+impl CaptureStop {
+    pub fn close(&self) {self.0.close();}
+    pub(super) fn current(&self,capture:&DesktopCapture)->Result<(),MediaError> {
+        if !Arc::ptr_eq(&self.0,&capture.resources.signal) {return Err(MediaError::Configuration);}
+        capture.current()
+    }
+}
 struct Resources {pool:Option<Direct3D11CaptureFramePool>,session:Option<GraphicsCaptureSession>,item:GraphicsCaptureItem,arrived:Option<i64>,closed:Option<i64>,signal:Arc<CaptureSignal>}
 impl Drop for Resources {fn drop(&mut self) {
     self.signal.close();
@@ -214,17 +220,18 @@ impl DesktopCapture {
         // SAFETY: the frame retains this resource; its wrapper cannot be closed
         // until conversion's GPU fence has completed all reads of these pixels.
         let texture=checked("captured texture",unsafe {access.GetInterface::<ID3D11Texture2D>()})?;
-        Ok(Some(CapturedFrame {frame:owned,texture,pts:timestamp/10,capture:self}))
+        Ok(Some(CapturedFrame {frame:owned,texture,pts:timestamp/10,arrival:Instant::now(),capture:self}))
     }
 }
 impl Drop for DesktopCapture {fn drop(&mut self) {self.close();}}
 struct Frame(Direct3D11CaptureFrame);
 impl Drop for Frame {fn drop(&mut self) {let _=self.0.Close();}}
-pub struct CapturedFrame<'a> {frame:Frame,pub(super) texture:ID3D11Texture2D,pts:i64,capture:&'a DesktopCapture}
+pub struct CapturedFrame<'a> {frame:Frame,pub(super) texture:ID3D11Texture2D,pts:i64,pub(super) arrival:Instant,capture:&'a DesktopCapture}
 impl CapturedFrame<'_> {
     pub fn presentation_time_micros(&self)->i64 {self.pts}
     pub(super) fn validate(&self)->Result<(),MediaError> {let _=&self.frame;self.capture.current()}
     pub(super) fn capture_close(&self) {self.capture.close();}
+    pub(super) fn stop_handle(&self)->CaptureStop {self.capture.stop_handle()}
 }
 #[derive(PartialEq,Eq)]
 struct DesktopName {value:[u16;128],length:usize}
