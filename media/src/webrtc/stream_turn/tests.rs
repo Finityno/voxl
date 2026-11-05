@@ -55,6 +55,18 @@ fn webrtc_forced_relay_tls_validates_certificate_and_carries_media() {relay_conn
 
 #[test]
 #[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn webrtc_close_releases_live_turn_udp_allocation() {relay_connection(RelayTransport::Udp,super::super::RoutePolicy::RelayOnly,true,GatherMode::CloseSender);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
+fn webrtc_close_releases_live_turn_tcp_allocation() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::RelayOnly,true,GatherMode::CloseSender);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn TLS fixture and fresh test credentials"]
+fn webrtc_close_releases_live_turn_tls_allocation() {relay_connection(RelayTransport::Tls,super::super::RoutePolicy::RelayOnly,true,GatherMode::CloseSender);}
+
+#[test]
+#[ignore = "requires the isolated loopback coturn fixture and fresh test credentials"]
 fn webrtc_direct_media_survives_an_unused_tcp_relay_failure() {relay_connection(RelayTransport::Tcp,super::super::RoutePolicy::Automatic,true,GatherMode::Full);}
 
 #[test]
@@ -112,14 +124,14 @@ fn webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store() {
 }
 
 #[derive(Clone,Copy,PartialEq,Eq)]
-enum GatherMode {Full,Trickle,DeferredFallback,TrickleImmediate}
+enum GatherMode {Full,Trickle,DeferredFallback,TrickleImmediate,CloseSender}
 
 fn relay_connection(expected_transport:RelayTransport,policy:super::super::RoutePolicy,limit_receiver_interfaces:bool,mode:GatherMode) {
     use super::super::*;
     use std::sync::atomic::AtomicUsize;
     use webrtc::media_stream::track_remote::{TrackRemote,TrackRemoteEvent};
     use rtc::rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication;
-    let trickle=mode!=GatherMode::Full;
+    let trickle=!matches!(mode,GatherMode::Full|GatherMode::CloseSender);
     let blocked_direct=mode==GatherMode::DeferredFallback;
     struct CandidateGate {open:bool,pending:Vec<String>}
     struct Receiver {gate:Arc<Mutex<CandidateGate>>,incremental:Option<(VideoSignaling,String,Arc<AtomicUsize>)>,packets:mpsc::Sender<rtc::rtp::Packet>,gathered:Arc<AtomicBool>,connected:Arc<AtomicBool>,track_seen:Arc<AtomicBool>,wake:Arc<Notify>}
@@ -306,6 +318,46 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
             assert_eq!(route.route,if relay_only {MediaRoute::Relayed} else {MediaRoute::Direct},"prove the selected route under the requested policy");
             assert_eq!(route.local_relay_transport,if relay_only {expected_transport} else {RelayTransport::Unknown},"join nominated allocation to actual stream transport");
             assert!(route.bytes_sent>0);
+            if mode==GatherMode::CloseSender {
+                let allocations=|sdp:&str| {
+                    sdp.lines().filter(|line|line.starts_with("a=candidate:") && line.contains(" typ relay"))
+                        .map(|line| {
+                            let words:Vec<_>=line.split_whitespace().collect();
+                            let address=SocketAddr::new(words[4].parse().unwrap(),words[5].parse().unwrap());
+                            assert!(address.ip().is_loopback(),"allocation probe must remain loopback only");address
+                        }).collect::<std::collections::HashSet<_>>()
+                };
+                let sender_allocations=allocations(video.offer());
+                let receiver_allocations=allocations(&receiver.local_description().await.unwrap().sdp);
+                assert_eq!(sender_allocations.len(),1);assert_eq!(receiver_allocations.len(),1);
+                assert!(sender_allocations.is_disjoint(&receiver_allocations));
+                for address in sender_allocations.iter().chain(&receiver_allocations) {
+                    assert!(matches!(UdpSocket::bind(address).await,Err(error) if error.kind()==io::ErrorKind::AddrInUse),"live allocation must own its advertised relay socket");
+                }
+                let closed_at=Instant::now();
+                video.close_handle().close();video.close();
+                assert!(video.ended(),"close must synchronously end media authority");
+                assert!(matches!(video.send(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65,9],keyframe:true,presentation_time_micros:2_000_000}).await,Err(WebRtcError::Ended)));
+                let mut released=Vec::new();
+                for address in &sender_allocations {
+                    let socket=timeout(Duration::from_secs(3),async {
+                        loop {
+                            match UdpSocket::bind(address).await {
+                                Ok(socket)=>break socket,
+                                Err(error) if error.kind()==io::ErrorKind::AddrInUse=>tokio::time::sleep(Duration::from_millis(10)).await,
+                                Err(error)=>panic!("allocation release probe failed: {:?}",error.kind()),
+                            }
+                        }
+                    }).await.expect("closed sender allocation must release its server socket while coturn stays alive");
+                    released.push(socket);
+                }
+                for address in &receiver_allocations {
+                    assert!(matches!(UdpSocket::bind(address).await,Err(error) if error.kind()==io::ErrorKind::AddrInUse),"closing one sender must not close the live receiver's allocation or server");
+                }
+                eprintln!("TURN release: transport={expected_transport:?} sender_allocations={} released={} receiver_allocations_still_live={} elapsed_micros={}",sender_allocations.len(),released.len(),receiver_allocations.len(),closed_at.elapsed().as_micros());
+                receiver.close().await.unwrap();receiver_relays.close();
+                return;
+            }
             if !relay_only {
                 video.closer.relays.close();
                 assert_eq!(timeout(Duration::from_secs(2),video.next_update()).await.unwrap(),VideoUpdate::KeyframeRequested,"unused relay failure must leave direct video healthy");
