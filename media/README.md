@@ -97,6 +97,27 @@ available in the optional framed stream, allowing a decoder to start fresh at
 a later forced keyframe. Sample counts are bounded (warmup at most 1800 frames,
 observation 1..18000, forced interval 1..1800); run with an external deadline.
 
+`codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
+within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
+`--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly
+into each native buffer's active planes, before the timed encode interval.
+Its exact byte length must match `(warmup + observed) * width * height * 3 / 2`
+before output files are created. It cannot combine with a generated color-bar
+pattern. Supply the actual file's range/color tags explicitly; the probe does
+not infer them from a filename. Partial reads fail and release the native buffer.
+Input read/generation costs are not production capture or endpoint CPU evidence.
+
+`media/tools/desktop-workload.swift` generates a fixed offscreen coding fixture:
+30 warmup and 240 observed frames, split into still text, typing, scrolling and
+window movement at 30fps. It uses the installed Menlo font, fixed source text and
+sRGB pixels, converted to full-range BT.709-matrix NV12. Its manifest records
+geometry, color interpretation, font identity, source hashes and explicit text
+regions. A separate original RGB crop retains small colored text/one-pixel
+strokes before 4:2:0 conversion, so analysis can distinguish source subsampling
+loss from codec damage. It captures no screen, opens no window and sends no input.
+Use a new output directory and an external watchdog; never run unbounded probes.
+The fixture and component metrics alone do not qualify codec/device admission.
+
 The encoder initializes its compression color properties from the first input
 buffer's primaries, transfer function and matrix attachments. Absent tags remain
 unspecified; source colorimetry is not replaced with fixed display assumptions.

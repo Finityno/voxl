@@ -2,7 +2,7 @@
 //! input. Its deterministic NV12 frames can be decoded independently by ffmpeg.
 #[cfg(target_os = "macos")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::Write};
+    use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::{Read,Write}};
     use voxl_media::{EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning};
     use voxl_media::codec::VideoCodec;
     use voxl_media::macos::{VideoEncoder, PixelBuffer};
@@ -49,6 +49,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pattern = option(&mut args,"--pattern=")?.unwrap_or_else(||"mono".to_owned());
     let pixel_range = option(&mut args,"--pixel-range=")?.unwrap_or_else(||"video".to_owned());
     let color_tags = option(&mut args,"--color-tags=")?.unwrap_or_else(||"none".to_owned());
+    let input_path = option(&mut args,"--input-nv12=")?;
+    let width = u32::try_from(parse_count(option(&mut args,"--width=")?,1280)?)?;
+    let height = u32::try_from(parse_count(option(&mut args,"--height=")?,720)?)?;
+    let fps = u32::try_from(parse_count(option(&mut args,"--fps=")?,30)?)?;
+    let bitrate_kbps = u32::try_from(parse_count(option(&mut args,"--bitrate-kbps=")?,2500)?)?;
     let full_range = match pixel_range.as_str() {"video"=>false,"full"=>true,_=>return Err("unknown input pixel range".into())};
     if !matches!(pattern.as_str(),"mono"|"color-bars") || !matches!(color_tags.as_str(),"none"|"bt709"|"srgb") {
         return Err("unknown input pattern or color tags".into());
@@ -59,7 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -67,8 +72,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some("hevc") => VideoCodec::Hevc,
         _ => return Err("codec must be h264 or hevc".into()),
     };
-    let config = EncoderConfig { codec, width: 1280, height: 720, fps: 30, bitrate_kbps: 2500, preference };
+    if input_path.is_some() && pattern!="mono" { return Err("file input cannot be combined with a generated pattern".into()); }
+    let config = EncoderConfig { codec, width, height, fps, bitrate_kbps, preference };
     tuning.validate(&config)?;
+    if let Some(path)=&input_path {
+        if !std::fs::symlink_metadata(path)?.file_type().is_file() { return Err("NV12 input must be a regular non-symlink file".into()); }
+    }
+    let mut input = input_path.as_ref().map(std::fs::File::open).transpose()?;
+    if let Some(input) = &input {
+        let metadata=input.metadata()?;
+        let expected=u64::from(width)*u64::from(height)*3/2*u64::try_from(warmup+count)?;
+        if !metadata.is_file() || metadata.len()!=expected { return Err("NV12 file length does not match geometry and total frame count".into()); }
+    }
     let create = |path| std::fs::OpenOptions::new().write(true).create_new(true).open(path);
     let mut file = create(path)?;
     // Test-only access-unit capture preserves frame boundaries and timestamps
@@ -79,7 +94,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         framed.write_all(&[if codec == VideoCodec::H264 { 0 } else { 1 }])?;
     }
     println!("requested_tuning={tuning_name} warmup_frames={warmup} observed_frames={count} force_keyframe_period={force_period:?}");
-    println!("input_pattern={pattern} requested_pixel_range={pixel_range} requested_color_tags={color_tags} matrix_for_generated_bars=bt709");
+    println!("input_pattern={} requested_pixel_range={pixel_range} requested_color_tags={color_tags} matrix_for_generated_bars=bt709",if input.is_some() {"file-nv12"} else {&pattern});
     let rgb_bars = [[255u8,255,255],[255,255,0],[0,255,255],[0,255,0],[255,0,255],[255,0,0],[0,0,255],[0,0,0],
         [128,128,128],[64,64,64],[192,192,192],[255,128,0],[128,0,255],[0,128,128],[255,128,192],[128,64,32]];
     let quantize = |value:f64|value.round().clamp(0.0,255.0) as u8;
@@ -100,11 +115,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut keyframe_indices = Vec::new();
     let mut first_frame_ms = None;
     for index in 0..warmup+count {
-        let deadline = started + Duration::from_secs_f64(index as f64 / 30.0);
+        let deadline = started + Duration::from_secs_f64(index as f64 / f64::from(fps));
         if let Some(wait) = deadline.checked_duration_since(Instant::now()) { std::thread::sleep(wait); }
         let mut raw = ptr::null();
         let format=if full_range {*b"420f"} else {*b"420v"};
-        let code = unsafe { CVPixelBufferCreate(ptr::null(),1280,720,u32::from_be_bytes(format),ptr::null(),&mut raw) };
+        let code = unsafe { CVPixelBufferCreate(ptr::null(),width as usize,height as usize,u32::from_be_bytes(format),ptr::null(),&mut raw) };
         if code != 0 || raw.is_null() { return Err(format!("pixel buffer creation: {code}").into()); }
         unsafe {
             if CVPixelBufferLockBaseAddress(raw,0) != 0 { CFRelease(raw); return Err("pixel buffer lock failed".into()); }
@@ -112,29 +127,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let uv_stride = CVPixelBufferGetBytesPerRowOfPlane(raw,1);
             let y = CVPixelBufferGetBaseAddressOfPlane(raw,0);
             let uv = CVPixelBufferGetBaseAddressOfPlane(raw,1);
-            if y.is_null() || uv.is_null() {
+            if y.is_null() || uv.is_null() || y_stride < width as usize || uv_stride < width as usize {
                 CVPixelBufferUnlockBaseAddress(raw,0); CFRelease(raw); return Err("missing NV12 planes".into());
             }
-            if pattern=="color-bars" {
-                for row in 0..720usize {
-                    for col in 0..1280usize {y.add(row*y_stride+col).write(color_bars[col/80][0]);}
+            if let Some(input)=&mut input {
+                // Read directly into this exclusive buffer's stride-separated
+                // active planes. File bytes are tightly packed Y followed by
+                // interleaved UV; no second full-frame copy is allocated.
+                let copied=(|| -> std::io::Result<()> {
+                    for row in 0..height as usize {input.read_exact(std::slice::from_raw_parts_mut(y.add(row*y_stride),width as usize))?;}
+                    for row in 0..height as usize/2 {input.read_exact(std::slice::from_raw_parts_mut(uv.add(row*uv_stride),width as usize))?;}
+                    Ok(())
+                })();
+                if let Err(error)=copied {CVPixelBufferUnlockBaseAddress(raw,0);CFRelease(raw);return Err(error.into());}
+            } else if pattern=="color-bars" {
+                for row in 0..height as usize {
+                    for col in 0..width as usize {y.add(row*y_stride+col).write(color_bars[col*16/width as usize][0]);}
                 }
-                for row in 0..360usize {
-                    for col in 0..640usize {
-                        let color=color_bars[col/40];uv.add(row*uv_stride+2*col).write(color[1]);uv.add(row*uv_stride+2*col+1).write(color[2]);
+                for row in 0..height as usize/2 {
+                    for col in 0..width as usize/2 {
+                        let color=color_bars[col*32/width as usize];uv.add(row*uv_stride+2*col).write(color[1]);uv.add(row*uv_stride+2*col+1).write(color[2]);
                     }
                 }
             } else {
-                for row in 0..720usize {
-                    for col in 0..1280usize {
+                for row in 0..height as usize {
+                    for col in 0..width as usize {
                         // Small text-like edges and a scrolling bar over a stable
                         // background exercise interframe coding deterministically.
-                        let bar = (col + index*8) % 1280 < 32;
+                        let bar = (col + index*8) % (width as usize) < 32;
                         let grid = row % 24 < 2 && col % 12 < 8;
                         y.add(row*y_stride+col).write(if bar {200} else if grid {40} else {100});
                     }
                 }
-                for row in 0..360usize { ptr::write_bytes(uv.add(row*uv_stride),128,1280); }
+                for row in 0..height as usize/2 { ptr::write_bytes(uv.add(row*uv_stride),128,width as usize); }
             }
             CVPixelBufferUnlockBaseAddress(raw,0);
             if color_tags!="none" {
@@ -151,7 +176,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         unsafe { CFRelease(raw); }
         let submitted = Instant::now();
         let forced = index==0 || force_period.is_some_and(|period|index.is_multiple_of(period));
-        encoder.encode(&image,(index as i64)*1_000_000/30,forced)?;
+        encoder.encode(&image,(index as i64)*1_000_000/i64::from(fps),forced)?;
         // Use the native callback wake, as the application's dedicated worker
         // does. Record arrival before logging or writing the encoded stream so
         // the measured interval excludes file and profile-output overhead.
@@ -167,7 +192,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         if output.codec != codec { return Err("codec mismatch".into()); }
-        if output.presentation_time_micros != (index as i64)*1_000_000/30 { return Err("timestamp mismatch".into()); }
+        if output.presentation_time_micros != (index as i64)*1_000_000/i64::from(fps) { return Err("timestamp mismatch".into()); }
         total_bytes += output.annex_b.len();
         if output.keyframe { keyframe_indices.push(index); }
         if index>=warmup {bytes += output.annex_b.len();keyframes += usize::from(output.keyframe);latencies.push(latency);}
@@ -184,8 +209,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("keyframe_indices={keyframe_indices:?} total_stream_bytes={total_bytes}");
     latencies.sort_by(f64::total_cmp);
     let rank = |percent: usize| latencies[(count*percent).div_ceil(100)-1];
-    println!("codec={codec:?} hardware={} width=1280 height=720 fps=30 frames={count} warmup_frames={warmup} keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3} percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps",
-        encoder.using_hardware(), bytes as f64*8.0*30.0/(count as f64*1000.0), rank(50),rank(95),started.elapsed().as_secs_f64());
+    println!("codec={codec:?} hardware={} width={width} height={height} fps={fps} target_bitrate_kbps={bitrate_kbps} frames={count} warmup_frames={warmup} keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3} percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps",
+        encoder.using_hardware(), bytes as f64*8.0*f64::from(fps)/(count as f64*1000.0), rank(50),rank(95),started.elapsed().as_secs_f64());
     Ok(())
 }
 #[cfg(not(target_os = "macos"))]
