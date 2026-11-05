@@ -55,14 +55,40 @@ fn live_relay_tls_rotation_preserves_media_across_three_generations() {live(Some
 #[ignore = "requires isolated loopback coturn with two valid usernames"]
 fn live_automatic_restart_skips_unused_relay_allocations() {live(Some(RelayTransport::Udp),true);}
 
+#[test]
+fn live_automatic_restart_close_cancels_deferred_turn() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
+        timeout(Duration::from_secs(5),async {
+            let format=VideoFormat::H264 {profile_level_id:[66,224,31]};let bindings=vec!["127.0.0.1:0".into()];
+            let config=WebRtcConfig::direct_first(format,bindings.clone());
+            let mut video=WebRtcVideo::open_trickle(config).await.unwrap();let initial=video.offer().to_owned();
+            let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,_)=mpsc::channel(1);
+            let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let tracks=Arc::new(AtomicU64::new(0));
+            let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media)
+                .with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},gathered:Arc::clone(&gathered),wake:Arc::clone(&wake),tracks}))
+                .with_udp_addrs(bindings.clone()).build().await.unwrap());
+            negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&initial,0).await;
+            let socket=tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            let mut replacement=WebRtcConfig::direct_first(format,bindings);
+            replacement.add_ice_server(vec![format!("turn:{}?transport=udp",socket.local_addr().unwrap())],"fixture".into(),"test-only".into()).unwrap();
+            let retired=video.signaling().unwrap();video.begin_ice_restart(replacement).await.unwrap();
+            assert!(!video.ice_connected());video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
+            assert!(matches!(retired.next_signal().await,Err(WebRtcError::Ended)));
+            assert_eq!(video.next_update().await,VideoUpdate::Ended);
+            let mut bytes=[0;2000];
+            assert!(timeout(Duration::from_millis(400),socket.recv_from(&mut bytes)).await.is_err(),"closed restart cannot contact TURN when its grace expires");
+        }).await.unwrap();
+    });
+}
+
 fn live(relay:Option<RelayTransport>,automatic:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
         timeout(Duration::from_secs(20),async {
             let config=|generation:u64| {
                 let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
-                // Begin server-free, add TURN, remove it, then add it again.
-                // A retained runtime must adopt each generation's grace policy.
-                if let Some(transport)=relay.filter(|_|!automatic || generation%2==1) {
+                // Begin server-free, then introduce TURN on the retained peer.
+                // Its runtime must adopt the replacement generation's grace.
+                if let Some(transport)=relay.filter(|_|!automatic || generation>0) {
                     if !automatic {config.route_policy=RoutePolicy::RelayOnly;}
                     let key=match transport {RelayTransport::Udp=>"VOXL_TEST_TURN_UDP",RelayTransport::Tcp=>"VOXL_TEST_TURN_TCP",RelayTransport::Tls=>"VOXL_TEST_TURN_TLS",_=>unreachable!()};
                     let url=std::env::var(key).expect("isolated fixture URL");
