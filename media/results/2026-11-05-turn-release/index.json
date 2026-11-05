@@ -1,0 +1,28 @@
+{
+  "source": "884e46bf76bc46259982f5bf9f89f6563000471d",
+  "initialSource": "c184233d7f8a0980f3bb6785bf9938e61a32d25c",
+  "files": {
+    "README.md": {
+      "bytes": 6010,
+      "sha256": "34703e49e9467afafb6ea7b279428bccd0898418cf84805e8039b02426f580be"
+    },
+    "final-884e46b/artifact-pack.json": {
+      "bytes": 247844,
+      "sha256": "ec06aba8ab4b42f24e26e69be8937e01b7f1bc4f960d5fbfd3b03cbb6499266b"
+    },
+    "initial-c184233/artifact-pack.json": {
+      "bytes": 204347,
+      "sha256": "37c1151f395efaeaef283060ea1828b27075251d37ee3af82d39b57cea00ebcd"
+    },
+    "initial-c184233/test-target-clippy.json": {
+      "bytes": 1755,
+      "sha256": "469ffc39088d3a284ab3c4f8371c1df92ccceeded2b723a87bf160c4754c083c"
+    },
+    "production-comparison.json": {
+      "bytes": 1689,
+      "sha256": "529fe425d06cdfc82328be902b09680561b0a16d7e8ed651fb85da9e7399783a"
+    }
+  },
+  "includedTextHashesVerified": 168,
+  "scope": "Public fork text evidence. Large successful raw Cargo artifact JSON stays remote with hash/selected artifact metadata; no binary, rawcoturnlog or generated secret payloads."
+}
