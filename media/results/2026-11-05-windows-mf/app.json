@@ -1,0 +1,55 @@
+{
+  "origin": "/tmp/fincode-windows-mf-app",
+  "files": [
+    {
+      "name": "check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "clippy.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "dependency-guard.log",
+      "sha256": "5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad",
+      "text": "workspace deps: no literal versions outside the allowlist\n"
+    },
+    {
+      "name": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "load.log",
+      "sha256": "54eec0b2d74d1b55480351c5fb1eee9b05dbd9db5d01bdef47149b69c707f695",
+      "text": "14:31  up 20 days,  1:18, 1 user, load averages: 1.25 1.32 1.44\n"
+    },
+    {
+      "name": "queue.json",
+      "sha256": "c539a9c2f0ac44e8ca96f1e55bee0806ee409d51886cb08272f32a3fa5ff0744",
+      "text": "{\n  \"source\": \"b2811a6c041555eb2fc4d42b81b253b98ea9a830\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/usr/local/bin/python3\",\n        \"/tmp/fincode-windows-mf-app/run.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 0,\n      \"seconds\": 34.097,\n      \"pgid\": 99029,\n      \"groupGone\": true,\n      \"logSha256\": \"bc9728b2ecf6b2d8604fb898f1ca1398f495ebe80657e47d7e23e3719d500c41\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"8256ebf5c0f7a5c8f07d167109ed933862fbeaa3ba7a539ddcd387d22dcc36a1\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy with the custom-fork Windows component pin; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "queue.log",
+      "sha256": "bc9728b2ecf6b2d8604fb898f1ca1398f495ebe80657e47d7e23e3719d500c41",
+      "text": "load 0\ntoolchain 0\ncheck 0\nclippy 0\ndependency-guard 0\ndiff 0\n"
+    },
+    {
+      "name": "results.json",
+      "sha256": "a96e98ac3f0195f672ce3e8f622164de40a39cacb52785e04d90e98313e037f3",
+      "text": "{\n  \"source\": \"b2811a6c041555eb2fc4d42b81b253b98ea9a830\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.048,\n      \"pgid\": 99033,\n      \"groupGone\": true,\n      \"logSha256\": \"54eec0b2d74d1b55480351c5fb1eee9b05dbd9db5d01bdef47149b69c707f695\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"seconds\": 0.068,\n      \"pgid\": 99038,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"check\",\n      \"command\": [\n        \"cargo\",\n        \"check\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 29.2,\n      \"pgid\": 99043,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 4.068,\n      \"pgid\": 1749,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"dependency-guard\",\n      \"command\": [\n        \"bash\",\n        \"scripts/check-workspace-deps.sh\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 0.284,\n      \"pgid\": 1853,\n      \"groupGone\": true,\n      \"logSha256\": \"5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"diff\",\n      \"command\": [\n        \"git\",\n        \"diff\",\n        \"--check\",\n        \"05998857103e1e2f34489827f11c7de76e6b45ea\",\n        \"b2811a6c041555eb2fc4d42b81b253b98ea9a830\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"seconds\": 0.064,\n      \"pgid\": 2058,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"8256ebf5c0f7a5c8f07d167109ed933862fbeaa3ba7a539ddcd387d22dcc36a1\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy with the custom-fork Windows component pin; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "run.py",
+      "sha256": "8256ebf5c0f7a5c8f07d167109ed933862fbeaa3ba7a539ddcd387d22dcc36a1",
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation');OUT=P(__file__).parent;SHA='b2811a6c041555eb2fc4d42b81b253b98ea9a830';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','FINCODE_COMMIT_SHA':SHA,'GIT_OPTIONAL_LOCKS':'0','CI':'true'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\nfor k in ['CARGO_HOME','RUSTUP_TOOLCHAIN']:assert k not in ENV\n\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'root':str(ROOT),'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'scope':'Native Mac desktop_media library compile and strict Clippy with the custom-fork Windows component pin; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.'},indent=2)+'\\n')\ndef stop():\n global child\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):\n   os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef run(name,command,deadline):\n global child\n clean();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  timed=False\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':exitcode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'timedOut':timed,'sourceCleanBefore':True,'sourceCleanAfter':True});save();print(name,exitcode,flush=True);assert gone(child.pid);child=None;assert exitcode==0\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  run('toolchain',['cargo','--version'],30)\n  run('check',['cargo','check','--locked','-p','desktop_media','--lib','-j2','-q','--message-format=short'],900)\n  run('clippy',['cargo','clippy','--locked','-p','desktop_media','--lib','-j2','-q','--message-format=short','--','-D','warnings'],600)\n  run('dependency-guard',['bash','scripts/check-workspace-deps.sh'],45)\n  run('diff',['git','diff','--check','05998857103e1e2f34489827f11c7de76e6b45ea',SHA],15)\n code=0\nexcept BaseException as e:\n print(type(e).__name__,str(e),flush=True)\nfinally:\n stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    {
+      "name": "toolchain.log",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    }
+  ]
+}

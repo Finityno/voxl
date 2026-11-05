@@ -2,8 +2,8 @@
 
 This crate is maintained in the Fincode custom fork. It has no dependency on
 Voxl's process-owning server entry point, web asset build, libx264 or audio stack.
-It currently provides a macOS VideoToolbox H.264/HEVC encoder, not a complete desktop
-stream. Screen capture and native application integration belong to the embedder. An
+It provides a macOS VideoToolbox H.264/HEVC encoder and an experimental Windows
+Media Foundation encoder component. Screen capture and native application integration belong to the embedder. An
 optional WebRTC sender is implemented behind the `webrtc` feature; platform
 validation and receiver interoperability are still in progress.
 
@@ -16,7 +16,9 @@ independent known vectors and generated-instruction evidence. Component CPU
 savings do not establish whole-SRTP, codec, endpoint or bandwidth improvements;
 full native interoperability with the setting must be validated separately.
 
-Give the encoder immutable NV12 buffers from the capture API. The hardware-first
+### macOS encoder
+
+The macOS encoder accepts immutable NV12 buffers from the capture API. Its hardware-first
 mode tries a required hardware encoder, then an explicitly software encoder;
 the actual hardware property is queried and exposed when supported. Explicitly
 disabling hardware guarantees software encoding; in ordinary real-time mode only that path accepts the
@@ -35,7 +37,7 @@ software retains the supported Baseline property and reports its actual SPS.
 The constant is resolved dynamically, preserving older embedding deployment
 targets. The observed software output is Constrained Baseline; the SDP always
 uses actual encoded flags. HEVC selects Main (8-bit 4:2:0), with real-time
-encoding, no frame reordering and two-second keyframes. AV1 encoding returns
+encoding, no frame reordering and two-second keyframes. macOS AV1 encoding returns
 UnsupportedCodec; it is never silently passed through the H.264 parser.
 The bitrate is an average target, not a hard transport bandwidth ceiling.
 
@@ -48,7 +50,7 @@ frames and then delivering corrupt deltas. Recreate the stream and send a fresh
 IDR after that failure. Drop invalidates the native session before destroying its
 callback context. Run native session creation/destruction off the UI executor.
 
-The embedder supplies a synchronous allocator idle hook, called after every
+The macOS embedder supplies a synchronous allocator idle hook, called after every
 foreign callback including failures; use a no-op only when its allocator needs
 no idle announcement. This crate creates no long-lived Rust thread or runtime.
 No callback panic is allowed to unwind across the framework's C boundary.
@@ -106,6 +108,65 @@ before output files are created. It cannot combine with a generated color-bar
 pattern. Supply the actual file's range/color tags explicitly; the probe does
 not infer them from a filename. Partial reads fail and release the native buffer.
 Input read/generation costs are not production capture or endpoint CPU evidence.
+
+### Windows encoder component
+
+`windows::VideoEncoder` is a thread-owned Media Foundation component, separate
+from the standalone server and the application's host provider. It can request
+hardware H.264 Baseline, HEVC Main and AV1 Main system encoders. Availability,
+native execution, driver compatibility and performance are not established by
+Windows-target checks from a Mac. No Windows desktop-host capability is enabled
+by this component. The current application host provider remains macOS-only.
+
+Hardware registrations are enumerated explicitly. `EncoderObservation` separates
+the registration class from D3D11 device input; neither proves active GPU work,
+driver-internal copies, hardware decoding, power or measured encode latency.
+`PreferHardware` tries hardware and then synchronous system-memory software
+H.264, bounded to 1280x720 at 30fps and two requested worker threads. Software
+HEVC/AV1 are not offered by this component. A supplied D3D11 device requires a
+hardware path; GPU readback or changing resolution for CPU fallback belongs to
+the embedding worker and is never hidden in encoder creation.
+
+The API takes explicit NV12 colorimetry, sets output before input, requires low
+latency/no B frames/CBR and two-second GOP requests, and checks the accepted
+format. It closes on output format changes, incomplete output, clock changes or
+invalid framing. Each keyframe must contain complete parameter sets; out-of-band
+headers may supply an entirely missing set, never complete a partial update with
+stale parameters. The framed output, not the requested media type, determines
+the codec's actual profile for transport admission. Four-byte NAL lengths and
+Annex B are supported; other native framing fails rather than being guessed.
+AV1 uses the separately bounded low-overhead OBU path, not the NAL parser.
+
+There is one submitted frame awaiting output and at most three retained GPU
+surfaces. Asynchronous input/output credits and kernel events avoid a polling
+loop. `wait_ready` and `wait_output` each cap a call at 200ms; an external
+process watchdog is still required. A lagging or incompatible transform must
+close and start a fresh generation rather than queue reference frames.
+
+`with_device` checks D3D11 multithread protection and binds a DXGI device manager.
+`encode_surface` requires an immutable NV12 texture on that device and completed
+or synchronized producer work. Its unsafe contract requires keeping pixels
+immutable until the returned `SurfaceLease` reports actual native sample
+release, including after close. Output arrival alone permits no texture reuse.
+The embedding worker must provide a bounded surface pool and handle submission
+errors as documented. Device identity/format/size/subresource are checked.
+This API does not provide capture, BGRA conversion, HDR, input injection or a
+claim of a zero-copy driver path. The synchronous idle hook runs immediately
+before a genuine event wait, after queued notifications have been consumed.
+Native callbacks contain no capture, application code or frame allocation.
+
+`windows_codec_probe software|hardware-memory|hardware-surface h264|hevc|av1
+<new-output>` generates the same 60-frame synthetic 1280x720 NV12 sequence with nominal
+30fps timestamps and 2500kbps target,
+forces keyframes at frames zero and thirty, checks capture timestamps and emits
+per-frame bytes/submit-to-output time. It is unpaced. AV1 output is IVF; H.264/HEVC are Annex B.
+The surface mode allocates/uploads a fresh immutable texture per frame: its
+cost is fixture overhead, not production capture or a matched performance win.
+It never overwrites a file, captures a screen or sends input. Build first and
+run each native case under a process-tree deadline, then independently decode
+all 60 frames and inspect actual profile, keyframes, color and dimensions.
+Record CPU/RSS/GPU/adapter/driver separately before making performance claims.
+See `results/2026-11-05-windows-mf/` for exact-source coverage and remaining gaps.
 
 `media/tools/desktop-workload.swift` generates a fixed offscreen coding fixture:
 30 warmup and 240 observed frames, split into still text, typing, scrolling and

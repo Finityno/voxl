@@ -1,0 +1,165 @@
+{
+  "allRunnersTerminal": true,
+  "independentAbsentGroups": [
+    {
+      "pgid": 1749,
+      "absent": true
+    },
+    {
+      "pgid": 1853,
+      "absent": true
+    },
+    {
+      "pgid": 2058,
+      "absent": true
+    },
+    {
+      "pgid": 88656,
+      "absent": true
+    },
+    {
+      "pgid": 88660,
+      "absent": true
+    },
+    {
+      "pgid": 88665,
+      "absent": true
+    },
+    {
+      "pgid": 88670,
+      "absent": true
+    },
+    {
+      "pgid": 90588,
+      "absent": true
+    },
+    {
+      "pgid": 90592,
+      "absent": true
+    },
+    {
+      "pgid": 90597,
+      "absent": true
+    },
+    {
+      "pgid": 90602,
+      "absent": true
+    },
+    {
+      "pgid": 92830,
+      "absent": true
+    },
+    {
+      "pgid": 92834,
+      "absent": true
+    },
+    {
+      "pgid": 92839,
+      "absent": true
+    },
+    {
+      "pgid": 92844,
+      "absent": true
+    },
+    {
+      "pgid": 93910,
+      "absent": true
+    },
+    {
+      "pgid": 93914,
+      "absent": true
+    },
+    {
+      "pgid": 93919,
+      "absent": true
+    },
+    {
+      "pgid": 93924,
+      "absent": true
+    },
+    {
+      "pgid": 93936,
+      "absent": true
+    },
+    {
+      "pgid": 95089,
+      "absent": true
+    },
+    {
+      "pgid": 95093,
+      "absent": true
+    },
+    {
+      "pgid": 95098,
+      "absent": true
+    },
+    {
+      "pgid": 95103,
+      "absent": true
+    },
+    {
+      "pgid": 95118,
+      "absent": true
+    },
+    {
+      "pgid": 95135,
+      "absent": true
+    },
+    {
+      "pgid": 95154,
+      "absent": true
+    },
+    {
+      "pgid": 95165,
+      "absent": true
+    },
+    {
+      "pgid": 95178,
+      "absent": true
+    },
+    {
+      "pgid": 96637,
+      "absent": true
+    },
+    {
+      "pgid": 96641,
+      "absent": true
+    },
+    {
+      "pgid": 96646,
+      "absent": true
+    },
+    {
+      "pgid": 96651,
+      "absent": true
+    },
+    {
+      "pgid": 96666,
+      "absent": true
+    },
+    {
+      "pgid": 96683,
+      "absent": true
+    },
+    {
+      "pgid": 99029,
+      "absent": true
+    },
+    {
+      "pgid": 99033,
+      "absent": true
+    },
+    {
+      "pgid": 99038,
+      "absent": true
+    },
+    {
+      "pgid": 99043,
+      "absent": true
+    }
+  ],
+  "textExports": 60,
+  "noNativeWindowsJobs": true,
+  "noCaptureOrOsInput": true,
+  "noOwnedAppOrSimulatorStarted": true
+}
