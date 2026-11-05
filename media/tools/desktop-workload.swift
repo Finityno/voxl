@@ -35,7 +35,7 @@ let smallFont = CTFontCreateWithName("Menlo-Regular" as CFString, 11, nil)
 let actualFont = CTFontCopyPostScriptName(font) as String
 try require(actualFont == "Menlo-Regular", "requested installed font is unavailable")
 let palette: [[Double]] = [[0.90,0.90,0.92],[0.40,0.74,1.0],[1.0,0.40,0.60],[0.36,0.92,0.50],[1.0,0.77,0.32],[0.68,0.53,1.0]]
-@MainActor func color(_ rgb: [Double]) -> CGColor { CGColor(colorSpace: colorSpace, components: rgb + [1])! }
+@MainActor func color(_ rgb: [Double]) -> CGColor { CGColor(colorSpace: colorSpace, components: rgb.map { CGFloat($0) } + [1])! }
 @MainActor func rectangle(_ x: Int, _ y: Int, _ w: Int, _ h: Int, _ rgb: [Double]) {
     context.setFillColor(color(rgb)); context.fill(CGRect(x: x, y: height-y-h, width: w, height: h))
 }
