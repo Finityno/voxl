@@ -196,8 +196,11 @@ addresses; RelayOnly and the distinct one-time startup fallback stay immediate.
 fix and zero after, plus forced-relay rotation and close-cancellation checks.
 The companion actual Mac-to-phone case drops from two allocations to one with
 real HTTP issuance, video recovery and revocation. This does not establish video
-egress/CPU/RSS savings or physical handover. Empty ICE-server updates retain the
-imported core's old server list and remain a separate unqualified API edge.
+egress/CPU/RSS savings or physical handover. The later a355a95 pin vendors the
+same-version core to fix empty-list replacement at the setter itself. The
+getter becomes empty and the next gather stops contacting retired endpoints;
+`results/2026-11-05-clear-ice/` retains the actual stale-Allocate baseline and
+passing remove/re-add media regression, import audit and native integration.
 Late incremental candidates explicitly wake the SDK driver so ICE can replace
 its previous parked deadline. The identical controlled test fails without this
 wake and passes with it while old waits stay held and new ICE timers may run;

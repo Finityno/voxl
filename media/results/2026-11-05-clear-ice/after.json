@@ -1,0 +1,151 @@
+{
+  "source": "a355a959ddeb2411360a46834bf28772b9928c6f",
+  "counts": {
+    "passed": 4,
+    "failed": 0,
+    "executed": 4,
+    "buildExit": 0,
+    "clippyExecuted": true
+  },
+  "texts": [
+    {
+      "name": "run.py",
+      "text": "import os,sys,json,pathlib,subprocess,signal,time,hashlib,importlib.util,hmac,base64,secrets\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/voxl-desktop-native-validation')\nSOURCE=sys.argv[1];OUT=P(sys.argv[2]);CASES=[x for x in sys.argv[3:]if x!='--inside-lock'];INNER='--inside-lock'in sys.argv\nOUT.mkdir(mode=0o700,exist_ok=True);os.umask(0o077)\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CI':'true','CARGO_BUILD_JOBS':'2'}\nsteps=[];turns=[];children=[];private=[];terminal=False;result=1\ndef digest(path):return hashlib.sha256(P(path).read_bytes()).hexdigest()\ndef interrupted(signum,frame):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ndef gone(group):\n try:os.killpg(group,0);return False\n except ProcessLookupError:return True\ndef stop(child):\n if not gone(child.pid):\n  try:os.killpg(child.pid,signal.SIGTERM)\n  except ProcessLookupError:pass\n try:child.wait(timeout=4)\n except subprocess.TimeoutExpired:\n  try:os.killpg(child.pid,signal.SIGKILL)\n  except ProcessLookupError:pass\n  child.wait(timeout=3)\n if not gone(child.pid):\n  try:os.killpg(child.pid,signal.SIGKILL)\n  except ProcessLookupError:pass\ndef verify():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SOURCE\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n value={'source':SOURCE,'root':str(ROOT),'terminal':terminal,'exitCode':result if terminal else None,'helperSha256':digest(__file__),'steps':steps,'turns':turns,'limits':'Local UDP/DTLS/SRTP with synthetic NALs and isolated coturn. No native capture/decoder, physical devices/network, UI, CPU/RAM saving or bandwidth/quality qualification.'}\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps(value,indent=2)+'\\n')\ndef run(name,command,deadline,extra=None,check=True):\n if check:verify()\n started=time.monotonic();path=OUT/(name+'.log')\n with path.open('x')as log:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV|dict(extra or {}),stdout=log,stderr=subprocess.STDOUT,start_new_session=True);children.append(child)\n  if INNER:(OUT/'active-group.json').write_text(json.dumps({'pgid':child.pid}))\n  try:code=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:stop(child);code=124\n  except BaseException:stop(child);raise\n  finally:\n   stop(child)\n   if INNER:(OUT/'active-group.json').unlink(missing_ok=True)\n if check:verify()\n raw=path.read_text(errors='replace')\n assert not any(secret in raw for secret in private),'private fixture credential in child output'\n steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':code,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(path)});save();print(name,code,flush=True)\n assert gone(child.pid)\n return code\ntry:\n if not INNER:\n  assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\n  assert run('fetch',['git','fetch','origin','fincode/desktop-streaming'],30,check=False)==0\n  assert run('detach',['git','switch','--detach',SOURCE],15,check=False)==0\n  verify();result=run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,SOURCE,str(OUT),*CASES,'--inside-lock'],1500)\n else:\n  verify();assert run('load',['/usr/bin/uptime'],10)==0;assert run('toolchain',['cargo','--version'],10)==0\n  base=['--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','-j2','-q']\n  code=run('build',['cargo','test',*base,'--no-run','--message-format=json'],900)\n  if code:result=code;raise SystemExit(code)\n  records=[json.loads(x)for x in(OUT/'build.log').read_text().splitlines()if x.startswith('{')]\n  artifacts=[x for x in records if x.get('reason')=='compiler-artifact'and x.get('target',{}).get('name')=='voxl_media'and x.get('executable')];assert len(artifacts)==1\n  executable=P(artifacts[0]['executable']);assert executable.parent==ROOT/'media/target/debug/deps'\n  (OUT/'build-selection.json').write_text(json.dumps({'artifact':artifacts[0],'executableSha256':digest(executable),'fullLogSha256':digest(OUT/'build.log')},indent=2)+'\\n')\n  code=run('clippy',['cargo','clippy',*base,'--tests','--examples','--message-format=short','--','-D','warnings'],300)\n  if code:result=code;raise SystemExit(code)\n  spec=importlib.util.spec_from_file_location('owned_turn',OUT/'turn-fixture.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n  result=0\n  for index,case in enumerate(CASES):\n   if case.startswith('unit:'):\n    full=case.removeprefix('unit:');name=full.rsplit('::',1)[1]\n    code=run(name,[str(executable),'--exact',full,'--nocapture'],15);result=code\n    if code:break\n    assert '1 passed; 0 failed; 0 ignored;'in(OUT/(name+'.log')).read_text()\n    continue\n   turn=module.TurnFixture(OUT/('private-turn-'+str(index)));turn.start()\n   alternate=str(turn.expires)+':'+secrets.token_hex(8);password=base64.b64encode(hmac.new(turn.secret.encode(),alternate.encode(),hashlib.sha1).digest()).decode()\n   private.extend([turn.secret,turn.username,turn.password,alternate,password])\n   env={'VOXL_TEST_TURN_UDP':turn.credentials()['urls'][0],'VOXL_TEST_TURN_USERNAME':turn.username,'VOXL_TEST_TURN_PASSWORD':turn.password,'VOXL_TEST_TURN_ALTERNATE_USERNAME':alternate,'VOXL_TEST_TURN_ALTERNATE_PASSWORD':password}\n   try:\n    code=run(case,[str(executable),'--ignored','--exact','webrtc::tests::live_restart::'+case,'--nocapture'],35,env);result=code\n   finally:\n    summary=turn.close();summary|={'case':case,'pgid':turn.process.pid,'privateLogSha256':digest(turn.root/'server-private.log'),'fixtureHelperSha256':digest(OUT/'turn-fixture.py')};turns.append(summary);turn.config.unlink(missing_ok=True);save()\n   if code:result=code;break\n   assert '1 passed; 0 failed; 0 ignored;'in(OUT/(case+'.log')).read_text()\n   if case=='live_automatic_restart_skips_unused_relay_allocations':assert summary['successfulAllocations']==0\nexcept BaseException:\n result=result or 1\n raise\nfinally:\n for child in reversed(children):stop(child)\n if not INNER:\n  path=OUT/'active-group.json'\n  if path.exists():\n   group=json.loads(path.read_text())['pgid']\n   if not gone(group):os.killpg(group,signal.SIGKILL)\n terminal=True;save()\nraise SystemExit(result)\n",
+      "sha256": "93ac75c6dd9e5478a82d20b50f9464e1f21b4a522ceb22021db73cf80b2daca0",
+      "originalPrivateSha256": "93ac75c6dd9e5478a82d20b50f9464e1f21b4a522ceb22021db73cf80b2daca0",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "turn-fixture.py",
+      "text": "import pathlib,subprocess,socket,secrets,time,os,signal,threading,json,hashlib,hmac,base64,struct,re\n\nclass TurnFixture:\n    def __init__(self,root):\n        self.root=pathlib.Path(root);self.root.mkdir(mode=0o700,exist_ok=False)\n        self.process=None;self.timer=None;self.stream=None;self.ready=False\n        self.secret=secrets.token_hex(32)\n        self.expires=int(time.time())+600\n        self.username=str(self.expires)+':'+secrets.token_hex(8)\n        self.password=base64.b64encode(hmac.new(self.secret.encode(),self.username.encode(),hashlib.sha1).digest()).decode()\n        with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as probe:\n            probe.bind(('127.0.0.1',0));self.port=probe.getsockname()[1]\n        for _ in range(30):\n            base=40000+secrets.randbelow(20000-16);sockets=[]\n            try:\n                for port in range(base,base+16):\n                    s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);sockets.append(s);s.bind(('127.0.0.1',port))\n                self.relay_ports=list(range(base,base+16));break\n            except OSError:pass\n            finally:\n                for s in sockets:s.close()\n        else:raise RuntimeError('no owned relay port range available')\n        interfaces=subprocess.check_output(['/sbin/ifconfig'],text=True,timeout=10)\n        addresses=set(re.findall(r'\\binet\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+)',interfaces))|{'127.0.0.1'}\n        options=['listening-ip=127.0.0.1','relay-ip=127.0.0.1','listening-port='+str(self.port),\n            'min-port='+str(self.relay_ports[0]),'max-port='+str(self.relay_ports[-1]),\n            'realm=fincode-fixture.invalid','use-auth-secret','static-auth-secret='+self.secret,\n            'no-auth-pings','no-dynamic-ip-list','no-dynamic-realms','no-tcp','no-tls','no-tcp-relay',\n            'relay-threads=0','cpus=1','allow-loopback-peers','no-multicast-peers',\n            'denied-peer-ip=0.0.0.0-255.255.255.255','denied-peer-ip=::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',\n            'max-allocate-lifetime=300','total-quota=8','user-quota=4','max-bps=5000000','bps-capacity=20000000',\n            'pidfile='+str(self.root/'server.pid'),'userdb='+str(self.root/'server.sqlite'),\n            'log-file=stdout','simple-log','verbose']+['allowed-peer-ip='+ip for ip in sorted(addresses)]\n        self.config=self.root/'server.conf';self.config.write_text('\\n'.join(options)+'\\n');self.config.chmod(0o600)\n    def credentials(self):\n        return {'urls':['turn:127.0.0.1:'+str(self.port)+'?transport=udp'],'username':self.username,\n            'credential':self.password,'expires_at_millis':self.expires*1000}\n    def start(self):\n        self.stream=(self.root/'server-private.log').open('w');os.chmod(self.root/'server-private.log',0o600)\n        self.process=subprocess.Popen(['/opt/homebrew/opt/coturn/bin/turnserver','-c',str(self.config)],\n            stdout=self.stream,stderr=subprocess.STDOUT,start_new_session=True)\n        self.timer=threading.Timer(360,self.terminate);self.timer.start()\n        transaction=secrets.token_bytes(12);request=struct.pack('!HHI',1,0,0x2112a442)+transaction\n        with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as client:\n            client.settimeout(.25);deadline=time.monotonic()+8\n            while time.monotonic()<deadline and self.process.poll() is None:\n                client.sendto(request,('127.0.0.1',self.port))\n                try:\n                    data,_=client.recvfrom(2048)\n                    if data[:2]==b'\\x01\\x01' and data[8:20]==transaction:self.ready=True;return\n                except socket.timeout:pass\n        raise RuntimeError('owned TURN listener not ready')\n    def terminate(self):\n        p=self.process\n        if p is None or p.poll() is not None:return\n        try:os.killpg(p.pid,signal.SIGTERM)\n        except ProcessLookupError:pass\n        try:p.wait(timeout=4)\n        except subprocess.TimeoutExpired:\n            if p.poll() is None:\n                try:os.killpg(p.pid,signal.SIGKILL)\n                except ProcessLookupError:pass\n                except PermissionError:\n                    # Do not suppress refusal for a still-live owned server.\n                    p.wait(timeout=3)\n            p.wait(timeout=3)\n    def close(self):\n        if self.timer is not None:self.timer.cancel()\n        self.terminate()\n        if self.timer is not None:self.timer.join()\n        if self.stream is not None:self.stream.close()\n        ports=[self.port]+self.relay_ports\n        for port in ports:\n            with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as probe:probe.bind(('127.0.0.1',port))\n        groups=subprocess.check_output(['ps','-axo','pgid='],text=True,timeout=10).splitlines()\n        gone=self.process is None or all(int(row.strip())!=self.process.pid for row in groups if row.strip())\n        assert gone\n        data=(self.root/'server-private.log').read_text(errors='replace') if self.stream is not None else ''\n        counts={name:len(re.findall(pattern,data)) for name,pattern in {\n            'successfulAllocations':r'ALLOCATE processed, success',\n            'successfulPermissions':r'CREATE_PERMISSION processed, success',\n            'successfulChannelBindings':r'CHANNEL_BIND processed, success',\n            'usageRows':r'usage:.*?rp=\\d+.*?rb=\\d+.*?sp=\\d+.*?sb=\\d+'}.items()}\n        result={'ready':self.ready,'exit':None if self.process is None else self.process.returncode,\n            'groupGone':gone,'allOwnedUDPPortsRebound':True,'ownedPortCount':len(ports),**counts}\n        (self.root/'public-summary.json').write_text(json.dumps(result,indent=2)+'\\n')\n        return result\n",
+      "sha256": "138e1d7d4d879ae79d56e0f0b20ff6b8821ec0087222305ac3574d6295127287",
+      "originalPrivateSha256": "138e1d7d4d879ae79d56e0f0b20ff6b8821ec0087222305ac3574d6295127287",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "results.json",
+      "text": "{\n  \"source\": \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"helperSha256\": \"93ac75c6dd9e5478a82d20b50f9464e1f21b4a522ceb22021db73cf80b2daca0\",\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.032,\n      \"pgid\": 57993,\n      \"groupGone\": true,\n      \"logSha256\": \"f0bd7738be43150bc85d9c0a33cd601c94c3a990839b8dbb99cb5c7fe3efffb4\"\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.051,\n      \"pgid\": 57998,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\"\n    },\n    {\n      \"name\": \"build\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--no-run\",\n        \"--message-format=json\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 6.372,\n      \"pgid\": 58003,\n      \"groupGone\": true,\n      \"logSha256\": \"155ef3f08a8822c78e4a011aa59724476c89035ae501d37e85d3741a48b0fc42\"\n    },\n    {\n      \"name\": \"clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--tests\",\n        \"--examples\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 300,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 2.865,\n      \"pgid\": 58054,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"live_restart_clears_old_turn_servers_and_keeps_direct_media\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\",\n        \"--exact\",\n        \"webrtc::tests::live_restart::live_restart_clears_old_turn_servers_and_keeps_direct_media\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 1.226,\n      \"pgid\": 58082,\n      \"groupGone\": true,\n      \"logSha256\": \"14423eb7c65eac79c3ea8cdd5e28c53e4201855da80d198ecf35bd5ec7c1f417\"\n    },\n    {\n      \"name\": \"live_automatic_restart_close_cancels_deferred_turn\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\",\n        \"--exact\",\n        \"webrtc::tests::live_restart::live_automatic_restart_close_cancels_deferred_turn\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.702,\n      \"pgid\": 58091,\n      \"groupGone\": true,\n      \"logSha256\": \"31be94518487587eb2e843136c7283f6aecfa14ccf38d871f1eeb60eeccdce1f\"\n    },\n    {\n      \"name\": \"webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\",\n        \"--exact\",\n        \"webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.534,\n      \"pgid\": 58096,\n      \"groupGone\": true,\n      \"logSha256\": \"15e0c28374477ca826df5183b5b1202aaa5369fa309815e4821249fd2d3ab699\"\n    },\n    {\n      \"name\": \"live_relay_udp_rotation_preserves_media_across_three_generations\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\",\n        \"--ignored\",\n        \"--exact\",\n        \"webrtc::tests::live_restart::live_relay_udp_rotation_preserves_media_across_three_generations\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 35,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 1.548,\n      \"pgid\": 58103,\n      \"groupGone\": true,\n      \"logSha256\": \"70d483486e5b1347e1639084c809343daacfbfb4db56191e8601ee7a72b6962e\"\n    }\n  ],\n  \"turns\": [\n    {\n      \"ready\": true,\n      \"exit\": 0,\n      \"groupGone\": true,\n      \"allOwnedUDPPortsRebound\": true,\n      \"ownedPortCount\": 17,\n      \"successfulAllocations\": 4,\n      \"successfulPermissions\": 4,\n      \"successfulChannelBindings\": 5,\n      \"usageRows\": 8,\n      \"case\": \"live_relay_udp_rotation_preserves_media_across_three_generations\",\n      \"pgid\": 58100,\n      \"privateLogSha256\": \"ac378731e6073789eb316bf79f5d5265af190c498b65360cb5fbf50496d4ba7f\",\n      \"fixtureHelperSha256\": \"138e1d7d4d879ae79d56e0f0b20ff6b8821ec0087222305ac3574d6295127287\"\n    }\n  ],\n  \"limits\": \"Local UDP/DTLS/SRTP with synthetic NALs and isolated coturn. No native capture/decoder, physical devices/network, UI, CPU/RAM saving or bandwidth/quality qualification.\"\n}\n",
+      "sha256": "94b01cde4a6e32b712fb9bc933dee442b132f8972397df3bd2904ad574886462",
+      "originalPrivateSha256": "94b01cde4a6e32b712fb9bc933dee442b132f8972397df3bd2904ad574886462",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "queue.json",
+      "text": "{\n  \"source\": \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"helperSha256\": \"93ac75c6dd9e5478a82d20b50f9464e1f21b4a522ceb22021db73cf80b2daca0\",\n  \"steps\": [\n    {\n      \"name\": \"fetch\",\n      \"command\": [\n        \"git\",\n        \"fetch\",\n        \"origin\",\n        \"fincode/desktop-streaming\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.526,\n      \"pgid\": 57973,\n      \"groupGone\": true,\n      \"logSha256\": \"9847da2ce96385ff443d13c620209439de9b6d9b501fd971b6fb5da0f84743d3\"\n    },\n    {\n      \"name\": \"detach\",\n      \"command\": [\n        \"git\",\n        \"switch\",\n        \"--detach\",\n        \"a355a959ddeb2411360a46834bf28772b9928c6f\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.047,\n      \"pgid\": 57982,\n      \"groupGone\": true,\n      \"logSha256\": \"978cf61f390e346234ad95b23efca9c2f487abd55a0dcda82c110f4cf97155d7\"\n    },\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"/tmp/voxl-clear-ice-after/run.py\",\n        \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n        \"/tmp/voxl-clear-ice-after\",\n        \"unit:webrtc::tests::live_restart::live_restart_clears_old_turn_servers_and_keeps_direct_media\",\n        \"unit:webrtc::tests::live_restart::live_automatic_restart_close_cancels_deferred_turn\",\n        \"unit:webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock\",\n        \"live_relay_udp_rotation_preserves_media_across_three_generations\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 1500,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 17.19,\n      \"pgid\": 57987,\n      \"groupGone\": true,\n      \"logSha256\": \"0ee79748fdc18acc099c72891327b1869fa97efb73339edfb55c4060ec3234ef\"\n    }\n  ],\n  \"turns\": [],\n  \"limits\": \"Local UDP/DTLS/SRTP with synthetic NALs and isolated coturn. No native capture/decoder, physical devices/network, UI, CPU/RAM saving or bandwidth/quality qualification.\"\n}\n",
+      "sha256": "5ecb118df1f479b8eae975b32186303a1acc27696c7eadbdb254760866d0c439",
+      "originalPrivateSha256": "5ecb118df1f479b8eae975b32186303a1acc27696c7eadbdb254760866d0c439",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "queue.log",
+      "text": "load 0\ntoolchain 0\nbuild 0\nclippy 0\nlive_restart_clears_old_turn_servers_and_keeps_direct_media 0\nlive_automatic_restart_close_cancels_deferred_turn 0\nwebrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock 0\nlive_relay_udp_rotation_preserves_media_across_three_generations 0\n",
+      "sha256": "0ee79748fdc18acc099c72891327b1869fa97efb73339edfb55c4060ec3234ef",
+      "originalPrivateSha256": "0ee79748fdc18acc099c72891327b1869fa97efb73339edfb55c4060ec3234ef",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "toolchain.log",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "clippy.log",
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "build-selection.json",
+      "text": "{\n  \"artifact\": {\n    \"reason\": \"compiler-artifact\",\n    \"package_id\": \"path+file:///Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media#voxl-media@0.1.0\",\n    \"manifest_path\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/Cargo.toml\",\n    \"target\": {\n      \"kind\": [\n        \"lib\"\n      ],\n      \"crate_types\": [\n        \"lib\"\n      ],\n      \"name\": \"voxl_media\",\n      \"src_path\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/src/lib.rs\",\n      \"edition\": \"2024\",\n      \"doc\": true,\n      \"doctest\": true,\n      \"test\": true\n    },\n    \"profile\": {\n      \"opt_level\": \"0\",\n      \"debuginfo\": 2,\n      \"debug_assertions\": true,\n      \"overflow_checks\": true,\n      \"test\": true\n    },\n    \"features\": [\n      \"default\",\n      \"webrtc\"\n    ],\n    \"filenames\": [\n      \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\"\n    ],\n    \"executable\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-b897af2799c5fc49\",\n    \"fresh\": false\n  },\n  \"executableSha256\": \"e657c70d8fee14e31e26034a97c240461adc7fdcde2a7edb498d83cf6a36a435\",\n  \"fullLogSha256\": \"155ef3f08a8822c78e4a011aa59724476c89035ae501d37e85d3741a48b0fc42\"\n}\n",
+      "sha256": "b2fb68888a1d12535e660e87e6bf3982512738beee855e327f811e92e00c5026",
+      "originalPrivateSha256": "b2fb68888a1d12535e660e87e6bf3982512738beee855e327f811e92e00c5026",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "live_restart_clears_old_turn_servers_and_keeps_direct_media.log",
+      "text": "\nrunning 1 test\ncleared_ice_servers=0 stale_turn_datagram=false stale_allocate=false\ntest webrtc::tests::live_restart::live_restart_clears_old_turn_servers_and_keeps_direct_media ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 0.76s\n\n",
+      "sha256": "14423eb7c65eac79c3ea8cdd5e28c53e4201855da80d198ecf35bd5ec7c1f417",
+      "originalPrivateSha256": "14423eb7c65eac79c3ea8cdd5e28c53e4201855da80d198ecf35bd5ec7c1f417",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "live_automatic_restart_close_cancels_deferred_turn.log",
+      "text": "\nrunning 1 test\ntest webrtc::tests::live_restart::live_automatic_restart_close_cancels_deferred_turn ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 0.63s\n\n",
+      "sha256": "31be94518487587eb2e843136c7283f6aecfa14ccf38d871f1eeb60eeccdce1f",
+      "originalPrivateSha256": "31be94518487587eb2e843136c7283f6aecfa14ccf38d871f1eeb60eeccdce1f",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock.log",
+      "text": "\nrunning 1 test\ntest webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 0.48s\n\n",
+      "sha256": "15e0c28374477ca826df5183b5b1202aaa5369fa309815e4821249fd2d3ab699",
+      "originalPrivateSha256": "15e0c28374477ca826df5183b5b1202aaa5369fa309815e4821249fd2d3ab699",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "live_relay_udp_rotation_preserves_media_across_three_generations.log",
+      "text": "\nrunning 1 test\ntest webrtc::tests::live_restart::live_relay_udp_rotation_preserves_media_across_three_generations ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 1.47s\n\n",
+      "sha256": "70d483486e5b1347e1639084c809343daacfbfb4db56191e8601ee7a72b6962e",
+      "originalPrivateSha256": "70d483486e5b1347e1639084c809343daacfbfb4db56191e8601ee7a72b6962e",
+      "fixtureTokenRedacted": false
+    }
+  ],
+  "postRunGroups": [
+    {
+      "pgid": 57973,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57982,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57987,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57993,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57998,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58003,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58054,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58082,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58091,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58096,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58100,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58103,
+      "goneAtExport": true
+    }
+  ],
+  "privateBuildLog": {
+    "sha256": "155ef3f08a8822c78e4a011aa59724476c89035ae501d37e85d3741a48b0fc42",
+    "bytes": 194570
+  },
+  "limits": "Selected native Mac library tests only. The retired UDP endpoint is an owned unanswered socket; the observed old Allocate is the initial unauthenticated request, not an authenticated credential replay or a server allocation. Only the separate forced-relay test starts actual coturn. Synthetic NALs have no decoder/quality/physical handover/resource qualification. Compile failure executes zero tests."
+}
