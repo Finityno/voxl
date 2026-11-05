@@ -97,6 +97,17 @@ available in the optional framed stream, allowing a decoder to start fresh at
 a later forced keyframe. Sample counts are bounded (warmup at most 1800 frames,
 observation 1..18000, forced interval 1..1800); run with an external deadline.
 
+`--pattern=color-bars --pixel-range=video|full --color-tags=none|bt709|srgb`
+adds controlled color/range inputs. Sixteen bars include primaries, mixed colors
+and gray levels, generated with the BT.709 YCbCr matrix in the requested 420v
+or 420f range. Explicit tags use BT.709 primaries/matrix and either BT.709 or
+sRGB transfer, attached before retaining the immutable input. The printed tags
+are requests; inspect the actual encoded stream and independent decoded values
+before claiming preservation. These options do not change the library or the
+application's capture configuration. Defaults remain the earlier monochrome,
+video-range, not-explicitly-tagged input. Color bars do not qualify readable
+text, colored thin edges, wide-gamut/HDR, browser conversion or performance.
+
 Summaries now state the nearest-rank percentile definition and nominal video
 duration used for bitrate. The older 60-frame summaries selected conservative
 upper order statistics (including index 57 for the p95 field); do not present

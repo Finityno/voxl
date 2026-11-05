@@ -13,6 +13,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         fn CVPixelBufferUnlockBaseAddress(buffer: *const c_void, flags: u64) -> i32;
         fn CVPixelBufferGetBaseAddressOfPlane(buffer: *const c_void, plane: usize) -> *mut u8;
         fn CVPixelBufferGetBytesPerRowOfPlane(buffer: *const c_void, plane: usize) -> usize;
+        fn CVBufferSetAttachment(buffer: *const c_void, key: *const c_void, value: *const c_void, mode: u32);
+        static kCVImageBufferColorPrimariesKey: *const c_void;
+        static kCVImageBufferTransferFunctionKey: *const c_void;
+        static kCVImageBufferYCbCrMatrixKey: *const c_void;
+        static kCVImageBufferColorPrimaries_ITU_R_709_2: *const c_void;
+        static kCVImageBufferTransferFunction_ITU_R_709_2: *const c_void;
+        static kCVImageBufferTransferFunction_sRGB: *const c_void;
+        static kCVImageBufferYCbCrMatrix_ITU_R_709_2: *const c_void;
     }
     #[link(name = "CoreFoundation", kind = "framework")]
     unsafe extern "C" { fn CFRelease(object: *const c_void); }
@@ -38,13 +46,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let warmup = parse_count(option(&mut args,"--warmup-frames=")?,0)?;
     let count = parse_count(option(&mut args,"--frames=")?,60)?;
     let force_period = option(&mut args,"--force-keyframe-period=")?.map(|value|value.parse::<usize>()).transpose()?;
+    let pattern = option(&mut args,"--pattern=")?.unwrap_or_else(||"mono".to_owned());
+    let pixel_range = option(&mut args,"--pixel-range=")?.unwrap_or_else(||"video".to_owned());
+    let color_tags = option(&mut args,"--color-tags=")?.unwrap_or_else(||"none".to_owned());
+    let full_range = match pixel_range.as_str() {"video"=>false,"full"=>true,_=>return Err("unknown input pixel range".into())};
+    if !matches!(pattern.as_str(),"mono"|"color-bars") || !matches!(color_tags.as_str(),"none"|"bt709"|"srgb") {
+        return Err("unknown input pattern or color tags".into());
+    }
     if warmup > 1800 || !(1..=18000).contains(&count) || force_period.is_some_and(|period|!(1..=1800).contains(&period))
         || !(3..=5).contains(&args.len()) || args.iter().skip(1).any(|arg|arg.starts_with("--"))
     { return Err("codec probe options exceed their bounds".into()); }
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -64,6 +79,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         framed.write_all(&[if codec == VideoCodec::H264 { 0 } else { 1 }])?;
     }
     println!("requested_tuning={tuning_name} warmup_frames={warmup} observed_frames={count} force_keyframe_period={force_period:?}");
+    println!("input_pattern={pattern} requested_pixel_range={pixel_range} requested_color_tags={color_tags} matrix_for_generated_bars=bt709");
+    let rgb_bars = [[255u8,255,255],[255,255,0],[0,255,255],[0,255,0],[255,0,255],[255,0,0],[0,0,255],[0,0,0],
+        [128,128,128],[64,64,64],[192,192,192],[255,128,0],[128,0,255],[0,128,128],[255,128,192],[128,64,32]];
+    let quantize = |value:f64|value.round().clamp(0.0,255.0) as u8;
+    let color_bars = rgb_bars.map(|[red,green,blue]| {
+        let red=f64::from(red)/255.0;let green=f64::from(green)/255.0;let blue=f64::from(blue)/255.0;
+        let luma=0.2126*red+0.7152*green+0.0722*blue;
+        let y=if full_range {255.0*luma} else {16.0+219.0*luma};
+        let scale=if full_range {255.0} else {224.0};
+        [quantize(y),quantize(128.0+scale*(blue-luma)/1.8556),quantize(128.0+scale*(red-luma)/1.5748)]
+    });
     let mut encoder = VideoEncoder::new_tuned(config,tuning,|| {})?;
     println!("hardware_selection={:?}",encoder.acceleration_selection());
     let started = Instant::now();
@@ -77,7 +103,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let deadline = started + Duration::from_secs_f64(index as f64 / 30.0);
         if let Some(wait) = deadline.checked_duration_since(Instant::now()) { std::thread::sleep(wait); }
         let mut raw = ptr::null();
-        let code = unsafe { CVPixelBufferCreate(ptr::null(),1280,720,u32::from_be_bytes(*b"420v"),ptr::null(),&mut raw) };
+        let format=if full_range {*b"420f"} else {*b"420v"};
+        let code = unsafe { CVPixelBufferCreate(ptr::null(),1280,720,u32::from_be_bytes(format),ptr::null(),&mut raw) };
         if code != 0 || raw.is_null() { return Err(format!("pixel buffer creation: {code}").into()); }
         unsafe {
             if CVPixelBufferLockBaseAddress(raw,0) != 0 { CFRelease(raw); return Err("pixel buffer lock failed".into()); }
@@ -88,17 +115,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if y.is_null() || uv.is_null() {
                 CVPixelBufferUnlockBaseAddress(raw,0); CFRelease(raw); return Err("missing NV12 planes".into());
             }
-            for row in 0..720usize {
-                for col in 0..1280usize {
-                    // Small text-like edges and a scrolling bar over a stable
-                    // background exercise interframe coding deterministically.
-                    let bar = (col + index*8) % 1280 < 32;
-                    let grid = row % 24 < 2 && col % 12 < 8;
-                    y.add(row*y_stride+col).write(if bar {200} else if grid {40} else {100});
+            if pattern=="color-bars" {
+                for row in 0..720usize {
+                    for col in 0..1280usize {y.add(row*y_stride+col).write(color_bars[col/80][0]);}
                 }
+                for row in 0..360usize {
+                    for col in 0..640usize {
+                        let color=color_bars[col/40];uv.add(row*uv_stride+2*col).write(color[1]);uv.add(row*uv_stride+2*col+1).write(color[2]);
+                    }
+                }
+            } else {
+                for row in 0..720usize {
+                    for col in 0..1280usize {
+                        // Small text-like edges and a scrolling bar over a stable
+                        // background exercise interframe coding deterministically.
+                        let bar = (col + index*8) % 1280 < 32;
+                        let grid = row % 24 < 2 && col % 12 < 8;
+                        y.add(row*y_stride+col).write(if bar {200} else if grid {40} else {100});
+                    }
+                }
+                for row in 0..360usize { ptr::write_bytes(uv.add(row*uv_stride),128,1280); }
             }
-            for row in 0..360usize { ptr::write_bytes(uv.add(row*uv_stride),128,1280); }
             CVPixelBufferUnlockBaseAddress(raw,0);
+            if color_tags!="none" {
+                // These immortal SDK values describe the generated samples.
+                // Tag before retaining an immutable encoder input; do not claim
+                // output signaling until an independent decoder observes it.
+                const SHOULD_PROPAGATE:u32=1;
+                CVBufferSetAttachment(raw,kCVImageBufferColorPrimariesKey,kCVImageBufferColorPrimaries_ITU_R_709_2,SHOULD_PROPAGATE);
+                CVBufferSetAttachment(raw,kCVImageBufferTransferFunctionKey,if color_tags=="srgb" {kCVImageBufferTransferFunction_sRGB} else {kCVImageBufferTransferFunction_ITU_R_709_2},SHOULD_PROPAGATE);
+                CVBufferSetAttachment(raw,kCVImageBufferYCbCrMatrixKey,kCVImageBufferYCbCrMatrix_ITU_R_709_2,SHOULD_PROPAGATE);
+            }
         }
         let image = unsafe { PixelBuffer::from_raw(raw)? };
         unsafe { CFRelease(raw); }
