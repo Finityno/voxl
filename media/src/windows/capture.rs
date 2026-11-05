@@ -86,7 +86,7 @@ impl CaptureDevice {
     }
     pub fn d3d11(&self)->&ID3D11Device {&self.device}
 }
-struct CaptureSignal {wake:Wake,closed:AtomicBool}
+struct CaptureSignal {wake:Wake,closed:AtomicBool,control:AtomicBool}
 impl CaptureSignal {
     fn notify(&self) {
         // SAFETY: the shared signal retains its event until the last callback.
@@ -100,6 +100,9 @@ impl CaptureSignal {
 pub struct CaptureStop(Arc<CaptureSignal>);
 impl CaptureStop {
     pub fn close(&self) {self.0.close();}
+    /// Wake the owner to recheck demand/recovery without closing capture. The
+    /// pending flag is consumed even when the notification precedes its wait.
+    pub fn wake(&self) {self.0.control.store(true,Ordering::Release);self.0.notify();}
     pub(super) fn current(&self,capture:&DesktopCapture)->Result<(),MediaError> {
         if !Arc::ptr_eq(&self.0,&capture.resources.signal) {return Err(MediaError::Configuration);}
         capture.current()
@@ -141,7 +144,7 @@ impl DesktopCapture {
         if size!=(SizeInt32 {Width:width as i32,Height:height as i32}) {return Err(MediaError::Closed);}
         // SAFETY: create a kernel event and project our protected DXGI device.
         let wake=checked("capture wake event",unsafe {CreateEventW(None,false,false,None)})?;
-        let signal=Arc::new(CaptureSignal {wake:Wake(wake),closed:AtomicBool::new(false)});
+        let signal=Arc::new(CaptureSignal {wake:Wake(wake),closed:AtomicBool::new(false),control:AtomicBool::new(false)});
         let mut resources=Resources {pool:None,session:None,item,arrived:None,closed:None,signal:Arc::clone(&signal)};
         let dxgi=checked("capture DXGI device",device.device.cast::<IDXGIDevice>())?;
         let projected:IDirect3DDevice=checked("capture WinRT device",unsafe {CreateDirect3D11DeviceFromDXGIDevice(&dxgi)})?.cast().map_err(|e|super::platform("project capture device",e))?;
@@ -191,6 +194,7 @@ impl DesktopCapture {
         let deadline=Instant::now()+timeout.min(Duration::from_millis(200));
         loop {
             self.current()?;let mut latest=None;
+            if self.resources.signal.control.swap(false,Ordering::AcqRel) {return Ok(None);}
             for _ in 0..2 {
                 let next=match self.pull() {Ok(frame)=>frame,Err(error)=>{self.close();return Err(error)}};
                 let Some(frame)=next else {break;};latest=Some(frame);
