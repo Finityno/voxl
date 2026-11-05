@@ -97,6 +97,15 @@ available in the optional framed stream, allowing a decoder to start fresh at
 a later forced keyframe. Sample counts are bounded (warmup at most 1800 frames,
 observation 1..18000, forced interval 1..1800); run with an external deadline.
 
+The encoder initializes its compression color properties from the first input
+buffer's primaries, transfer function and matrix attachments. Absent tags remain
+unspecified; source colorimetry is not replaced with fixed display assumptions.
+Only copied strings are retained, with no extra source-frame or pixel copy.
+Subsequent changes to any of those tags or the NV12 range close the encoder:
+the caller must create a new generation rather than continue with stale signaling.
+Unsupported native color properties fail explicitly. These session settings alone
+do not prove the emitted bitstream's tags or receiver color conversion.
+
 `--pattern=color-bars --pixel-range=video|full --color-tags=none|bt709|srgb`
 adds controlled color/range inputs. Sixteen bars include primaries, mixed colors
 and gray levels, generated with the BT.709 YCbCr matrix in the requested 420v

@@ -39,6 +39,9 @@ unsafe extern "C" {
     pub static kVTProfileLevel_HEVC_Main_AutoLevel: Object;
     pub static kVTCompressionPropertyKey_UsingHardwareAcceleratedVideoEncoder: Object;
     pub static kVTEncodeFrameOptionKey_ForceKeyFrame: Object;
+    pub static kVTCompressionPropertyKey_ColorPrimaries: Object;
+    pub static kVTCompressionPropertyKey_TransferFunction: Object;
+    pub static kVTCompressionPropertyKey_YCbCrMatrix: Object;
 }
 #[link(name = "CoreFoundation", kind = "framework")]
 unsafe extern "C" {
@@ -48,6 +51,10 @@ unsafe extern "C" {
     pub fn CFDictionarySetValue(dictionary: Session, key: Object, value: Object);
     pub fn CFNumberCreate(allocator: Object, kind: isize, value: *const c_void) -> Object;
     pub fn CFBooleanGetValue(value: Object) -> bool;
+    pub fn CFGetTypeID(value: Object) -> usize;
+    pub fn CFStringGetTypeID() -> usize;
+    pub fn CFStringCreateCopy(allocator: Object, value: Object) -> Object;
+    pub fn CFEqual(left: Object, right: Object) -> bool;
     pub static kCFBooleanTrue: Object;
     pub static kCFBooleanFalse: Object;
 }
@@ -56,6 +63,12 @@ unsafe extern "C" {
     pub fn CVPixelBufferGetWidth(buffer: Object) -> usize;
     pub fn CVPixelBufferGetHeight(buffer: Object) -> usize;
     pub fn CVPixelBufferGetPixelFormatType(buffer: Object) -> u32;
+    // Borrowed get API keeps standalone support before macOS 12. The caller
+    // retains an immutable buffer throughout all attachment reads.
+    pub fn CVBufferGetAttachment(buffer: Object, key: Object, mode: *mut u32) -> Object;
+    pub static kCVImageBufferColorPrimariesKey: Object;
+    pub static kCVImageBufferTransferFunctionKey: Object;
+    pub static kCVImageBufferYCbCrMatrixKey: Object;
 }
 #[link(name = "CoreMedia", kind = "framework")]
 unsafe extern "C" {

@@ -22,8 +22,9 @@ impl PixelBuffer {
     /// Retain one borrowed CVPixelBuffer.
     ///
     /// # Safety
-    /// `buffer` must be a live CVPixelBuffer. Its pixels must remain immutable
-    /// until all its native references, including VideoToolbox's, are released.
+    /// `buffer` must be a live CVPixelBuffer. Its pixels and attachments must
+    /// remain immutable until all its native references, including
+    /// VideoToolbox's, are released.
     pub unsafe fn from_raw(buffer: *const c_void) -> Result<Self, MediaError> {
         let value = NonNull::new(buffer.cast_mut()).ok_or(MediaError::InvalidFrame)?;
         unsafe { CFRetain(buffer); }
@@ -31,6 +32,54 @@ impl PixelBuffer {
     }
 }
 impl Drop for PixelBuffer { fn drop(&mut self) { unsafe { CFRelease(self.0.as_ptr()); } } }
+
+// Colorimetry is established by the first source, never inferred from screen
+// dimensions or replaced with fixed primaries. Keep just three copied strings,
+// not a retained source frame or a CPU-converted pixel buffer.
+struct SourceColor {
+    pixel_format: u32,
+    tags: [Object; 3],
+}
+impl SourceColor {
+    fn keys() -> [Object; 3] {
+        // SAFETY: these linked framework keys are immortal CFStringRefs.
+        unsafe { [kCVImageBufferColorPrimariesKey,kCVImageBufferTransferFunctionKey,kCVImageBufferYCbCrMatrixKey] }
+    }
+    fn copy_from(buffer: Object) -> Result<Self, MediaError> {
+        // SAFETY: the caller holds an immutable, validated PixelBuffer.
+        let mut color = Self { pixel_format: unsafe { CVPixelBufferGetPixelFormatType(buffer) }, tags: [ptr::null();3] };
+        for (index,key) in Self::keys().into_iter().enumerate() {
+            // SAFETY: the retained source owns its borrowed attachment while
+            // its type is checked and an immutable CFString copy is created.
+            unsafe {
+                let tag = CVBufferGetAttachment(buffer,key,ptr::null_mut());
+                if tag.is_null() { continue; }
+                if CFGetTypeID(tag) != CFStringGetTypeID() { return Err(MediaError::InvalidFrame); }
+                color.tags[index] = CFStringCreateCopy(ptr::null(),tag);
+                if color.tags[index].is_null() { return Err(MediaError::Configuration); }
+            }
+        }
+        Ok(color)
+    }
+    fn matches(&self, buffer: Object) -> bool {
+        // SAFETY: both the stored strings and the immutable source are live.
+        unsafe {
+            if self.pixel_format != CVPixelBufferGetPixelFormatType(buffer) { return false; }
+            Self::keys().into_iter().zip(self.tags).all(|(key,expected)| {
+                let actual = CVBufferGetAttachment(buffer,key,ptr::null_mut());
+                if actual.is_null() || expected.is_null() { return actual == expected; }
+                CFGetTypeID(actual) == CFStringGetTypeID() && CFEqual(actual,expected)
+            })
+        }
+    }
+}
+impl Drop for SourceColor {
+    fn drop(&mut self) {
+        // SAFETY: each nonnull field owns a CFStringCreateCopy reference.
+        for tag in self.tags { if !tag.is_null() { unsafe { CFRelease(tag); } } }
+    }
+}
+enum ColorConfiguration { AwaitingFirstFrame, Established(SourceColor) }
 
 struct CallbackState {
     sender: SyncSender<EncodedFrame>,
@@ -51,9 +100,11 @@ pub struct VideoEncoder {
     config: EncoderConfig,
     acceleration: EncoderAcceleration,
     last_pts: Option<i64>,
+    color: ColorConfiguration,
 }
 // SAFETY: ownership moves as a whole; mutating session calls require &mut self.
 // VideoToolbox is thread-safe and callbacks access only atomics and a sender.
+// Copied color tags are immutable CFStrings owned by this producer.
 unsafe impl Send for VideoEncoder {}
 
 impl VideoEncoder {
@@ -111,7 +162,7 @@ impl VideoEncoder {
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
         let mut encoder = Self { session, callback, receiver, config,
-            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, last_pts: None };
+            acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
             encoder.property("frame reordering", kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse)?;
@@ -158,6 +209,28 @@ impl VideoEncoder {
     pub fn using_hardware(&self) -> bool { self.acceleration.using_hardware() }
     pub fn acceleration_selection(&self) -> EncoderAcceleration { self.acceleration }
 
+    fn configure_source_color(&mut self, buffer: Object) -> Result<(), MediaError> {
+        match &self.color {
+            ColorConfiguration::Established(color) => {
+                if color.matches(buffer) { Ok(()) } else { Err(MediaError::InvalidFrame) }
+            }
+            ColorConfiguration::AwaitingFirstFrame => {
+                let color = SourceColor::copy_from(buffer)?;
+                // SAFETY: keys are immortal, values are retained CFStrings.
+                // Do not set absent source properties or silently ignore a
+                // codec that rejects the actual source's colorimetry.
+                let keys = unsafe { [kVTCompressionPropertyKey_ColorPrimaries,kVTCompressionPropertyKey_TransferFunction,kVTCompressionPropertyKey_YCbCrMatrix] };
+                for ((key,value),operation) in keys.into_iter().zip(color.tags)
+                    .zip(["source color primaries","source transfer function","source YCbCr matrix"])
+                { if !value.is_null() { self.property(operation,key,value)?; } }
+                self.color = ColorConfiguration::Established(color);
+                Ok(())
+            }
+        }
+    }
+
+    /// The first frame establishes source color tags and NV12 range. A later
+    /// change closes this encoder; the caller must create a new generation.
     pub fn encode(&mut self, image: &PixelBuffer, pts_micros: i64, force_keyframe: bool) -> Result<(), MediaError> {
         if self.callback.failed.load(Ordering::Acquire) { return Err(MediaError::Closed); }
         if pts_micros < 0 || self.last_pts.is_some_and(|last| pts_micros <= last) { return Err(MediaError::InvalidFrame); }
@@ -168,6 +241,10 @@ impl VideoEncoder {
             || unsafe { CVPixelBufferGetHeight(buffer) } != self.config.height as usize
             || !matches!(unsafe { CVPixelBufferGetPixelFormatType(buffer) }, 0x34323076 | 0x34323066)
         { return Err(MediaError::InvalidFrame); }
+        if let Err(error) = self.configure_source_color(buffer) {
+            self.callback.failed.store(true, Ordering::Release);
+            return Err(error);
+        }
         if self.callback.pending.fetch_add(1, Ordering::AcqRel) >= 3 {
             self.callback.pending.fetch_sub(1, Ordering::AcqRel);
             self.callback.failed.store(true, Ordering::Release);
@@ -325,3 +402,6 @@ unsafe fn read_sample(sample: Object, codec: VideoCodec) -> Result<EncodedFrame,
     let presentation_time_micros = i64::try_from(micros).map_err(|_| MediaError::InvalidFrame)?;
     Ok(EncodedFrame { codec, annex_b, keyframe, presentation_time_micros })
 }
+
+#[cfg(test)]
+mod tests;
