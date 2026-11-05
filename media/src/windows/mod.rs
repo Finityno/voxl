@@ -7,7 +7,7 @@ mod bitstream;
 use crate::{EncodedFrame,EncoderConfig,EncoderPreference,MediaError,MAX_FRAME_BYTES,av1::{Av1Frame,av1_main_profile,validate_temporal_unit},codec::VideoCodec};
 use std::{marker::PhantomData,mem::ManuallyDrop,ptr,rc::Rc,sync::{Arc,atomic::{AtomicBool,AtomicI32,AtomicU32,Ordering}},time::{Duration,Instant}};
 use windows_core::{implement,Interface,IUnknown,IUnknownImpl,Ref,GUID,HRESULT};
-use ::windows::Win32::{Foundation::{CloseHandle,E_FAIL,E_NOTIMPL,E_POINTER,HANDLE,WAIT_FAILED,WAIT_OBJECT_0,WAIT_TIMEOUT},Graphics::{Direct3D11::{ID3D11Device,ID3D11Texture2D,D3D11_TEXTURE2D_DESC},Dxgi::Common::DXGI_FORMAT_NV12},Media::MediaFoundation::*,System::{Com::{CoInitializeEx,CoTaskMemFree,CoUninitialize,COINIT_MULTITHREADED},Threading::{CreateEventW,SetEvent,WaitForSingleObject},Variant::VARIANT}};
+use ::windows::Win32::{Foundation::{CloseHandle,E_FAIL,E_NOTIMPL,E_POINTER,HANDLE,WAIT_FAILED,WAIT_OBJECT_0,WAIT_TIMEOUT},Graphics::{Direct3D11::{ID3D11Device,ID3D11Texture2D,ID3D11Multithread,D3D11_TEXTURE2D_DESC},Dxgi::Common::DXGI_FORMAT_NV12},Media::MediaFoundation::*,System::{Com::{CoInitializeEx,CoTaskMemFree,CoUninitialize,COINIT_MULTITHREADED},Threading::{CreateEventW,SetEvent,WaitForSingleObject},Variant::VARIANT}};
 
 fn platform(operation:&'static str,error:windows_core::Error)->MediaError {MediaError::Platform {operation,code:error.code().0}}
 fn checked<T>(operation:&'static str,result:windows_core::Result<T>)->Result<T,MediaError> {result.map_err(|error|platform(operation,error))}
@@ -152,8 +152,6 @@ impl IMFAsyncCallback_Impl for SampleReleased_Impl {
 }
 #[derive(Clone,Copy)]
 enum Flight {Idle,Submitted(i64),Closed}
-#[derive(Clone,Copy,PartialEq,Eq)]
-enum OutputFormat {Initial,Adapted,Stable}
 
 /// Own this encoder on one dedicated MTA worker. Its callbacks never run capture
 /// or application code. One accepted input remains in flight until output is
@@ -163,12 +161,15 @@ pub struct VideoEncoder {
     _callback:Option<IMFAsyncCallback>,shutdown:Option<IMFShutdown>,signals:Arc<Signals>,
     _manager:Option<IMFDXGIDeviceManager>,device:Option<ID3D11Device>,surfaces:Vec<Arc<AtomicBool>>,
     input_id:u32,output_id:u32,info:MFT_OUTPUT_STREAM_INFO,
-    config:EncoderConfig,observation:EncoderObservation,flight:Flight,format:OutputFormat,last_pts:Option<i64>,headers:Vec<u8>,idle:fn(),
+    config:EncoderConfig,observation:EncoderObservation,flight:Flight,last_pts:Option<i64>,headers:Vec<u8>,idle:fn(),
     // Last: Media Foundation and COM stop only after native references release.
     _context:Context,
 }
 impl VideoEncoder {
     pub fn new(config:EncoderConfig,color:Nv12Color,idle:fn())->Result<Self,MediaError> {Self::open(config,color,None,idle)}
+    /// The dedicated capture worker must enable D3D11 multithread protection
+    /// before sharing its device with the asynchronous encoder. This method
+    /// checks that contract and does not mutate the caller's device settings.
     pub fn with_device(config:EncoderConfig,color:Nv12Color,device:&ID3D11Device,idle:fn())->Result<Self,MediaError> {Self::open(config,color,Some(device.clone()),idle)}
     fn open(config:EncoderConfig,color:Nv12Color,device:Option<ID3D11Device>,idle:fn())->Result<Self,MediaError> {
         config.validate()?;let mut context=Some(Context::new()?);let mut last=MediaError::UnsupportedCodec;
@@ -211,6 +212,9 @@ impl VideoEncoder {
                 if let Err(error)=transform.GetStreamIDs(&mut inputs,&mut outputs) {if error.code()!=E_NOTIMPL {return Err(platform("encoder stream IDs",error));}}
                 let manager=if let Some(device)=&device {
                     if !hardware || attributes.GetUINT32(&MF_SA_D3D11_AWARE).unwrap_or(0)!=1 {return Err(MediaError::UnsupportedCodec);}
+                    let immediate=checked("encoder device context",device.GetImmediateContext())?;
+                    let protection=checked("encoder device threading",immediate.cast::<ID3D11Multithread>())?;
+                    if !protection.GetMultithreadProtected().as_bool() {return Err(MediaError::Configuration);}
                     let mut token=0;let mut manager=None;checked("create DXGI manager",MFCreateDXGIDeviceManager(&mut token,&mut manager))?;
                     let manager=manager.ok_or(MediaError::Configuration)?;checked("reset DXGI manager",manager.ResetDevice(device,token))?;
                     checked("attach DXGI manager",transform.ProcessMessage(MFT_MESSAGE_SET_D3D_MANAGER,manager.as_raw()as usize))?;Some(manager)
@@ -238,7 +242,7 @@ impl VideoEncoder {
         match configured {
             Ok((transform,api,callback,shutdown,signals,manager,input_id,output_id,info,headers,asynchronous))=>{
                 cleanup.activation.take();cleanup.shutdown.take();cleanup.signals.take();
-                Ok(Self {transform,activation,api,_callback:callback,shutdown,signals,_manager:manager,device:device.clone(),surfaces:Vec::with_capacity(3),input_id,output_id,info,config,observation:EncoderObservation {codec:config.codec,hardware_registration:hardware,device_input:device.is_some(),asynchronous,width:config.width,height:config.height,fps:config.fps,bitrate_kbps:config.bitrate_kbps,color_requested:color},flight:Flight::Idle,format:OutputFormat::Initial,last_pts:None,headers,idle,_context:context})
+                Ok(Self {transform,activation,api,_callback:callback,shutdown,signals,_manager:manager,device:device.clone(),surfaces:Vec::with_capacity(3),input_id,output_id,info,config,observation:EncoderObservation {codec:config.codec,hardware_registration:hardware,device_input:device.is_some(),asynchronous,width:config.width,height:config.height,fps:config.fps,bitrate_kbps:config.bitrate_kbps,color_requested:color},flight:Flight::Idle,last_pts:None,headers,idle,_context:context})
             },
             Err(error)=>{drop(cleanup);Err((error,context))},
         }
@@ -290,7 +294,8 @@ impl VideoEncoder {
     /// Pixels must remain immutable until the returned lease reports released,
     /// even if the encoder has closed. No other D3D context may mutate them while
     /// retained. Use the device supplied at construction. On an error, close and
-    /// destroy this encoder before considering the texture for reuse.
+    /// destroy this encoder before considering the texture for reuse. Complete
+    /// or explicitly synchronize producer GPU work before submitting the texture.
     pub unsafe fn encode_surface(&mut self,texture:&ID3D11Texture2D,subresource:u32,pts:i64,force_keyframe:bool)->Result<SurfaceLease,MediaError> {
         self.surfaces.retain(|lease|!lease.load(Ordering::Acquire));
         if self.surfaces.len()>=3 {return Err(MediaError::Backpressure);}
@@ -331,15 +336,18 @@ impl VideoEncoder {
     }
     pub fn take_output(&mut self)->Result<Option<EncodedOutput>,MediaError> {
         self.signals.check()?;let pts=match self.flight {Flight::Idle=>return Ok(None),Flight::Closed=>return Err(MediaError::Closed),Flight::Submitted(pts)=>pts};
-        if self.observation.asynchronous && self.signals.outputs.fetch_update(Ordering::AcqRel,Ordering::Acquire,|n|n.checked_sub(1)).is_err() {return Ok(None);}
+        if self.observation.asynchronous {
+            if self.signals.outputs.load(Ordering::Acquire)==0 {return Ok(None);}
+            // Only the owning encoder decrements credits; callbacks only add.
+            self.signals.outputs.fetch_sub(1,Ordering::AcqRel);
+        }
         let result=self.output_sample().and_then(|sample|self.decode_output(sample,pts));
         match result {
-            Ok(output)=>{self.flight=Flight::Idle;self.format=OutputFormat::Stable;Ok(Some(output))},
+            Ok(output)=>{self.flight=Flight::Idle;Ok(Some(output))},
             Err(error)=>{self.close();Err(error)},
         }
     }
     fn output_sample(&mut self)->Result<IMFSample,MediaError> {
-        for attempt in 0..2 {
             // SAFETY: one output stream and one pending input are owned here.
             // ManuallyDrop COM outputs are explicitly taken on success/error.
             let result=unsafe {
@@ -357,22 +365,8 @@ impl VideoEncoder {
             match result {
                 Ok(Some(sample))=>return Ok(sample),
                 Ok(None)=>return Err(MediaError::InvalidFrame),
-                Err(error)if error.code()==MF_E_TRANSFORM_STREAM_CHANGE && attempt==0 && self.format==OutputFormat::Initial=>{
-                    self.format=OutputFormat::Adapted;
-                    // SAFETY: no output has been published. Accept one initial
-                    // type update only; an active stream cannot change profile.
-                    unsafe {
-                        let changed=checked("initial encoder format",self.transform.GetOutputAvailableType(self.output_id,0))?;
-                        verify_type(&changed,self.config,self.observation.color_requested)?;
-                        checked("accept initial encoder format",self.transform.SetOutputType(self.output_id,&changed,0))?;
-                        self.info=checked("updated encoder output size",self.transform.GetOutputStreamInfo(self.output_id))?;check_info(&self.info)?;
-                        self.headers=sequence_header(&checked("updated encoder format",self.transform.GetOutputCurrentType(self.output_id))?)?;
-                    }
-                },
                 Err(error)=>return Err(platform("take encoder output",error)),
             }
-        }
-        Err(MediaError::Configuration)
     }
     fn decode_output(&self,sample:IMFSample,pts:i64)->Result<EncodedOutput,MediaError> {
         // SAFETY: the returned native sample and contiguous buffer are live.

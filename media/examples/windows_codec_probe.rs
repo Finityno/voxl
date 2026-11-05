@@ -4,6 +4,7 @@ fn main()->Result<(),Box<dyn std::error::Error>> {
     use std::{fs::OpenOptions,io::Write,time::{Duration,Instant}};
     use voxl_media::{EncoderConfig,EncoderPreference,codec::VideoCodec,windows::{VideoEncoder,Nv12Color,EncodedOutput}};
     use ::windows::Win32::{Foundation::HMODULE,Graphics::{Direct3D::{D3D_DRIVER_TYPE_HARDWARE,D3D_FEATURE_LEVEL_11_0},Direct3D11::*,Dxgi::Common::{DXGI_FORMAT_NV12,DXGI_SAMPLE_DESC}}};
+    use windows_core::Interface;
     let args:Vec<_>=std::env::args().collect();
     if args.len()!=4 {return Err("Usage: windows_codec_probe software|hardware-memory|hardware-surface h264|hevc|av1 <new-output>".into());}
     let preference=match args[1].as_str() {"software"=>EncoderPreference::Software,"hardware-memory"|"hardware-surface"=>EncoderPreference::RequireHardware,_=>return Err("unknown encoder mode".into())};
@@ -14,6 +15,9 @@ fn main()->Result<(),Box<dyn std::error::Error>> {
         // SAFETY: writable device output, no swap chain/window, no WARP or
         // software adapter substitution. The encoder validates device identity.
         unsafe {D3D11CreateDevice(None,D3D_DRIVER_TYPE_HARDWARE,HMODULE::default(),D3D11_CREATE_DEVICE_VIDEO_SUPPORT|D3D11_CREATE_DEVICE_BGRA_SUPPORT,Some(&[D3D_FEATURE_LEVEL_11_0]),D3D11_SDK_VERSION,Some(&mut device),None,None)?;}
+        // SAFETY: this fixture exclusively owns the new device. The transform
+        // may use its immediate context from native Media Foundation workers.
+        unsafe {let context=device.as_ref().ok_or("missing device")?.GetImmediateContext()?;let threading=context.cast::<ID3D11Multithread>()?;threading.SetMultithreadProtected(true);}
     }
     let mut encoder=if let Some(device)=&device {VideoEncoder::with_device(config,Nv12Color::Bt709Limited,device,||{})?} else {VideoEncoder::new(config,Nv12Color::Bt709Limited,||{})?};
     let setup_us=started.elapsed().as_micros();let observation=encoder.observation();
