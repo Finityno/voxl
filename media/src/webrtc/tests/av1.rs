@@ -61,7 +61,8 @@ fn av1_webrtc_rejects_an_answer_below_the_actual_encoded_level() {
             let mut video=WebRtcVideo::open(WebRtcConfig::direct_first(format,vec!["127.0.0.1:0".into()])).await.unwrap();
             let mut media=MediaEngine::default();
             media.register_codec(RTCRtpCodecParameters {rtp_codec:RTCRtpCodec {mime_type:"video/AV1".into(),clock_rate:90_000,sdp_fmtp_line:format.fmtp(),..Default::default()},payload_type:102},RtpCodecKind::Video).unwrap();
-            let receiver=PeerConnectionBuilder::new().with_media_engine(media).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            let (sender,_packets)=mpsc::channel(4);
+            let receiver=PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
             let answer=receiver.local_description().await.unwrap().sdp;assert!(answer.contains("level-idx=8"));
