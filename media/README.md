@@ -118,6 +118,15 @@ loss from codec damage. It captures no screen, opens no window and sends no inpu
 Use a new output directory and an external watchdog; never run unbounded probes.
 The fixture and component metrics alone do not qualify codec/device admission.
 
+`media/tools/analyze-text-workload.py` consumes independently normalized RGB
+crops. It verifies all source hashes, a static original RGB region and rational
+RGB-to-NV12 spot checks, then measures only source-derived ink plus a one-pixel
+halo. Per-frame integer error sums determine regressions against the declared
+baseline. The uncompressed 4:2:0-to-RGB control remains separate, so source chroma
+loss cannot be credited to a codec. RGB crops must contain exactly the 240
+observed frames with matching geometry/color interpretation; run decoding and
+analysis under external process-group deadlines and retain their commands.
+
 The encoder initializes its compression color properties from the first input
 buffer's primaries, transfer function and matrix attachments. Absent tags remain
 unspecified; source colorimetry is not replaced with fixed display assumptions.
