@@ -149,8 +149,8 @@ fn direct_video_connects_while_stun_dns_remains_pending() {
         eprintln!("pending_dns_stage=answer_applied");
         let outgoing=signals.clone();let peer=Arc::clone(&receiver);
         let candidate=tokio::spawn(async move {
-            loop {if let VideoIceSignal::Candidate {candidate,mid}=outgoing.next_signal().await.unwrap() {
-                if candidate.contains(" typ host") {peer.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();return;}
+            loop {if let VideoIceSignal::Candidate {candidate,mid}=outgoing.next_signal().await.unwrap() && candidate.contains(" typ host") {
+                peer.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();return;
             }}
         });
         assert_eq!(video.next_update().await,VideoUpdate::Connected);
@@ -190,10 +190,9 @@ fn stun_dns_completion_wakes_a_driver_with_all_timers_parked() {
         *gate.answer.lock().unwrap()=DnsAnswer::Ready(socket.local_addr().unwrap());gate.changed.notify_waiters();
         mapped_response(&socket,"203.0.113.91").await;
         let mut reflexive=false;
-        loop {match signals.next_signal().await.unwrap() {
-            VideoIceSignal::Candidate {candidate,..}=>reflexive|=candidate.contains("203.0.113.91") && candidate.contains(" typ srflx"),
-            VideoIceSignal::GatheringComplete=>break,
-        }}
+        while let VideoIceSignal::Candidate {candidate,..}=signals.next_signal().await.unwrap() {
+            reflexive|=candidate.contains("203.0.113.91") && candidate.contains(" typ srflx");
+        }
         assert!(reflexive,"DNS completion must wake progress without a protocol timer or unrelated packet");
         video.close();video.peer.close().await.unwrap();
     }).await.unwrap();});
@@ -211,8 +210,8 @@ fn one_pending_stun_lookup_does_not_block_another_server() {
         dns.entered.notified().await;
         mapped_response(&socket,"203.0.113.92").await;
         let signals=video.signaling().unwrap();
-        loop {if let VideoIceSignal::Candidate {candidate,..}=signals.next_signal().await.unwrap() {
-            if candidate.contains("203.0.113.92") && candidate.contains(" typ srflx") {break;}
+        loop {if let VideoIceSignal::Candidate {candidate,..}=signals.next_signal().await.unwrap() && candidate.contains("203.0.113.92") && candidate.contains(" typ srflx") {
+            break;
         }}
         assert!(!video.events.gathered.load(Ordering::Acquire));assert!(!dns.cancelled.load(Ordering::Acquire));
         video.close();video.peer.close().await.unwrap();assert!(dns.cancelled.load(Ordering::Acquire));
@@ -410,18 +409,15 @@ fn late_configuration(relay:Option<RelayTransport>,restart:bool,initial:InitialD
         let outgoing=signals.clone();let peer=Arc::clone(&receiver);
         let candidates=tokio::spawn(async move {
             let mut discovered=false;
-            loop {match outgoing.next_signal().await.unwrap() {
-                VideoIceSignal::Candidate {candidate,mid}=>{
-                    assert!(!candidate.contains("203.0.113.20"),"old STUN result must not enter the new generation");
-                    let is_relay=candidate.contains(" typ relay");discovered|=if relay.is_some() {is_relay} else {candidate.contains(" typ srflx")};
-                    // Unreachable synthetic mapped addresses are observed,
-                    // never sent to the peer or used for external probes.
-                    if (relay.is_some() && is_relay) || (relay.is_none() && candidate.contains(" typ host")) {
-                        peer.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
-                    }
-                },
-                VideoIceSignal::GatheringComplete=>break,
-            }}
+            while let VideoIceSignal::Candidate {candidate,mid}=outgoing.next_signal().await.unwrap() {
+                assert!(!candidate.contains("203.0.113.20"),"old STUN result must not enter the new generation");
+                let is_relay=candidate.contains(" typ relay");discovered|=if relay.is_some() {is_relay} else {candidate.contains(" typ srflx")};
+                // Unreachable synthetic mapped addresses are observed,
+                // never sent to the peer or used for external probes.
+                if (relay.is_some() && is_relay) || (relay.is_none() && candidate.contains(" typ host")) {
+                    peer.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
+                }
+            }
             discovered
         });
         receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();

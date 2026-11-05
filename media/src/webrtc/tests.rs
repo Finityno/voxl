@@ -180,10 +180,9 @@ fn trickle_direct_media_precedes_held_stun_and_applies_early_remote_candidates()
             let incoming=signals.clone();let receiver_candidates=Arc::clone(&receiver);let expected_mid=video.events.media_mid.get().unwrap().clone();
             let candidates=tokio::spawn(async move {
                 let mut reflexive=false;
-                loop {match incoming.next_signal().await.unwrap() {
-                    VideoIceSignal::Candidate {candidate,mid}=>{assert_eq!(mid,expected_mid);reflexive|=candidate.contains(" typ srflx");receiver_candidates.add_ice_candidate(super::signaling::candidate(candidate,mid)).await.unwrap();},
-                    VideoIceSignal::GatheringComplete=>break,
-                }}
+                while let VideoIceSignal::Candidate {candidate,mid}=incoming.next_signal().await.unwrap() {
+                    assert_eq!(mid,expected_mid);reflexive|=candidate.contains(" typ srflx");receiver_candidates.add_ice_candidate(super::signaling::candidate(candidate,mid)).await.unwrap();
+                }
                 reflexive
             });
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();

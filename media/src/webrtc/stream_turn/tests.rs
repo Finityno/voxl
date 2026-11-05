@@ -246,23 +246,20 @@ fn relay_connection(expected_transport:RelayTransport,policy:super::super::Route
                 let target=Arc::clone(&receiver);let gate=Arc::clone(&gate);let remote_candidates=Arc::clone(&remote_candidates);
                 tokio::spawn(async move {
                     let mut relays=0;
-                    loop {match signals.next_signal().await.unwrap() {
-                        VideoIceSignal::Candidate {candidate,mid}=>{
-                            let relay=candidate.contains(" typ relay");
-                            if relay {
-                                relays+=1;
-                                if blocked_direct {
-                                    assert!(opened_at.elapsed()>=Duration::from_millis(250),"automatic relay cannot allocate before its grace");
-                                    let mut gate=gate.lock().unwrap();gate.open=true;
-                                    for candidate in std::mem::take(&mut gate.pending) {
-                                        signals.add_candidate(candidate,mid.clone()).unwrap();remote_candidates.fetch_add(1,Ordering::AcqRel);
-                                    }
+                    while let VideoIceSignal::Candidate {candidate,mid}=signals.next_signal().await.unwrap() {
+                        let relay=candidate.contains(" typ relay");
+                        if relay {
+                            relays+=1;
+                            if blocked_direct {
+                                assert!(opened_at.elapsed()>=Duration::from_millis(250),"automatic relay cannot allocate before its grace");
+                                let mut gate=gate.lock().unwrap();gate.open=true;
+                                for candidate in std::mem::take(&mut gate.pending) {
+                                    signals.add_candidate(candidate,mid.clone()).unwrap();remote_candidates.fetch_add(1,Ordering::AcqRel);
                                 }
                             }
-                            target.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
-                        },
-                        VideoIceSignal::GatheringComplete=>break,
-                    }}
+                        }
+                        target.add_ice_candidate(super::super::signaling::candidate(candidate,mid)).await.unwrap();
+                    }
                     relays
                 })
             });
