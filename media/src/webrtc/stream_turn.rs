@@ -105,6 +105,11 @@ impl StreamRelays {
         if let RelayListeners::Active(adopted)=adopted {listeners.extend(adopted);}
         Ok(())
     }
+    #[cfg(test)]
+    pub(super) fn resource_counts(&self)->(usize,usize) {
+        let adapters=match &*self.listeners.lock().unwrap_or_else(|error|error.into_inner()) {RelayListeners::Active(listeners)=>listeners.len(),RelayListeners::Closed=>0};
+        (adapters,self.allocations.lock().unwrap_or_else(|error|error.into_inner()).len())
+    }
     pub fn runtime(&self) -> Arc<dyn webrtc::runtime::Runtime> {Arc::<RelayRuntime>::clone(&self.runtime)}
     pub fn close(&self) {
         let listeners=std::mem::replace(&mut *self.listeners.lock().unwrap_or_else(|error|error.into_inner()),RelayListeners::Closed);

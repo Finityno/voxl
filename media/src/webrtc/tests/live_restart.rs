@@ -37,12 +37,42 @@ async fn negotiate(video:&mut WebRtcVideo,receiver:Arc<dyn PeerConnection>,gathe
 }
 
 #[test]
-fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations() {
+fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations() {live(None);}
+#[test]
+#[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
+fn live_relay_udp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Udp));}
+#[test]
+#[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
+fn live_relay_tcp_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tcp));}
+#[test]
+#[ignore = "requires isolated coturn with two valid usernames and fixture CA"]
+fn live_relay_tls_rotation_preserves_media_across_three_generations() {live(Some(RelayTransport::Tls));}
+
+fn live(relay:Option<RelayTransport>) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
         timeout(Duration::from_secs(20),async {
-            let config=||WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
-            let mut video=WebRtcVideo::open_trickle(config()).await.unwrap();
-            assert!(matches!(video.begin_ice_restart(config()).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
+            let config=|generation:u64| {
+                let mut config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
+                if let Some(transport)=relay {
+                    config.route_policy=RoutePolicy::RelayOnly;
+                    let key=match transport {RelayTransport::Udp=>"VOXL_TEST_TURN_UDP",RelayTransport::Tcp=>"VOXL_TEST_TURN_TCP",RelayTransport::Tls=>"VOXL_TEST_TURN_TLS",_=>unreachable!()};
+                    let url=std::env::var(key).expect("isolated fixture URL");
+                    assert!(rtc::ice::url::Url::parse_url(&url).unwrap().host.parse::<std::net::IpAddr>().unwrap().is_loopback());
+                    let alternate=generation%2==1;
+                    let username=std::env::var(if alternate {"VOXL_TEST_TURN_ALTERNATE_USERNAME"} else {"VOXL_TEST_TURN_USERNAME"}).expect("fixture username");
+                    let password=std::env::var(if alternate {"VOXL_TEST_TURN_ALTERNATE_PASSWORD"} else {"VOXL_TEST_TURN_PASSWORD"}).expect("fixture password");
+                    assert_ne!(std::env::var("VOXL_TEST_TURN_USERNAME").unwrap(),std::env::var("VOXL_TEST_TURN_ALTERNATE_USERNAME").unwrap());
+                    config.add_ice_server(vec![url],username,password).unwrap();
+                }
+                config
+            };
+            let tls=if relay==Some(RelayTransport::Tls) {
+                let der=std::fs::read(std::env::var("VOXL_TEST_TURN_CA_DER").expect("fixture CA")).unwrap();
+                let mut roots=tokio_rustls::rustls::RootCertStore::empty();roots.add(der.into()).unwrap();
+                Some(Arc::new(tokio_rustls::rustls::ClientConfig::builder_with_provider(Arc::new(tokio_rustls::rustls::crypto::aws_lc_rs::default_provider())).with_safe_default_protocol_versions().unwrap().with_root_certificates(roots).with_no_client_auth()))
+            } else {None};
+            let mut video=WebRtcVideo::open_with_runtime(config(0),tls,true,Duration::ZERO,|runtime|runtime).await.unwrap();
+            assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
             let initial=video.offer().to_owned();let fingerprint=field(&initial,"a=fingerprint:").to_owned();
             let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let (packets,mut received)=mpsc::channel(8);
             let gathered=Arc::new(AtomicBool::new(false));let wake=Arc::new(Notify::new());let tracks=Arc::new(AtomicU64::new(0));
@@ -56,10 +86,10 @@ fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generatio
             let mut ufrag=field(&initial,"a=ice-ufrag:").to_owned();
             for generation in 1..=3 {
                 let old=video.signaling().unwrap();let stale_answer=receiver.local_description().await.unwrap().sdp;
-                let mut invalid=config();invalid.bind_addresses=vec!["127.0.0.2:0".into()];
+                let mut invalid=config(generation);invalid.bind_addresses=vec!["127.0.0.2:0".into()];
                 assert!(matches!(video.begin_ice_restart(invalid).await,Err(WebRtcError::Configuration)));
                 assert!(video.connected());assert_eq!(video.signaling().unwrap().generation(),generation-1);
-                let offer=video.begin_ice_restart(config()).await.unwrap();
+                let offer=video.begin_ice_restart(config(generation)).await.unwrap();
                 assert_eq!(offer.generation,generation);assert!(!video.connected() && !video.ended());
                 assert!(Arc::ptr_eq(&peer,&video.peer));assert_eq!(video.ssrc,ssrc);
                 assert_eq!(field(&offer.sdp,"a=fingerprint:"),fingerprint);assert_ne!(field(&offer.sdp,"a=ice-ufrag:"),ufrag);
@@ -68,13 +98,18 @@ fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generatio
                 assert!(matches!(old.next_signal().await,Err(WebRtcError::Ended)));
                 assert_eq!(video.answer_generation(generation-1,stale_answer).await,Err(WebRtcError::Configuration));
                 assert_eq!(video.send(frame(generation)).await,Err(WebRtcError::NotConnected));
-                assert!(matches!(video.begin_ice_restart(config()).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
+                assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Configuration)));assert!(!video.ended());
                 negotiate(&mut video,Arc::clone(&receiver),&gathered,&wake,&offer.sdp,generation).await;
                 assert!(video.take_keyframe_request());video.send(frame(generation)).await.unwrap();
                 let packet=received.recv().await.unwrap();assert_eq!(&packet.payload[..],&[0x65,9,8,generation as u8]);
                 assert_eq!(packet.header.ssrc,previous.header.ssrc);assert_eq!(packet.header.timestamp.wrapping_sub(previous.header.timestamp),90_000);
                 assert_eq!(packet.header.sequence_number,previous.header.sequence_number.wrapping_add(1));previous=packet;
-                assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
+                let route=video.route_statistics().await;
+                assert_eq!(route.route,if relay.is_some() {MediaRoute::Relayed} else {MediaRoute::Direct});
+                if let Some(transport)=relay {assert_eq!(route.local_relay_transport,transport);}
+                let (adapters,allocations)=video.closer.relays.resource_counts();
+                assert_eq!(adapters,usize::from(matches!(relay,Some(RelayTransport::Tcp|RelayTransport::Tls))));
+                assert_eq!(allocations,adapters,"only the current adapter allocation remains tracked");
             }
             assert_eq!(tracks.load(Ordering::Acquire),1,"ICE restart must retain the media receiver");
             // These callbacks model disconnected/recovered state, not a physical
@@ -85,7 +120,7 @@ fn live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generatio
             video.events.on_connection_state_change(RTCPeerConnectionState::Connected).await;
             assert_eq!(video.next_update().await,VideoUpdate::Connected);
             video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();
-            assert!(matches!(video.begin_ice_restart(config()).await,Err(WebRtcError::Ended)));
+            assert!(matches!(video.begin_ice_restart(config(0)).await,Err(WebRtcError::Ended)));
         }).await.unwrap();
     });
 }
