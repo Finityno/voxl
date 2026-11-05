@@ -90,27 +90,52 @@ def reference(fixture):
         "matrixSamplesPerCheckedFrame":len(samples),"checkedSourceFrames":[0,269],"staticReferenceFramesVerified":270}
 
 
-def compare(path, original, mask):
+def compare(path, original, mask, frames=240, capture_warmup=30, engine="python"):
     regular(path)
     size = len(original)
-    require(path.stat().st_size == size*240, "decoded region must contain exactly 240 observed frames")
+    require(path.stat().st_size == size*frames, "decoded region must contain exactly the requested observed frame count")
     offsets = [pixel*3 for pixel in mask]
+    if engine == "numpy":
+        import numpy as np
+        selected = np.asarray(mask, dtype=np.intp)
+        expected = np.frombuffer(original, dtype=np.uint8).reshape(-1,3)[selected].astype(np.int16)
     rows = []
     with path.open("rb") as stream:
-        for index in range(240):
+        for index in range(frames):
             frame = stream.read(size)
-            sums, maximum = [0,0,0],0
-            for pixel in offsets:
-                for channel in range(3):
-                    error = abs(frame[pixel+channel]-original[pixel+channel])
-                    sums[channel] += error
-                    maximum = max(maximum,error)
-            rows.append({"observedFrame":index,"sourceFrame":index+30,"sumAbsoluteCodeErrorByRgbChannel":sums,
+            if engine == "numpy":
+                # Widen before subtraction; uint8 would wrap and understate
+                # errors. Integer sums preserve the original exact comparison.
+                errors = np.abs(np.frombuffer(frame, dtype=np.uint8).reshape(-1,3)[selected].astype(np.int16)-expected)
+                sums = [int(value) for value in errors.sum(axis=0,dtype=np.uint64)]
+                maximum = int(errors.max())
+            else:
+                sums, maximum = [0,0,0],0
+                for pixel in offsets:
+                    for channel in range(3):
+                        error = abs(frame[pixel+channel]-original[pixel+channel])
+                        sums[channel] += error
+                        maximum = max(maximum,error)
+            rows.append({"observedFrame":index,"sourceFrame":30+index%240,"sumAbsoluteCodeErrorByRgbChannel":sums,
                 "meanAbsoluteForegroundRgbCodeError":sum(sums)/(3*len(mask)),"maxAbsoluteForegroundCodeError":maximum})
+            if frames != 240 or capture_warmup != 30:
+                rows[-1]["captureFrame"] = capture_warmup+index
         require(not stream.read(1), "unexpected decoded bytes")
     errors = sorted(row["meanAbsoluteForegroundRgbCodeError"] for row in rows)
-    return {"sha256":digest(path),"frames":240,"meanAbsoluteForegroundRgbCodeError":sum(errors)/240,
-        "frameMeanErrorP95":errors[(240*95+99)//100-1],"worstFrameMeanError":errors[-1],"rows":rows}
+    return {"sha256":digest(path),"frames":frames,"meanAbsoluteForegroundRgbCodeError":sum(errors)/frames,
+        "frameMeanErrorP95":errors[(frames*95+99)//100-1],"worstFrameMeanError":errors[-1],"rows":rows}
+
+
+def nonregression(rows, baseline):
+    require(len(rows) == len(baseline), "candidate and baseline frame counts differ")
+    worse = [i for i,(candidate,base) in enumerate(zip(rows,baseline))
+        if sum(candidate["sumAbsoluteCodeErrorByRgbChannel"]) > sum(base["sumAbsoluteCodeErrorByRgbChannel"])]
+    # Trading one color channel's aggregate error against another is reported
+    # separately. Neither result proves that every individual pixel is no worse.
+    channels = {channel:[i for i,(candidate,base) in enumerate(zip(rows,baseline))
+        if candidate["sumAbsoluteCodeErrorByRgbChannel"][c] > base["sumAbsoluteCodeErrorByRgbChannel"][c]] for c,channel in enumerate(["r","g","b"])}
+    return {"foregroundErrorWorseThanBaselineFrames":worse,"sameOrLowerAggregateForegroundErrorEveryFrame":not worse,
+        "foregroundChannelErrorWorseThanBaselineFrames":channels,"sameOrLowerAggregateChannelErrorEveryFrame":not any(channels.values())}
 
 
 def main():
@@ -120,7 +145,11 @@ def main():
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--floor", required=True)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--observed-frames", type=int, default=240, help="1..18000; long input repeats the source's 240 observed frames")
+    parser.add_argument("--capture-warmup-frames", type=int, default=30, help="0..1800; source file still has its fixed 30-frame prefix")
+    parser.add_argument("--engine", choices=["python","numpy"], default="python", help="optional exact-integer NumPy acceleration; no metric/tolerance change")
     args = parser.parse_args()
+    require(1 <= args.observed_frames <= 18000 and 0 <= args.capture_warmup_frames <= 1800, "observation/capture clock exceeds bounds")
     require(2 <= len(args.decoded) <= 8, "expected two to eight decoded variants")
     variants = {}
     for value in args.decoded:
@@ -129,22 +158,21 @@ def main():
         variants[label] = Path(path)
     require(args.baseline in variants and args.floor in variants and args.baseline != args.floor, "baseline/floor must identify distinct variants")
     manifest, original, mask, calibration = reference(args.fixture)
-    results = {label:compare(path,original,mask) for label,path in variants.items()}
+    results = {label:compare(path,original,mask,args.observed_frames,args.capture_warmup_frames,args.engine) for label,path in variants.items()}
     baseline = results[args.baseline]["rows"]
     for label,value in results.items():
         if label == args.floor:
             continue
-        worse = [i for i,(candidate,base) in enumerate(zip(value["rows"],baseline))
-            if sum(candidate["sumAbsoluteCodeErrorByRgbChannel"]) > sum(base["sumAbsoluteCodeErrorByRgbChannel"])]
-        value["foregroundErrorWorseThanBaselineFrames"] = worse
-        value["sameOrLowerAggregateForegroundErrorEveryFrame"] = not worse
+        value.update(nonregression(value["rows"],baseline))
     result = {"schemaVersion":1,"manifestSha256":digest(args.fixture/"manifest.json"),"geometry":[manifest["width"],manifest["height"]],
         "region":manifest["regions"]["thinColoredText"],"baseline":args.baseline,"uncompressed420Floor":args.floor,
         "calibration":calibration,"variants":results,"scope":"Reference-derived ink plus one-pixel halo, absolute original sRGB code errors per frame. Full ROI SSIM and original RGB/source-subsampling controls remain separate. Pointwise comparison uses exact integer error sums, not a tolerance or average-only nonregression claim. One synthetic clip is not codec/resource admission."}
+    result["frameMapping"] = {"captureWarmupFrames":args.capture_warmup_frames,"sourcePrefixFrames":30,"sourceObservedCycleFrames":240,"observedFrames":args.observed_frames}
+    result["analysisEngine"] = args.engine
     with args.output.open("x") as stream:
         json.dump(result,stream,indent=2)
         stream.write("\n")
-    print(json.dumps({"output":str(args.output),"evaluatedPixels":len(mask),"framesPerVariant":240}))
+    print(json.dumps({"output":str(args.output),"evaluatedPixels":len(mask),"framesPerVariant":args.observed_frames}))
 
 
 if __name__ == "__main__":

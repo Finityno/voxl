@@ -1,8 +1,28 @@
 //! Bounded synthetic codec probe. It captures no screen and records no user
 //! input. Its deterministic NV12 frames can be decoded independently by ffmpeg.
+// A short immutable fixture can drive long observations without duplicating
+// tens of gigabytes. The prefix and observed cycle stay separate from the
+// capture clock: native output timestamps never repeat when input pixels do.
+#[cfg(any(target_os="macos",test))]
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+struct InputCycle {prefix:usize,frames:usize}
+#[cfg(any(target_os="macos",test))]
+impl InputCycle {
+    fn new(prefix:usize,file_bytes:u64,frame_bytes:u64)->Result<Self,&'static str> {
+        if frame_bytes==0 || !file_bytes.is_multiple_of(frame_bytes) {return Err("cyclic NV12 input must contain whole frames");}
+        let frames=usize::try_from(file_bytes/frame_bytes).map_err(|_|"cyclic source frame count overflow")?;
+        if frames==0 || frames>19800 || prefix>=frames {return Err("cyclic NV12 input needs a bounded nonempty observed segment");}
+        Ok(Self {prefix,frames})
+    }
+    fn source_frame(self,index:usize,warmup:usize)->usize {
+        if index<warmup {index%if self.prefix==0 {self.frames} else {self.prefix}}
+        else {self.prefix+(index-warmup)%(self.frames-self.prefix)}
+    }
+}
+
 #[cfg(target_os = "macos")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::{Read,Write}};
+    use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::{Read,Write,Seek,SeekFrom}};
     use voxl_media::{EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning};
     use voxl_media::codec::VideoCodec;
     use voxl_media::macos::{VideoEncoder, PixelBuffer};
@@ -50,6 +70,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pixel_range = option(&mut args,"--pixel-range=")?.unwrap_or_else(||"video".to_owned());
     let color_tags = option(&mut args,"--color-tags=")?.unwrap_or_else(||"none".to_owned());
     let input_path = option(&mut args,"--input-nv12=")?;
+    let input_cycle_prefix=option(&mut args,"--input-cycle-prefix=")?.map(|value|value.parse::<usize>()).transpose()?;
+    if input_cycle_prefix.is_some() && input_path.is_none() {return Err("cyclic input requires an NV12 input file".into());}
     let width = u32::try_from(parse_count(option(&mut args,"--width=")?,1280)?)?;
     let height = u32::try_from(parse_count(option(&mut args,"--height=")?,720)?)?;
     let fps = u32::try_from(parse_count(option(&mut args,"--fps=")?,30)?)?;
@@ -64,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -79,11 +101,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("NV12 input must be a regular non-symlink file".into());
     }
     let mut input = input_path.as_ref().map(std::fs::File::open).transpose()?;
-    if let Some(input) = &input {
+    let frame_bytes=u64::from(width)*u64::from(height)*3/2;
+    let input_cycle=if let Some(input)=&input {
         let metadata=input.metadata()?;
-        let expected=u64::from(width)*u64::from(height)*3/2*u64::try_from(warmup+count)?;
-        if !metadata.is_file() || metadata.len()!=expected { return Err("NV12 file length does not match geometry and total frame count".into()); }
-    }
+        if !metadata.is_file() {return Err("NV12 input is not a regular file".into());}
+        if let Some(prefix)=input_cycle_prefix {Some(InputCycle::new(prefix,metadata.len(),frame_bytes)?)}
+        else {
+            let expected=frame_bytes*u64::try_from(warmup+count)?;
+            if metadata.len()!=expected {return Err("NV12 file length does not match geometry and total frame count".into());}None
+        }
+    } else {None};
     let create = |path| std::fs::OpenOptions::new().write(true).create_new(true).open(path);
     let mut file = create(path)?;
     // Test-only access-unit capture preserves frame boundaries and timestamps
@@ -105,6 +132,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let scale=if full_range {255.0} else {224.0};
         [quantize(y),quantize(128.0+scale*(blue-luma)/1.8556),quantize(128.0+scale*(red-luma)/1.5748)]
     });
+    if let Some(cycle)=input_cycle {println!("input_sequence=cyclic source_frames={} prefix_frames={} observed_cycle_frames={}",cycle.frames,cycle.prefix,cycle.frames-cycle.prefix);}
     let mut encoder = VideoEncoder::new_tuned(config,tuning,|| {})?;
     println!("hardware_selection={:?}",encoder.acceleration_selection());
     let started = Instant::now();
@@ -117,6 +145,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for index in 0..warmup+count {
         let deadline = started + Duration::from_secs_f64(index as f64 / f64::from(fps));
         if let Some(wait) = deadline.checked_duration_since(Instant::now()) { std::thread::sleep(wait); }
+        if let (Some(input),Some(cycle))=(&mut input,input_cycle) {
+            let offset=u64::try_from(cycle.source_frame(index,warmup))?.checked_mul(frame_bytes).ok_or("cyclic frame offset overflow")?;
+            input.seek(SeekFrom::Start(offset))?;
+        }
         let mut raw = ptr::null();
         let format=if full_range {*b"420f"} else {*b"420v"};
         let code = unsafe { CVPixelBufferCreate(ptr::null(),width as usize,height as usize,u32::from_be_bytes(format),ptr::null(),&mut raw) };
@@ -130,13 +162,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if y.is_null() || uv.is_null() || y_stride < width as usize || uv_stride < width as usize {
                 CVPixelBufferUnlockBaseAddress(raw,0); CFRelease(raw); return Err("missing NV12 planes".into());
             }
+            if index==0 && input.is_some() {println!("input_y_stride={y_stride} input_uv_stride={uv_stride} packed_width={width}");}
             if let Some(input)=&mut input {
                 // Read directly into this exclusive buffer's stride-separated
                 // active planes. File bytes are tightly packed Y followed by
                 // interleaved UV; no second full-frame copy is allocated.
                 let copied=(|| -> std::io::Result<()> {
-                    for row in 0..height as usize {input.read_exact(std::slice::from_raw_parts_mut(y.add(row*y_stride),width as usize))?;}
-                    for row in 0..height as usize/2 {input.read_exact(std::slice::from_raw_parts_mut(uv.add(row*uv_stride),width as usize))?;}
+                    // Each locked plane is contiguous at its reported stride.
+                    // Packed planes need two reads per frame, not one syscall
+                    // per row. Keep padded planes on the existing row path;
+                    // never span separate plane allocations with one slice.
+                    if y_stride==width as usize {input.read_exact(std::slice::from_raw_parts_mut(y,width as usize*height as usize))?;}
+                    else {for row in 0..height as usize {input.read_exact(std::slice::from_raw_parts_mut(y.add(row*y_stride),width as usize))?;}}
+                    if uv_stride==width as usize {input.read_exact(std::slice::from_raw_parts_mut(uv,width as usize*height as usize/2))?;}
+                    else {for row in 0..height as usize/2 {input.read_exact(std::slice::from_raw_parts_mut(uv.add(row*uv_stride),width as usize))?;}}
                     Ok(())
                 })();
                 if let Err(error)=copied {CVPixelBufferUnlockBaseAddress(raw,0);CFRelease(raw);return Err(error.into());}
@@ -214,4 +253,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 #[cfg(not(target_os = "macos"))]
-fn main() { eprintln!("The native codec probe requires macOS."); }
+fn main() { eprintln!("The native codec probe requires macOS."); std::process::exit(2); }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn input_cycle_preserves_separate_warmup_and_observed_segments_across_wraps() {
+        let cycle=InputCycle::new(30,270*10,10).unwrap();
+        assert_eq!([0,29,30,899].map(|i|cycle.source_frame(i,900)),[0,29,0,29]);
+        assert_eq!([900,1139,1140,9899].map(|i|cycle.source_frame(i,900)),[30,269,30,149]);
+        for i in 0..270 {assert_eq!(cycle.source_frame(i,30),i);}
+    }
+    #[test]
+    fn input_cycle_without_prefix_reuses_all_source_frames_and_handles_no_warmup() {
+        let cycle=InputCycle::new(0,3*10,10).unwrap();
+        assert_eq!([0,2,3,8,9].map(|i|cycle.source_frame(i,6)),[0,2,0,2,0]);
+        assert_eq!([0,2,3,usize::MAX].map(|i|cycle.source_frame(i,0)),[0,2,0,usize::MAX%3]);
+    }
+    #[test]
+    fn input_cycle_rejects_empty_partial_unbounded_and_prefix_only_sources() {
+        for (prefix,bytes,size) in [(0,0,10),(0,11,10),(0,10,0),(1,10,10),(2,10,10),(0,19801*10,10)] {assert!(InputCycle::new(prefix,bytes,size).is_err());}
+    }
+}
