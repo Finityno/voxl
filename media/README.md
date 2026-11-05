@@ -421,3 +421,11 @@ from an old video-track callback or aggregate decoder counters. The existing
 `send` method keeps its unit return and packet/clock behavior. No new per-frame
 buffer, timer, dependency or authority is added. A receipt proves local send
 completion, not remote decode, display, hardware acceleration or quality.
+
+Exact receipt qualification is recorded in
+[`results/2026-11-05-frame-receipts/`](results/2026-11-05-frame-receipts/):
+three selected native Mac synthetic transport tests and strict library/test/example
+Clippy pass at `6279c1f57fb268945ea9567643eb8e4331411091`. Tests compare
+receipts with received RTP headers through clock wrap and three live ICE
+restarts; pending replacements issue no receipt. This does not establish
+native decode, physical network, resource budgets or new TURN coverage.
