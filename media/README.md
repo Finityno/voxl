@@ -372,3 +372,42 @@ fails on deprecated `AtomicU8::fetch_update`; its test build and six cases do
 not run. The stable compare/exchange fix and final results are retained in
 `results/2026-11-04-ice-nomination/`. These checks establish no native decoder,
 quality, physical route, sustained resource or performance-budget result.
+
+
+`WebRtcVideo::begin_ice_restart` provides a serialized live restart for trickle
+peers. It retains the peer, DTLS certificate, codec, SSRC and RTP capture clock;
+answers/candidate handles are bound to a monotonically increasing wire
+generation. The caller must mark reconnecting, release input/control, carry
+signaling inside its authenticated view, enforce a recovery deadline and
+revalidate authority. `VideoUpdate::Disconnected` gates sending without making
+that callback terminal; Failed/Closed and explicit close remain terminal. No
+input authority or application credential timer is created by the media API.
+
+Live restarts accept the original explicit ephemeral bindings and route policy;
+they do not replace a host interface list. The driver acknowledges discovery
+retirement and sends old TURN releases under their original username/socket
+before the generation changes. Trickle restarts discard stale candidates and
+rebind UDP sockets, allowing a new TURN username to obtain a fresh allocation
+instead of trying to refresh the old allocation under another username (which
+[RFC 8656 section 6](https://www.rfc-editor.org/rfc/rfc8656.html#section-6)
+forbids). TCP/TLS adapters, their local IPC allowlist and allocation observations
+are replaced rather than accumulated. Retired callbacks cannot overwrite or
+fail a newer allocation that reuses the same relay address. The existing
+STUN-only startup API still permits only its initial pre-connection fallback.
+
+The six-second API bound closes the peer if negotiation preparation is cancelled
+or fails after mutation; invalid preflight input leaves the current peer intact.
+Only one offer can await its answer. Full-SDP callers keep their existing
+non-restartable contract. The embedding host/phone/desktop lifecycle, live
+credential refresh scheduling, interface changes and physical handover remain
+required integration work; those callers have not adopted this API yet.
+
+
+Exact live-restart evidence is in
+[`results/2026-11-05-live-ice-restart/`](results/2026-11-05-live-ice-restart/).
+Five selected Mac cases and three actual loopback coturn cases pass at
+`af6478e446c0c05a98645ff54df088f826947945`, including the stronger fresh-readiness
+oracle that fails before its seven-line production fix. Earlier weaker passes,
+compile/setup failures, cleanup and missing application/physical/resource
+coverage remain separately attributed. No caller pin or performance target is
+changed by this qualification.

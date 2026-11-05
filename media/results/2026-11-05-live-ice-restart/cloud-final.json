@@ -1,0 +1,535 @@
+{
+  "source": "af6478e446c0c05a98645ff54df088f826947945",
+  "summary": {
+    "source": "af6478e446c0c05a98645ff54df088f826947945",
+    "scope": "forced localhost TURN credential rotation with same peer and synthetic RTP",
+    "terminal": true,
+    "steps": [
+      {
+        "name": "fetch",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "30",
+          "git",
+          "fetch",
+          "--no-tags",
+          "origin",
+          "fincode/desktop-streaming"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50909,
+        "seconds": 2.719,
+        "groupGone": true,
+        "logSha256": "b3490bc5cdb81ab90098c1bfad7db5bcdde3cef0cc78b3e7c5aaf4663e16751e"
+      },
+      {
+        "name": "switch",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "15",
+          "git",
+          "switch",
+          "--detach",
+          "af6478e446c0c05a98645ff54df088f826947945"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50919,
+        "seconds": 0.008,
+        "groupGone": true,
+        "logSha256": "ee1f30abbef65bd05bacea3656b2cd4b4c4607b131725f2d2a1d8dd420f4464f"
+      },
+      {
+        "name": "toolchain",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "15",
+          "cargo",
+          "--version"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50925,
+        "seconds": 0.016,
+        "groupGone": true,
+        "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+      },
+      {
+        "name": "host",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "15",
+          "uname",
+          "-a"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50935,
+        "seconds": 0.003,
+        "groupGone": true,
+        "logSha256": "2fcce73892f646ec36eaa1e8c9950bed6d34abce697109fb4231039bf25b0cf0"
+      },
+      {
+        "name": "test-build",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "600",
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "--no-run",
+          "-j2",
+          "--message-format=json"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50941,
+        "seconds": 2.078,
+        "groupGone": true,
+        "logSha256": "9e98934849d8dcae64bcf9ae8fdb8116531d5328832bc62f0993a0c2a50fd02a"
+      },
+      {
+        "name": "strict-clippy",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "600",
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "--tests",
+          "--examples",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 50995,
+        "seconds": 0.87,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "certificate-0",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "10",
+          "openssl",
+          "req",
+          "-x509",
+          "-newkey",
+          "rsa:2048",
+          "-nodes",
+          "-keyout",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.key",
+          "-out",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.pem",
+          "-days",
+          "1",
+          "-subj",
+          "/CN=Disposable live rotation CA",
+          "-addext",
+          "basicConstraints=critical,CA:TRUE",
+          "-addext",
+          "keyUsage=critical,keyCertSign,cRLSign"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51030,
+        "seconds": 0.016,
+        "groupGone": true,
+        "logSha256": "46d6f7846a68966dd73e3638b722850887a2f9e3d1c5d285f381b224133c2ed6"
+      },
+      {
+        "name": "certificate-1",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "10",
+          "openssl",
+          "req",
+          "-new",
+          "-newkey",
+          "rsa:2048",
+          "-nodes",
+          "-keyout",
+          "/tmp/voxl-live-rotation-ijvv2w_1/server.key",
+          "-out",
+          "/tmp/voxl-live-rotation-ijvv2w_1/server.csr",
+          "-subj",
+          "/CN=127.0.0.1"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51036,
+        "seconds": 0.032,
+        "groupGone": true,
+        "logSha256": "6d0c8c092847fc7a1d9b9f688ef8806ab3b3a29ccabd579cb6f6dc6007b9d4c2"
+      },
+      {
+        "name": "certificate-2",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "10",
+          "openssl",
+          "x509",
+          "-req",
+          "-in",
+          "/tmp/voxl-live-rotation-ijvv2w_1/server.csr",
+          "-CA",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.pem",
+          "-CAkey",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.key",
+          "-CAcreateserial",
+          "-out",
+          "/tmp/voxl-live-rotation-ijvv2w_1/server.pem",
+          "-days",
+          "1",
+          "-extfile",
+          "/tmp/voxl-live-rotation-ijvv2w_1/extension"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51042,
+        "seconds": 0.016,
+        "groupGone": true,
+        "logSha256": "92d31139d88abe48934583908f7cd3d6c59eb7e49992afe3552b7542414b21cf"
+      },
+      {
+        "name": "certificate-3",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "10",
+          "openssl",
+          "x509",
+          "-in",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.pem",
+          "-outform",
+          "DER",
+          "-out",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.der"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51048,
+        "seconds": 0.015,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "certificate-4",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "10",
+          "openssl",
+          "verify",
+          "-CAfile",
+          "/tmp/voxl-live-rotation-ijvv2w_1/ca.pem",
+          "-purpose",
+          "sslserver",
+          "-verify_ip",
+          "127.0.0.1",
+          "/tmp/voxl-live-rotation-ijvv2w_1/server.pem"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51054,
+        "seconds": 0.007,
+        "groupGone": true,
+        "logSha256": "4569d30f7d45005b4190387c2edb5bc0eb5eee2a3d88ac6fd4a5c72cd9a07867"
+      },
+      {
+        "name": "rotation-udp",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "45",
+          "/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9",
+          "webrtc::tests::live_restart::live_relay_udp_rotation_preserves_media_across_three_generations",
+          "--exact",
+          "--ignored",
+          "--nocapture"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51066,
+        "seconds": 2.069,
+        "groupGone": true,
+        "logSha256": "cc62aca2c2047b68bb8af4589192b08931e8b829ae4f9caf105c177b83310a51"
+      },
+      {
+        "name": "rotation-tcp",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "45",
+          "/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9",
+          "webrtc::tests::live_restart::live_relay_tcp_rotation_preserves_media_across_three_generations",
+          "--exact",
+          "--ignored",
+          "--nocapture"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51073,
+        "seconds": 2.068,
+        "groupGone": true,
+        "logSha256": "d84082716abcbff289787e024380264d45fb49d9dff41c5dc201927e1e120f0f"
+      },
+      {
+        "name": "rotation-tls",
+        "command": [
+          "timeout",
+          "-k",
+          "5",
+          "45",
+          "/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9",
+          "webrtc::tests::live_restart::live_relay_tls_rotation_preserves_media_across_three_generations",
+          "--exact",
+          "--ignored",
+          "--nocapture"
+        ],
+        "exitCode": 0,
+        "childExitCode": 0,
+        "pgid": 51081,
+        "seconds": 2.119,
+        "groupGone": true,
+        "logSha256": "9bc56dcab5bbc143ab13e9940cc010a1ad8335f14fa818d69c2c7348f7275db6"
+      }
+    ],
+    "environmentSetupSha256": "f0538ac72a4ebf1e517246b0d16e22bc5f42e223e8ee38fdd5e4ede5572793df",
+    "testExecutable": {
+      "path": "/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9",
+      "sha256": "55ea16645e3721f650ddb06dc24f36b33545c10379fba7d301a752b4eb73f66f"
+    },
+    "serverPgid": 51058,
+    "tests": {
+      "udp": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "restarts": 3
+      },
+      "tcp": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "restarts": 3
+      },
+      "tls": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "restarts": 3
+      }
+    },
+    "allGroupsGone": true,
+    "privateServerLogs": {
+      "coturn.out": {
+        "bytes": 24638,
+        "sha256": "8112defb0d1519e19bfff867456366995f3890168323824a6910efdec7e7cfaa",
+        "wrongCredentials441": 0,
+        "allocationMismatch437": 0
+      },
+      "turn.log": {
+        "bytes": 25088,
+        "sha256": "7b1f0f680b1b59379fdaa5eb96b10a54ac3de6e77918e0b2b7983ce3195af1f0",
+        "wrongCredentials441": 0,
+        "allocationMismatch437": 0
+      }
+    },
+    "privateFixtureRemoved": true,
+    "fixturePortsRebindableAfterServerCleanup": true,
+    "exitCode": 0
+  },
+  "files": {
+    "validate.py": {
+      "text": "import os,sys,json,time,tempfile,pathlib,subprocess,signal,socket,secrets,hmac,hashlib,base64,shutil,re,ctypes,threading\nROOT=pathlib.Path('/workspace/voxl-desktop-validation');OUT=pathlib.Path('/workspace/voxl-live-restart-af6478e');REV='af6478e446c0c05a98645ff54df088f826947945'\nTURN=pathlib.Path('/workspace/fincode-turn-stream-fixture/sysroot/usr/bin/turnserver');LIB='/workspace/fincode-turn-stream-fixture/sysroot/usr/lib/x86_64-linux-gnu'\nos.umask(0o077);children=[];steps=[];private=None;redact=[];summary={'source':REV,'scope':'forced localhost TURN credential rotation with same peer and synthetic RTP','terminal':False};ctypes.CDLL(None).prctl(36,1,0,0,0)\ndef interrupted(signum,frame):raise SystemExit(128+signum)\nfor sig in (signal.SIGTERM,signal.SIGINT):signal.signal(sig,interrupted)\ndef exists(group):\n try:os.killpg(group,0);return True\n except ProcessLookupError:return False\ndef stop(p):\n if p.poll() is None:\n  try:os.killpg(p.pid,signal.SIGTERM)\n  except ProcessLookupError:pass\n  try:p.wait(timeout=3)\n  except subprocess.TimeoutExpired:\n   try:os.killpg(p.pid,signal.SIGKILL)\n   except ProcessLookupError:pass\n   p.wait(timeout=3)\n if exists(p.pid):\n  try:os.killpg(p.pid,signal.SIGKILL)\n  except ProcessLookupError:pass\n end=time.monotonic()+3\n while exists(p.pid) and time.monotonic()<end:\n  try:\n   while os.waitpid(-p.pid,os.WNOHANG)[0]:pass\n  except ChildProcessError:pass\n  time.sleep(.03)\ndef save():\n summary['steps']=steps\n (OUT/'results.json').write_text(json.dumps(summary,indent=2)+'\\n')\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()==REV\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()\ndef run(name,command,deadline,env=None,source=True):\n if source:clean()\n start=time.monotonic();args=['timeout','-k','5',str(deadline)]+command\n raw=OUT/(name+'.log')\n with raw.open('x') as log:\n  child=subprocess.Popen(args,cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);children.append(child)\n  try:code=child.wait(timeout=deadline+8)\n  except subprocess.TimeoutExpired:code=124;stop(child)\n  except BaseException:stop(child);raise\n stop(child)\n text=raw.read_text(errors='replace')\n for secret in redact:text=text.replace(secret,'[FIXTURE_CREDENTIAL]')\n if redact:raw.write_text(text)\n step={'name':name,'command':args,'exitCode':code,'childExitCode':child.returncode,'pgid':child.pid,'seconds':round(time.monotonic()-start,3),'groupGone':not exists(child.pid),'logSha256':hashlib.sha256(raw.read_bytes()).hexdigest()};steps.append(step);save()\n if source:clean()\n assert step['groupGone']\n assert code==0,(name,code)\n return raw\n\ndef free_ports():\n sockets=[]\n try:\n  for port,kind in [(34782,socket.SOCK_STREAM),(34782,socket.SOCK_DGRAM),(53492,socket.SOCK_STREAM)]+[(n,socket.SOCK_DGRAM) for n in range(49240,49280)]:\n   s=socket.socket(socket.AF_INET,kind);sockets.append(s);s.bind(('127.0.0.1',port))\n finally:\n  for s in sockets:s.close()\n\ntimer=threading.Timer(1200,lambda:os.kill(os.getpid(),signal.SIGTERM));timer.start();server=None;server_log=None;result=1\ntry:\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()\n assert subprocess.check_output(['git','remote','get-url','origin'],cwd=ROOT,text=True).strip().rstrip('/').removesuffix('.git')=='https://github.com/Finityno/voxl'\n run('fetch',['git','fetch','--no-tags','origin','fincode/desktop-streaming'],30,source=False)\n run('switch',['git','switch','--detach',REV],15,source=False);clean()\n assert shutil.disk_usage('/workspace').free>=20_000_000_000\n env=os.environ|{'CI':'true','CARGO_BUILD_JOBS':'2','CARGO_BUILD_WARNINGS':'deny','CARGO_TARGET_DIR':str(ROOT/'media/target'),'RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0'}\n summary['environmentSetupSha256']=hashlib.sha256(pathlib.Path.home().joinpath('.fincode-cloud-env.sh').read_bytes()).hexdigest();run('toolchain',['cargo','--version'],15,env);run('host',['uname','-a'],15,env)\n build=run('test-build',['cargo','test','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--no-run','-j2','--message-format=json'],600,env)\n artifacts=[json.loads(line) for line in build.read_text().splitlines() if line.startswith('{')]\n candidates=[a for a in artifacts if a.get('reason')=='compiler-artifact' and a.get('executable') and a.get('target',{}).get('name')=='voxl_media']\n assert len(candidates)==1;c=candidates[0];binary=pathlib.Path(c['executable']);assert binary.is_file();summary['testExecutable']={'path':str(binary),'sha256':hashlib.file_digest(binary.open('rb'),'sha256').hexdigest()}\n run('strict-clippy',['cargo','clippy','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--tests','--examples','-j2','-q','--message-format=short','--','-D','warnings'],600,env)\n free_ports();private=pathlib.Path(tempfile.mkdtemp(prefix='voxl-live-rotation-'));private.chmod(0o700)\n safe={'PATH':'/usr/bin:/bin','HOME':str(private),'LANG':'C.UTF-8','LD_LIBRARY_PATH':LIB}\n ca=private/'ca.pem';ca_key=private/'ca.key';cert=private/'server.pem';key=private/'server.key';csr=private/'server.csr';der=private/'ca.der';extension=private/'extension'\n extension.write_text('basicConstraints=critical,CA:FALSE\\nkeyUsage=critical,digitalSignature,keyEncipherment\\nextendedKeyUsage=serverAuth\\nsubjectAltName=IP:127.0.0.1\\n')\n commands=[['openssl','req','-x509','-newkey','rsa:2048','-nodes','-keyout',str(ca_key),'-out',str(ca),'-days','1','-subj','/CN=Disposable live rotation CA','-addext','basicConstraints=critical,CA:TRUE','-addext','keyUsage=critical,keyCertSign,cRLSign'],['openssl','req','-new','-newkey','rsa:2048','-nodes','-keyout',str(key),'-out',str(csr),'-subj','/CN=127.0.0.1'],['openssl','x509','-req','-in',str(csr),'-CA',str(ca),'-CAkey',str(ca_key),'-CAcreateserial','-out',str(cert),'-days','1','-extfile',str(extension)],['openssl','x509','-in',str(ca),'-outform','DER','-out',str(der)],['openssl','verify','-CAfile',str(ca),'-purpose','sslserver','-verify_ip','127.0.0.1',str(cert)]]\n for index,command in enumerate(commands):run('certificate-'+str(index),command,10,safe)\n secret=secrets.token_hex(32);user=str(int(time.time())+900)+':fixture-first';alternate=str(int(time.time())+901)+':fixture-second'\n def credential(username):return base64.b64encode(hmac.new(secret.encode(),username.encode(),hashlib.sha1).digest()).decode()\n password=credential(user);other_password=credential(alternate);redact=[secret,password,other_password,user,alternate]\n config=private/'turn.conf';config.write_text('\\n'.join(['listening-ip=127.0.0.1','relay-ip=127.0.0.1','listening-port=34782','tls-listening-port=53492','min-port=49240','max-port=49279','realm=fixture.test','userdb='+str(private/'turn.sqlite'),'verbose','fingerprint','use-auth-secret','static-auth-secret='+secret,'cert='+str(cert),'pkey='+str(key),'no-cli','no-dtls','no-tcp-relay','no-multicast-peers','allow-loopback-peers','denied-peer-ip=0.0.0.0-255.255.255.255','allowed-peer-ip=127.0.0.1','total-quota=16','user-quota=8','relay-threads=1','no-rfc5780','no-tlsv1','no-tlsv1_1','pidfile='+str(private/'turn.pid'),'log-file='+str(private/'turn.log'),'simple-log'])+'\\n');config.chmod(0o600)\n server_log=(private/'coturn.out').open('x');server=subprocess.Popen([str(TURN),'-c',str(config)],cwd=private,env=safe,stdout=server_log,stderr=subprocess.STDOUT,start_new_session=True);children.append(server);summary['serverPgid']=server.pid\n end=time.monotonic()+5\n while True:\n  assert server.poll() is None\n  try:\n   with socket.create_connection(('127.0.0.1',34782),timeout=.2):pass\n   with socket.create_connection(('127.0.0.1',53492),timeout=.2):pass\n   break\n  except OSError:\n   assert time.monotonic()<end;time.sleep(.05)\n test_env=env|{'VOXL_TEST_TURN_USERNAME':user,'VOXL_TEST_TURN_PASSWORD':password,'VOXL_TEST_TURN_ALTERNATE_USERNAME':alternate,'VOXL_TEST_TURN_ALTERNATE_PASSWORD':other_password,'VOXL_TEST_TURN_UDP':'turn:127.0.0.1:34782?transport=udp','VOXL_TEST_TURN_TCP':'turn:127.0.0.1:34782?transport=tcp','VOXL_TEST_TURN_TLS':'turns:127.0.0.1:53492?transport=tcp','VOXL_TEST_TURN_CA_DER':str(der)}\n summary['tests']={}\n for transport in ['udp','tcp','tls']:\n  selected='webrtc::tests::live_restart::live_relay_'+transport+'_rotation_preserves_media_across_three_generations'\n  log=run('rotation-'+transport,[str(binary),selected,'--exact','--ignored','--nocapture'],45,test_env)\n  assert 'test result: ok. 1 passed; 0 failed; 0 ignored;' in log.read_text();summary['tests'][transport]={'passed':1,'failed':0,'ignored':0,'restarts':3};save()\n result=0\nexcept BaseException as error:\n summary['errorType']=type(error).__name__;summary['error']=str(error) if isinstance(error,AssertionError) else 'supervisor failure or interruption'\nfinally:\n signal.signal(signal.SIGTERM,signal.SIG_IGN);signal.signal(signal.SIGINT,signal.SIG_IGN)\n for child in reversed(children):stop(child)\n if server_log:server_log.close()\n summary['allGroupsGone']=all(not exists(c.pid) for c in children)\n if private:\n  counts={}\n  for name in ['coturn.out','turn.log']:\n   p=private/name\n   if p.exists():\n    text=p.read_text(errors='replace');counts[name]={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'wrongCredentials441':len(re.findall(r'(?:error|code)\\D{0,8}441',text,re.I)),'allocationMismatch437':len(re.findall(r'(?:error|code)\\D{0,8}437',text,re.I))}\n  summary['privateServerLogs']=counts;shutil.rmtree(private);summary['privateFixtureRemoved']=not private.exists()\n try:free_ports();summary['fixturePortsRebindableAfterServerCleanup']=True\n except OSError:summary['fixturePortsRebindableAfterServerCleanup']=False\n timer.cancel();timer.join();summary['terminal']=True;summary['exitCode']=result;save()\nraise SystemExit(result)\n",
+      "sha256": "9c87e6a9db7440d905d5315d17990b10e3021985e267c12e4ec2e06e64fc3166"
+    },
+    "results.json": {
+      "text": "{\n  \"source\": \"af6478e446c0c05a98645ff54df088f826947945\",\n  \"scope\": \"forced localhost TURN credential rotation with same peer and synthetic RTP\",\n  \"terminal\": true,\n  \"steps\": [\n    {\n      \"name\": \"fetch\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"30\",\n        \"git\",\n        \"fetch\",\n        \"--no-tags\",\n        \"origin\",\n        \"fincode/desktop-streaming\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50909,\n      \"seconds\": 2.719,\n      \"groupGone\": true,\n      \"logSha256\": \"b3490bc5cdb81ab90098c1bfad7db5bcdde3cef0cc78b3e7c5aaf4663e16751e\"\n    },\n    {\n      \"name\": \"switch\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"15\",\n        \"git\",\n        \"switch\",\n        \"--detach\",\n        \"af6478e446c0c05a98645ff54df088f826947945\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50919,\n      \"seconds\": 0.008,\n      \"groupGone\": true,\n      \"logSha256\": \"ee1f30abbef65bd05bacea3656b2cd4b4c4607b131725f2d2a1d8dd420f4464f\"\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"15\",\n        \"cargo\",\n        \"--version\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50925,\n      \"seconds\": 0.016,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\"\n    },\n    {\n      \"name\": \"host\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"15\",\n        \"uname\",\n        \"-a\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50935,\n      \"seconds\": 0.003,\n      \"groupGone\": true,\n      \"logSha256\": \"2fcce73892f646ec36eaa1e8c9950bed6d34abce697109fb4231039bf25b0cf0\"\n    },\n    {\n      \"name\": \"test-build\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"600\",\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--no-run\",\n        \"-j2\",\n        \"--message-format=json\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50941,\n      \"seconds\": 2.078,\n      \"groupGone\": true,\n      \"logSha256\": \"9e98934849d8dcae64bcf9ae8fdb8116531d5328832bc62f0993a0c2a50fd02a\"\n    },\n    {\n      \"name\": \"strict-clippy\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"600\",\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--tests\",\n        \"--examples\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 50995,\n      \"seconds\": 0.87,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"certificate-0\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"10\",\n        \"openssl\",\n        \"req\",\n        \"-x509\",\n        \"-newkey\",\n        \"rsa:2048\",\n        \"-nodes\",\n        \"-keyout\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.key\",\n        \"-out\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.pem\",\n        \"-days\",\n        \"1\",\n        \"-subj\",\n        \"/CN=Disposable live rotation CA\",\n        \"-addext\",\n        \"basicConstraints=critical,CA:TRUE\",\n        \"-addext\",\n        \"keyUsage=critical,keyCertSign,cRLSign\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51030,\n      \"seconds\": 0.016,\n      \"groupGone\": true,\n      \"logSha256\": \"46d6f7846a68966dd73e3638b722850887a2f9e3d1c5d285f381b224133c2ed6\"\n    },\n    {\n      \"name\": \"certificate-1\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"10\",\n        \"openssl\",\n        \"req\",\n        \"-new\",\n        \"-newkey\",\n        \"rsa:2048\",\n        \"-nodes\",\n        \"-keyout\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/server.key\",\n        \"-out\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/server.csr\",\n        \"-subj\",\n        \"/CN=127.0.0.1\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51036,\n      \"seconds\": 0.032,\n      \"groupGone\": true,\n      \"logSha256\": \"6d0c8c092847fc7a1d9b9f688ef8806ab3b3a29ccabd579cb6f6dc6007b9d4c2\"\n    },\n    {\n      \"name\": \"certificate-2\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"10\",\n        \"openssl\",\n        \"x509\",\n        \"-req\",\n        \"-in\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/server.csr\",\n        \"-CA\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.pem\",\n        \"-CAkey\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.key\",\n        \"-CAcreateserial\",\n        \"-out\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/server.pem\",\n        \"-days\",\n        \"1\",\n        \"-extfile\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/extension\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51042,\n      \"seconds\": 0.016,\n      \"groupGone\": true,\n      \"logSha256\": \"92d31139d88abe48934583908f7cd3d6c59eb7e49992afe3552b7542414b21cf\"\n    },\n    {\n      \"name\": \"certificate-3\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"10\",\n        \"openssl\",\n        \"x509\",\n        \"-in\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.pem\",\n        \"-outform\",\n        \"DER\",\n        \"-out\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.der\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51048,\n      \"seconds\": 0.015,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"certificate-4\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"10\",\n        \"openssl\",\n        \"verify\",\n        \"-CAfile\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/ca.pem\",\n        \"-purpose\",\n        \"sslserver\",\n        \"-verify_ip\",\n        \"127.0.0.1\",\n        \"/tmp/voxl-live-rotation-ijvv2w_1/server.pem\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51054,\n      \"seconds\": 0.007,\n      \"groupGone\": true,\n      \"logSha256\": \"4569d30f7d45005b4190387c2edb5bc0eb5eee2a3d88ac6fd4a5c72cd9a07867\"\n    },\n    {\n      \"name\": \"rotation-udp\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"45\",\n        \"/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9\",\n        \"webrtc::tests::live_restart::live_relay_udp_rotation_preserves_media_across_three_generations\",\n        \"--exact\",\n        \"--ignored\",\n        \"--nocapture\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51066,\n      \"seconds\": 2.069,\n      \"groupGone\": true,\n      \"logSha256\": \"cc62aca2c2047b68bb8af4589192b08931e8b829ae4f9caf105c177b83310a51\"\n    },\n    {\n      \"name\": \"rotation-tcp\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"45\",\n        \"/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9\",\n        \"webrtc::tests::live_restart::live_relay_tcp_rotation_preserves_media_across_three_generations\",\n        \"--exact\",\n        \"--ignored\",\n        \"--nocapture\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51073,\n      \"seconds\": 2.068,\n      \"groupGone\": true,\n      \"logSha256\": \"d84082716abcbff289787e024380264d45fb49d9dff41c5dc201927e1e120f0f\"\n    },\n    {\n      \"name\": \"rotation-tls\",\n      \"command\": [\n        \"timeout\",\n        \"-k\",\n        \"5\",\n        \"45\",\n        \"/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9\",\n        \"webrtc::tests::live_restart::live_relay_tls_rotation_preserves_media_across_three_generations\",\n        \"--exact\",\n        \"--ignored\",\n        \"--nocapture\"\n      ],\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"pgid\": 51081,\n      \"seconds\": 2.119,\n      \"groupGone\": true,\n      \"logSha256\": \"9bc56dcab5bbc143ab13e9940cc010a1ad8335f14fa818d69c2c7348f7275db6\"\n    }\n  ],\n  \"environmentSetupSha256\": \"f0538ac72a4ebf1e517246b0d16e22bc5f42e223e8ee38fdd5e4ede5572793df\",\n  \"testExecutable\": {\n    \"path\": \"/workspace/voxl-desktop-validation/media/target/debug/deps/voxl_media-f9ec7429fad7abd9\",\n    \"sha256\": \"55ea16645e3721f650ddb06dc24f36b33545c10379fba7d301a752b4eb73f66f\"\n  },\n  \"serverPgid\": 51058,\n  \"tests\": {\n    \"udp\": {\n      \"passed\": 1,\n      \"failed\": 0,\n      \"ignored\": 0,\n      \"restarts\": 3\n    },\n    \"tcp\": {\n      \"passed\": 1,\n      \"failed\": 0,\n      \"ignored\": 0,\n      \"restarts\": 3\n    },\n    \"tls\": {\n      \"passed\": 1,\n      \"failed\": 0,\n      \"ignored\": 0,\n      \"restarts\": 3\n    }\n  },\n  \"allGroupsGone\": true,\n  \"privateServerLogs\": {\n    \"coturn.out\": {\n      \"bytes\": 24638,\n      \"sha256\": \"8112defb0d1519e19bfff867456366995f3890168323824a6910efdec7e7cfaa\",\n      \"wrongCredentials441\": 0,\n      \"allocationMismatch437\": 0\n    },\n    \"turn.log\": {\n      \"bytes\": 25088,\n      \"sha256\": \"7b1f0f680b1b59379fdaa5eb96b10a54ac3de6e77918e0b2b7983ce3195af1f0\",\n      \"wrongCredentials441\": 0,\n      \"allocationMismatch437\": 0\n    }\n  },\n  \"privateFixtureRemoved\": true,\n  \"fixturePortsRebindableAfterServerCleanup\": true,\n  \"exitCode\": 0\n}\n",
+      "sha256": "ef0a6d06358045e7ca27182816e714c1630509b148a99d60e0b691c653cbafee"
+    },
+    "supervisor.json": {
+      "text": "{\n  \"pid\": 50903,\n  \"pgid\": 50903,\n  \"helperSha256\": \"9c87e6a9db7440d905d5315d17990b10e3021985e267c12e4ec2e06e64fc3166\",\n  \"source\": \"af6478e446c0c05a98645ff54df088f826947945\",\n  \"setup\": \"bash -lc; source ~/.fincode-cloud-env.sh\"\n}\n",
+      "sha256": "453f506e0b2c67fb26454ad1aa4f478f395d915d7dc836513417efcd8d5edbce"
+    },
+    "supervisor.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fetch.log": {
+      "text": "From https://github.com/Finityno/voxl\n * branch            fincode/desktop-streaming -> FETCH_HEAD\n   1100274..af6478e  fincode/desktop-streaming -> origin/fincode/desktop-streaming\n",
+      "sha256": "b3490bc5cdb81ab90098c1bfad7db5bcdde3cef0cc78b3e7c5aaf4663e16751e"
+    },
+    "switch.log": {
+      "text": "Previous HEAD position was 1100274 Drain accepted media before retiring its relay mapping\nHEAD is now at af6478e Retire old reachability observations at live ICE restart\n",
+      "sha256": "ee1f30abbef65bd05bacea3656b2cd4b4c4607b131725f2d2a1d8dd420f4464f"
+    },
+    "toolchain.log": {
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+    },
+    "host.log": {
+      "text": "Linux a4116e708243 6.18.57 build-ordinal-1 SMP Tue Oct 20 21:56:04 UTC 2026 x86_64 GNU/Linux\n",
+      "sha256": "10faa1566ed279f8c40bfcf55c05a51164c13119a4c821a830fca4a804a1e60a",
+      "originalSha256": "2fcce73892f646ec36eaa1e8c9950bed6d34abce697109fb4231039bf25b0cf0"
+    },
+    "strict-clippy.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "certificate-0.log": {
+      "text": "......+.+++++++++++++++++++++++++++++++++++++++*.+......+++++++++++++++++++++++++++++++++++++++*..+..+...+...+.............++++++\n...+.....+.........+...+......+......+.+++++++++++++++++++++++++++++++++++++++*.+.......+...+...............+...+..+++++++++++++++++++++++++++++++++++++++*..+.+..+...+...++++++\n-----\n",
+      "sha256": "46d6f7846a68966dd73e3638b722850887a2f9e3d1c5d285f381b224133c2ed6"
+    },
+    "certificate-1.log": {
+      "text": "..........+....+.....+...+++++++++++++++++++++++++++++++++++++++*..+......+.+..+..........+...+...............+.....+.......+..+.............+...+........+.+.....+++++++++++++++++++++++++++++++++++++++*..........+...+.+.....+.+......+...+..+....+......+.................+.......+.....+......+...+.......+........+.........+.+..+....+.....+....+.....+.+..............+.+......+...............+........+...............+.......+..............+...+..........+......+..+...+.+...........+...................+........+..........+...+..+............+.+...+............+...+.........+............+......+..+......+.....................+.+..+.++++++\n..........+.......+...+.....+++++++++++++++++++++++++++++++++++++++*.+.....+.....................+++++++++++++++++++++++++++++++++++++++*..+............+.+..+......+.+.........+.....+.+...+..+...+......+...............+....+..+.+...+..............+.+..+.......+...+........+....++++++\n-----\n",
+      "sha256": "6d0c8c092847fc7a1d9b9f688ef8806ab3b3a29ccabd579cb6f6dc6007b9d4c2"
+    },
+    "certificate-2.log": {
+      "text": "Certificate request self-signature ok\nsubject=CN=127.0.0.1\n",
+      "sha256": "92d31139d88abe48934583908f7cd3d6c59eb7e49992afe3552b7542414b21cf"
+    },
+    "certificate-3.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "certificate-4.log": {
+      "text": "/tmp/voxl-live-rotation-ijvv2w_1/server.pem: OK\n",
+      "sha256": "4569d30f7d45005b4190387c2edb5bc0eb5eee2a3d88ac6fd4a5c72cd9a07867"
+    },
+    "rotation-udp.log": {
+      "text": "\nrunning 1 test\ntest webrtc::tests::live_restart::live_relay_udp_rotation_preserves_media_across_three_generations ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 2.05s\n\n",
+      "sha256": "cc62aca2c2047b68bb8af4589192b08931e8b829ae4f9caf105c177b83310a51"
+    },
+    "rotation-tcp.log": {
+      "text": "\nrunning 1 test\ntest webrtc::tests::live_restart::live_relay_tcp_rotation_preserves_media_across_three_generations ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 2.05s\n\n",
+      "sha256": "d84082716abcbff289787e024380264d45fb49d9dff41c5dc201927e1e120f0f"
+    },
+    "rotation-tls.log": {
+      "text": "\nrunning 1 test\ntest webrtc::tests::live_restart::live_relay_tls_rotation_preserves_media_across_three_generations ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 2.07s\n\n",
+      "sha256": "9bc56dcab5bbc143ab13e9940cc010a1ad8335f14fa818d69c2c7348f7275db6"
+    }
+  },
+  "rawBuild": {
+    "bytes": 186970,
+    "sha256": "9e98934849d8dcae64bcf9ae8fdb8116531d5328832bc62f0993a0c2a50fd02a"
+  },
+  "cleanup": {
+    "validationChildGroups": [
+      {
+        "pgid": 50909,
+        "gone": true
+      },
+      {
+        "pgid": 50919,
+        "gone": true
+      },
+      {
+        "pgid": 50925,
+        "gone": true
+      },
+      {
+        "pgid": 50935,
+        "gone": true
+      },
+      {
+        "pgid": 50941,
+        "gone": true
+      },
+      {
+        "pgid": 50995,
+        "gone": true
+      },
+      {
+        "pgid": 51030,
+        "gone": true
+      },
+      {
+        "pgid": 51036,
+        "gone": true
+      },
+      {
+        "pgid": 51042,
+        "gone": true
+      },
+      {
+        "pgid": 51048,
+        "gone": true
+      },
+      {
+        "pgid": 51054,
+        "gone": true
+      },
+      {
+        "pgid": 51066,
+        "gone": true
+      },
+      {
+        "pgid": 51073,
+        "gone": true
+      },
+      {
+        "pgid": 51081,
+        "gone": true
+      },
+      {
+        "pgid": 51058,
+        "gone": true
+      }
+    ],
+    "supervisorState": "Z",
+    "note": "All validation command/server groups are gone. Completed background launcher may remain defunct until its external parent reaps it; no running workload."
+  },
+  "limits": [
+    "4 synthetic H264 RTP packets per transport, 3 completed ICE restarts; not native decoding/capture/input",
+    "Alternating valid REST usernames, not real expiry/HTTP issuer or automatic renewal",
+    "One-sided RelayOnly over loopback; no namespace, physical NAT/LAN/mobile/VPS or cost/latency/resource claims",
+    "Embedding host, phone and desktop have not adopted this API or updated their media pin",
+    "Old raw SDK credential-only update path is bypassed, not qualified"
+  ],
+  "publicationRedactions": {
+    "originalArtifactBytes": 37301,
+    "originalArtifactSha256": "07ef7f16f043e3fcaa8a2ea4ea74ae22a22b26d7d8df81093fd66b090b00af7f",
+    "change": "Kernel build ordinal normalized to avoid an issue-like reference; supplied text and original hashes are distinguished."
+  }
+}

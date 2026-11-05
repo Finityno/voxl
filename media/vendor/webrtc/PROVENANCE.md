@@ -101,3 +101,24 @@ fixture requires no late Allocate after its original deadline.
 When updating, verify the new package checksum, preserve licenses, reapply this
 driver and optional interface changes and rerun the forced UDP/TCP/TLS relay fixtures. URL parsing,
 loopback transport tests and native cross-compilation do not replace them.
+
+
+The fork-only `quiesce_ice_gathering_for_restart` extends the acknowledged
+barrier to live TURN discovery. It requires the setting that discards local
+candidates and rebinds on restart. The serialized owner stops new media writes;
+the driver drains accepted writes while the old relay mapping still exists,
+retires discovery/allocations and sends release datagrams before replying.
+Only then can the wrapper replace TCP/TLS adapters and advance its generation.
+The DTLS object/certificate remain on the same peer. This deliberately obtains
+a fresh allocation/socket for a changed username rather than using the imported
+relayer's in-place credential-update path: RFC 8656 section 6 requires an
+allocation's subsequent requests to keep its original username. The imported
+raw SDK credential-only path still needs independent scrutiny; the new media
+restart does not depend on it. No dependency version or feature changes.
+
+The media wrapper also retires its old connection/ICE observations after that
+acknowledged barrier. A stronger pre-answer readiness regression fails before
+this change even though earlier packet-delivery tests passed. Source identities,
+the identical before/after test and final UDP/TCP/TLS evidence are retained in
+`results/2026-11-05-live-ice-restart/` in the parent media package. This changes
+wrapper readiness, not the peer's certificate or RTP timeline.

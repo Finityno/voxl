@@ -1,0 +1,348 @@
+{
+  "source": "57793c6024fc99c77101f2665bf1f6ef67e2ba22",
+  "summary": {
+    "steps": [
+      {
+        "name": "load",
+        "command": [
+          "uptime"
+        ],
+        "deadlineSeconds": 10,
+        "pid": 55512,
+        "pgid": 55512,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.024,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "0c5be24288a2190eaf2aaa7c1beba74c15175af14bfc37a14675c727de424dd5"
+      },
+      {
+        "name": "test-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "--no-run",
+          "-j2",
+          "-q",
+          "--message-format=short"
+        ],
+        "deadlineSeconds": 600,
+        "pid": 55517,
+        "pgid": 55517,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 2.056,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "live-restart",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "-j2",
+          "-q",
+          "live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 45,
+        "pid": 55539,
+        "pgid": 55539,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.843,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "314c5c802df69f8061f91d77ccae1ee51d97cdce87115c2c445c9598f62ab384"
+      },
+      {
+        "name": "retired-adapter",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "-j2",
+          "-q",
+          "retired_stream_allocation_callbacks_cannot_relabel_or_fail_a_reused_address",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 45,
+        "pid": 55550,
+        "pgid": 55550,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.233,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2"
+      },
+      {
+        "name": "replace-ipc",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "-j2",
+          "-q",
+          "restart_replaces_ipc_addresses_instead_of_retaining_old_generations",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 45,
+        "pid": 55561,
+        "pgid": 55561,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.226,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2"
+      },
+      {
+        "name": "startup-compatibility",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "-j2",
+          "-q",
+          "late_relay_configuration_restarts_ice_and_fences_old_signaling",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 45,
+        "pid": 55572,
+        "pgid": 55572,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.678,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "880053a874c5eb44a23366ff7bb3bc00a676e7717593b1b8bca29c45ae508116"
+      },
+      {
+        "name": "terminal-fence",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "-j2",
+          "-q",
+          "ice_reachability_precedes_dtls_and_terminal_connection_stays_closed",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 45,
+        "pid": 55583,
+        "pgid": 55583,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.221,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "c41346de3d63faf2c6dcfe845ac5367ce3a1468bdbf7e2002f9616d24baec71c"
+      },
+      {
+        "name": "strict-clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "--lib",
+          "--tests",
+          "--examples",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "deadlineSeconds": 600,
+        "pid": 55594,
+        "pgid": 55594,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.741,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "a8c1211a130483d6a7f871abdbf05ce360124913",
+          "57793c6024fc99c77101f2665bf1f6ef67e2ba22"
+        ],
+        "deadlineSeconds": 15,
+        "pid": 55609,
+        "pgid": 55609,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 0.042,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "queue": [
+      {
+        "name": "queue",
+        "command": [
+          "/usr/bin/lockf",
+          "-k",
+          "-t",
+          "45",
+          "/tmp/fincode-build.lock",
+          "/usr/bin/nice",
+          "-n",
+          "19",
+          "/usr/local/bin/python3",
+          "/tmp/fincode-live-restart-57793c6.py",
+          "--inside-lock"
+        ],
+        "deadlineSeconds": 1500,
+        "pid": 55506,
+        "pgid": 55506,
+        "exitCode": 0,
+        "childExitCode": 0,
+        "seconds": 5.339,
+        "groupGone": true,
+        "cleanupSignals": [],
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "limits": "Synthetic localhost UDP/DTLS/SRTP plus transition/adapter-fence tests. No capture/decode/OS input, real credential issuer, physical network/phone/Windows/VPS or performance/admission claim."
+  },
+  "files": {
+    "native-results.json": {
+      "text": "{\n  \"source\": \"57793c6024fc99c77101f2665bf1f6ef67e2ba22\",\n  \"scope\": \"native_live_restart_component\",\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"pid\": 55512,\n      \"pgid\": 55512,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.024,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"0c5be24288a2190eaf2aaa7c1beba74c15175af14bfc37a14675c727de424dd5\"\n    },\n    {\n      \"name\": \"test-build\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--no-run\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"pid\": 55517,\n      \"pgid\": 55517,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 2.056,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"live-restart\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 55539,\n      \"pgid\": 55539,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.843,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"314c5c802df69f8061f91d77ccae1ee51d97cdce87115c2c445c9598f62ab384\"\n    },\n    {\n      \"name\": \"retired-adapter\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"retired_stream_allocation_callbacks_cannot_relabel_or_fail_a_reused_address\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 55550,\n      \"pgid\": 55550,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.233,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2\"\n    },\n    {\n      \"name\": \"replace-ipc\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"restart_replaces_ipc_addresses_instead_of_retaining_old_generations\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 55561,\n      \"pgid\": 55561,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.226,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2\"\n    },\n    {\n      \"name\": \"startup-compatibility\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"late_relay_configuration_restarts_ice_and_fences_old_signaling\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 55572,\n      \"pgid\": 55572,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.678,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"880053a874c5eb44a23366ff7bb3bc00a676e7717593b1b8bca29c45ae508116\"\n    },\n    {\n      \"name\": \"terminal-fence\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"ice_reachability_precedes_dtls_and_terminal_connection_stays_closed\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 55583,\n      \"pgid\": 55583,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.221,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"c41346de3d63faf2c6dcfe845ac5367ce3a1468bdbf7e2002f9616d24baec71c\"\n    },\n    {\n      \"name\": \"strict-clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--tests\",\n        \"--examples\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"pid\": 55594,\n      \"pgid\": 55594,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.741,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"diff-check\",\n      \"command\": [\n        \"git\",\n        \"diff\",\n        \"--check\",\n        \"a8c1211a130483d6a7f871abdbf05ce360124913\",\n        \"57793c6024fc99c77101f2665bf1f6ef67e2ba22\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"pid\": 55609,\n      \"pgid\": 55609,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.042,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"b947c24ba19d01e7b5c193a63fce9441d039d8acacf2aea53e1fb22cf4176247\",\n  \"limits\": \"Synthetic localhost UDP/DTLS/SRTP plus transition/adapter-fence tests. No capture/decode/OS input, real credential issuer, physical network/phone/Windows/VPS or performance/admission claim.\",\n  \"cases\": []\n}\n",
+      "sha256": "2cd93a9c1139f056b450b9c9e45a2a7bfbf61fc1de129c631ef1cf855c81e4c7",
+      "originalSha256": "2cd93a9c1139f056b450b9c9e45a2a7bfbf61fc1de129c631ef1cf855c81e4c7"
+    },
+    "queue.json": {
+      "text": "{\n  \"source\": \"57793c6024fc99c77101f2665bf1f6ef67e2ba22\",\n  \"scope\": \"supervisor_queue\",\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/usr/local/bin/python3\",\n        \"/tmp/fincode-live-restart-57793c6.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 1500,\n      \"pid\": 55506,\n      \"pgid\": 55506,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 5.339,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"b947c24ba19d01e7b5c193a63fce9441d039d8acacf2aea53e1fb22cf4176247\",\n  \"limits\": \"Synthetic localhost UDP/DTLS/SRTP plus transition/adapter-fence tests. No capture/decode/OS input, real credential issuer, physical network/phone/Windows/VPS or performance/admission claim.\",\n  \"nativeResults\": \"native-results.json\"\n}\n",
+      "sha256": "e68f80159790689af54fa281bf5bbf055b8ba81ffe149f5801c9ce1e5331fa3d",
+      "originalSha256": "e68f80159790689af54fa281bf5bbf055b8ba81ffe149f5801c9ce1e5331fa3d"
+    },
+    "supervisor.py": {
+      "text": "import fractions,hashlib,json,math,os,pathlib,re,signal,subprocess,sys,time\nROOT=pathlib.Path('[MAC_WORKTREE_PARENT]/voxl-desktop-native-validation')\nREV='57793c6024fc99c77101f2665bf1f6ef67e2ba22'\nOUT=pathlib.Path('/tmp/fincode-live-restart-57793c6')\nINITIAL=pathlib.Path('/tmp/fincode-voxl-color-0ad2646')\nINNER='--inside-lock' in sys.argv\nif not INNER:OUT.mkdir(mode=0o700)\nos.umask(0o077)\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','RUSTC_WRAPPER':'','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_JOBS':'2','CARGO_BUILD_WARNINGS':'deny','CI':'true'}\nsteps=[];cases=[]\ndef interrupted(signum,frame):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ndef digest(path):\n with pathlib.Path(path).open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()\ndef source():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==REV\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef exists(group):\n try:os.killpg(group,0);return True\n except ProcessLookupError:return False\ndef save():\n j={'source':REV,'scope':'native_live_restart_component' if INNER else 'supervisor_queue','steps':steps,'helperSha256':digest(__file__),'limits':'Synthetic localhost UDP/DTLS/SRTP plus transition/adapter-fence tests. No capture/decode/OS input, real credential issuer, physical network/phone/Windows/VPS or performance/admission claim.'}\n if INNER:j['cases']=cases\n else:j['nativeResults']='native-results.json'\n (OUT/('native-results.json' if INNER else 'queue.json')).write_text(json.dumps(j,indent=2)+'\\n')\ndef run(name,command,deadline,grace=4):\n source();started=time.monotonic();pending=None;cleanup=[]\n with (OUT/(name+'.log')).open('x') as log:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)\n  try:code=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:code=124\n  except BaseException as error:code=130;pending=error\n  finally:\n   if child.poll() is None:\n    try:os.killpg(child.pid,signal.SIGTERM)\n    except ProcessLookupError:pass\n    cleanup.append('SIGTERM')\n    try:child.wait(timeout=grace)\n    except subprocess.TimeoutExpired:\n     try:os.killpg(child.pid,signal.SIGKILL)\n     except ProcessLookupError:pass\n     cleanup.append('SIGKILL');child.wait(timeout=3)\n   if exists(child.pid):\n    try:os.killpg(child.pid,signal.SIGKILL)\n    except ProcessLookupError:pass\n    cleanup.append('SIGKILL-descendants')\n   until=time.monotonic()+3\n   while exists(child.pid) and time.monotonic()<until:time.sleep(.05)\n source();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'pid':child.pid,'pgid':child.pid,'exitCode':code,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'groupGone':not exists(child.pid),'cleanupSignals':cleanup,'sourceCleanBefore':True,'sourceCleanAfter':True,'logSha256':digest(OUT/(name+'.log'))});save();assert not exists(child.pid)\n if pending:raise pending\n return code\n\n\ntry:\n source()\n if not INNER:\n  code=run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],1500,20)\n else:\n  assert run('load',['uptime'],10)==0\n  assert run('test-build',['cargo','test','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--no-run','-j2','-q','--message-format=short'],600)==0\n  for label,selected in [('live-restart','live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations'),('retired-adapter','retired_stream_allocation_callbacks_cannot_relabel_or_fail_a_reused_address'),('replace-ipc','restart_replaces_ipc_addresses_instead_of_retaining_old_generations'),('startup-compatibility','late_relay_configuration_restarts_ice_and_fences_old_signaling'),('terminal-fence','ice_reachability_precedes_dtls_and_terminal_connection_stays_closed')]:\n   assert run(label,['cargo','test','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','-j2','-q',selected,'--','--nocapture'],45)==0\n  assert run('strict-clippy',['cargo','clippy','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--tests','--examples','-j2','-q','--message-format=short','--','-D','warnings'],600)==0\n  assert run('diff-check',['git','diff','--check','a8c1211a130483d6a7f871abdbf05ce360124913',REV],15)==0\n  code=0\nexcept BaseException:\n save();raise\nsave()\nraise SystemExit(code)\n",
+      "sha256": "68d2f2e8cf4a257437216259d8702f1495495d2dd81cb70bcbb3075ab9cc33cc",
+      "originalSha256": "b947c24ba19d01e7b5c193a63fce9441d039d8acacf2aea53e1fb22cf4176247"
+    },
+    "load.log": {
+      "text": " 6:43  up 19 days, 17:31, 1 user, load averages: 2.43 1.83 1.69\n",
+      "sha256": "0c5be24288a2190eaf2aaa7c1beba74c15175af14bfc37a14675c727de424dd5",
+      "originalSha256": "0c5be24288a2190eaf2aaa7c1beba74c15175af14bfc37a14675c727de424dd5"
+    },
+    "test-build.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "live-restart.log": {
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.24s\n\n",
+      "sha256": "314c5c802df69f8061f91d77ccae1ee51d97cdce87115c2c445c9598f62ab384",
+      "originalSha256": "314c5c802df69f8061f91d77ccae1ee51d97cdce87115c2c445c9598f62ab384"
+    },
+    "retired-adapter.log": {
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.00s\n\n",
+      "sha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2",
+      "originalSha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2"
+    },
+    "replace-ipc.log": {
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.00s\n\n",
+      "sha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2",
+      "originalSha256": "6bcc8c30ddcbfa3242a12e797212a3fa33f129809d48f6b884f710686654a9b2"
+    },
+    "startup-compatibility.log": {
+      "text": "\nrunning 1 test\nsdk_diagnostic module=rtc_dtls::config class=other\nsdk_diagnostic module=rtc_ice::agent class=other\nsdk_diagnostic module=rtc_ice::agent class=other\nlate_fallback_stage=initial_answer\nsdk_diagnostic module=rtc_ice::agent class=other\nsdk_diagnostic module=rtc_ice::agent class=other\nsdk_diagnostic module=rtc_ice::agent class=other\nlate_fallback_stage=restart_offer\nlate_fallback_stage=remote_offer\nlate_fallback_stage=receiver_gathered\nlate_fallback_stage=restart_answer\nlate_fallback_stage=connected\nlate_fallback_stage=candidates_complete\nlate_fallback_stage=payload_written\nlate_fallback_stage=payload\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.48s\n\n",
+      "sha256": "880053a874c5eb44a23366ff7bb3bc00a676e7717593b1b8bca29c45ae508116",
+      "originalSha256": "880053a874c5eb44a23366ff7bb3bc00a676e7717593b1b8bca29c45ae508116"
+    },
+    "terminal-fence.log": {
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.02s\n\n",
+      "sha256": "c41346de3d63faf2c6dcfe845ac5367ce3a1468bdbf7e2002f9616d24baec71c",
+      "originalSha256": "c41346de3d63faf2c6dcfe845ac5367ce3a1468bdbf7e2002f9616d24baec71c"
+    },
+    "strict-clippy.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diff-check.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "queue.log": {
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "redactions": "Local worktree parent replaced; original text hashes retained alongside supplied-text hashes."
+}

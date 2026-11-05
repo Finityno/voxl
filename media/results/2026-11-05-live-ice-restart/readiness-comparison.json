@@ -1,0 +1,10 @@
+{
+  "before": "bfed51b65110ad0f51c881e759fc7fc34961247a",
+  "after": "af6478e446c0c05a98645ff54df088f826947945",
+  "identicalLiveRestartTestBlob": "4afd55ad31aa7c9a2c486c40dd7825c204d6354e",
+  "changedFiles": [
+    "media/src/webrtc.rs"
+  ],
+  "diff": "diff --git a/media/src/webrtc.rs b/media/src/webrtc.rs\nindex b8436c5..fe134dd 100644\n--- a/media/src/webrtc.rs\n+++ b/media/src/webrtc.rs\n@@ -511,6 +511,13 @@ impl WebRtcVideo {\n             self.negotiation=Negotiation::Ready {payload,generation,setup:Some(setup),startup};\n             guard.0=None;return Err(WebRtcError::Configuration);\n         }\n+        if !startup_only {\n+            // The acknowledged barrier has delivered the old callbacks. Do not\n+            // carry their reachability/DTLS-ready observations into this epoch;\n+            // fresh driver callbacks must establish the replacement route.\n+            self.events.transition(Connection::Waiting);\n+            *self.events.ice.lock().unwrap_or_else(std::sync::PoisonError::into_inner)=RTCIceConnectionState::New;\n+        }\n         self.events.gathered.store(false,Ordering::Release);\n         let signals=self.events.signals.as_ref().ok_or(WebRtcError::Configuration)?;\n         signals.advance();self.events.changes.changed();\n",
+  "causalScope": "The readiness oracle fails before and passes after only seven production lines retire old observations. Earlier transport passes used a weaker oracle."
+}
