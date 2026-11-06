@@ -32,7 +32,7 @@ pub enum DelayControl {#[default] Standard,Trendline}
 /// Advisory encoded-byte admission from the selected pacing configuration.
 /// Unknown feedback uses the configured prior; a held estimate is not capacity.
 #[derive(Debug,Clone,Copy)]
-pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacing_target_bps:u32,pub estimate_age:Option<Duration>}
+pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacing_target_bps:u32,pub estimate_age:Option<Duration>,pub quiet_cap_bps:Option<u32>}
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
@@ -53,7 +53,7 @@ impl SendControl {
         let paced=self.paced_bps(bps);
         // 350 ms of pacing, reserving ten percent for packet overhead and
         // coalesced estimator changes. The send deadline stays at 500 ms.
-        FrameBudget {payload_bytes:(u64::from(paced)*315/8000) as u32,media_target_bps:bps,pacing_target_bps:paced,estimate_age:age}
+        FrameBudget {payload_bytes:(u64::from(paced)*315/8000) as u32,media_target_bps:bps,pacing_target_bps:paced,estimate_age:age,quiet_cap_bps:None}
     }
     pub fn initial_frame_budget(self)->FrameBudget {self.budget(self.initial,None)}
 }
@@ -127,7 +127,7 @@ impl Control {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if !self.active() {return None;}
         let mut budget=match epoch.rate {Rate::Unknown=>self.limits.initial_frame_budget(),Rate::Observed {bps,at,..}=>self.limits.budget(bps,Some(at.elapsed()))};
-        if let Some(cap)=epoch.probe.cap(Instant::now(),self.limits.min) {budget.payload_bytes=budget.payload_bytes.min((u64::from(cap)*315/8000) as u32);}
+        if let Some(cap)=epoch.probe.cap(Instant::now(),self.limits.min) {budget.payload_bytes=budget.payload_bytes.min((u64::from(cap)*315/8000) as u32);budget.quiet_cap_bps=Some(cap);}
         Some(budget)
     }
     pub(super) fn prepare_frame(&self,bytes:usize)->Result<Option<ResumeProbeTicket>,WebRtcError> {
@@ -550,6 +550,18 @@ mod tests {
         control.retire();assert!(control.frame_budget().unwrap().estimate_age.is_none());assert!(pacer.ready(None));
         let Pacing::Running {inner,..}=&pacer.state else {panic!("new responsive epoch");};assert_eq!(inner.pacer().target_bitrate(),3_750_000.0);
         control.authority.store(true,Ordering::Release);assert!(control.frame_budget().is_none());
+    }
+    #[test]
+    fn resume_probe_budget_reports_the_exact_optional_quiet_cap() {
+        let limits=SendControl::new(250,1500,4000).unwrap().with_pacing_gain(PacingGain::Responsive).with_quiet_resume_probe_retry();
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
+        let observation=ResumeProbeObservation {packets:32,arrived:32,received_rtp_bytes:8704,arrival_span:Duration::from_millis(70),received_bps:1_000_000,target_kbps:1000,attempts:1,transmitted_rtp_bytes:8704};
+        {let mut epoch=control.epoch.lock().unwrap();epoch.rate=Rate::Observed {bps:2_000_000,at:now,revision:1};epoch.probe=probe::Probe::Complete {ticket:ResumeProbeTicket::new(0,1,now),observation,at:now};}
+        let budget=control.frame_budget().unwrap();assert_eq!((budget.payload_bytes,budget.quiet_cap_bps),(39375,Some(1_000_000)));assert_eq!(budget.pacing_target_bps,5_000_000);
+        {let mut epoch=control.epoch.lock().unwrap();if let probe::Probe::Complete {at,..}=&mut epoch.probe {*at=now-Duration::from_secs(3);}}
+        let budget=control.frame_budget().unwrap();assert_eq!((budget.payload_bytes,budget.quiet_cap_bps),(9843,Some(250_000)));
+        control.epoch.lock().unwrap().probe=probe::Probe::Idle;let budget=control.frame_budget().unwrap();assert_eq!((budget.payload_bytes,budget.quiet_cap_bps),(196875,None));
+        control.retire();assert!(control.frame_budget().unwrap().quiet_cap_bps.is_none());control.authority.store(true,Ordering::Release);assert!(control.frame_budget().is_none());
     }
     #[test]
     fn adaptive_frame_budget_is_finite_for_all_supported_media_rates_and_gains() {
