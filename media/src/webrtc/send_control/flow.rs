@@ -33,6 +33,7 @@ impl Monitor {
             tracker.pending.insert(key,bytes);tracker.order.push_back(key);
         }
         if message.message.has(&Attribute::Retransmission) {c.retransmissions=c.retransmissions.saturating_add(1);return;}
+        if message.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_some() {return;}
         if matches!(tracker.frame,Frame::Running {timestamp,..} if timestamp!=packet.header.timestamp) {c.incomplete_frames=c.incomplete_frames.saturating_add(1);tracker.frame=Frame::Empty;}
         if matches!(tracker.frame,Frame::Empty) {tracker.frame=Frame::Running {timestamp:packet.header.timestamp,started:message.now,bytes:0};}
         if let Frame::Running {started,bytes:total,..}=&mut tracker.frame {

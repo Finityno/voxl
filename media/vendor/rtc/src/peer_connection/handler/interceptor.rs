@@ -830,6 +830,7 @@ impl<'a>
     fn poll_write(&mut self) -> Option<Self::Wout> {
         if self.ctx.is_dtls_handshake_complete {
             while let Some(packet) = self.interceptor.poll_write() {
+                let padding=packet.message.custom::<crate::rtp_transceiver::RtpPaddingOnly>().is_some();
                 // Process outgoing packets for stats
                 match &packet.message.packet {
                     Packet::Rtcp(rtcp_packets) => {
@@ -838,12 +839,12 @@ impl<'a>
                     Packet::Rtp(rtp_packet) => {
                         // Track outbound RTP stats if the stream accumulator exists
                         let ssrc = rtp_packet.header.ssrc;
-                        let payload_bytes = rtp_packet.payload.len();
+                        let payload_bytes = if padding {0} else {rtp_packet.payload.len()};
                         self.stats.on_rtx_packet_sent_if_rtx(ssrc, payload_bytes);
 
                         if let Some(stream) = self.stats.outbound_rtp_streams.get_mut(&ssrc) {
                             stream.on_rtp_sent(
-                                rtp_packet.header.marshal_size(),
+                                if padding {rtp_packet.marshal_size()} else {rtp_packet.header.marshal_size()},
                                 payload_bytes,
                                 packet.now,
                             );
@@ -852,10 +853,14 @@ impl<'a>
                     _ => {}
                 }
 
+                let message=match packet.message.packet {
+                    Packet::Rtp(rtp) if padding=>RTPMessage::Padding(rtp),
+                    packet=>RTPMessage::Packet(packet),
+                };
                 self.ctx.write_outs.push_back(TaggedRTCMessageInternal {
                     now: packet.now,
                     transport: packet.transport,
-                    message: RTCMessageInternal::Rtp(RTPMessage::Packet(packet.message.packet)),
+                    message: RTCMessageInternal::Rtp(message),
                 });
                 trace!("interceptor write {:?}", packet.transport.peer_addr);
             }

@@ -10,12 +10,21 @@ before import. MIT/Apache licenses, original manifest and VCS metadata are retai
 verbatim. The normalized manifest omits non-vendored example/integration targets
 and development-only dependencies; production dependency tables/features remain.
 
-The sole functional patch makes `RTCPeerConnection::set_configuration` replace
+The configuration patch makes `RTCPeerConnection::set_configuration` replace
 the ICE-server list even when it is empty, after validating any supplied servers.
 An empty list removes old STUN/TURN discovery configuration; it is not a request
 to keep old endpoints or credentials. Public configuration and the async driver's
 next gathering phase therefore agree. Other validation, transport/codec/crypto
 logic and the existing acknowledged live-restart barrier are unchanged.
+
+An additional explicit `RtpPaddingOnly` interceptor attribute carries a local
+padding-only packet through pacing into SRTP encryption. Its zero payload is
+included in the final RFC 3550 padding count (maximum 255 octets); ordinary RTP
+serialization is unchanged. Congestion/pacing size accounting therefore retains
+the same serialized length, while the receiver obtains no codec payload. This
+supports bounded on-demand quiet-resume feedback probes, not periodic video or
+fake decoder progress. Parent tests cover wire validation, actual encrypted
+delivery/feedback, retransmission tagging and generation/close boundaries.
 
 The sibling vendored async SDK and media wrapper both use this exact path/core
 version, with defaults disabled and explicit AWS-LC features. This avoids distinct

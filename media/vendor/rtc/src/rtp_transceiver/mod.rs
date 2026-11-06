@@ -113,6 +113,8 @@ pub(crate) mod fmtp;
 pub(crate) mod internal;
 pub mod rtp_receiver;
 pub mod rtp_sender;
+mod padding;
+pub use padding::RtpPaddingOnly;
 
 /// SSRC (Synchronization Source) identifier.
 ///

@@ -27,7 +27,7 @@ mod relay_interfaces;
 mod signaling;
 mod send_control;
 mod fast_delay;
-pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation};
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation,ResumeProbeObservation};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -613,6 +613,31 @@ impl WebRtcVideo {
 
     pub async fn send(&mut self, frame: EncodedFrame) -> Result<(), WebRtcError> {
         self.send_with_stamp(frame).await.map(|_|())
+    }
+    /// Explicit local quiet-resume qualification. Call before encoding resumed
+    /// input; this sends no codec payload, keyframe receipt or periodic traffic.
+    /// Only an already-written, connected controlled epoch can probe after two
+    /// seconds without media. Missing/lost/late feedback closes the transport.
+    pub async fn probe_quiet_resume(&mut self)->Result<ResumeProbeObservation,WebRtcError> {
+        if self.ended() {return Err(WebRtcError::Ended);}
+        if !self.connected() {return Err(WebRtcError::NotConnected);}
+        let (payload_type,generation)=match self.negotiation {Negotiation::Ready {payload,generation,..}=>(payload,generation),_=>return Err(WebRtcError::NotConnected)};
+        if !matches!(self.sent_boundary,SentBoundary::Written(previous) if previous==generation) {return Err(WebRtcError::Configuration);}
+        let SendMode::Controlled {state,..}=&self.send_mode else {return Err(WebRtcError::Configuration);};let state=Arc::clone(state);
+        let epoch=state.begin_probe(self.ssrc,self.sequence)?;
+        let mut guard=NegotiationGuard(Some(self.closer.clone()));
+        let timestamp=self.timestamp.wrapping_add(((i128::from(self.last_pts.ok_or(WebRtcError::Configuration)?)-i128::from(self.first_pts.ok_or(WebRtcError::Configuration)?))*90_000/1_000_000) as u32);
+        let result=tokio::time::timeout(send_control::probe::DEADLINE,async {
+            for _ in 0..send_control::probe::PACKETS {
+                let packet=rtc::rtp::Packet {header:rtc::rtp::Header {version:2,padding:true,payload_type,sequence_number:self.sequence,timestamp,ssrc:self.ssrc,..Default::default()},payload:Bytes::from_static(&[0;251])};self.sequence=self.sequence.wrapping_add(1);
+                if self.ended() {return Err(WebRtcError::Ended);}
+                tokio::select! {biased;_=self.closer.wake.notified()=>return Err(WebRtcError::Ended),result=self.track.write_rtp(packet)=>{result.map_err(transport)?;}}
+                let SendMode::Controlled {submitted,..}=&mut self.send_mode else {return Err(WebRtcError::Configuration);};*submitted=submitted.checked_add(1).ok_or(WebRtcError::Transport)?;
+                if *submitted%send_control::WINDOW==0 {state.wait_released(*submitted).await?;}
+            }
+            state.probe_observation(epoch).await
+        }).await.map_err(|_|WebRtcError::Deadline).and_then(|result|result);
+        if result.is_ok() {guard.0=None;}else {self.close();}result
     }
     /// Like `send`, with the actual packet timestamp after the whole access
     /// unit succeeds. No receipt escapes on invalid, disconnected or failed send.

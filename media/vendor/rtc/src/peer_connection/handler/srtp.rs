@@ -108,6 +108,10 @@ impl<'a>
             debug!("srtp write {:?}", msg.transport.peer_addr);
 
             let encrypted = match message {
+                RTPMessage::Padding(packet)=>{
+                    let context=self.ctx.local_srtp_context.as_mut().ok_or_else(||Error::Other("no SRTP context for padding-only RTP".into()))?;
+                    context.encrypt_rtp(&crate::rtp_transceiver::RtpPaddingOnly::marshal(&packet)?)?
+                },
                 RTPMessage::Packet(Packet::Rtcp(rtcp_packets)) => {
                     if rtcp_packets.is_empty() {
                         return Err(Error::Other("empty rtcp_packets".to_string()));

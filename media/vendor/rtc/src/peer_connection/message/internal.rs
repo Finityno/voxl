@@ -43,6 +43,7 @@ pub(crate) enum DTLSMessage {
 pub(crate) enum RTPMessage {
     Raw(BytesMut),
     Packet(Packet),
+    Padding(rtp::Packet),
     TrackPacket(TrackPacket),
 }
 
@@ -70,6 +71,7 @@ impl RTCMessageInternal {
             },
             RTCMessageInternal::Rtp(msg) => match msg {
                 RTPMessage::Raw(bytes) => bytes.len(),
+                RTPMessage::Padding(packet)=>packet.marshal_size(),
                 RTPMessage::Packet(packet) => match packet {
                     // RTP header is typically 12 bytes + CSRC + extensions
                     Packet::Rtp(rtp) => rtp.marshal_size(),
