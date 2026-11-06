@@ -60,7 +60,9 @@ class PipelineRunner(matched.Runner):
                 depths = [1,2] if (pair+codec_index)%2 else [2,1]
                 for depth in depths:
                     name=f"pair-{pair}-{codec}-depth-{depth}"
-                    records.append(self.case(executable,f"{codec}:compatible:{self.args.bitrate_kbps}",pair,fixture,manifest,observation,pipeline_depth=depth,name=name))
+                    # Slow controls must finish all the same frames. This
+                    # watchdog does not turn missed cadence into a target pass.
+                    records.append(self.case(executable,f"{codec}:compatible:{self.args.bitrate_kbps}",pair,fixture,manifest,observation,pipeline_depth=depth,name=name,native_deadline_seconds=2*(self.args.warmup_seconds+self.args.observation_seconds)+20))
                 baseline = next(v for v in records if v["pipeline"]["requestedDepth"]==1)
                 candidate = next(v for v in records if v["pipeline"]["requestedDepth"]==2)
                 require(baseline["inputSha256"]==candidate["inputSha256"],"paired source pixels changed")

@@ -244,6 +244,8 @@ pixels, checked before running. Foreground/channel errors and full/text/thin
 per-frame SSIM regressions remain explicit; no gate is loosened for throughput.
 Completion FPS is measured from producer receipts rather than nominal PTS, and
 source-read/pacing lateness, latency, bytes and probe CPU/RSS remain separate.
+The native watchdog allows twice nominal duration plus 20 seconds so a slow
+control can complete the same frames; cadence remains a measured result.
 These are component experiments, excluding OS helpers/GPU/power and full
 application baselines, not permission to promote a default or claim 60fps
 playback, text/codec admission, bandwidth savings or physical-device performance.

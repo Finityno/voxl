@@ -256,7 +256,7 @@ class Runner:
         self.run(name,command,180)
         require(output.stat().st_size == region["width"]*region["height"]*3*frames, "normalized RGB frame count mismatch")
 
-    def case(self, executable, specification, run, fixture, manifest, observation, *, pipeline_depth=1, name=None):
+    def case(self, executable, specification, run, fixture, manifest, observation, *, pipeline_depth=1, name=None, native_deadline_seconds=None):
         codec, tuning, bitrate, priority, maximum_qp = profile(specification)
         name = name or f"run-{run}-{specification.replace(':','-')}"
         folder = self.args.output/"private"/name
@@ -267,7 +267,7 @@ class Runner:
         command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}",f"--width={self.width}",f"--height={self.height}",f"--fps={self.fps}","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix="+str(manifest["warmupFrames"]),"--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),f"--force-keyframe-period={self.fps*2}"]
         command.append("--pipeline-depth="+str(pipeline_depth))
         if maximum_qp is not None:command.append("--max-frame-qp="+str(maximum_qp))
-        log = self.run(name,command,self.args.warmup_seconds+self.args.observation_seconds+20,True)
+        log = self.run(name,command,native_deadline_seconds if native_deadline_seconds is not None else self.args.warmup_seconds+self.args.observation_seconds+20,True)
         text = log.read_text()
         samples = ast.literal_eval(re.search(r"^encode_samples_ms=(\[.*\])$",text,re.M).group(1))
         require(len(samples) == frames and all(isinstance(v,(int,float)) and math.isfinite(v) and 0 <= v <= 2500 for v in samples), "encode sample count/value mismatch")
