@@ -828,7 +828,7 @@ rules still belong to the embedder. The sender additionally refuses a delta as
 the first completed access unit of any generation, in either mode. A target is unknown until feedback exists;
 a GCC target may still reflect its initial prior until enough reports arrive.
 `bitrate_estimate` includes its age, and `VideoUpdate::BitrateTarget(kbps)` reserves
-15% of the pacing target for packet overhead/retransmissions, floored at the
+15% of the media target for packet overhead/retransmissions, floored at the
 encoder's existing 250 kbps minimum. The embedder must enforce the original
 viewer ceiling and apply updates on its codec worker.
 `VideoCloseHandle::bitrate_target_kbps` also exposes the fresh feedback-derived
@@ -884,3 +884,21 @@ also exceeded the requested byte policy while ending under signed revocation.
 Those observations confirm that metadata readback is not emitted-size admission;
 CPU burst handling and general changing-capacity/quality/resource admission
 remain open. No deadline or optimistic performance target was relaxed.
+
+`SendControl::with_pacing_gain(PacingGain::Responsive)` is an opt-in2.5x
+packet pacing experiment. `MediaRate` remains the1x default. The multiplier
+applies to initialization, live rate updates and epoch reset, including the
+same5ms burst calculation; GCC's configured media range and forwarded target
+are unchanged. Credit is preserved and clamped, never replenished by a retune.
+The packet/frame deadline, queue, history and close bounds above stay unchanged.
+Higher instantaneous packet departure can still queue on a slow path.
+
+`SendControl::initial_frame_budget` and `VideoCloseHandle::frame_budget`
+expose advisory CPU frame admission for the selected pacing configuration:
+350ms worth of paced bits with a ten-percent reserve for packet overhead and
+coalesced feedback changes. Rates are exact integer bits/second. Before
+feedback, this uses the configured prior; afterwards it uses the held target,
+with its age, because the pacer retains that rate. Neither proves capacity.
+Closed/failed transport returns no budget. Encoder target observation still
+rejects stale feedback independently. A worker must enforce its own admission,
+compatible fresh keyframe and authority lifetime; no partial frame may be sent.
