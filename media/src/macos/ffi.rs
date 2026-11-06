@@ -43,6 +43,7 @@ unsafe extern "C" {
     pub static kVTCompressionPropertyKey_DataRateLimits: Object;
     pub static kVTCompressionPropertyKey_ExpectedFrameRate: Object;
     pub static kVTCompressionPropertyKey_MaxKeyFrameInterval: Object;
+    pub static kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: Object;
     pub static kVTCompressionPropertyKey_ProfileLevel: Object;
     pub static kVTProfileLevel_H264_Baseline_AutoLevel: Object;
     pub static kVTProfileLevel_HEVC_Main_AutoLevel: Object;

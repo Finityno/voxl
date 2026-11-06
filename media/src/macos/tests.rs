@@ -279,6 +279,40 @@ fn dynamic_bitrate(codec:VideoCodec,preference:EncoderPreference) {
     assert_eq!(encoder.bitrate_target_kbps(),1000);
     submit(&mut encoder,&pixel,100_000);
 }
+
+fn keyframe_policy(codec:VideoCodec,preference:EncoderPreference) {
+    let mut encoder=VideoEncoder::new(EncoderConfig {codec,width:320,height:180,fps:30,bitrate_kbps:1000,preference},|| {}).unwrap();
+    for (frames,seconds) in [(0,30),(1801,30),(900,0),(900,61)] {assert_eq!(encoder.set_keyframe_interval(frames,seconds),Err(MediaError::Configuration));}
+    encoder.set_keyframe_interval(900,30).unwrap();assert_eq!(encoder.keyframe_interval(),Some((900,30)));
+    let hardware=encoder.using_hardware();let pixel=image(false,None);let mut keyframes=Vec::new();
+    for index in 0..120 {
+        encoder.encode(&pixel,index*33_333,index==90).unwrap();
+        let output=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();assert_eq!(output.presentation_time_micros,index*33_333);assert_eq!(output.codec,codec);
+        if output.keyframe {keyframes.push(index);}
+    }
+    assert_eq!(keyframes,vec![0,90],"static output must prove the new interval and explicit forced IDR");assert_eq!(encoder.using_hardware(),hardware);
+    assert_eq!(encoder.set_keyframe_interval(900,30),Err(MediaError::Configuration));
+}
+#[test]
+fn native_keyframe_policy_cpu_preserves_forced_idr_without_old_periodic_burst() {keyframe_policy(VideoCodec::H264,EncoderPreference::Software);}
+#[test]
+fn native_keyframe_policy_h264_hardware_preserves_forced_idr_without_old_periodic_burst() {keyframe_policy(VideoCodec::H264,EncoderPreference::RequireHardware);}
+#[test]
+fn native_keyframe_policy_hevc_hardware_preserves_forced_idr_without_old_periodic_burst() {keyframe_policy(VideoCodec::Hevc,EncoderPreference::RequireHardware);}
+#[test]
+fn native_keyframe_policy_time_readback_rejects_non_numeric_and_inexact_values() {
+    // SAFETY: created numbers remain owned here through inspection; every
+    // successful Create is released exactly once below. Framework booleans
+    // are immortal and must not be accepted as numeric readback.
+    unsafe {
+        assert!(!real_property_matches(kCFBooleanTrue,30.0));assert!(!real_property_matches(ptr::null(),30.0));
+        for value in [30.0,30.25,f64::NAN,f64::INFINITY] {
+            let number=CFNumberCreate(ptr::null(),6,(&value as *const f64).cast());assert!(!number.is_null());
+            assert_eq!(real_property_matches(number,30.0),value==30.0);CFRelease(number);
+        }
+        let integer=30i64;let number=CFNumberCreate(ptr::null(),4,(&integer as *const i64).cast());assert!(!number.is_null());assert!(real_property_matches(number,30.0));CFRelease(number);
+    }
+}
 #[test]
 fn adaptive_native_software_h264_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::H264,EncoderPreference::Software);}
 #[test]

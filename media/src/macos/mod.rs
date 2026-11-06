@@ -176,6 +176,7 @@ pub struct VideoEncoder {
     config: EncoderConfig,
     bitrate_target_kbps: u32,
     burst_limit: Option<(u32,u32)>,
+    keyframe_interval:Option<(u32,u32)>,
     acceleration: EncoderAcceleration,
     options: EncodingOptions,
     last_pts: Option<i64>,
@@ -267,7 +268,7 @@ impl VideoEncoder {
         unsafe { CFRelease(specification); }
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
-        let mut encoder = Self { session, callback, receiver, config, bitrate_target_kbps:config.bitrate_kbps,burst_limit:None,
+        let mut encoder = Self { session, callback, receiver, config, bitrate_target_kbps:config.bitrate_kbps,burst_limit:None,keyframe_interval:None,
             acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, options, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
@@ -354,6 +355,44 @@ impl VideoEncoder {
     /// Successful native burst-policy readback: bytes and window in milliseconds.
     /// Native readback is not proof that emitted frames obey the requested bound.
     pub fn burst_limit(&self)->Option<(u32,u32)> {self.burst_limit}
+    /// Successful policy readback in frames/seconds, not observed GOP length.
+    pub fn keyframe_interval(&self)->Option<(u32,u32)> {self.keyframe_interval}
+
+    /// Local qualification before the first submission. Both limits are finite;
+    /// natural keyframes may still occur earlier, and explicit recovery IDRs
+    /// remain available. A partially applied native policy is terminal.
+    pub fn set_keyframe_interval(&mut self,frames:u32,seconds:u32)->Result<(),MediaError> {
+        if frames==0 || frames>self.config.fps*60 || !(1..=60).contains(&seconds) || self.last_pts.is_some() {return Err(MediaError::Configuration);}
+        if self.callback.failure.get().is_some() {return Err(MediaError::Closed);}
+        let result=(|| {
+            // SAFETY: linked immortal framework keys, owned by VideoToolbox.
+            let (frame_key,time_key)=unsafe {(kVTCompressionPropertyKey_MaxKeyFrameInterval,kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration)};
+            self.number("keyframe frame limit",frame_key,i64::from(frames))?;
+            let seconds=f64::from(seconds);
+            // SAFETY: CFNumber copies this initialized f64 through the call.
+            let number=unsafe {CFNumberCreate(ptr::null(),6,(&seconds as *const f64).cast())};
+            if number.is_null() {return Err(MediaError::Configuration);}
+            let result=self.property("keyframe time limit",time_key,number);
+            // SAFETY: this Create result is owned here, including setter failure.
+            unsafe {CFRelease(number);}
+            result?;
+            for (key,expected,integer) in [(frame_key,f64::from(frames),true),(time_key,seconds,false)] {
+                let mut value=ptr::null();
+                // SAFETY: this producer owns the live session. Copy returns an
+                // owned CF object, retained through typed inspection below.
+                let code=unsafe {VTSessionCopyProperty(self.session.as_ptr(),key,ptr::null(),&mut value)};
+                let matches=code==0 && if integer {integer_property_matches(value,i64::from(frames))} else {real_property_matches(value,expected)};
+                if !value.is_null() {
+                    // SAFETY: Copy returned this owned object, even on failure.
+                    unsafe {CFRelease(value);}
+                }
+                check("read keyframe policy",code)?;
+                if !matches {return Err(MediaError::Configuration);}
+            }
+            Ok(())
+        })();
+        match result {Ok(())=>{self.keyframe_interval=Some((frames,seconds));Ok(())},Err(error)=>{self.callback.fail(error);Err(error)}}
+    }
 
     /// Retune future submissions on this same worker-owned session, including
     /// the explicit CPU encoder. Already submitted frames keep their old target.
@@ -580,6 +619,12 @@ fn integer_property_matches(value:Object,expected:i64)->bool {
         CFGetTypeID(value)==CFNumberGetTypeID() && !CFNumberIsFloatType(value)
             && CFNumberGetValue(value,4,(&mut actual as *mut i64).cast()) && actual==expected
     }
+}
+fn real_property_matches(value:Object,expected:f64)->bool {
+    if value.is_null() {return false;}
+    // SAFETY: caller retains a live object. Time properties may use integer or
+    // floating CFNumbers; booleans/non-numbers and inexact/non-finite values fail.
+    unsafe {let mut actual=0f64;CFGetTypeID(value)==CFNumberGetTypeID() && CFNumberGetValue(value,6,(&mut actual as *mut f64).cast()) && actual.is_finite() && actual==expected}
 }
 
 fn burst_property_matches(value:Object,bytes:i64,seconds:f64)->bool {
