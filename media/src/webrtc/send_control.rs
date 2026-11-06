@@ -434,4 +434,19 @@ mod tests {
         }}
     }
 
+    #[test]
+    fn adaptive_fast_delay_epoch_retirement_discards_old_signal_rate_and_authority() {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_delay_control(DelayControl::Trendline).with_pacing_gain(PacingGain::Responsive);
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let origin=Instant::now()-Duration::from_secs(5);control.epoch.lock().unwrap().started=origin;
+        let mut estimator=Estimator::new(Arc::clone(&control));let mut previous=None;
+        for i in 0..100 {
+            let arrival=100+if i<40 {i*10} else {400+(i-40)*30};
+            let report=PacketReport {ssrc:1,id:i,rtp_sequence_number:i as u16,is_twcc:true,twcc_sequence_number:i as u16,size:1200,arrived:true,departure:origin+Duration::from_millis(i*10),arrival:Some(Duration::from_millis(arrival)),ecn:Default::default()};
+            estimator.on_reports(origin+Duration::from_millis(arrival+20),std::slice::from_ref(&report));previous=Some(report);
+        }
+        assert!(estimator.target_bitrate()<1_000_000.0);control.retire();estimator.on_reports(Instant::now(),&[previous.unwrap()]);
+        assert!(control.estimate().is_none());assert_eq!(estimator.target_bitrate(),1_500_000.0);assert_eq!(control.frame_budget().unwrap().pacing_target_bps,3_750_000);
+        control.authority.store(true,Ordering::Release);assert!(control.frame_budget().is_none());assert!(control.encoder_target().is_none());
+    }
+
 }

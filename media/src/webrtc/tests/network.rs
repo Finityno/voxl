@@ -119,7 +119,6 @@ fn candidate(sdp:&str,proxy:SocketAddr)->(String,SocketAddr) {
     }
     (lines.join("\r\n")+"\r\n",actual.unwrap())
 }
-async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiver<rtc::rtp::Packet>,Link) {pair_with_delay(DelayControl::Standard).await}
 async fn pair_with_delay(delay:DelayControl)->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiver<rtc::rtp::Packet>,Link) {
     let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
     let mut video=WebRtcVideo::open_controlled(config,SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(delay)).await.unwrap();
@@ -160,9 +159,12 @@ fn adaptive_network_fixture_serializes_caps_queue_and_never_resets_credit_on_cap
     assert_eq!(direction.queue.len(),QUEUE_LIMIT);assert_eq!(direction.stats.peak_queue,QUEUE_LIMIT);assert_eq!(direction.stats.overflow,3);
 }
 #[test]
-fn adaptive_network_headroom_exposes_receiver_queueing_behind_a_slower_encrypted_udp_path() {
+fn adaptive_network_headroom_exposes_receiver_queueing_behind_a_slower_encrypted_udp_path() {bottleneck(DelayControl::Standard);}
+#[test]
+fn adaptive_network_fast_delay_preserves_a_large_keyframe_behind_the_same_bottleneck() {bottleneck(DelayControl::Trendline);}
+fn bottleneck(delay:DelayControl) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(12),async {
-        let (mut video,receiver,events,mut packets,mut link)=pair().await;link.condition(Shape::new(1_500_000,30,10,None)).await;
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(delay).await;link.condition(Shape::new(1_500_000,30,10,None)).await;
         let unit=frame(103_281,true,1_000_000);let expected=unit.annex_b[4..].to_vec();let started=Instant::now();let stamp=video.send_with_stamp(unit).await.unwrap();let send=started.elapsed();
         exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;let arrival=started.elapsed();let stats=link.snapshot().await;
         eprintln!("headroom_bottleneck send_us={} receiver_us={} queued_us={} peak_queue={} udp_bytes={} drops={} duplicates={}",send.as_micros(),arrival.as_micros(),stats.max_queue_micros,stats.peak_queue,stats.bytes,stats.dropped,stats.duplicates);
@@ -171,9 +173,12 @@ fn adaptive_network_headroom_exposes_receiver_queueing_behind_a_slower_encrypted
     }).await.expect("bounded encrypted UDP bottleneck");});
 }
 #[test]
-fn adaptive_network_single_packet_loss_is_repaired_without_partial_access_unit_or_unbounded_queue() {
+fn adaptive_network_single_packet_loss_is_repaired_without_partial_access_unit_or_unbounded_queue() {loss(DelayControl::Standard);}
+#[test]
+fn adaptive_network_fast_delay_retransmits_one_lost_packet_without_losing_the_access_unit() {loss(DelayControl::Trendline);}
+fn loss(delay:DelayControl) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(12),async {
-        let (mut video,receiver,events,mut packets,mut link)=pair().await;link.condition(Shape::new(2_000_000,15,5,Some(4))).await;
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(delay).await;link.condition(Shape::new(2_000_000,15,5,Some(4))).await;
         let unit=frame(24_005,true,1_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();
         exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;let stats=link.snapshot().await;
         eprintln!("headroom_loss rtp={} dropped={} duplicates={} peak_queue={} queued_us={}",stats.rtp,stats.dropped,stats.duplicates,stats.peak_queue,stats.max_queue_micros);
