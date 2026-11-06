@@ -913,3 +913,15 @@ this is explicit counterevidence to low-latency admission, despite final-target
 recovery and finite queues. Production media, application pins/defaults and
 performance targets are unchanged. Native/physical-path capacity/loss, matched
 quality and complete endpoint resources remain separate qualification.
+
+`SendControl::with_delay_control(DelayControl::Trendline)` selects an independent
+local congestion experiment. `Standard` keeps the SDK controller. The optional
+path uses fixed ten-group accumulated-delay regression and relative receiver
+intervals for delivery rate, retaining SDK grouping/hysteresis/AIMD/loss stages
+and configured media bounds. Pacing gain is a separate choice. The
+[exact-source comparison](results/2026-11-06-fast-congestion/README.md) retains
+failed candidates and three final runs: roughly 298–300 ms initial response and
+654–659 ms maximum queue residence versus the same-source standard path's
+1.8 s / 3.1 s. These are synthetic encrypted-UDP cases, not native decoder,
+physical network, quality, resource or default admission. No queue/deadline or
+optimistic product target was relaxed.

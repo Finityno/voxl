@@ -1,0 +1,318 @@
+{
+  "source": "b21fb65eb97fe34ede1ce46f218dfb34a5824d6d",
+  "executions": [
+    {
+      "job": "baseline-trace",
+      "source": "ab42271fdb8f35b57c038e4ff729f6bccd91abeb",
+      "exitCode": 1,
+      "receipt": "receipts/baseline-trace.json.gz"
+    },
+    {
+      "job": "initial-build",
+      "source": "4fbf2d098135b9096dc39ca582c9c6a0ca09a328",
+      "exitCode": 1,
+      "receipt": "receipts/initial-build.json.gz"
+    },
+    {
+      "job": "faster-kalman",
+      "source": "129019ecd2726259fea8ceb5117e4c943991a1f3",
+      "exitCode": 1,
+      "receipt": "receipts/faster-kalman.json.gz"
+    },
+    {
+      "job": "trend20-lint",
+      "source": "0713fdef310c33cc4d5c1da7ef431233fba4ec9d",
+      "exitCode": 1,
+      "receipt": "receipts/trend20-lint.json.gz"
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "source": "a9172240752a64cac370a80bc9db72a6fb4e669d",
+      "exitCode": 1,
+      "receipt": "receipts/receiver-clock-trend20.json.gz"
+    },
+    {
+      "job": "final-contracts",
+      "source": "b21fb65eb97fe34ede1ce46f218dfb34a5824d6d",
+      "exitCode": 0,
+      "receipt": "receipts/final-contracts.json.gz"
+    },
+    {
+      "job": "independent-repeats",
+      "source": "b21fb65eb97fe34ede1ce46f218dfb34a5824d6d",
+      "exitCode": 0,
+      "receipt": "receipts/independent-repeats.json.gz"
+    }
+  ],
+  "groups": [
+    {
+      "job": "baseline-trace",
+      "name": "load",
+      "pgid": 45351,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "baseline-trace",
+      "name": "toolchain",
+      "pgid": 45356,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "baseline-trace",
+      "name": "diff",
+      "pgid": 45361,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "baseline-trace",
+      "name": "test-build",
+      "pgid": 45366,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "baseline-trace",
+      "name": "adaptive-contracts",
+      "pgid": 45389,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "load",
+      "pgid": 47612,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "toolchain",
+      "pgid": 47617,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "diff",
+      "pgid": 47622,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "test-build",
+      "pgid": 47627,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "load",
+      "pgid": 49447,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "toolchain",
+      "pgid": 49452,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "diff",
+      "pgid": 49459,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "test-build",
+      "pgid": 49467,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "fast-pure-contracts",
+      "pgid": 49481,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "faster-kalman",
+      "name": "fast-transient",
+      "pgid": 49489,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "load",
+      "pgid": 51222,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "toolchain",
+      "pgid": 51227,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "diff",
+      "pgid": 51232,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "test-build",
+      "pgid": 51237,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "fast-pure-contracts",
+      "pgid": 51251,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "fast-transient",
+      "pgid": 51258,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "trend20-lint",
+      "name": "strict-clippy",
+      "pgid": 51272,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "load",
+      "pgid": 52957,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "toolchain",
+      "pgid": 52962,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "diff",
+      "pgid": 52967,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "test-build",
+      "pgid": 52972,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "fast-pure-contracts",
+      "pgid": 53346,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "receiver-clock-trend20",
+      "name": "fast-transient",
+      "pgid": 53358,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "load",
+      "pgid": 54965,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "toolchain",
+      "pgid": 54970,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "diff",
+      "pgid": 54975,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "test-build",
+      "pgid": 54980,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "adaptive-contracts",
+      "pgid": 55347,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final-contracts",
+      "name": "strict-clippy",
+      "pgid": 55408,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "independent-repeats",
+      "name": "load",
+      "pgid": 56462,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "independent-repeats",
+      "name": "toolchain",
+      "pgid": 56467,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "independent-repeats",
+      "name": "diff",
+      "pgid": 56473,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "independent-repeats",
+      "name": "transient-repeat-one",
+      "pgid": 56478,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "independent-repeats",
+      "name": "transient-repeat-two",
+      "pgid": 57374,
+      "independentlyAbsent": true
+    }
+  ],
+  "originalFileCount": 58,
+  "selectedAdaptiveTestsPassed": 34,
+  "additionalTransientExecutionsPassed": 2,
+  "strictClippy": true,
+  "fastRuns": [
+    {
+      "job": "final-contracts",
+      "test": "fast transient in serial adaptive filter",
+      "first_reduction_us": 298691,
+      "max_residence_us": 654379
+    },
+    {
+      "job": "independent-repeats",
+      "test": "transient-repeat-one",
+      "first_reduction_us": 300205,
+      "max_residence_us": 658504
+    },
+    {
+      "job": "independent-repeats",
+      "test": "transient-repeat-two",
+      "first_reduction_us": 297670,
+      "max_residence_us": 658655
+    }
+  ],
+  "sameSourceBaseline": {
+    "first_reduction_us": 1817373,
+    "max_residence_us": 3115262
+  },
+  "newGate": {
+    "firstReductionMicrosMax": 500000,
+    "queueResidenceMicrosMax": 750000
+  },
+  "independentNativePhysicalPerformanceAdmission": false,
+  "defaultControllerChanged": false,
+  "scope": "Controlled IPv4 loopback UDP/DTLS/SRTP synthetic bytes with a simulated feedback-following producer. Receiver-clock intervals are not one-way latency. No native codec/decoder, matched quality, full endpoint CPU/memory/power, physical path or default admission."
+}
