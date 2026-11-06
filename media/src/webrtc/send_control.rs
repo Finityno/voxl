@@ -47,7 +47,13 @@ impl Control {
     pub(super) fn decorate(&self,message:&mut TaggedPacket)->Result<(),Error> {
         if !self.active() {return Err(Error::Other("desktop pacing ended".into()));}
         if matches!(message.message.packet,Packet::Rtp(_)) && !message.message.has(&Attribute::Retransmission) {
-            let ordinal=self.issued.fetch_update(Ordering::AcqRel,Ordering::Acquire,|value|value.checked_add(1)).map_err(|_| {self.fail();Error::Other("desktop pacing ticket exhausted".into())})?+1;
+            let mut current=self.issued.load(Ordering::Acquire);
+            let ordinal=loop {
+                let Some(next)=current.checked_add(1) else {self.fail();return Err(Error::Other("desktop pacing ticket exhausted".into()));};
+                match self.issued.compare_exchange_weak(current,next,Ordering::AcqRel,Ordering::Acquire) {
+                    Ok(_)=>break next,Err(observed)=>current=observed,
+                }
+            };
             message.message.add(Attribute::Custom(Arc::new(Ticket {ordinal,epoch:self.epoch_id.load(Ordering::Acquire)})));
         }
         Ok(())
@@ -200,7 +206,7 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
     fn poll_timeout(&mut self)->Option<Instant> {
         if !self.control.active() {return None;}
         match &mut self.state {
-            Pacing::Running {inner,pending}=>match (inner.poll_timeout(),pending.front().map(|at|*at+FRAME_DEADLINE)) {
+            Pacing::Running {inner,pending,..}=>match (inner.poll_timeout(),pending.front().map(|at|*at+FRAME_DEADLINE)) {
                 (Some(a),Some(b))=>Some(a.min(b)),(a,b)=>a.or(b),
             },Pacing::Stopped=>None,
         }

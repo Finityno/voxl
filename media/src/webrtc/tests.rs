@@ -329,3 +329,4 @@ fn lazy_turn_close_cancels_the_deferred_allocation() {
 }
 
 mod idle_candidates;
+mod controlled;
