@@ -1,0 +1,51 @@
+{
+  "source": "4391a67750a492aaa0dc97c4f30e4a31225b7076",
+  "cases": [
+    {
+      "codec": "h264",
+      "requested": null,
+      "supported": true,
+      "exitCode": 0,
+      "decodedFrames": 14,
+      "nativePropertyVerified": false
+    },
+    {
+      "codec": "h264",
+      "requested": 0,
+      "supported": false,
+      "exitCode": 1,
+      "diagnostic": "requested_tuning=compatible warmup_frames=2 observed_frames=12 force_keyframe_period=Some(6)\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nError: Platform { operation: \"maximum frame delay\", code: -12900 }"
+    },
+    {
+      "codec": "h264",
+      "requested": 1,
+      "supported": false,
+      "exitCode": 1,
+      "diagnostic": "requested_tuning=compatible warmup_frames=2 observed_frames=12 force_keyframe_period=Some(6)\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nError: Platform { operation: \"maximum frame delay\", code: -12900 }"
+    },
+    {
+      "codec": "hevc",
+      "requested": null,
+      "supported": true,
+      "exitCode": 0,
+      "decodedFrames": 14,
+      "nativePropertyVerified": false
+    },
+    {
+      "codec": "hevc",
+      "requested": 0,
+      "supported": false,
+      "exitCode": 1,
+      "diagnostic": "requested_tuning=compatible warmup_frames=2 observed_frames=12 force_keyframe_period=Some(6)\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nError: Platform { operation: \"maximum frame delay\", code: -12900 }"
+    },
+    {
+      "codec": "hevc",
+      "requested": 1,
+      "supported": false,
+      "exitCode": 1,
+      "diagnostic": "requested_tuning=compatible warmup_frames=2 observed_frames=12 force_keyframe_period=Some(6)\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nError: Platform { operation: \"maximum frame delay\", code: -12900 }"
+    }
+  ],
+  "productionAdmission": false,
+  "scope": "Tiny generated native encode/decode capability check, not performance or text-quality admission."
+}

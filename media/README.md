@@ -150,6 +150,9 @@ two-output queue bound and terminal backpressure behavior stay the same. None
 leaves this property untouched and observes no encoder default. The probe accepts
 `--max-frame-delay=N` and logs verified requests. This experimental control is
 not an application default or a latency, quality or resource improvement claim.
+The [native frame-delay receipt](results/2026-11-06-frame-delay/README.md) retains
+four rejected ordinary hardware requests on one Mac and two decoded controls.
+No delay limit is admitted; unavailable settings receive no performance claim.
 
 The [failure/wake follow-up](results/2026-11-05-encoder-failures/README.md)
 retains the first terminal encoder cause and wakes waiting workers through the
