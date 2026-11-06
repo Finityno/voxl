@@ -1000,6 +1000,12 @@ no dependency, thread, periodic traffic or default changes. The
 loss, authority close and slow original-deadline cases. Actual native fault
 qualification and broader recovery/resources remain separate from this component.
 
+`FrameBudget::quiet_cap_bps` reports the optional cap used in that exact byte
+budget. Callers can check the unchanged minimum of the paced budget and quiet
+cap, rather than assuming every budget equals the larger nominal pacing value.
+The [exact-cap proof](results/2026-11-07-quiet-cap/README.md) retains 30 selected
+tests, strict Clippy and fresh/expired/cleared/retired/closed cap contracts.
+
 ### Finite desktop keyframe qualification
 
 Mac `VideoEncoder::set_keyframe_interval(frames,seconds)` is a local pre-first-
