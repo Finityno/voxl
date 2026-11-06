@@ -162,6 +162,27 @@ fn adaptive_network_fixture_serializes_caps_queue_and_never_resets_credit_on_cap
 fn adaptive_network_headroom_exposes_receiver_queueing_behind_a_slower_encrypted_udp_path() {bottleneck(DelayControl::Standard);}
 #[test]
 fn adaptive_network_fast_delay_preserves_a_large_keyframe_behind_the_same_bottleneck() {bottleneck(DelayControl::Trendline);}
+#[test]
+fn adaptive_network_quiet_resume_exposes_the_old_capacity_budget_after_a_silent_link_change() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(DelayControl::Trendline).await;
+        link.condition(Shape::new(3_000_000,10,0,None)).await;
+        let first=frame(24_005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        let feedback=Instant::now()+Duration::from_secs(2);
+        while video.bitrate_estimate().is_none() && Instant::now()<feedback {tokio::time::sleep(Duration::from_millis(10)).await;}
+        let before=video.bitrate_estimate().expect("actual TWCC before quiet");let quiet=link.snapshot().await;
+        tokio::time::sleep(Duration::from_secs(3)).await;
+        let after=link.snapshot().await;assert_eq!(after.rtp,quiet.rtp,"no synthetic video or RTP is needed while quiet");
+        link.condition(Shape::new(250_000,10,0,None)).await;
+        let held=video.close_handle().frame_budget().unwrap();assert!(held.estimate_age.is_some_and(|age|age>=Duration::from_secs(2)));
+        let unit=frame(64_005,true,5_000_000);assert!(unit.annex_b.len()<=held.payload_bytes as usize);
+        let expected=unit.annex_b[4..].to_vec();let started=Instant::now();let stamp=video.send_with_stamp(unit).await.unwrap();let sent=started.elapsed();
+        exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;let arrived=started.elapsed();let stats=link.snapshot().await;
+        eprintln!("quiet_resume_baseline quiet_rtp_packets={} held_media_kbps={} estimate_age_us={} frame_budget_bytes={} resume_bytes=64005 send_us={} receiver_us={} queue_max_us={} overflow={}",after.rtp-quiet.rtp,before.target_kbps,held.estimate_age.unwrap().as_micros(),held.payload_bytes,sent.as_micros(),arrived.as_micros(),stats.max_queue_micros,stats.overflow);
+        assert!(sent<Duration::from_millis(500));assert!(arrived>Duration::from_millis(1500));assert!(stats.max_queue_micros>1_000_000);assert_eq!(stats.overflow,0);
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+    }).await.expect("bounded quiet/capacity-change baseline");});
+}
 fn bottleneck(delay:DelayControl) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(12),async {
         let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(delay).await;link.condition(Shape::new(1_500_000,30,10,None)).await;
