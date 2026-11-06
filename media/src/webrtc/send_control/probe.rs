@@ -65,7 +65,6 @@ impl Probe {
     pub(super) fn sent(&mut self,index:usize,packet:&rtc::rtp::Packet,now:Instant)->Result<(),()> {
         let Self::Collecting(collection)=self else {return Err(());};
         if collection.ticket.remaining(now).is_none() || index>=PACKETS || !matches!(collection.slots[index],Slot::Unsent) || !packet.header.padding || packet.payload.iter().any(|byte|*byte!=0) {return Err(());}
-        collection.transmitted_rtp_bytes=collection.transmitted_rtp_bytes.checked_add(packet.marshal_size().try_into().map_err(|_|())?).ok_or(())?;
         collection.slots[index]=Slot::Sent {ssrc:packet.header.ssrc,sequence:packet.header.sequence_number,departure:now};Ok(())
     }
     pub(super) fn feedback(&mut self,reports:&[PacketReport],now:Instant,min:u32)->Result<Feedback,()> {
@@ -73,6 +72,9 @@ impl Probe {
         if collection.ticket.remaining(now).is_none() {*self=Self::Failed;return Err(());}
         for report in reports {
             let Some(slot)=collection.slots.iter_mut().find(|slot|matches!(slot,Slot::Sent {ssrc,sequence,departure} if *ssrc==report.ssrc && *sequence==report.rtp_sequence_number && *departure==report.departure)) else {continue;};
+            // The pacer precedes TWCC extension insertion. The exact sender
+            // history supplies final serialized size, including a lost packet.
+            collection.transmitted_rtp_bytes=collection.transmitted_rtp_bytes.checked_add(report.size.try_into().map_err(|_|())?).ok_or(())?;
             *slot=if report.arrived {match report.arrival {Some(arrival)=>Slot::Arrived {arrival,bytes:report.size.try_into().map_err(|_|())?},None=>{*self=Self::Failed;return Err(());}}} else {Slot::Lost};
         }
         if collection.slots.iter().any(|slot|matches!(slot,Slot::Unsent|Slot::Sent {..})) {return Ok(Feedback::Pending);}
@@ -135,7 +137,7 @@ mod tests {
         let later=now+Duration::from_millis(200);assert!(probe.begin_retry(ticket,later,300_000,55,16));
         let mut reports=Vec::new();for index in 0..PACKETS as u16 {let sequence=16+index;probe.sent(usize::from(index),&packet(sequence),later).unwrap();let mut value=report(later,sequence);value.arrival=Some(Duration::from_micros(u64::from(index)*100));reports.push(value);}
         let old:Vec<_>=(0..PACKETS as u16).map(|index|report(now,65_520u16.wrapping_add(index))).collect();assert!(matches!(probe.feedback(&old,later,250_000).unwrap(),Feedback::Pending));
-        let Feedback::Complete(observed)=probe.feedback(&reports,later,250_000).unwrap() else {panic!("fresh complete retry");};assert_eq!((observed.attempts,observed.packets,observed.arrived,observed.target_kbps),(2,32,32,300));assert_eq!(observed.transmitted_rtp_bytes,64*packet(0).marshal_size() as u32);
+        let Feedback::Complete(observed)=probe.feedback(&reports,later,250_000).unwrap() else {panic!("fresh complete retry");};assert_eq!((observed.attempts,observed.packets,observed.arrived,observed.target_kbps),(2,32,32,300));assert_eq!(observed.transmitted_rtp_bytes,64*24);
         assert!(matches!(probe.poll(ticket,later).unwrap(),ResumeProbeStatus::Ready(_)));assert!(matches!(probe.poll(ticket,ticket.deadline()),Err(WebRtcError::Deadline)));
     }
     #[test]
