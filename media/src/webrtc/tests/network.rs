@@ -31,7 +31,7 @@ impl Direction {
         // Serialized UDP bytes, including SRTP/RTCP and handshake/control.
         // Delay/jitter do not replenish serialization credit or reorder FIFO.
         self.available=self.available.max(now)+Duration::from_secs_f64(bytes.len() as f64*8.0/f64::from(shape.bps));
-        let jitter=if self.stats.rtp%4==0 {shape.jitter} else {Duration::ZERO};
+        let jitter=if self.stats.rtp.is_multiple_of(4) {shape.jitter} else {Duration::ZERO};
         let at=(self.available+shape.delay+jitter).max(self.last_due);self.last_due=at;
         self.queue.push_back(Queued {at,finished:self.available,delay:shape.delay+jitter,received:now,bytes:bytes.to_vec()});self.stats.peak_queue=self.stats.peak_queue.max(self.queue.len());
     }
@@ -185,15 +185,19 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
         let (mut video,receiver,events,mut packets,mut link)=pair().await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
         let reader=tokio::spawn(async move {while packets.recv().await.is_some() {seen.fetch_add(1,Ordering::Relaxed);}});
-        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;
+        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;let experiment=Instant::now();let mut traces=0;let mut last_trace=None;
         for (stage,bps,seconds) in [(0,3_000_000,2),(1,500_000,5),(2,3_000_000,3)] {
             link.condition(Shape::new(bps,20,5,None)).await;let until=Instant::now()+Duration::from_secs(seconds);let mut interval=tokio::time::interval(Duration::from_millis(33));interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
             while Instant::now()<until {
                 interval.tick().await;
-                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
+                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}else if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
                 // The native worker holds its last verified target on stale or
                 // unknown feedback; it never jumps back to the initial prior.
-                if let Some(target)=video.close_handle().bitrate_target_kbps() {encoder_target=target;}let bytes=(encoder_target as usize*1000/8/30).max(900);sequence+=1;
+                if let Some(target)=video.close_handle().bitrate_target_kbps() {encoder_target=target;}
+                if let Some(estimate)=video.bitrate_estimate() && traces<32 && last_trace!=Some((stage,estimate.target_kbps)) {
+                    eprintln!("headroom_target stage={stage} elapsed_us={} media_kbps={} held_producer_kbps={encoder_target} estimate_age_us={}",experiment.elapsed().as_micros(),estimate.target_kbps,estimate.age.as_micros());last_trace=Some((stage,estimate.target_kbps));traces+=1;
+                }
+                let bytes=(encoder_target as usize*1000/8/30).max(900);sequence+=1;
                 video.send(frame(bytes,sequence==1 || sequence%60==0,sequence*33_333)).await.unwrap();
             }
             let s=link.snapshot().await;eprintln!("headroom_capacity stage={stage} capacity_bps={bps} sent_frames={sequence} media_min_bps={low_min} recovery_max_bps={recovered_max} recovery_final_bps={recovered_final} rtp={} delivered={} overflow={} peak_queue={} queue_max_us={} received_packets={}",s.rtp,s.delivered,s.overflow,s.peak_queue,s.max_queue_micros,consumed.load(Ordering::Relaxed));
