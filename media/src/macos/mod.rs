@@ -175,6 +175,7 @@ pub struct VideoEncoder {
     receiver: Receiver<Result<EncodedFrame,MediaError>>,
     config: EncoderConfig,
     bitrate_target_kbps: u32,
+    burst_limit: Option<(u32,u32)>,
     acceleration: EncoderAcceleration,
     options: EncodingOptions,
     last_pts: Option<i64>,
@@ -266,7 +267,7 @@ impl VideoEncoder {
         unsafe { CFRelease(specification); }
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
-        let mut encoder = Self { session, callback, receiver, config, bitrate_target_kbps:config.bitrate_kbps,
+        let mut encoder = Self { session, callback, receiver, config, bitrate_target_kbps:config.bitrate_kbps,burst_limit:None,
             acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, options, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
@@ -350,6 +351,9 @@ impl VideoEncoder {
     /// set_bitrate_target verifies the updated average target with typed readback.
     /// Neither value is a hard wire-rate limit or an observed encoded bitrate.
     pub fn bitrate_target_kbps(&self)->u32 {self.bitrate_target_kbps}
+    /// Verified hard encoded-byte limit and native window in milliseconds.
+    /// The CPU window reduces its sustained rate below the average request.
+    pub fn burst_limit(&self)->Option<(u32,u32)> {self.burst_limit}
 
     /// Retune future submissions on this same worker-owned session, including
     /// the explicit CPU encoder. Already submitted frames keep their old target.
@@ -382,15 +386,17 @@ impl VideoEncoder {
         }
     }
 
-    /// Adaptive transport qualification: retain a hard 400 ms encoded-byte
-    /// window as well as the average target. This bounds keyframe bursts before
+    /// Adaptive qualification: cap bytes to 400 ms worth of the average target.
+    /// The hardware window is 400 ms; CPU H.264 requires whole seconds and uses
+    /// a conservative one-second window, lowering its sustained hard ceiling.
+    /// This bounds keyframe bursts before
     /// pacing; it is not quality, achieved wire-rate or congestion admission.
     /// Unsupported/ignored properties or partial changes are terminal.
     pub fn set_streaming_bitrate_target(&mut self,kbps:u32)->Result<(),MediaError> {
         if !(250..=self.config.bitrate_kbps).contains(&kbps) {return Err(MediaError::Configuration);}
         if self.callback.failure.get().is_some() {return Err(MediaError::Closed);}
         let bytes=i64::from(kbps)*50;
-        let seconds=0.4f64;
+        let seconds=if self.using_hardware() {0.4f64} else {1.0f64};
         let result=(|| {
             // SAFETY: stack numbers stay live through creation; the CFType
             // callbacks retain both numbers for any retained native array.
@@ -416,7 +422,7 @@ impl VideoEncoder {
             if !matches {return Err(MediaError::Configuration);}
             self.set_bitrate_target(kbps)
         })();
-        if let Err(error)=&result {self.callback.fail(*error);}
+        match &result {Ok(())=>self.burst_limit=Some((bytes as u32,if self.using_hardware() {400} else {1000})),Err(error)=>self.callback.fail(*error)}
         result
     }
     /// Non-default values had matching native CFBoolean readback. Default is
@@ -572,7 +578,10 @@ fn burst_property_matches(value:Object,bytes:i64,seconds:f64)->bool {
     unsafe {
         if CFGetTypeID(value)!=CFArrayGetTypeID() || CFArrayGetCount(value)!=2 {return false;}
         let size=CFArrayGetValueAtIndex(value,0);let duration=CFArrayGetValueAtIndex(value,1);let mut actual=0f64;
-        integer_property_matches(size,bytes) && !duration.is_null() && CFGetTypeID(duration)==CFNumberGetTypeID()
+        let mut actual_bytes=0f64;
+        !size.is_null() && CFGetTypeID(size)==CFNumberGetTypeID()
+            && CFNumberGetValue(size,6,(&mut actual_bytes as *mut f64).cast()) && actual_bytes==bytes as f64
+            && !duration.is_null() && CFGetTypeID(duration)==CFNumberGetTypeID()
             && CFNumberGetValue(duration,6,(&mut actual as *mut f64).cast()) && actual.is_finite() && actual==seconds
     }
 }

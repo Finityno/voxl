@@ -312,6 +312,7 @@ fn streaming_bitrate(codec:VideoCodec,preference:EncoderPreference) {
             }
         }
         result.unwrap();assert_eq!(encoder.bitrate_target_kbps(),kbps);
+        assert_eq!(encoder.burst_limit(),Some((kbps*50,if encoder.using_hardware() {400} else {1000})));
         encoder.encode(&pixel,index as i64*33_333,true).unwrap();
         let frame=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();
         assert!(frame.keyframe && !frame.annex_b.is_empty());assert_eq!(frame.codec,codec);
