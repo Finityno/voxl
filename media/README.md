@@ -830,7 +830,13 @@ a GCC target may still reflect its initial prior until enough reports arrive.
 `bitrate_estimate` includes its age, and `VideoUpdate::BitrateTarget(kbps)` reserves
 15% of the pacing target for packet overhead/retransmissions, floored at the
 encoder's existing 250 kbps minimum. The embedder must enforce the original
-viewer ceiling and apply updates on its codec worker. No new thread or recurring
+viewer ceiling and apply updates on its codec worker.
+`VideoCloseHandle::bitrate_target_kbps` also exposes the fresh feedback-derived
+target synchronously, allowing a codec worker to observe it while a large
+access unit is waiting for paced release. Repeated reads are coalesced by value;
+unknown, older-than-two-second, retired and closed feedback returns no target.
+This read-only observation owns no extra peer task or callback to the embedder.
+No new thread or recurring
 idle polling is introduced. This path is not yet application default admission.
 
 `macos::VideoEncoder::set_bitrate_target` retunes future submissions on the same
@@ -847,3 +853,8 @@ Clippy, the earlier build/test/lint failures and a standalone numeric verifier.
 Native encoder retuning and synthetic-NAL transport are separate component
 scopes. Application coupling, actual changing-capacity/loss/live-recovery,
 decoder/quality/resource tests and default admission remain required.
+
+The [worker feedback followup](results/2026-11-06-adaptive-worker/README.md)
+records fourteen adaptive tests plus both legacy loopbacks and strict Clippy at
+its exact source, including the retained initial build-lock failure. It does not
+re-attribute earlier application or performance evidence to this source.
