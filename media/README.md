@@ -960,3 +960,17 @@ clock are retained. Frame-marker totals and pacing duration describe the pacer,
 not actual decode latency; bytes are measured before later TWCC/SRTP framing.
 Counters include trend groups/signals/resets without changing controller policy.
 The monitor is disabled by default and adds no thread or timer.
+
+### Finite desktop keyframe qualification
+
+Mac `VideoEncoder::set_keyframe_interval(frames,seconds)` is a local pre-first-
+submission experiment. Both limits are finite (at most sixty seconds of frames
+and sixty seconds), with strict frame/numeric time readback. A partially applied
+native request is terminal. `keyframe_interval()` reports verified policy only,
+not actual output frequency; natural keyframes may occur earlier. Existing
+constructors retain their ordinary behavior. Explicit `force_keyframe` remains
+available. Native CPU H.264/hardware H.264/HEVC tests exercise the extended static
+GOP, forced IDR and sparse presentation-time limit separately from network/quality
+admission. [Apple's frame limit](https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_maxkeyframeinterval)
+and [time limit](https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_maxkeyframeintervalduration)
+are combined; a frame count alone does not bound variable-cadence duration.
