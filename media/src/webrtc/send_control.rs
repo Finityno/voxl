@@ -120,14 +120,14 @@ impl BandwidthEstimator for Estimator {
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash)]
 struct PacketKey {ssrc:u32,sequence:u16,timestamp:u32}
-enum Pacing {Running {inner:PacerInterceptor,pending:VecDeque<Instant>,history:HashMap<PacketKey,Ticket>,order:VecDeque<PacketKey>},Stopped}
+enum Pacing {Running {inner:Box<PacerInterceptor>,pending:VecDeque<Instant>,history:HashMap<PacketKey,Ticket>,order:VecDeque<PacketKey>},Stopped}
 pub(super) struct BoundedPacer {state:Pacing,control:Arc<Control>,epoch:u64}
 impl BoundedPacer {
     pub(super) fn new(control:Arc<Control>)->Self {
         Self {state:Self::running(control.limits),control,epoch:0}
     }
     fn running(limits:SendControl)->Pacing {
-        Pacing::Running {inner:PacerBuilder::new().with_target_bitrate(f64::from(limits.initial)).with_burst_bits(48_000.0).with_queue_limit(MAX_QUEUED).build(),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
+        Pacing::Running {inner:Box::new(PacerBuilder::new().with_target_bitrate(f64::from(limits.initial)).with_burst_bits(48_000.0).with_queue_limit(MAX_QUEUED).build()),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
     }
     fn ready(&mut self,now:Option<Instant>)->bool {
         if !self.control.active() {self.state=Pacing::Stopped;return false;}

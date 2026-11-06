@@ -1,11 +1,11 @@
 use super::*;
 
-async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,mpsc::Receiver<rtc::rtp::Packet>) {
+async fn pair(feedback:bool)->(WebRtcVideo,Arc<dyn PeerConnection>,mpsc::Receiver<rtc::rtp::Packet>) {
     let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
     let mut video=WebRtcVideo::open_controlled(config,SendControl::new(250,1000,1000).unwrap()).await.unwrap();
     assert!(video.offer().contains("transport-cc") && video.offer().contains("transport-wide-cc"));
     let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
-    let registry=register_default_interceptors(Registry::new(),&mut media).unwrap();
+    let registry=if feedback {register_default_interceptors(Registry::new(),&mut media).unwrap()} else {Registry::new()};
     let (sender,packets)=mpsc::channel(128);
     let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_interceptor_registry(registry)
         .with_handler(Arc::new(ReceiverEvents {packets:sender})).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
@@ -36,7 +36,7 @@ async fn receive(packets:&mut mpsc::Receiver<rtc::rtp::Packet>)->(u32,Vec<u8>) {
 fn adaptive_udp_loopback_preserves_access_units_clock_and_real_twcc_feedback() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
-        let (mut video,receiver,mut packets)=pair().await;
+        let (mut video,receiver,mut packets)=pair(true).await;
         assert!(video.bitrate_estimate().is_none());
         let first=frame(true,1_000_000);let expected=first.annex_b[4..].to_vec();let started=Instant::now();
         let stamp=video.send_with_stamp(first).await.unwrap();
@@ -57,11 +57,23 @@ fn adaptive_cancelled_partial_frame_closes_before_queued_rtp_can_escape() {
     use std::future::Future;
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {tokio::time::timeout(Duration::from_secs(10),async {
-        let (mut video,receiver,mut packets)=pair().await;
+        let (mut video,receiver,mut packets)=pair(true).await;
         let mut pending=Box::pin(video.send(frame(true,1_000_000)));
         std::future::poll_fn(|cx| {assert!(pending.as_mut().poll(cx).is_pending());std::task::Poll::Ready(())}).await;
         drop(pending);assert!(video.ended());
         assert!(!matches!(tokio::time::timeout(Duration::from_millis(200),packets.recv()).await,Ok(Some(_))));
         receiver.close().await.unwrap();
     }).await.expect("bounded cancelled controlled send");});
+}
+#[test]
+fn adaptive_receiver_without_twcc_keeps_estimates_unknown_and_delivers_paced_media() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {tokio::time::timeout(Duration::from_secs(10),async {
+        let (mut video,receiver,mut packets)=pair(false).await;
+        let unit=frame(true,1_000_000);let expected=unit.annex_b[4..].to_vec();
+        video.send(unit).await.unwrap();assert_eq!(receive(&mut packets).await.1,expected);
+        tokio::time::sleep(Duration::from_millis(150)).await;
+        assert!(video.connected() && video.bitrate_estimate().is_none());
+        video.close();receiver.close().await.unwrap();
+    }).await.expect("bounded no-feedback controlled send");});
 }
