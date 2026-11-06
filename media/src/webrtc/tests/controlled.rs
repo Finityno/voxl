@@ -58,6 +58,17 @@ fn adaptive_udp_loopback_preserves_access_units_clock_and_real_twcc_feedback() {
     }).await.expect("bounded controlled UDP loopback");});
 }
 #[test]
+fn flow_observation_udp_loopback_matches_actual_pacer_release_to_twcc_reports() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1000,1000).unwrap().with_flow_observation();let (mut video,receiver,mut packets)=pair_with_limits(true,limits).await;let worker=video.close_handle();
+        video.send(frame(true,1_000_000)).await.unwrap();let _=receive(&mut packets).await;
+        tokio::time::timeout(Duration::from_secs(3),async {loop {let value=worker.flow_observation().unwrap();if value.matched_reports>0 {break;}assert_ne!(video.next_update().await,VideoUpdate::Ended);}}).await.unwrap();
+        let value=worker.flow_observation().unwrap();assert!(value.released_packets>1 && value.feedback_reports>0 && value.matched_reports>0);assert_eq!((value.unmatched_reports,value.evicted_packets),(0,0));assert_eq!(value.completed_frames,1);assert!(value.last_frame_bytes>12_000 && value.last_frame_pacing_micros>0);assert!(value.feedback_age_micros.is_some());
+        video.close();assert!(worker.flow_observation().is_none());receiver.close().await.unwrap();
+    }).await.expect("bounded observed UDP loopback");});
+}
+#[test]
 fn adaptive_cancelled_partial_frame_closes_before_queued_rtp_can_escape() {
     use std::future::Future;
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();

@@ -48,12 +48,14 @@ impl ReceiverRate {
 pub(super) struct FastGcc {
     groups:ArrivalGroupAccumulator,filter:Trendline,detector:OveruseDetector,
     rate:ReceiverRate,delay:RateController,loss:LossController,min:f64,max:f64,target:f64,
+    group_count:u64,signal_count:u64,reset_count:u64,
 }
 impl FastGcc {
     pub(super) fn new(initial:f64,min:f64,max:f64)->Self {
         Self {groups:ArrivalGroupAccumulator::default(),filter:Trendline::default(),detector:OveruseDetector::new(),rate:ReceiverRate::default(),
-            delay:RateController::new(initial,min,max),loss:LossController::new(initial,min,max),min,max,target:initial}
+            delay:RateController::new(initial,min,max),loss:LossController::new(initial,min,max),min,max,target:initial,group_count:0,signal_count:0,reset_count:0}
     }
+    pub(super) fn observations(&self)->(u64,u64,u64) {(self.group_count,self.signal_count,self.reset_count)}
 }
 impl BandwidthEstimator for FastGcc {
     fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {
@@ -61,9 +63,9 @@ impl BandwidthEstimator for FastGcc {
         let mut usage=self.detector.usage();
         for report in reports {
             if report.arrived && let Some(arrival)=report.arrival {self.rate.add(now,arrival,report.size);}
-            if let Some(group)=self.groups.accumulate(report) {match self.filter.update(group) {
-                TrendUpdate::Value(signal)=>usage=self.detector.update(group.at,signal),
-                TrendUpdate::Reset=>{self.detector=OveruseDetector::new();usage=self.detector.usage();},TrendUpdate::Pending=>{},
+            if let Some(group)=self.groups.accumulate(report) {self.group_count=self.group_count.saturating_add(1);match self.filter.update(group) {
+                TrendUpdate::Value(signal)=>{self.signal_count=self.signal_count.saturating_add(1);usage=self.detector.update(group.at,signal);},
+                TrendUpdate::Reset=>{self.reset_count=self.reset_count.saturating_add(1);self.detector=OveruseDetector::new();usage=self.detector.usage();},TrendUpdate::Pending=>{},
             }}
         }
         let delay=self.delay.update(now,usage,self.rate.bitrate());

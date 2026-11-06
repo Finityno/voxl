@@ -27,7 +27,7 @@ mod relay_interfaces;
 mod signaling;
 mod send_control;
 mod fast_delay;
-pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget};
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -201,6 +201,9 @@ impl VideoCloseHandle {
     /// Optional raw-producer debt gate, including retransmissions. No wait here
     /// extends the bounded send deadline or authorizes dropping encoded frames.
     pub fn producer_budget(&self)->Option<ProducerBudget> {self.control.as_ref().and_then(|control|control.producer_budget())}
+    /// Current-epoch bounded diagnostics, not measured wire bytes or exact
+    /// in-flight media: pending means not yet matched to a feedback report.
+    pub fn flow_observation(&self)->Option<FlowObservation> {self.control.as_ref().and_then(|control|control.flow_observation())}
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();
