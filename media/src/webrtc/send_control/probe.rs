@@ -85,7 +85,7 @@ impl Probe {
         }
     }
     pub(super) fn cap(&self,now:Instant,minimum:u32)->Option<u32> {
-        match self {Self::Complete {observation,at}=>Some(if now.saturating_duration_since(*at)<=FRESHNESS {observation.received_bps} else {observation.received_bps.min(minimum)}),_=>None}
+        match self {Self::Complete {observation,at,..}=>Some(if now.saturating_duration_since(*at)<=FRESHNESS {observation.received_bps} else {observation.received_bps.min(minimum)}),_=>None}
     }
     pub(super) fn media_feedback(&mut self,reports:&[PacketReport],media:Option<(Instant,u32,u16)>) {
         if let Self::Complete {at,..}=self && let Some((departure,ssrc,sequence))=media && departure>*at
