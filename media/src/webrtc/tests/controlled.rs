@@ -98,7 +98,7 @@ fn adaptive_responsive_udp_preserves_a_large_access_unit_without_raising_media_t
     runtime.block_on(async {tokio::time::timeout(Duration::from_secs(10),async {
         let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive);
         let (mut video,receiver,mut packets)=pair_with_limits(true,limits).await;
-        let budget=video.close_handle().frame_budget().unwrap();assert_eq!(budget.media_target_kbps,1500);assert_eq!(budget.pacing_target_kbps,3750);
+        let budget=video.close_handle().frame_budget().unwrap();assert_eq!(budget.media_target_bps,1_500_000);assert_eq!(budget.pacing_target_bps,3_750_000);
         let mut access=frame(true,1_000_000);access.annex_b.resize(103_281,0x77);let expected=access.annex_b[4..].to_vec();
         assert!(access.annex_b.len()<=budget.payload_bytes as usize);
         let started=Instant::now();let stamp=video.send_with_stamp(access).await.unwrap();

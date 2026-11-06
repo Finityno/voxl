@@ -22,7 +22,7 @@ pub enum PacingGain {#[default] MediaRate,Responsive}
 /// Advisory encoded-byte admission from the selected pacing configuration.
 /// Unknown feedback uses the configured prior; a held estimate is not capacity.
 #[derive(Debug,Clone,Copy)]
-pub struct FrameBudget {pub payload_bytes:u32,pub media_target_kbps:u32,pub pacing_target_kbps:u32,pub estimate_age:Option<Duration>}
+pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacing_target_bps:u32,pub estimate_age:Option<Duration>}
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
@@ -34,7 +34,7 @@ impl SendControl {
         let paced=self.paced_bps(bps);
         // 350 ms of pacing, reserving ten percent for packet overhead and
         // coalesced estimator changes. The send deadline stays at 500 ms.
-        FrameBudget {payload_bytes:(u64::from(paced)*315/8000) as u32,media_target_kbps:bps/1000,pacing_target_kbps:paced/1000,estimate_age:age}
+        FrameBudget {payload_bytes:(u64::from(paced)*315/8000) as u32,media_target_bps:bps,pacing_target_bps:paced,estimate_age:age}
     }
     pub fn initial_frame_budget(self)->FrameBudget {self.budget(self.initial,None)}
 }
@@ -385,7 +385,7 @@ mod tests {
         assert_eq!(inner.pacer().target_bitrate(),1_250_000.0);assert!(!inner.pacer().can_afford(8000.0));
         let forwarded=pacer.poll_read().unwrap();assert!(matches!(forwarded.message.get(&Attribute::TargetBitrateChanged {bits_per_second:0.0}),Some(Attribute::TargetBitrateChanged {bits_per_second}) if *bits_per_second==500_000.0));
         control.epoch.lock().unwrap().rate=Rate::Observed {bps:500_000,at:now,revision:1};
-        assert_eq!(control.encoder_target(),Some(425));let budget=control.frame_budget().unwrap();assert_eq!(budget.media_target_kbps,500);assert_eq!(budget.pacing_target_kbps,1250);
+        assert_eq!(control.encoder_target(),Some(425));let budget=control.frame_budget().unwrap();assert_eq!(budget.media_target_bps,500_000);assert_eq!(budget.pacing_target_bps,1_250_000);
         control.retire();assert!(control.frame_budget().unwrap().estimate_age.is_none());assert!(pacer.ready(None));
         let Pacing::Running {inner,..}=&pacer.state else {panic!("new responsive epoch");};assert_eq!(inner.pacer().target_bitrate(),3_750_000.0);
         control.authority.store(true,Ordering::Release);assert!(control.frame_budget().is_none());
@@ -394,8 +394,8 @@ mod tests {
     fn adaptive_frame_budget_is_finite_for_all_supported_media_rates_and_gains() {
         for rate in [250,1500,20_000] {for gain in [PacingGain::MediaRate,PacingGain::Responsive] {
             let limits=SendControl::new(250,rate,rate).unwrap().with_pacing_gain(gain);let budget=limits.initial_frame_budget();
-            assert_eq!(budget.media_target_kbps,rate);assert!(budget.payload_bytes>0 && budget.payload_bytes as usize<=crate::MAX_FRAME_BYTES);assert!(budget.estimate_age.is_none());
-            let paced=f64::from(budget.pacing_target_kbps)*1000.0;assert!(f64::from(budget.payload_bytes)*8.0/paced<0.35);
+            assert_eq!(budget.media_target_bps,rate*1000);assert!(budget.payload_bytes>0 && budget.payload_bytes as usize<=crate::MAX_FRAME_BYTES);assert!(budget.estimate_age.is_none());
+            let paced=f64::from(budget.pacing_target_bps);assert!(f64::from(budget.payload_bytes)*8.0/paced<0.35);
         }}
     }
 
