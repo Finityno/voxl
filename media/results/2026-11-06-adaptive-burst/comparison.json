@@ -1,0 +1,128 @@
+{
+  "source": "edc88ef013488ee045b2a89380ef05421b69a969",
+  "adaptiveTestsPassed": 17,
+  "legacyTestsPassed": 2,
+  "strictClippyPassed": true,
+  "groups": [
+    {
+      "job": "initial-burst",
+      "name": "load",
+      "pgid": 34938,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-burst",
+      "name": "toolchain",
+      "pgid": 34943,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-burst",
+      "name": "diff",
+      "pgid": 34948,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-burst",
+      "name": "test-build",
+      "pgid": 34953,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-burst",
+      "name": "adaptive-contracts",
+      "pgid": 35318,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "typed-readback",
+      "name": "load",
+      "pgid": 38027,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "typed-readback",
+      "name": "toolchain",
+      "pgid": 38032,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "typed-readback",
+      "name": "diff",
+      "pgid": 38037,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "typed-readback",
+      "name": "test-build",
+      "pgid": 38042,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "typed-readback",
+      "name": "adaptive-contracts",
+      "pgid": 38062,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "load",
+      "pgid": 40530,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "toolchain",
+      "pgid": 40535,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "diff",
+      "pgid": 40540,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "test-build",
+      "pgid": 40545,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "adaptive-contracts",
+      "pgid": 40561,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "legacy-h264",
+      "pgid": 40569,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "legacy-hevc",
+      "pgid": 40576,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "burst-confirm",
+      "name": "strict-clippy",
+      "pgid": 40583,
+      "independentlyAbsent": true
+    }
+  ],
+  "receipts": [
+    "receipts/initial-burst.json.gz",
+    "receipts/typed-readback.json.gz",
+    "receipts/burst-confirm.json.gz"
+  ],
+  "originalFiles": 28,
+  "history": {
+    "initial-burst": "14 adaptive contracts pass,3 new native burst tests fail. CPU rejects fractional seconds (-12902); hardware setter succeeds but strict integer-only byte readback rejects native floating representation. Legacy tests and Clippy not reached.",
+    "typed-readback": "All3 selected burst tests fail, recording exact typed native numbers. Hardware returns50000.0 bytes and0.4sec; CPU returns integer duration0 after rejecting0.4. No production property support inferred from setter acceptance.",
+    "burst-confirm": "17 adaptive contracts,2 legacy UDP tests and strict library/tests/examples Clippy pass after exact numeric byte comparison and a whole-second CPU window."
+  },
+  "scope": "Generated320x180 native hard burst and average rate metadata plus synthetic-NAL UDP contracts. Hardware uses400ms native window; CPU uses1000ms with400ms worth of requested bytes, lowering its sustained hard ceiling. No complete-application reliability, quality, CPU/RSS/power, bandwidth savings or default admission."
+}

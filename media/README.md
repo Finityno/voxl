@@ -858,3 +858,13 @@ The [worker feedback followup](results/2026-11-06-adaptive-worker/README.md)
 records fourteen adaptive tests plus both legacy loopbacks and strict Clippy at
 its exact source, including the retained initial build-lock failure. It does not
 re-attribute earlier application or performance evidence to this source.
+
+`macos::VideoEncoder::set_streaming_bitrate_target` additionally verifies an
+encoded-byte burst budget for the optional adaptive path. Hardware uses a400ms
+native window. CPU H.264 uses a whole-second window on the qualified Mac and
+therefore has a lower sustained hard ceiling for the same byte budget. The
+returned `burst_limit` records verified bytes/window metadata separately from
+the average target. This provisional CPU tradeoff requires quality/resource
+qualification; it does not change legacy encoder behavior or defaults. The
+[burst component proof](results/2026-11-06-adaptive-burst/README.md) retains both
+failed native-property attempts and the final17 adaptive/2 legacy passes.
