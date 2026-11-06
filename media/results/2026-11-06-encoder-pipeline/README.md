@@ -81,8 +81,8 @@ VPS invoice. There is no pipeline bandwidth saving or codec-only comparison.
 All 100 recorded groups are independently absent; none timed out or needed
 forced descendant cleanup. Builds/native encodes use the shared build lock,
 nice 19, two compiler jobs and external process-group deadlines. An owner-only
-archive retains 204 original numeric/log/bitstream/helper files and a hardlinked
-immutable source fixture. Large observation copies and removed RGB crops can be
+archive retains 204 files, including original numeric/log/bitstream/helper
+records and a hardlinked immutable source fixture. Large observation copies and removed RGB crops can be
 regenerated from that source and the retained bitstreams.
 
 `python3 -B verify.py` verifies indexed hashes and independently recomputes
