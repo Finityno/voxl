@@ -285,6 +285,29 @@ fn adaptive_network_quiet_worker_keeps_the_fence_after_a_small_resumed_delta() {
         video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
     }).await.expect("bounded staged quiet fence after tiny delta");});
 }
+#[test]
+fn adaptive_network_sparse_updates_characterize_capacity_freshness_before_a_large_burst() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probe_retry().with_producer_control(ProducerControl::RtpDebt);
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
+        let first=frame(24005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
+        assert!(video.bitrate_estimate().is_some());let before=link.snapshot().await;link.condition(Shape::new(250_000,10,0,None)).await;
+        for index in 1..=3 {
+            let began=Instant::now();tokio::time::sleep(Duration::from_millis(900)).await;assert!(video.close_handle().prepare_frame(1005).unwrap().is_none());
+            let unit=frame(1005,false,1_000_000+index*900_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+            assert!(began.elapsed()<Duration::from_millis(1500),"sparse test must not accidentally create the old two-second quiet gap");
+        }
+        let until=Instant::now()+Duration::from_secs(1);while video.bitrate_estimate().is_none_or(|value|value.age>Duration::from_millis(100)) && Instant::now()<until {tokio::time::sleep(Duration::from_millis(5)).await;}
+        let estimate=video.bitrate_estimate().unwrap();assert!(estimate.age<Duration::from_millis(100));let after=link.snapshot().await;assert_eq!(after.rtp-before.rtp,3,"small updates alone must create no padding");
+        let requested=video.close_handle().prepare_frame(64005).unwrap();assert!(requested.is_none(),"characterize the unmodified sparse-gap detector");let budget=video.close_handle().frame_budget().unwrap();let allowed=64005<=u64::from(budget.payload_bytes)*4/5;
+        if allowed {
+            let unit=frame(64005,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let began=Instant::now();let stamp=video.send_with_stamp(unit).await.unwrap();let send=began.elapsed();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;let received=began.elapsed();let stats=link.snapshot().await;
+            eprintln!("sparse_capacity_baseline small_packets=3 interval_ms=900 feedback_age_us={} held_kbps={} native_budget_bytes={} large_would_admit=true request_probe=false send_us={} receiver_us={} queue_max_us={} overflow={}",estimate.age.as_micros(),estimate.target_kbps,budget.payload_bytes,send.as_micros(),received.as_micros(),stats.max_queue_micros,stats.overflow);
+        } else {eprintln!("sparse_capacity_baseline small_packets=3 interval_ms=900 feedback_age_us={} held_kbps={} native_budget_bytes={} large_would_admit=false request_probe=false",estimate.age.as_micros(),estimate.target_kbps,budget.payload_bytes);}
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+    }).await.expect("bounded sparse-update capacity characterization");});
+}
 fn quiet_probe_failure(close:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
         let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probes();
