@@ -14,11 +14,14 @@ fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 /// Local qualification limits. The maximum must also fit the viewer's request.
 /// Rates limit the media target, not provider-billed or encoded-byte ceilings.
 #[derive(Debug,Clone,Copy)]
-pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain}
+pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl}
 /// Local pacing qualification. Headroom changes packet departure timing, not
 /// the encoder's average target. It can still queue on a constrained path.
 #[derive(Debug,Clone,Copy,Default)]
 pub enum PacingGain {#[default] MediaRate,Responsive}
+/// Local estimator qualification; pacing and media ceilings remain independent.
+#[derive(Debug,Clone,Copy,Default)]
+pub enum DelayControl {#[default] Standard,FastKalman}
 /// Advisory encoded-byte admission from the selected pacing configuration.
 /// Unknown feedback uses the configured prior; a held estimate is not capacity.
 #[derive(Debug,Clone,Copy)]
@@ -26,9 +29,10 @@ pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacin
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
-        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate})
+        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard})
     }
     pub fn with_pacing_gain(mut self,gain:PacingGain)->Self {self.gain=gain;self}
+    pub fn with_delay_control(mut self,delay:DelayControl)->Self {self.delay=delay;self}
     fn paced_bps(self,media_bps:u32)->u32 {match self.gain {PacingGain::MediaRate=>media_bps,PacingGain::Responsive=>(u64::from(media_bps)*5/2) as u32}}
     fn budget(self,bps:u32,age:Option<Duration>)->FrameBudget {
         let paced=self.paced_bps(bps);
@@ -128,25 +132,34 @@ struct GccTrace {slope:rtc::interceptor::SlopeEstimator,detector:rtc::intercepto
 #[cfg(test)]
 impl GccTrace {
     fn new()->Self {Self {slope:rtc::interceptor::SlopeEstimator::new(),detector:rtc::interceptor::OveruseDetector::new(),origin:Instant::now(),left:128}}
-    fn record(&mut self,now:Instant,reports:&[PacketReport],gcc:&Gcc) {
+    fn record(&mut self,now:Instant,reports:&[PacketReport],gcc:&Engine) {
         let mut last=None;
         for report in reports {if let Some(trend)=self.slope.accumulate(report) {let threshold=self.detector.threshold_ms();let usage=self.detector.update(trend.at,trend.estimate_ms);last=Some((trend,threshold,usage));}}
         if self.left>0 && let Some((trend,threshold,usage))=last {
-            self.left-=1;eprintln!("gcc_trace elapsed_us={} reports={} raw_ms={:.3} filtered_ms={:.3} threshold_ms={:.3} usage={usage:?} delay_bps={:.0} loss_bps={:.0}",now.duration_since(self.origin).as_micros(),reports.len(),trend.measurement_ms,trend.estimate_ms,threshold,gcc.delay_based_bitrate(),gcc.loss_based_bitrate());
+            self.left-=1;eprintln!("gcc_trace elapsed_us={} reports={} raw_ms={:.3} baseline_filtered_ms={:.3} baseline_threshold_ms={:.3} baseline_usage={usage:?} delay_bps={:.0} loss_bps={:.0}",now.duration_since(self.origin).as_micros(),reports.len(),trend.measurement_ms,trend.estimate_ms,threshold,gcc.stats().delay_based_bitrate.unwrap_or_default(),gcc.stats().loss_based_bitrate.unwrap_or_default());
         }
     }
 }
-pub(super) struct Estimator {inner:Gcc,control:Arc<Control>,epoch:u64,#[cfg(test)] trace:Option<GccTrace>}
+enum Engine {Standard(Gcc),Fast(super::fast_delay::FastGcc)}
+impl Engine {
+    fn new(limits:SendControl)->Self {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match limits.delay {DelayControl::Standard=>Self::Standard(Gcc::new(initial,min,max)),DelayControl::FastKalman=>Self::Fast(super::fast_delay::FastGcc::new(initial,min,max))}}
+}
+impl BandwidthEstimator for Engine {
+    fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {match self {Self::Standard(inner)=>inner.on_reports(now,reports),Self::Fast(inner)=>inner.on_reports(now,reports)}}
+    fn target_bitrate(&self)->f64 {match self {Self::Standard(inner)=>inner.target_bitrate(),Self::Fast(inner)=>inner.target_bitrate()}}
+    fn stats(&self)->EstimatorStats {match self {Self::Standard(inner)=>inner.stats(),Self::Fast(inner)=>inner.stats()}}
+}
+pub(super) struct Estimator {inner:Engine,control:Arc<Control>,epoch:u64,#[cfg(test)] trace:Option<GccTrace>}
 impl Estimator {
     pub(super) fn new(control:Arc<Control>)->Self {
-        let limits=control.limits;Self {inner:Gcc::new(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max)),control,epoch:0,#[cfg(test)] trace:std::env::var_os("VOXL_TRACE_GCC").map(|_|GccTrace::new())}
+        let limits=control.limits;Self {inner:Engine::new(limits),control,epoch:0,#[cfg(test)] trace:std::env::var_os("VOXL_TRACE_GCC").map(|_|GccTrace::new())}
     }
 }
 impl BandwidthEstimator for Estimator {
     fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {
         let mut epoch=self.control.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if self.epoch!=epoch.id {
-            let p=self.control.limits;self.inner=Gcc::new(f64::from(p.initial),f64::from(p.min),f64::from(p.max));self.epoch=epoch.id;
+            self.inner=Engine::new(self.control.limits);self.epoch=epoch.id;
             #[cfg(test)]
             if self.trace.is_some() {self.trace=Some(GccTrace::new());}
         }

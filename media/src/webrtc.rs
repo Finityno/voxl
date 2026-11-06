@@ -26,7 +26,8 @@ mod stream_turn;
 mod relay_interfaces;
 mod signaling;
 mod send_control;
-pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget};
+mod fast_delay;
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 

@@ -119,9 +119,10 @@ fn candidate(sdp:&str,proxy:SocketAddr)->(String,SocketAddr) {
     }
     (lines.join("\r\n")+"\r\n",actual.unwrap())
 }
-async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiver<rtc::rtp::Packet>,Link) {
+async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiver<rtc::rtp::Packet>,Link) {pair_with_delay(DelayControl::Standard).await}
+async fn pair_with_delay(delay:DelayControl)->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiver<rtc::rtp::Packet>,Link) {
     let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
-    let mut video=WebRtcVideo::open_controlled(config,SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive)).await.unwrap();
+    let mut video=WebRtcVideo::open_controlled(config,SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(delay)).await.unwrap();
     let a=UdpSocket::bind("127.0.0.1:0").await.unwrap();let b=UdpSocket::bind("127.0.0.1:0").await.unwrap();
     let (offer,sender_address)=candidate(video.offer(),a.local_addr().unwrap());
     let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let registry=register_default_interceptors(Registry::new(),&mut media).unwrap();
@@ -181,9 +182,12 @@ fn adaptive_network_single_packet_loss_is_repaired_without_partial_access_unit_o
     }).await.expect("bounded loss/retransmission");});
 }
 #[test]
-fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps_recovery_bounded() {
+fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps_recovery_bounded() {capacity(DelayControl::Standard,false);}
+#[test]
+fn adaptive_network_fast_delay_keeps_the_transient_response_and_queue_within_the_new_gate() {capacity(DelayControl::FastKalman,true);}
+fn capacity(delay:DelayControl,fast:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
-        let (mut video,receiver,events,mut packets,mut link)=pair().await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(delay).await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
         let reader=tokio::spawn(async move {while packets.recv().await.is_some() {seen.fetch_add(1,Ordering::Relaxed);}});
         let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;let experiment=Instant::now();let mut traces=0;let mut last_trace=None;let mut constrained=None;let mut first_reduction=None;
         for (stage,bps,seconds) in [(0,3_000_000,2),(1,500_000,5),(2,3_000_000,3)] {
@@ -204,8 +208,8 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
             assert!(s.peak_queue<=QUEUE_LIMIT);
             if stage==1 {
                 eprintln!("headroom_transient first_reduction_us={} max_residence_us={}",first_reduction.map_or(u128::MAX,|elapsed|elapsed.as_micros()),s.max_queue_micros);
-                assert!(first_reduction.is_some_and(|elapsed|elapsed<=Duration::from_millis(500)),"first media reduction must occur within500ms of the capacity drop");
-                assert!(s.max_queue_micros<=750_000,"transient queue residence must stay below750ms");
+                if fast {assert!(first_reduction.is_some_and(|elapsed|elapsed<=Duration::from_millis(500)),"first media reduction must occur within500ms of the capacity drop");
+                assert!(s.max_queue_micros<=750_000,"transient queue residence must stay below750ms");}
             }
         }
         assert!(estimates>0 && low_min<1_000_000,"real feedback must lower the media target below the offered load");assert!(recovered_final>low_min*11/10 && !video.ended(),"capacity recovery must raise the final media target by more than ten percent");
