@@ -7,6 +7,8 @@ use shared::{error::{Error,Result},marshal::Marshal};
 #[derive(Debug,Clone,Copy)]
 pub struct RtpPaddingOnly;
 impl RtpPaddingOnly {
+    /// Serialize validated zero bytes as padding, preserving packet length.
+    /// Rejects ordinary payload, markers, a missing padding flag or >255 octets.
     pub fn marshal(packet:&rtp::Packet)->Result<bytes::Bytes> {
         if !packet.header.padding || packet.header.marker || packet.payload.iter().any(|byte|*byte!=0) {return Err(Error::Other("invalid padding-only RTP".into()));}
         let mut serialized=packet.marshal()?.to_vec();

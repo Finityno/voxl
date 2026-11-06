@@ -539,6 +539,33 @@ mod tests {
         assert!(!control.released_rtp(0,&message));assert!(control.failed());assert!(control.producer_budget().is_none());assert_eq!(FRAME_DEADLINE,Duration::from_millis(500));
     }
     #[test]
+    fn resume_probe_retransmission_preserves_padding_without_frame_or_release_credit() {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_quiet_resume_probes().with_flow_observation().with_producer_control(ProducerControl::RtpDebt);
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
+        {let mut epoch=control.epoch.lock().unwrap();epoch.media=MediaActivity::Written {at:now-Duration::from_secs(3),ssrc:55,sequence:6};epoch.rate=Rate::Observed {bps:1_500_000,at:now-Duration::from_secs(3),revision:1};}
+        control.begin_probe(55,7).unwrap();
+        let payload=rtc::rtp::Packet {header:rtc::rtp::Header {version:2,ssrc:55,sequence_number:7,padding:true,timestamp:90000,..Default::default()},payload:Bytes::from(vec![0;251])};
+        let mut original=TaggedPacket {now,transport:Default::default(),message:Packet::Rtp(payload.clone()).into()};control.decorate(&mut original).unwrap();
+        let mut pacer=BoundedPacer::new(Arc::clone(&control));pacer.handle_write(original).unwrap();pacer.handle_timeout(now).unwrap();
+        let written=pacer.poll_write().unwrap();assert!(written.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_some());assert_eq!(control.released.load(Ordering::Acquire),1);
+        let mut retransmit=TaggedPacket {now:now+Duration::from_millis(20),transport:Default::default(),message:Packet::Rtp(payload).into()};retransmit.message.add(Attribute::Retransmission);
+        pacer.handle_write(retransmit).unwrap();pacer.handle_timeout(now+Duration::from_millis(20)).unwrap();let retried=pacer.poll_write().unwrap();
+        assert!(retried.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_some());assert!(retried.message.custom::<probe::ProbePacket>().is_none());
+        assert_eq!(control.released.load(Ordering::Acquire),1);assert_eq!(control.producer_budget().unwrap().rtp_packets,2);
+        let flow=control.flow_observation().unwrap();assert_eq!((flow.completed_frames,flow.incomplete_frames,flow.retransmissions),(0,0,1));
+    }
+    #[test]
+    fn resume_probe_close_and_epoch_retirement_fence_pending_waiters() {
+        tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {
+            for retire in [false,true] {
+                let limits=SendControl::new(250,1500,1500).unwrap().with_quiet_resume_probes();let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
+                {let mut epoch=control.epoch.lock().unwrap();epoch.media=MediaActivity::Written {at:now-Duration::from_secs(3),ssrc:55,sequence:6};epoch.rate=Rate::Observed {bps:1_500_000,at:now-Duration::from_secs(3),revision:1};}
+                let epoch=control.begin_probe(55,7).unwrap();if retire {control.retire();}else {control.authority.store(true,Ordering::Release);control.changes.changed();}
+                assert!(matches!(tokio::time::timeout(Duration::from_millis(30),control.probe_observation(epoch)).await.unwrap(),Err(WebRtcError::Ended)));
+            }
+        });
+    }
+    #[test]
     fn flow_observation_retirement_fences_old_packets_and_close() {
         let limits=SendControl::new(250,1000,1000).unwrap().with_flow_observation();
         let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
