@@ -868,3 +868,11 @@ the average target. This provisional CPU tradeoff requires quality/resource
 qualification; it does not change legacy encoder behavior or defaults. The
 [burst component proof](results/2026-11-06-adaptive-burst/README.md) retains both
 failed native-property attempts and the final17 adaptive/2 legacy passes.
+
+A later full-size CPU H.264 application trial emitted a102552-byte keyframe
+although its burst policy had matching native readback. This contradicts any
+inference that property readback alone proves an emitted-frame bound. The API
+records configured native metadata only; CPU burst handling and decoded quality
+remain unqualified. The subsequent setter orders average before burst mutation
+and verifies both properties after the final change; that ordering change still
+requires full-size application qualification.

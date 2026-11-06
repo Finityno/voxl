@@ -351,8 +351,8 @@ impl VideoEncoder {
     /// set_bitrate_target verifies the updated average target with typed readback.
     /// Neither value is a hard wire-rate limit or an observed encoded bitrate.
     pub fn bitrate_target_kbps(&self)->u32 {self.bitrate_target_kbps}
-    /// Verified hard encoded-byte limit and native window in milliseconds.
-    /// The CPU window reduces its sustained rate below the average request.
+    /// Successful native burst-policy readback: bytes and window in milliseconds.
+    /// Native readback is not proof that emitted frames obey the requested bound.
     pub fn burst_limit(&self)->Option<(u32,u32)> {self.burst_limit}
 
     /// Retune future submissions on this same worker-owned session, including
@@ -386,11 +386,11 @@ impl VideoEncoder {
         }
     }
 
-    /// Adaptive qualification: cap bytes to 400 ms worth of the average target.
+    /// Adaptive qualification: request a 400 ms worth-of-target byte budget.
     /// The hardware window is 400 ms; CPU H.264 requires whole seconds and uses
     /// a conservative one-second window, lowering its sustained hard ceiling.
-    /// This bounds keyframe bursts before
-    /// pacing; it is not quality, achieved wire-rate or congestion admission.
+    /// This verifies native policy metadata; full-size CPU keyframes have exceeded
+    /// it in application qualification. It is not an achieved byte/output bound.
     /// Unsupported/ignored properties or partial changes are terminal.
     pub fn set_streaming_bitrate_target(&mut self,kbps:u32)->Result<(),MediaError> {
         if !(250..=self.config.bitrate_kbps).contains(&kbps) {return Err(MediaError::Configuration);}
