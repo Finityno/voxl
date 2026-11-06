@@ -289,7 +289,9 @@ mod tests {
         let original=packet(&control,u16::MAX,now);let raw=original.message.packet.clone();
         pacer.handle_write(original).unwrap();pacer.handle_timeout(now).unwrap();assert!(pacer.poll_write().is_some());
         let retransmit=||TaggedPacket {now,transport:Default::default(),message:rtc::interceptor::AttributedPacket::new(raw.clone()).with(Attribute::Retransmission)};
-        pacer.handle_write(retransmit()).unwrap();pacer.handle_timeout(now).unwrap();assert!(pacer.poll_write().is_some());
+        pacer.handle_write(retransmit()).unwrap();
+        let retransmission_deadline=pacer.poll_timeout().unwrap();assert!(retransmission_deadline>now);
+        pacer.handle_timeout(retransmission_deadline).unwrap();assert!(pacer.poll_write().is_some());
         assert_eq!(control.released.load(Ordering::Acquire),1);
         control.retire();pacer.handle_write(retransmit()).unwrap();pacer.handle_timeout(now).unwrap();assert!(pacer.poll_write().is_none());
         pacer.handle_write(packet(&control,0,now)).unwrap();pacer.handle_timeout(now).unwrap();assert!(pacer.poll_write().is_some());

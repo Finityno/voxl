@@ -77,3 +77,12 @@ fn adaptive_receiver_without_twcc_keeps_estimates_unknown_and_delivers_paced_med
         video.close();receiver.close().await.unwrap();
     }).await.expect("bounded no-feedback controlled send");});
 }
+#[test]
+fn adaptive_each_generation_requires_a_completed_keyframe_boundary() {
+    let mut boundary=SentBoundary::Unsent;
+    assert!(!boundary.accepts(0,false));assert!(boundary.accepts(0,true));
+    boundary=SentBoundary::Written(0);
+    assert!(boundary.accepts(0,false));assert!(!boundary.accepts(1,false));assert!(boundary.accepts(1,true));
+    boundary=SentBoundary::Written(1);
+    assert!(boundary.accepts(1,false));assert!(!boundary.accepts(0,false));assert!(!boundary.accepts(2,false));
+}

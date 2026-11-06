@@ -824,7 +824,8 @@ Current-generation NACK retransmissions retain pacing without falsely finishing
 a producer send. The SDK buffers raw RTP, so a bounded 1024-entry identity map
 restores the private ticket lost at that boundary. Restart retires that map,
 queued packets and old-path feedback; fresh authenticated keyframe/generation
-rules still belong to the embedder. A target is unknown until feedback exists;
+rules still belong to the embedder. The sender additionally refuses a delta as
+the first completed access unit of any generation, in either mode. A target is unknown until feedback exists;
 a GCC target may still reflect its initial prior until enough reports arrive.
 `bitrate_estimate` includes its age, and `VideoUpdate::BitrateTarget(kbps)` reserves
 15% of the pacing target for packet overhead/retransmissions, floored at the

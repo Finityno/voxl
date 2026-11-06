@@ -222,8 +222,13 @@ pub struct WebRtcVideo {
     checked_relay_failure: u64,
     checked_remote_candidates:u64,
     send_mode:SendMode,
+    sent_boundary:SentBoundary,
 }
 enum SendMode {Immediate,Controlled {state:Arc<send_control::Control>,submitted:u64,rate_seen:(u64,u64)}}
+enum SentBoundary {Unsent,Written(u64)}
+impl SentBoundary {
+    fn accepts(&self,generation:u64,keyframe:bool)->bool {keyframe || matches!(self,Self::Written(old) if *old==generation)}
+}
 
 #[derive(Clone)]
 struct RestartSetup {bindings:Vec<String>,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,policy:RoutePolicy}
@@ -383,7 +388,7 @@ impl WebRtcVideo {
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default(),VideoFormat::Av1Main(_) => Box::<Av1Payloader>::default() },
             keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0,
-            send_mode:match control {Some(state)=>SendMode::Controlled {state,submitted:0,rate_seen:(0,0)},None=>SendMode::Immediate} })
+            send_mode:match control {Some(state)=>SendMode::Controlled {state,submitted:0,rate_seen:(0,0)},None=>SendMode::Immediate},sent_boundary:SentBoundary::Unsent })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
@@ -618,7 +623,7 @@ impl WebRtcVideo {
         if codec != self.format.codec() || data.is_empty() || data.len() > MAX_FRAME_BYTES || presentation_time_micros < 0
             || self.last_pts.is_some_and(|last| presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
-        if self.first_pts.is_none() && !keyframe { return Err(WebRtcError::InvalidFrame); }
+        if !self.sent_boundary.accepts(generation,keyframe) { return Err(WebRtcError::InvalidFrame); }
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         let first_pts = *self.first_pts.get_or_insert(presentation_time_micros);
         let ticks = (i128::from(presentation_time_micros)-i128::from(first_pts))*90_000/1_000_000;
@@ -646,7 +651,7 @@ impl WebRtcVideo {
             Ok::<_,WebRtcError>(())
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
         if result.is_err() { self.close(); }
-        if result.is_ok() {guard.0=None;}
+        if result.is_ok() {self.sent_boundary=SentBoundary::Written(generation);guard.0=None;}
         self.last_pts = Some(presentation_time_micros);
         result.map(|()|VideoFrameStamp {generation,rtp_timestamp:timestamp})
     }
