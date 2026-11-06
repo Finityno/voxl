@@ -80,13 +80,14 @@ impl Link {
     async fn snapshot(&self)->LinkStats {let (reply,done)=oneshot::channel();self.commands.send(Command::Snapshot(reply)).await.unwrap();done.await.unwrap()}
     async fn close(&mut self) {if let LinkTask::Running(task)=std::mem::replace(&mut self.task,LinkTask::Ended) {task.abort();assert!(task.await.unwrap_err().is_cancelled());}}
 }
-struct Receiver {packets:mpsc::Sender<rtc::rtp::Packet>,tasks:Mutex<JoinSet<()>>}
+struct Receiver {packets:mpsc::Sender<rtc::rtp::Packet>,tasks:Mutex<JoinSet<()>>,gathered:AtomicBool,gather_wake:Notify}
 impl Drop for Receiver {fn drop(&mut self) {self.tasks.get_mut().unwrap().abort_all();}}
 impl Receiver {
     async fn close(&self) {let mut tasks=std::mem::take(&mut *self.tasks.lock().unwrap());tasks.abort_all();while let Some(result)=tasks.join_next().await {assert!(result.is_ok() || result.unwrap_err().is_cancelled());}}
 }
 #[async_trait]
 impl PeerConnectionEventHandler for Receiver {
+    async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {if state==RTCIceGatheringState::Complete {self.gathered.store(true,Ordering::Release);self.gather_wake.notify_one();}}
     async fn on_track(&self,track:Arc<dyn TrackRemote>) {
         let packets=self.packets.clone();self.tasks.lock().unwrap().spawn(async move {
             while let Some(event)=track.poll().await {if let TrackRemoteEvent::OnRtpPacket(packet)=event && packets.try_send(packet).is_err() {break;}}
@@ -111,9 +112,10 @@ async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiv
     let a=UdpSocket::bind("127.0.0.1:0").await.unwrap();let b=UdpSocket::bind("127.0.0.1:0").await.unwrap();
     let (offer,sender_address)=candidate(video.offer(),a.local_addr().unwrap());
     let mut media=MediaEngine::default();media.register_default_codecs().unwrap();let registry=register_default_interceptors(Registry::new(),&mut media).unwrap();
-    let (packets,received)=mpsc::channel(256);let events=Arc::new(Receiver {packets,tasks:Mutex::new(JoinSet::new())});
+    let (packets,received)=mpsc::channel(256);let events=Arc::new(Receiver {packets,tasks:Mutex::new(JoinSet::new()),gathered:AtomicBool::new(false),gather_wake:Notify::new()});
     let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_interceptor_registry(registry).with_handler(events.clone()).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
     receiver.set_remote_description(RTCSessionDescription::offer(offer).unwrap()).await.unwrap();receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+    while !events.gathered.load(Ordering::Acquire) {events.gather_wake.notified().await;}
     let (answer,receiver_address)=candidate(&receiver.local_description().await.unwrap().sdp,b.local_addr().unwrap());
     let link=Link::start(sender_address,receiver_address,a,b).await;assert_ne!(link.sender_address,link.receiver_address);
     video.answer(answer).await.unwrap();assert_eq!(video.next_update().await,VideoUpdate::Connected);
