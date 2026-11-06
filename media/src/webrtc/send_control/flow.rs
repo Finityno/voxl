@@ -37,7 +37,7 @@ impl Monitor {
         if matches!(tracker.frame,Frame::Empty) {tracker.frame=Frame::Running {timestamp:packet.header.timestamp,started:message.now,bytes:0};}
         if let Frame::Running {started,bytes:total,..}=&mut tracker.frame {
             *total=total.saturating_add(bytes as u64);
-            if packet.header.marker {c.completed_frames=c.completed_frames.saturating_add(1);c.last_frame_bytes=*total;c.peak_frame_bytes=c.peak_frame_bytes.max(*total);c.last_frame_pacing_micros=micros(message.now.saturating_duration_since(*started));tracker.frame=Frame::Empty;}
+            if packet.header.marker {c.completed_frames=c.completed_frames.saturating_add(1);c.last_frame_bytes = *total;c.peak_frame_bytes=c.peak_frame_bytes.max(*total);c.last_frame_pacing_micros=micros(message.now.saturating_duration_since(*started));tracker.frame=Frame::Empty;}
         }
     }
     pub(super) fn feedback(&mut self,now:Instant,reports:&[PacketReport],delay:(u64,u64,u64)) {
