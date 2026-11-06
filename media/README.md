@@ -184,6 +184,15 @@ The app requests none of the new priority/tuning modes and keeps its codec
 defaults; these component packs do not establish application performance
 qualification.
 
+The [quality-priority bitrate pilots](results/2026-11-06-hevc-quality/README.md)
+independently decode eight short 1080p30 streams. A quality-priority HEVC
+8000-kbps request uses 15.37% fewer actual payload bytes than its paired H.264
+control, with no lower per-frame text SSIM or foreground aggregate/channel
+metrics on this clip. Its roughly 15ms callback p95 is slower, and whole-probe
+CPU is higher. Lower requests retain scrolling-text regressions; 20000 uses
+more bytes than H.264. This is an experimental candidate for sustained broader
+testing, not application admission, a bitrate ceiling or a codec-default change.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly

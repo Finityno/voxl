@@ -1,0 +1,303 @@
+{
+  "sourceRevision": "8a4a52bf66ec46da5a2bb323c6b56f92e0bd1b9b",
+  "sourceCleanBeforeAndAfterReported": true,
+  "privateEvidenceDirectory": "owner-local:2026-11-06/hevc-quality-pilots",
+  "privateFilesRetained": 106,
+  "privateManifestSha256": "99bd304228cf393b0b5c35a06d89e26f685aa998348601f7aa476dd1e6a7ae4b",
+  "groups": [
+    {
+      "batch": "initial",
+      "name": "load",
+      "pgid": 54051,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "os",
+      "pgid": 54056,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "cpu",
+      "pgid": 54061,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "model",
+      "pgid": 54066,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "toolchain",
+      "pgid": 54071,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "ffmpeg-version",
+      "pgid": 54076,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "ffprobe-version",
+      "pgid": 54081,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "build",
+      "pgid": 54086,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "clippy",
+      "pgid": 54785,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "source-floor",
+      "pgid": 54805,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-h264-compatible-3000",
+      "pgid": 54812,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-h264-compatible-3000-decode",
+      "pgid": 54848,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-h264-compatible-3000-quality",
+      "pgid": 54855,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-h264-compatible-3000-rgb",
+      "pgid": 54861,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-1500-quality",
+      "pgid": 54868,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-1500-quality-decode",
+      "pgid": 55983,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-1500-quality-quality",
+      "pgid": 55988,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-1500-quality-rgb",
+      "pgid": 55993,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-2500-quality",
+      "pgid": 55998,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-2500-quality-decode",
+      "pgid": 56008,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-2500-quality-quality",
+      "pgid": 56013,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-2500-quality-rgb",
+      "pgid": 56018,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-4000-quality",
+      "pgid": 56023,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-4000-quality-decode",
+      "pgid": 56744,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-4000-quality-quality",
+      "pgid": 56760,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "run-1-hevc-compatible-4000-quality-rgb",
+      "pgid": 56769,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "initial",
+      "name": "foreground-run-1",
+      "pgid": 56775,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "load",
+      "pgid": 59466,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "source-floor",
+      "pgid": 59477,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-h264-compatible-3000",
+      "pgid": 59494,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-h264-compatible-3000-decode",
+      "pgid": 59575,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-h264-compatible-3000-quality",
+      "pgid": 59580,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-h264-compatible-3000-rgb",
+      "pgid": 59585,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-8000-quality",
+      "pgid": 59592,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-8000-quality-decode",
+      "pgid": 59620,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-8000-quality-quality",
+      "pgid": 59625,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-8000-quality-rgb",
+      "pgid": 59631,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-12000-quality",
+      "pgid": 59638,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-12000-quality-decode",
+      "pgid": 59650,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-12000-quality-quality",
+      "pgid": 59655,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-12000-quality-rgb",
+      "pgid": 59660,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-20000-quality",
+      "pgid": 59665,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-20000-quality-decode",
+      "pgid": 59673,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-20000-quality-quality",
+      "pgid": 59678,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "run-1-hevc-compatible-20000-quality-rgb",
+      "pgid": 59683,
+      "independentlyAbsent": true
+    },
+    {
+      "batch": "higher",
+      "name": "foreground-run-1",
+      "pgid": 59688,
+      "independentlyAbsent": true
+    }
+  ],
+  "normalizedPaths": {
+    "/SOURCE": "frozen custom-fork source",
+    "/RESULT": "batch output",
+    "/FIXTURE": "immutable generated 1080p30 input"
+  },
+  "normalizationScope": "Published command paths are normalized; exact original reports, commands/logs/bitstreams and hashes remain in owner-only evidence. No rendered pixels, font or bitstream is published.",
+  "buildAndClippy": "Both pass at source in initial batch; higher batch verifies and reuses the same binary without repeating either check.",
+  "files": {
+    "README.md": "e6be9dd3f1b17d14e4568f6480e037390e8e961216ff11d2585b3bf6f72f7279",
+    "higher-artifact.json": "4c7cbc16f1c5547cca91e8c7d7926a426c26d060cf81ea075f29bff27de3e4ed",
+    "higher-observations.json.gz": "3bdb71968e31ed1411c30c1bf2d218ae77bd2f4896cfe273910bd137665ff892",
+    "higher-results.json": "890ec9eae36c0dd2417637c8fac19a7f6cf7f8b7283547e5ac2e0d2bc85d7599",
+    "initial-artifact.json": "0cad4cfbce42e60e9377ec1f40c8d1dd9a8341c3a33d6c6bc5380a3615bd6277",
+    "initial-observations.json.gz": "0baf11f2fb668e35fa9ac3525325a5334e1144c299060135937bfbdca6ff7ae8",
+    "initial-results.json": "e07793eca0e69d31f493ba021001110a9a4acd69da85b6d9faa18b9febe8debd",
+    "summary.json": "e5a8fc682dd5df689eea4ac9fa9428359b2e3fb60b7dec9bbcf73b4c2d028c9c",
+    "verify.py": "a8ea2d7d0407f963615a85504a2271063371d5d87df02215d247362e786c2225"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "source": "8a4a52bf66ec46da5a2bb323c6b56f92e0bd1b9b",
+  "artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///SOURCE/media#voxl-media@0.1.0",
+    "manifest_path": "/SOURCE/media/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "codec_probe",
+      "src_path": "/SOURCE/media/examples/codec_probe.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [
+      "default"
+    ],
+    "filenames": [
+      "/SOURCE/media/target/release/examples/codec_probe"
+    ],
+    "executable": "/SOURCE/media/target/release/examples/codec_probe",
+    "fresh": false
+  },
+  "executableSha256": "7dffe3b2a721bb4a88da875995214ed4839929647df69457c8df3a42261a10ca",
+  "privateBuildLogSha256": "463f39c8d734eca7bcb59255e47d8c444772ff01f6b73eddb90fc5357cd5637e",
+  "reuse": true,
+  "reusedFrom": "/tmp/voxl-mac-hevc-quality-20261106/compiler-artifact.json",
+  "priorReceiptSha256": "8794a6d28c4a7fff2e1205dc483be96127ec87605262049fd0471143e00cca74",
+  "scope": "Exact unchanged source and checked binary from prior successful release build and strict Clippy; neither is repeated."
+}
