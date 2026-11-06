@@ -15,16 +15,29 @@ let architecture = "x86_64"
 #else
 let architecture = "unknown"
 #endif
+var encoderList: CFArray?
+let encoderStatus = VTCopyVideoEncoderList(nil, &encoderList)
+guard encoderStatus == noErr, let encoders = encoderList as? [[String: Any]] else {
+    try? FileHandle.standardError.write(contentsOf: Data("encoder inventory failed with status \(encoderStatus)\n".utf8))
+    exit(1)
+}
 let observations = codecs.map { name, type -> [String: Any] in
-    ["codec": name, "hardwareEncodeReported": VTIsHardwareEncodeSupported(type),
-     "hardwareDecodeReported": VTIsHardwareDecodeSupported(type)]
+    let entries = encoders.filter { ($0[kVTVideoEncoderList_CodecType as String] as? NSNumber)?.uint32Value == type }
+    let flags = entries.map { $0[kVTVideoEncoderList_IsHardwareAccelerated as String] as? Bool }
+    let hardwareCount = flags.compactMap { $0 }.filter { $0 }.count
+    let unknownCount = flags.filter { $0 == nil }.count
+    let hardware: Any = hardwareCount > 0 ? true : unknownCount > 0 ? NSNull() : false
+    return ["codec": name, "hardwareEncodeReported": hardware,
+        "listedEncoderCount": entries.count, "listedHardwareEncoderCount": hardwareCount,
+        "encodersWithoutHardwareFlag": unknownCount,
+        "hardwareDecodeReported": VTIsHardwareDecodeSupported(type)]
 }
 let result: [String: Any] = [
     "schemaVersion": 1,
     "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
     "architecture": architecture,
     "codecs": observations,
-    "scope": "VideoToolbox capability flags on this host only. No session construction, encoded/decoded frames, exact profile/geometry/rate/color support, receiver engine, performance or application admission is established. A missing hardware flag does not rule out software support.",
+    "scope": "VideoToolbox encoder-list metadata and hardware-decode flag on this host only. Missing encoder hardware flags remain unknown (null), unless another entry reports hardware. No session construction, encoded/decoded frames, exact profile/geometry/rate/color support, resource availability, receiver engine, performance or application admission is established. No listed hardware encoder does not rule out software or other APIs.",
 ]
 do {
     let data = try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys, .prettyPrinted])
