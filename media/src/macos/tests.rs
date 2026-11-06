@@ -291,6 +291,9 @@ fn keyframe_policy(codec:VideoCodec,preference:EncoderPreference) {
         if output.keyframe {keyframes.push(index);}
     }
     assert_eq!(keyframes,vec![0,90],"static output must prove the new interval and explicit forced IDR");assert_eq!(encoder.using_hardware(),hardware);
+    encoder.encode(&pixel,35_000_000,false).unwrap();
+    let sparse=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();assert!(sparse.keyframe,"elapsed presentation time must bound a sparse GOP independently of submitted frame count");
+    assert_eq!(sparse.presentation_time_micros,35_000_000);
     assert_eq!(encoder.set_keyframe_interval(900,30),Err(MediaError::Configuration));
 }
 #[test]
