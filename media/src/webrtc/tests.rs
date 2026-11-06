@@ -8,6 +8,7 @@ use tokio::sync::mpsc;
 mod relay_fallback;
 mod live_restart;
 mod av1;
+mod network;
 
 #[test]
 fn webrtc_h264_offers_preserve_baseline_high_and_constrained_high_profiles() {
