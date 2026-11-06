@@ -629,7 +629,8 @@ impl WebRtcVideo {
     /// Explicit local quiet-resume qualification. Call before encoding resumed
     /// input; this sends no codec payload, keyframe receipt or periodic traffic.
     /// Only an already-written, connected controlled epoch can probe after two
-    /// seconds without media. Missing/lost/late feedback closes the transport.
+    /// seconds without media. Unknown/late feedback and exhausted retries close
+    /// the transport; only an explicitly enabled fresh-cluster retry can recover.
     fn probe_parameters(&self)->Result<(u8,u64),WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
         if !self.connected() {return Err(WebRtcError::NotConnected);}

@@ -976,8 +976,29 @@ component does not re-encode an already-generated large picture.
 [Exact-source proof and required-artifact verifier](results/2026-11-06-quiet-resume/README.md)
 record 19 selected tests and actual encrypted-UDP fast/slow/loss/close cases,
 including both UDP directions during silence. The slow case carries a smaller
-synthetic payload, not matched-quality video. Fincode integration, real native
-decode/quality/resources and production-default admission remain separate work.
+synthetic payload, not matched-quality video. That frozen proof predates the
+staged native boundary and its separate native qualification.
+
+`VideoCloseHandle::prepare_frame(actual_bytes)` now issues an opaque
+epoch/serial/deadline ticket to an actual-byte native producer. The existing
+serial writer receives `VideoUpdate::ResumeProbeRequested` and calls
+`service_resume_probe`; the producer polls `resume_probe_result` while holding
+its unsent chain. Safely small deltas use the conservative floor without padding,
+and their acknowledgements do not clear an unprobed quiet fence. See the
+[staged component proof](results/2026-11-06-staged-quiet-resume/README.md).
+
+`with_quiet_resume_probe_retry()` separately opts into one fresh 32-packet
+cluster after a fully reported lossy cluster. Both attempts share the original
+absolute 500 ms deadline; a second loss, missing/invalid feedback, authority close
+or timeout still fails. The successful cluster alone measures capacity, with a
+ceiling no higher than before the retry. `ResumeProbeObservation::attempts` and
+`transmitted_rtp_bytes` include both original clusters, including a lost original,
+using exact post-TWCC sender-history sizes. RTX, SRTP, IP/link, Connect, TURN and
+provider billing are separate accounting scopes. The collection buffer is reused;
+no dependency, thread, periodic traffic or default changes. The
+[retry proof](results/2026-11-07-quiet-retry/README.md) retains success, second
+loss, authority close and slow original-deadline cases. Actual native fault
+qualification and broader recovery/resources remain separate from this component.
 
 ### Finite desktop keyframe qualification
 
