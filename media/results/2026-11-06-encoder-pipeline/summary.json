@@ -1,0 +1,102 @@
+{
+  "short": [
+    {
+      "name": "pair-1-h264-depth-1",
+      "completionFps": 41.17925685372176,
+      "receiptP95Ms": 27.429624999999998,
+      "payloadMbps": 2.353044,
+      "wholeProbeCpuPercentOneCore": 12.423312883435583,
+      "peakProbeRssMiB": 58.796875
+    },
+    {
+      "name": "pair-1-h264-depth-2",
+      "completionFps": 50.76144709778774,
+      "receiptP95Ms": 41.129958,
+      "payloadMbps": 2.353044,
+      "wholeProbeCpuPercentOneCore": 15.450236966824644,
+      "peakProbeRssMiB": 82.1875
+    },
+    {
+      "name": "pair-1-hevc-depth-2",
+      "completionFps": 59.926604297125365,
+      "receiptP95Ms": 22.500042,
+      "payloadMbps": 2.482875,
+      "wholeProbeCpuPercentOneCore": 18.021978021978022,
+      "peakProbeRssMiB": 82.5625
+    },
+    {
+      "name": "pair-1-hevc-depth-1",
+      "completionFps": 47.32031704489525,
+      "receiptP95Ms": 22.764,
+      "payloadMbps": 2.482875,
+      "wholeProbeCpuPercentOneCore": 15.22707034728406,
+      "peakProbeRssMiB": 59.25
+    },
+    {
+      "name": "pair-2-h264-depth-2",
+      "completionFps": 50.853842923520546,
+      "receiptP95Ms": 40.993458000000004,
+      "payloadMbps": 2.353044,
+      "wholeProbeCpuPercentOneCore": 15.479582146248815,
+      "peakProbeRssMiB": 82.609375
+    },
+    {
+      "name": "pair-2-h264-depth-1",
+      "completionFps": 40.70522337589499,
+      "receiptP95Ms": 27.520167,
+      "payloadMbps": 2.353044,
+      "wholeProbeCpuPercentOneCore": 13.0,
+      "peakProbeRssMiB": 58.59375
+    },
+    {
+      "name": "pair-2-hevc-depth-1",
+      "completionFps": 48.1015392395048,
+      "receiptP95Ms": 22.797667,
+      "payloadMbps": 2.482875,
+      "wholeProbeCpuPercentOneCore": 14.466546112115731,
+      "peakProbeRssMiB": 59.25
+    },
+    {
+      "name": "pair-2-hevc-depth-2",
+      "completionFps": 59.96119828490574,
+      "receiptP95Ms": 22.411166,
+      "payloadMbps": 2.482875,
+      "wholeProbeCpuPercentOneCore": 17.912087912087912,
+      "peakProbeRssMiB": 83.046875
+    }
+  ],
+  "long-hevc": [
+    {
+      "name": "pair-1-hevc-depth-1",
+      "completionFps": 45.290537642805184,
+      "receiptP95Ms": 22.899124999999998,
+      "payloadMbps": 1.9627334666666667,
+      "wholeProbeCpuPercentOneCore": 13.703865472810657,
+      "peakProbeRssMiB": 59.390625
+    },
+    {
+      "name": "pair-1-hevc-depth-2",
+      "completionFps": 59.9969469735847,
+      "receiptP95Ms": 22.6235,
+      "payloadMbps": 1.9627334666666667,
+      "wholeProbeCpuPercentOneCore": 18.100128369704752,
+      "peakProbeRssMiB": 83.015625
+    },
+    {
+      "name": "pair-2-hevc-depth-2",
+      "completionFps": 59.997961211263906,
+      "receiptP95Ms": 22.555249999999997,
+      "payloadMbps": 1.9627334666666667,
+      "wholeProbeCpuPercentOneCore": 16.89015691868759,
+      "peakProbeRssMiB": 83.203125
+    },
+    {
+      "name": "pair-2-hevc-depth-1",
+      "completionFps": 52.118402917923866,
+      "receiptP95Ms": 22.6875,
+      "payloadMbps": 1.9627334666666667,
+      "wholeProbeCpuPercentOneCore": 11.586743660557369,
+      "peakProbeRssMiB": 60.21875
+    }
+  ]
+}
