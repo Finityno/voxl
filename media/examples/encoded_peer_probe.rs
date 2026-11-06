@@ -93,6 +93,7 @@ mod enabled {
             loop { match video.next_update().await {
                 VideoUpdate::Connected => return Ok::<_,Box<dyn Error>>(()),
                 VideoUpdate::KeyframeRequested => {},
+                VideoUpdate::BitrateTarget(_) => return Err("unpaced replay cannot apply encoder bitrate updates".into()),
                 VideoUpdate::Disconnected|VideoUpdate::Ended => return Err("transport ended before connection".into()),
             } }
         }).await??;
