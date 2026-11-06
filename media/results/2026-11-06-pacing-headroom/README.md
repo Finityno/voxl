@@ -16,7 +16,7 @@ observation still returns none independently.
 
 Twenty-one focused adaptive tests, the existing H.264 loopback and selected live
 ICE restart test pass, with strict library/tests/examples Clippy. Coverage
-includes1001032-byte RTP packets on virtual time and one103281-byte synthetic
+includes100 RTP packets with1000-byte payloads on virtual time and one103281-byte synthetic
 H.264 access unit over UDP/DTLS/SRTP with exact reassembly. At1.5Mbps media, the
 responsive schedule drains the virtual burst below300ms while the1x schedule
 hits the unchanged500ms bound. These are synthetic bytes, not decoded quality.
