@@ -199,7 +199,10 @@ fn quiet_probe(capacity:u32) {
         let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
         assert!(video.bitrate_estimate().is_some());let quiet=link.snapshot().await;tokio::time::sleep(Duration::from_secs(3)).await;let idle=link.snapshot().await;assert_eq!(idle.rtp,quiet.rtp);
         eprintln!("quiet_resume_idle capacity_bps={capacity} observation_ms=3000 forward_udp_bytes={} reverse_udp_bytes={} forward_datagrams={} reverse_datagrams={} rtp_packets=0",idle.bytes-quiet.bytes,idle.reverse_bytes-quiet.reverse_bytes,idle.delivered-quiet.delivered,idle.reverse_datagrams-quiet.reverse_datagrams);
-        link.condition(Shape::new(capacity,10,0,None)).await;let began=Instant::now();let observed=video.probe_quiet_resume().await.unwrap();let probe_time=began.elapsed();
+        link.condition(Shape::new(capacity,10,0,None)).await;let began=Instant::now();let ticket=video.close_handle().prepare_frame(64005).unwrap().unwrap();
+        loop {match video.next_update().await {VideoUpdate::ResumeProbeRequested(request)=>{assert_eq!(request,ticket);break;},VideoUpdate::Ended=>panic!("worker request ended before dispatch"),_=>{}}}
+        let observed=video.service_resume_probe(ticket).await.unwrap();let probe_time=began.elapsed();
+        assert!(matches!(video.close_handle().resume_probe_result(ticket).unwrap(),ResumeProbeStatus::Ready(_)));
         for _ in 0..observed.packets {let packet=packets.recv().await.unwrap();assert!(packet.header.padding && !packet.header.marker && packet.payload.is_empty());assert_eq!(packet.header.timestamp,stamp.rtp_timestamp);}
         assert_eq!((observed.packets,observed.arrived),(32,32));assert_eq!(video.close_handle().flow_observation().unwrap().completed_frames,1,"padding cannot manufacture a completed video picture");
         let budget=video.close_handle().frame_budget().unwrap();let bytes=64_005usize.min((u64::from(budget.payload_bytes)*4/5) as usize);let unit=frame(bytes,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();
@@ -215,6 +218,26 @@ fn quiet_probe(capacity:u32) {
 fn adaptive_network_quiet_probe_missing_packet_closes_without_fake_media_progress() {quiet_probe_failure(false);}
 #[test]
 fn adaptive_network_quiet_probe_authority_close_cancels_without_fake_media_progress() {quiet_probe_failure(true);}
+#[test]
+fn adaptive_network_quiet_worker_keeps_the_fence_after_a_small_resumed_delta() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probes().with_producer_control(ProducerControl::RtpDebt);
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
+        for (pts,keyframe) in [(1_000_000,true),(5_000_000,false)] {
+            let unit=frame(1005,keyframe,pts);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+            if keyframe {tokio::time::sleep(Duration::from_secs(3)).await;}
+        }
+        let until=Instant::now()+Duration::from_secs(1);while video.bitrate_estimate().is_none_or(|estimate|estimate.age>Duration::from_millis(100)) && Instant::now()<until {tokio::time::sleep(Duration::from_millis(10)).await;}
+        assert!(video.bitrate_estimate().is_some_and(|estimate|estimate.age<Duration::from_millis(100)));
+        let before=link.snapshot().await;assert_eq!(before.rtp,2,"tiny update must create no padding probe");let began=Instant::now();let ticket=video.close_handle().prepare_frame(64005).unwrap().unwrap();
+        loop {match video.next_update().await {VideoUpdate::ResumeProbeRequested(request)=>{assert_eq!(request,ticket);break;},VideoUpdate::Ended=>panic!("quiet request lost after tiny acknowledgement"),_=>{}}}
+        let observed=video.service_resume_probe(ticket).await.unwrap();for _ in 0..observed.packets {assert!(packets.recv().await.unwrap().payload.is_empty());}
+        let unit=frame(64005,true,6_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        assert!(began.elapsed()<Duration::from_millis(750));assert_eq!(link.snapshot().await.overflow,0);
+        eprintln!("quiet_worker_small_delta small_rtp_packets={} padding_packets={} resume_bytes=64005 total_us={}",before.rtp,observed.packets,began.elapsed().as_micros());
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+    }).await.expect("bounded staged quiet fence after tiny delta");});
+}
 fn quiet_probe_failure(close:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
         let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probes();

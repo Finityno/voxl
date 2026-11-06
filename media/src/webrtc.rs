@@ -27,7 +27,7 @@ mod relay_interfaces;
 mod signaling;
 mod send_control;
 mod fast_delay;
-pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation,ResumeProbeObservation};
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation,ResumeProbeObservation,ResumeProbeTicket,ResumeProbeStatus};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -198,6 +198,17 @@ impl VideoCloseHandle {
     /// Worker-readable admission policy while the serial sender is pacing.
     /// This is a configuration/estimate snapshot, not measured link capacity.
     pub fn frame_budget(&self)->Option<FrameBudget> {self.control.as_ref().and_then(|control|control.frame_budget())}
+    /// Called on the native worker with actual unsent bytes. A ticket asks the
+    /// owning async writer to probe; small deltas create no padding traffic.
+    pub fn prepare_frame(&self,bytes:usize)->Result<Option<ResumeProbeTicket>,WebRtcError> {
+        if self.closed.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
+        match &self.control {Some(control)=>control.prepare_frame(bytes),None=>Ok(None)}
+    }
+    /// Scalar, ticket-fenced completion only; no frame or authority is retained.
+    pub fn resume_probe_result(&self,ticket:ResumeProbeTicket)->Result<ResumeProbeStatus,WebRtcError> {
+        if self.closed.load(Ordering::Acquire) {return Err(WebRtcError::Ended);}
+        self.control.as_ref().ok_or(WebRtcError::Configuration)?.probe_result(ticket)
+    }
     /// Optional raw-producer debt gate, including retransmissions. No wait here
     /// extends the bounded send deadline or authorizes dropping encoded frames.
     pub fn producer_budget(&self)->Option<ProducerBudget> {self.control.as_ref().and_then(|control|control.producer_budget())}
@@ -272,7 +283,7 @@ impl Drop for NegotiationGuard {fn drop(&mut self) {if let Some(close)=self.0.ta
 #[derive(Clone,Copy)]
 enum UpdatePhase {Waiting,Connected,Disconnected}
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
-pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,BitrateTarget(u32),Ended}
+pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,BitrateTarget(u32),ResumeProbeRequested(ResumeProbeTicket),Ended}
 
 struct OpeningPeer(Option<Arc<dyn PeerConnection>>, tokio::runtime::Handle);
 impl Drop for OpeningPeer {
@@ -454,6 +465,7 @@ impl WebRtcVideo {
                 return VideoUpdate::Connected;
             }
             if connected && self.take_keyframe_request() {return VideoUpdate::KeyframeRequested;}
+            if connected && let SendMode::Controlled {state,..}=&self.send_mode && let Some(ticket)=state.take_probe_request() {return VideoUpdate::ResumeProbeRequested(ticket);}
             if connected && let SendMode::Controlled {state,rate_seen,..}=&mut self.send_mode
                 && let Some(kbps)=state.changed_target(rate_seen) {return VideoUpdate::BitrateTarget(kbps);}
             let deadline=if connected && self.keyframe.load(Ordering::Acquire) {
@@ -618,16 +630,29 @@ impl WebRtcVideo {
     /// input; this sends no codec payload, keyframe receipt or periodic traffic.
     /// Only an already-written, connected controlled epoch can probe after two
     /// seconds without media. Missing/lost/late feedback closes the transport.
-    pub async fn probe_quiet_resume(&mut self)->Result<ResumeProbeObservation,WebRtcError> {
+    fn probe_parameters(&self)->Result<(u8,u64),WebRtcError> {
         if self.ended() {return Err(WebRtcError::Ended);}
         if !self.connected() {return Err(WebRtcError::NotConnected);}
-        let (payload_type,generation)=match self.negotiation {Negotiation::Ready {payload,generation,..}=>(payload,generation),_=>return Err(WebRtcError::NotConnected)};
+        let (payload,generation)=match self.negotiation {Negotiation::Ready {payload,generation,..}=>(payload,generation),_=>return Err(WebRtcError::NotConnected)};
         if !matches!(self.sent_boundary,SentBoundary::Written(previous) if previous==generation) {return Err(WebRtcError::Configuration);}
+        Ok((payload,generation))
+    }
+    /// Explicitly probe a quiet epoch on this serial writer, with no codec
+    /// payload or frame receipt. Pending worker requests share the same ticket.
+    pub async fn probe_quiet_resume(&mut self)->Result<ResumeProbeObservation,WebRtcError> {
+        self.probe_parameters()?;
+        let ticket=self.closer.prepare_frame(MAX_FRAME_BYTES)?.ok_or(WebRtcError::Configuration)?;
+        self.service_resume_probe(ticket).await
+    }
+    /// Service exactly one worker request on this serial writer. The original
+    /// request deadline includes dispatch time; repeated calls never extend it.
+    pub async fn service_resume_probe(&mut self,ticket:ResumeProbeTicket)->Result<ResumeProbeObservation,WebRtcError> {
+        let (payload_type,_generation)=self.probe_parameters()?;
         let SendMode::Controlled {state,..}=&self.send_mode else {return Err(WebRtcError::Configuration);};let state=Arc::clone(state);
-        let epoch=state.begin_probe(self.ssrc,self.sequence)?;
+        let wait=state.begin_requested_probe(ticket,self.ssrc,self.sequence)?;
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         let timestamp=self.timestamp.wrapping_add(((i128::from(self.last_pts.ok_or(WebRtcError::Configuration)?)-i128::from(self.first_pts.ok_or(WebRtcError::Configuration)?))*90_000/1_000_000) as u32);
-        let result=tokio::time::timeout(send_control::probe::DEADLINE,async {
+        let result=tokio::time::timeout(wait,async {
             for _ in 0..send_control::probe::PACKETS {
                 let packet=rtc::rtp::Packet {header:rtc::rtp::Header {version:2,padding:true,payload_type,sequence_number:self.sequence,timestamp,ssrc:self.ssrc,..Default::default()},payload:Bytes::from_static(&[0;251])};self.sequence=self.sequence.wrapping_add(1);
                 if self.ended() {return Err(WebRtcError::Ended);}
@@ -635,7 +660,7 @@ impl WebRtcVideo {
                 let SendMode::Controlled {submitted,..}=&mut self.send_mode else {return Err(WebRtcError::Configuration);};*submitted=submitted.checked_add(1).ok_or(WebRtcError::Transport)?;
                 if *submitted%send_control::WINDOW==0 {state.wait_released(*submitted).await?;}
             }
-            state.probe_observation(epoch).await
+            state.probe_observation(ticket).await
         }).await.map_err(|_|WebRtcError::Deadline).and_then(|result|result);
         if result.is_ok() {guard.0=None;}else {self.close();}result
     }

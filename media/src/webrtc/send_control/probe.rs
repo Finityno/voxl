@@ -8,14 +8,38 @@ const FRESHNESS:Duration=Duration::from_secs(2);
 pub(super) struct ProbePacket {pub(super) index:usize}
 #[derive(Clone,Copy)]
 enum Slot {Unsent,Sent {ssrc:u32,sequence:u16,departure:Instant},Arrived {arrival:Duration,bytes:u32},Lost}
-pub(super) struct Collection {slots:[Slot;PACKETS],deadline:Instant,ceiling:u32,ssrc:u32,sequence:u16}
+pub(super) struct Collection {slots:[Slot;PACKETS],ticket:ResumeProbeTicket,ceiling:u32,ssrc:u32,sequence:u16}
 #[derive(Debug,Clone,Copy)]
 pub struct ResumeProbeObservation {pub packets:u32,pub arrived:u32,pub received_rtp_bytes:u32,pub arrival_span:Duration,pub received_bps:u32,pub target_kbps:u32}
-pub(super) enum Probe {Idle,Collecting(Box<Collection>),Complete {observation:ResumeProbeObservation,at:Instant},Failed}
+/// Opaque current-epoch request; neither view nor input authority is granted.
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub struct ResumeProbeTicket {pub(super) epoch:u64,serial:u64,deadline:Instant}
+impl ResumeProbeTicket {
+    pub(super) fn new(epoch:u64,serial:u64,now:Instant)->Self {Self {epoch,serial,deadline:now+DEADLINE}}
+    pub(super) fn remaining(self,now:Instant)->Option<Duration> {self.deadline.checked_duration_since(now).filter(|wait|!wait.is_zero())}
+}
+/// Retired requests cannot publish the output held for their previous epoch.
+#[derive(Debug,Clone,Copy)]
+pub enum ResumeProbeStatus {Pending,Ready(ResumeProbeObservation),Retired}
+#[derive(Clone,Copy)]
+pub(super) enum Dispatch {Waiting,Claimed}
+pub(super) enum Probe {Idle,Quiet,Requested {ticket:ResumeProbeTicket,dispatch:Dispatch},Collecting(Box<Collection>),Complete {ticket:ResumeProbeTicket,observation:ResumeProbeObservation,at:Instant},Failed}
 impl Probe {
-    pub(super) fn begin(&mut self,now:Instant,ceiling:u32,ssrc:u32,sequence:u16)->bool {
-        if !matches!(self,Self::Idle) && !matches!(self,Self::Complete {at,..} if now.saturating_duration_since(*at)>FRESHNESS) {return false;}
-        *self=Self::Collecting(Box::new(Collection {slots:[Slot::Unsent;PACKETS],deadline:now+DEADLINE,ceiling,ssrc,sequence}));true
+    pub(super) fn quiet(&mut self,now:Instant) {
+        if matches!(self,Self::Idle) || matches!(self,Self::Complete {at,..} if now.saturating_duration_since(*at)>FRESHNESS) {*self=Self::Quiet;}
+    }
+    pub(super) fn unprobed(&self)->bool {matches!(self,Self::Quiet)}
+    pub(super) fn request(&mut self,ticket:ResumeProbeTicket,now:Instant)->bool {
+        if !matches!(self,Self::Quiet|Self::Idle) && !matches!(self,Self::Complete {at,..} if now.saturating_duration_since(*at)>FRESHNESS) {return false;}
+        *self=Self::Requested {ticket,dispatch:Dispatch::Waiting};true
+    }
+    pub(super) fn pending(&self)->Option<ResumeProbeTicket> {match self {Self::Requested {ticket,..}=>Some(*ticket),Self::Collecting(collection)=>Some(collection.ticket),_=>None}}
+    pub(super) fn take_request(&mut self)->Option<ResumeProbeTicket> {
+        match self {Self::Requested {ticket,dispatch:Dispatch::Waiting}=>{let ticket=*ticket;*self=Self::Requested {ticket,dispatch:Dispatch::Claimed};Some(ticket)},_=>None}
+    }
+    pub(super) fn begin(&mut self,ticket:ResumeProbeTicket,now:Instant,ceiling:u32,ssrc:u32,sequence:u16)->bool {
+        if !matches!(self,Self::Requested {ticket:current,..} if *current==ticket) || ticket.remaining(now).is_none() {return false;}
+        *self=Self::Collecting(Box::new(Collection {slots:[Slot::Unsent;PACKETS],ticket,ceiling,ssrc,sequence}));true
     }
     pub(super) fn packet_index(&self,packet:&rtc::rtp::Packet)->Option<usize> {
         let Self::Collecting(collection)=self else {return None;};
@@ -24,12 +48,12 @@ impl Probe {
     }
     pub(super) fn sent(&mut self,index:usize,packet:&rtc::rtp::Packet,now:Instant)->Result<(),()> {
         let Self::Collecting(collection)=self else {return Err(());};
-        if now>collection.deadline || index>=PACKETS || !matches!(collection.slots[index],Slot::Unsent) || !packet.header.padding || packet.payload.iter().any(|byte|*byte!=0) {return Err(());}
+        if now>collection.ticket.deadline || index>=PACKETS || !matches!(collection.slots[index],Slot::Unsent) || !packet.header.padding || packet.payload.iter().any(|byte|*byte!=0) {return Err(());}
         collection.slots[index]=Slot::Sent {ssrc:packet.header.ssrc,sequence:packet.header.sequence_number,departure:now};Ok(())
     }
     pub(super) fn feedback(&mut self,reports:&[PacketReport],now:Instant,min:u32)->Result<Option<ResumeProbeObservation>,()> {
         let Self::Collecting(collection)=self else {return Ok(None);};
-        if now>collection.deadline {*self=Self::Failed;return Err(());}
+        if now>collection.ticket.deadline {*self=Self::Failed;return Err(());}
         for report in reports {
             let Some(slot)=collection.slots.iter_mut().find(|slot|matches!(slot,Slot::Sent {ssrc,sequence,departure} if *ssrc==report.ssrc && *sequence==report.rtp_sequence_number && *departure==report.departure)) else {continue;};
             *slot=if report.arrived {match report.arrival {Some(arrival)=>Slot::Arrived {arrival,bytes:report.size.try_into().map_err(|_|())?},None=>{*self=Self::Failed;return Err(());}}} else {Slot::Lost};
@@ -48,9 +72,18 @@ impl Probe {
         let received_bps=u32::try_from(measured.min(u128::from(u32::MAX))).map_err(|_|())?;
         let bps=received_bps.clamp(min,collection.ceiling);
         let observation=ResumeProbeObservation {packets:PACKETS as u32,arrived:PACKETS as u32,received_rtp_bytes:bytes,arrival_span:span,received_bps,target_kbps:bps/1000};
-        *self=Self::Complete {observation,at:now};Ok(Some(observation))
+        *self=Self::Complete {ticket:collection.ticket,observation,at:now};Ok(Some(observation))
     }
+    #[cfg(test)]
     pub(super) fn observation(&self)->Result<Option<ResumeProbeObservation>,()> {match self {Self::Complete {observation,..}=>Ok(Some(*observation)),Self::Failed=>Err(()),_=>Ok(None)}}
+    pub(super) fn poll(&self,ticket:ResumeProbeTicket,now:Instant)->Result<ResumeProbeStatus,WebRtcError> {
+        match self {
+            Self::Complete {ticket:current,observation,..} if *current==ticket=>Ok(ResumeProbeStatus::Ready(*observation)),
+            Self::Requested {ticket:current,..} if *current==ticket=>if ticket.remaining(now).is_some() {Ok(ResumeProbeStatus::Pending)} else {Err(WebRtcError::Deadline)},
+            Self::Collecting(collection) if collection.ticket==ticket=>if ticket.remaining(now).is_some() {Ok(ResumeProbeStatus::Pending)} else {Err(WebRtcError::Deadline)},
+            Self::Failed=>Err(WebRtcError::Transport),_=>Ok(ResumeProbeStatus::Retired),
+        }
+    }
     pub(super) fn cap(&self,now:Instant,minimum:u32)->Option<u32> {
         match self {Self::Complete {observation,at}=>Some(if now.saturating_duration_since(*at)<=FRESHNESS {observation.received_bps} else {observation.received_bps.min(minimum)}),_=>None}
     }
@@ -64,10 +97,13 @@ impl Probe {
 mod tests {
     use super::*;
     fn packet(sequence:u16)->rtc::rtp::Packet {rtc::rtp::Packet {header:rtc::rtp::Header {ssrc:55,sequence_number:sequence,padding:true,..Default::default()},payload:Bytes::new()}}
+    fn start(probe:&mut Probe,now:Instant,ceiling:u32,ssrc:u32,sequence:u16)->bool {
+        let ticket=ResumeProbeTicket::new(0,1,now);probe.request(ticket,now) && probe.begin(ticket,now,ceiling,ssrc,sequence)
+    }
     fn report(now:Instant,sequence:u16)->PacketReport {PacketReport {ssrc:55,id:u64::from(sequence),rtp_sequence_number:sequence,is_twcc:true,twcc_sequence_number:sequence,size:24,arrived:true,departure:now,arrival:Some(Duration::from_micros(u64::from(sequence)*1000)),ecn:Default::default()}}
     #[test]
     fn resume_probe_matches_departure_epoch_and_consumes_reports_once() {
-        let now=Instant::now();let mut probe=Probe::Idle;assert!(probe.begin(now,1_500_000,55,0));assert!(!probe.begin(now,1_500_000,55,0));
+        let now=Instant::now();let mut probe=Probe::Idle;assert!(start(&mut probe,now,1_500_000,55,0));assert!(!start(&mut probe,now,1_500_000,55,0));
         for index in 0..PACKETS {probe.sent(index,&packet(index as u16),now).unwrap();}
         let mut wrong=report(now,0);wrong.departure=now-Duration::from_millis(1);assert!(probe.feedback(&[wrong],now,250_000).unwrap().is_none());
         let reports:Vec<_>=(0..PACKETS as u16).map(|sequence|report(now,sequence)).collect();
@@ -81,7 +117,7 @@ mod tests {
     fn resume_probe_loss_missing_or_late_feedback_never_qualifies() {
         let now=Instant::now();
         for fault in 0..3 {
-            let mut probe=Probe::Idle;assert!(probe.begin(now,1_500_000,55,0));for index in 0..PACKETS {probe.sent(index,&packet(index as u16),now).unwrap();}
+            let mut probe=Probe::Idle;assert!(start(&mut probe,now,1_500_000,55,0));for index in 0..PACKETS {probe.sent(index,&packet(index as u16),now).unwrap();}
             let mut reports:Vec<_>=(0..PACKETS as u16).map(|sequence|report(now,sequence)).collect();
             let at=if fault==2 {now+DEADLINE+Duration::from_nanos(1)} else {now};
             if fault==0 {reports[0].arrived=false;reports[0].arrival=None;}else if fault==1 {reports[0].arrival=None;}
@@ -102,12 +138,12 @@ mod tests {
     }
     #[test]
     fn resume_probe_cap_expires_conservatively_and_a_later_probe_rejects_old_reports() {
-        let now=Instant::now();let mut probe=Probe::Idle;assert!(probe.begin(now,1_500_000,55,0));
+        let now=Instant::now();let mut probe=Probe::Idle;assert!(start(&mut probe,now,1_500_000,55,0));
         for index in 0..PACKETS {probe.sent(index,&packet(index as u16),now).unwrap();}
         let reports:Vec<_>=(0..PACKETS as u16).map(|sequence|{let mut r=report(now,sequence);r.arrival=Some(Duration::from_micros(u64::from(sequence)*50));r}).collect();
         let value=probe.feedback(&reports,now,250_000).unwrap().unwrap();assert_eq!(value.target_kbps,1500);assert!(probe.cap(now,250_000).unwrap()>1_500_000);
         let later=now+FRESHNESS+Duration::from_nanos(1);assert_eq!(probe.cap(later,250_000),Some(250_000));
-        assert!(probe.begin(later,1_500_000,55,0));for index in 0..PACKETS {probe.sent(index,&packet(index as u16),later).unwrap();}
+        assert!(start(&mut probe,later,1_500_000,55,0));for index in 0..PACKETS {probe.sent(index,&packet(index as u16),later).unwrap();}
         assert!(probe.feedback(&reports,later,250_000).unwrap().is_none());assert!(probe.observation().unwrap().is_none());
     }
 }

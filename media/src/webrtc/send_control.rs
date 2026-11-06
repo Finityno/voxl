@@ -11,7 +11,7 @@ pub use debt::{ProducerControl,ProducerBudget};
 mod flow;
 pub use flow::FlowObservation;
 pub(super) mod probe;
-pub use probe::ResumeProbeObservation;
+pub use probe::{ResumeProbeObservation,ResumeProbeTicket,ResumeProbeStatus};
 
 pub(super) const WINDOW:u64=16;
 pub(super) const FRAME_DEADLINE:Duration=Duration::from_millis(500);
@@ -59,9 +59,9 @@ pub struct BitrateEstimate {pub target_kbps:u32,pub age:Duration}
 #[derive(Clone,Copy)]
 enum Rate {Unknown,Observed {bps:u32,at:Instant,revision:u64}}
 enum MediaActivity {Unsent,Written {at:Instant,ssrc:u32,sequence:u16}}
-struct Epoch {id:u64,started:Instant,rate:Rate,debt:debt::Ledger,flow:flow::Monitor,media:MediaActivity,probe:probe::Probe}
+struct Epoch {id:u64,started:Instant,rate:Rate,debt:debt::Ledger,flow:flow::Monitor,media:MediaActivity,probe:probe::Probe,probe_serial:u64}
 impl Epoch {
-    fn new(id:u64,limits:SendControl)->Self {let started=Instant::now();Self {id,started,rate:Rate::Unknown,debt:debt::Ledger::new(limits.producer,started,limits.initial),flow:flow::Monitor::new(limits.observe_flow),media:MediaActivity::Unsent,probe:probe::Probe::Idle}}
+    fn new(id:u64,limits:SendControl)->Self {let started=Instant::now();Self {id,started,rate:Rate::Unknown,debt:debt::Ledger::new(limits.producer,started,limits.initial),flow:flow::Monitor::new(limits.observe_flow),media:MediaActivity::Unsent,probe:probe::Probe::Idle,probe_serial:0}}
 }
 #[repr(u8)]
 #[derive(Clone,Copy)]
@@ -127,19 +127,48 @@ impl Control {
         if let Some(cap)=epoch.probe.cap(Instant::now(),self.limits.min) {budget.payload_bytes=budget.payload_bytes.min((u64::from(cap)*315/8000) as u32);}
         Some(budget)
     }
-    pub(super) fn begin_probe(&self,ssrc:u32,sequence:u16)->Result<u64,WebRtcError> {
-        if !self.active() || !self.limits.quiet_probes {return Err(WebRtcError::Configuration);}
+    pub(super) fn prepare_frame(&self,bytes:usize)->Result<Option<ResumeProbeTicket>,WebRtcError> {
+        if !self.active() {return Err(WebRtcError::Ended);}
+        if !self.limits.quiet_probes {return Ok(None);}
+        if bytes==0 || bytes>MAX_FRAME_BYTES {return Err(WebRtcError::InvalidFrame);}
         let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);let now=Instant::now();
-        if !matches!(epoch.media,MediaActivity::Written {at,..} if now.saturating_duration_since(at)>=Duration::from_secs(2)) {return Err(WebRtcError::Configuration);}
-        let ceiling=match epoch.rate {Rate::Observed {bps,..}=>bps,Rate::Unknown=>return Err(WebRtcError::Configuration)};
-        if !epoch.probe.begin(now,ceiling,ssrc,sequence) {return Err(WebRtcError::Configuration);}
-        Ok(epoch.id)
+        if matches!(epoch.media,MediaActivity::Written {at,..} if now.saturating_duration_since(at)>=Duration::from_secs(2)) {epoch.probe.quiet(now);}
+        if let Some(ticket)=epoch.probe.pending() {return Ok(Some(ticket));}
+        // This is a conservative configuration prior, not a capacity claim.
+        // A small delta neither starts a padding burst nor clears Quiet.
+        let small=(u64::from(self.limits.min)*315/8000*4/5) as usize;
+        if !epoch.probe.unprobed() || bytes<=small {return Ok(None);}
+        if matches!(epoch.rate,Rate::Unknown) {return Err(WebRtcError::Transport);}
+        let Some(serial)=epoch.probe_serial.checked_add(1) else {drop(epoch);self.fail();return Err(WebRtcError::Ended);};epoch.probe_serial=serial;
+        let ticket=ResumeProbeTicket::new(epoch.id,serial,now);
+        if !epoch.probe.request(ticket,now) {return Err(WebRtcError::Configuration);}drop(epoch);self.changes.changed();Ok(Some(ticket))
     }
-    pub(super) async fn probe_observation(&self,expected:u64)->Result<ResumeProbeObservation,WebRtcError> {
+    pub(super) fn take_probe_request(&self)->Option<ResumeProbeTicket> {
+        if !self.active() {return None;}
+        self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner).probe.take_request()
+    }
+    pub(super) fn begin_requested_probe(&self,ticket:ResumeProbeTicket,ssrc:u32,sequence:u16)->Result<Duration,WebRtcError> {
+        if !self.active() {return Err(WebRtcError::Ended);}
+        let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);let now=Instant::now();
+        if epoch.id!=ticket.epoch {return Err(WebRtcError::Ended);}
+        let wait=ticket.remaining(now).ok_or(WebRtcError::Deadline)?;
+        let ceiling=match epoch.rate {Rate::Observed {bps,..}=>bps,Rate::Unknown=>return Err(WebRtcError::Configuration)};
+        if !epoch.probe.begin(ticket,now,ceiling,ssrc,sequence) {return Err(WebRtcError::Configuration);}
+        Ok(wait)
+    }
+    pub(super) fn probe_result(&self,ticket:ResumeProbeTicket)->Result<ResumeProbeStatus,WebRtcError> {
+        if !self.active() {return Err(WebRtcError::Ended);}
+        let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);if epoch.id!=ticket.epoch {return Ok(ResumeProbeStatus::Retired);}
+        epoch.probe.poll(ticket,Instant::now())
+    }
+    #[cfg(test)]
+    fn begin_probe(&self,ssrc:u32,sequence:u16)->Result<ResumeProbeTicket,WebRtcError> {
+        let ticket=self.prepare_frame(MAX_FRAME_BYTES)?.ok_or(WebRtcError::Configuration)?;self.begin_requested_probe(ticket,ssrc,sequence)?;Ok(ticket)
+    }
+    pub(super) async fn probe_observation(&self,expected:ResumeProbeTicket)->Result<ResumeProbeObservation,WebRtcError> {
         loop {
             let revision=self.changes.revision();if !self.active() {return Err(WebRtcError::Ended);}
-            let observation={let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);if epoch.id!=expected {return Err(WebRtcError::Ended);}epoch.probe.observation().map_err(|_|WebRtcError::Transport)?};
-            if let Some(value)=observation {return Ok(value);}
+            match self.probe_result(expected)? {ResumeProbeStatus::Ready(value)=>return Ok(value),ResumeProbeStatus::Retired=>return Err(WebRtcError::Ended),ResumeProbeStatus::Pending=>{}}
             self.changes.wait(revision).await;
         }
     }
@@ -163,7 +192,10 @@ impl Control {
         let mut result=epoch.debt.charge(message.now,packet.marshal_size());
         if self.limits.quiet_probes {
             if let Some(probe)=message.message.custom::<probe::ProbePacket>() {if !message.message.has(&Attribute::Retransmission) {result=result.and_then(|()|epoch.probe.sent(probe.index,packet,message.now));}}
-            else if message.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_none() {epoch.media=MediaActivity::Written {at:message.now,ssrc:packet.header.ssrc,sequence:packet.header.sequence_number};}
+            else if message.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_none() && !message.message.has(&Attribute::Retransmission) {
+                if matches!(epoch.media,MediaActivity::Written {at,..} if message.now.saturating_duration_since(at)>=Duration::from_secs(2)) {epoch.probe.quiet(message.now);}
+                epoch.media=MediaActivity::Written {at:message.now,ssrc:packet.header.ssrc,sequence:packet.header.sequence_number};
+            }
         }
         epoch.flow.released(message);drop(epoch);
         if result.is_err() {self.fail();return false;}self.active()
@@ -564,6 +596,26 @@ mod tests {
                 assert!(matches!(tokio::time::timeout(Duration::from_millis(30),control.probe_observation(epoch)).await.unwrap(),Err(WebRtcError::Ended)));
             }
         });
+    }
+    #[test]
+    fn resume_probe_worker_request_survives_small_delta_and_fresh_tiny_ack() {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_quiet_resume_probes();let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
+        {let mut epoch=control.epoch.lock().unwrap();epoch.media=MediaActivity::Written {at:now-Duration::from_secs(3),ssrc:55,sequence:6};epoch.rate=Rate::Observed {bps:1_500_000,at:now-Duration::from_secs(3),revision:1};}
+        assert!(control.prepare_frame(1000).unwrap().is_none());assert!(control.epoch.lock().unwrap().probe.unprobed());
+        let small=packet(&control,7,now);assert!(control.released_rtp(0,&small));
+        control.epoch.lock().unwrap().rate=Rate::Observed {bps:1_500_000,at:Instant::now(),revision:2};
+        let ticket=control.prepare_frame(64005).unwrap().unwrap();assert_eq!(control.prepare_frame(64005).unwrap(),Some(ticket));
+        assert_eq!(control.take_probe_request(),Some(ticket));assert_eq!(control.take_probe_request(),None);
+        let wait=control.begin_requested_probe(ticket,55,8).unwrap();assert!(wait<=probe::DEADLINE);assert!(matches!(control.probe_result(ticket).unwrap(),ResumeProbeStatus::Pending));
+        assert!(matches!(control.begin_requested_probe(ticket,55,8),Err(WebRtcError::Configuration)));control.retire();assert!(matches!(control.probe_result(ticket).unwrap(),ResumeProbeStatus::Retired));
+    }
+    #[test]
+    fn resume_probe_dispatch_never_restarts_an_expired_request_deadline() {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_quiet_resume_probes();let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
+        let ticket=ResumeProbeTicket::new(0,1,now-Duration::from_secs(1));
+        {let mut epoch=control.epoch.lock().unwrap();epoch.rate=Rate::Observed {bps:1_500_000,at:now,revision:1};assert!(epoch.probe.request(ticket,now-Duration::from_secs(1)));}
+        assert_eq!(control.take_probe_request(),Some(ticket));assert!(matches!(control.begin_requested_probe(ticket,55,8),Err(WebRtcError::Deadline)));
+        assert!(matches!(control.probe_result(ticket),Err(WebRtcError::Deadline)));assert!(control.active());
     }
     #[test]
     fn flow_observation_retirement_fences_old_packets_and_close() {
