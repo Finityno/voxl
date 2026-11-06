@@ -810,7 +810,8 @@ References: [AV1 RTP payload format](https://aomediacodec.github.io/av1-rtp-spec
 `SendControl::new(min_kbps, initial_kbps, max_kbps)` limits. They are a separate
 qualification path while the complete application loop is being admitted.
 Existing constructors retain their ordinary behavior. The controlled path uses
-the pinned SDK's GCC/TWCC algorithm and token bucket, with a four-packet burst,
+the pinned SDK's GCC/TWCC algorithm and token bucket, with a rate-dependent 5 ms
+RTP burst budget floored at one 1500-byte packet and capped at 6000 RTP bytes,
 256 total held/released RTP packets and a 500 ms packet/frame deadline. It waits
 for paced release every sixteen original packets and at each frame boundary;
 accepting a driver command alone cannot finish a controlled send. Packet loss

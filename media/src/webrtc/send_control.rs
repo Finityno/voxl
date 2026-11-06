@@ -1,7 +1,7 @@
 //! Optional GCC and bounded pacing. The serial producer waits for release, not
 //! just driver enqueue. Queue loss is terminal; close retires queued RTP.
 use super::*;
-use rtc::interceptor::{Attribute,BandwidthEstimator,EstimatorStats,Gcc,Interceptor,Packet,PacketReport,PacerBuilder,PacerInterceptor,StreamInfo,TaggedPacket};
+use rtc::interceptor::{Attribute,BandwidthEstimator,EstimatorStats,Gcc,Interceptor,Packet,PacketReport,PacerBuilder,PacerInterceptor,StreamInfo,TaggedPacket,PACER_MIN_BURST_BITS};
 use rtc::sansio::Protocol;
 use rtc::shared::error::Error;
 use std::collections::{VecDeque,HashMap};
@@ -9,6 +9,7 @@ use std::collections::{VecDeque,HashMap};
 pub(super) const WINDOW:u64=16;
 pub(super) const FRAME_DEADLINE:Duration=Duration::from_millis(500);
 const MAX_QUEUED:usize=256;
+fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 
 /// Local qualification limits. The maximum must also fit the viewer's request.
 /// Rates are RTP pacing targets, not provider-billed or encoded-byte ceilings.
@@ -127,7 +128,7 @@ impl BoundedPacer {
         Self {state:Self::running(control.limits),control,epoch:0}
     }
     fn running(limits:SendControl)->Pacing {
-        Pacing::Running {inner:Box::new(PacerBuilder::new().with_target_bitrate(f64::from(limits.initial)).with_burst_bits(48_000.0).with_queue_limit(MAX_QUEUED).build()),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
+        Pacing::Running {inner:Box::new(PacerBuilder::new().with_target_bitrate(f64::from(limits.initial)).with_burst_bits(burst_bits(f64::from(limits.initial))).with_queue_limit(MAX_QUEUED).build()),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
     }
     fn ready(&mut self,now:Option<Instant>)->bool {
         if !self.control.active() {self.state=Pacing::Stopped;return false;}
@@ -145,11 +146,14 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
     type Rout=TaggedPacket;type Wout=TaggedPacket;type Eout=();type Error=Error;type Time=Instant;
     fn handle_read(&mut self,message:TaggedPacket)->Result<(),Error> {
         if !self.ready(Some(message.now)) {return Ok(());}
-        if let Some(Attribute::TargetBitrateChanged {bits_per_second})=message.message.get(&Attribute::TargetBitrateChanged {bits_per_second:0.0})
-            && (!bits_per_second.is_finite() || *bits_per_second<f64::from(self.control.limits.min) || *bits_per_second>f64::from(self.control.limits.max)) {
+        let rate=match message.message.get(&Attribute::TargetBitrateChanged {bits_per_second:0.0}) {Some(Attribute::TargetBitrateChanged {bits_per_second})=>Some(*bits_per_second),_=>None};
+        if let Some(rate)=rate
+            && (!rate.is_finite() || rate<f64::from(self.control.limits.min) || rate>f64::from(self.control.limits.max)) {
                 self.control.fail();self.state=Pacing::Stopped;return Err(Error::Other("invalid desktop pacing estimate".into()));
             }
-        let Pacing::Running {inner,..}=&mut self.state else {return Ok(());};inner.handle_read(message)
+        let Pacing::Running {inner,..}=&mut self.state else {return Ok(());};inner.handle_read(message)?;
+        if let Some(rate)=rate {*inner.pacer_mut()=inner.pacer().clone().with_burst_bits(burst_bits(rate));}
+        Ok(())
     }
     fn poll_read(&mut self)->Option<TaggedPacket> {
         if !self.ready(None) {return None;}
@@ -238,8 +242,8 @@ mod tests {
         for sequence in 0..10 {pacer.handle_write(packet(&control,sequence,now)).unwrap();}
         pacer.handle_timeout(now).unwrap();let mut sent=0;
         while pacer.poll_write().is_some() {sent+=1;}
-        assert_eq!(sent,5);assert_eq!(control.released.load(Ordering::Acquire),5);
-        let next=pacer.poll_timeout().unwrap();assert!(next>now && next<=now+Duration::from_millis(2));
+        assert_eq!(sent,1);assert_eq!(control.released.load(Ordering::Acquire),1);
+        let next=pacer.poll_timeout().unwrap();assert!(next>now && next<=now+Duration::from_millis(10));
         pacer.handle_timeout(next).unwrap();assert!(pacer.poll_write().is_some());
         control.authority.store(true,Ordering::Release);
         assert!(pacer.poll_write().is_none());assert!(pacer.poll_timeout().is_none());
