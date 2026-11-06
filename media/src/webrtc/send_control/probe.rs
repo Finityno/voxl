@@ -12,7 +12,7 @@ impl Policy {pub(super) fn enabled(self)->bool {!matches!(self,Self::Disabled)}}
 #[derive(Clone,Copy)]
 enum Attempt {Single,First,Retry}
 pub(super) enum Feedback {Pending,Retry,Complete(ResumeProbeObservation)}
-pub(super) enum Outcome {Retry,Complete(ResumeProbeObservation)}
+pub(in crate::webrtc) enum Outcome {Retry,Complete(ResumeProbeObservation)}
 #[derive(Clone,Copy)]
 enum Slot {Unsent,Sent {ssrc:u32,sequence:u16,departure:Instant},Arrived {arrival:Duration,bytes:u32},Lost}
 pub(super) struct Collection {slots:[Slot;PACKETS],ticket:ResumeProbeTicket,ceiling:u32,ssrc:u32,sequence:u16,attempt:Attempt}
