@@ -862,7 +862,7 @@ re-attribute earlier application or performance evidence to this source.
 `macos::VideoEncoder::set_streaming_bitrate_target` additionally verifies an
 encoded-byte burst budget for the optional adaptive path. Hardware uses a400ms
 native window. CPU H.264 uses a whole-second window on the qualified Mac and
-therefore has a lower sustained hard ceiling for the same byte budget. The
+therefore requests a lower sustained ceiling for the same byte budget. The
 returned `burst_limit` records verified bytes/window metadata separately from
 the average target. This provisional CPU tradeoff requires quality/resource
 qualification; it does not change legacy encoder behavior or defaults. The
@@ -876,3 +876,11 @@ records configured native metadata only; CPU burst handling and decoded quality
 remain unqualified. The subsequent setter orders average before burst mutation
 and verifies both properties after the final change; that ordering change still
 requires full-size application qualification.
+
+The ordered setter's full-size application followup passed nominal hardware
+H.264/HEVC decode/restart/revocation cases, while CPU H.264 still emitted a103281-
+byte keyframe and exceeded the500ms paced send deadline. A hardware HEVC frame
+also exceeded the requested byte policy while ending under signed revocation.
+Those observations confirm that metadata readback is not emitted-size admission;
+CPU burst handling and general changing-capacity/quality/resource admission
+remain open. No deadline or optimistic performance target was relaxed.
