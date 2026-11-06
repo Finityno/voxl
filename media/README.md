@@ -961,6 +961,24 @@ not actual decode latency; bytes are measured before later TWCC/SRTP framing.
 Counters include trend groups/signals/resets without changing controller policy.
 The monitor is disabled by default and adds no thread or timer.
 
+### Quiet resume feedback (opt-in component)
+
+`SendControl::with_quiet_resume_probes()` enables the explicit
+`WebRtcVideo::probe_quiet_resume()` operation after an already-written connected
+epoch has sent no media for two seconds. It creates no periodic RTP/video.
+Thirty-two authenticated padding-only packets bind exact receiver reports within
+500 ms, seed a bounded target and cap the first resumed byte budget. Expired
+credit only tightens; missing/lost/late feedback or close cannot produce a frame
+receipt. Ordinary RTP and existing callers remain unchanged. The caller must
+preserve unsent reference chains and use actual native byte admission; the
+component does not re-encode an already-generated large picture.
+
+[Exact-source proof and required-artifact verifier](results/2026-11-06-quiet-resume/README.md)
+record 19 selected tests and actual encrypted-UDP fast/slow/loss/close cases,
+including both UDP directions during silence. The slow case carries a smaller
+synthetic payload, not matched-quality video. Fincode integration, real native
+decode/quality/resources and production-default admission remain separate work.
+
 ### Finite desktop keyframe qualification
 
 Mac `VideoEncoder::set_keyframe_interval(frames,seconds)` is a local pre-first-

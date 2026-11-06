@@ -1,0 +1,41 @@
+# Bounded quiet-resume feedback — 2026-11-06
+
+Exact source `8acf5803729f95fc7e52331a6c46ae02a5681bd6`. The consuming application is unchanged at its earlier media pin `56a4b318c576b0ac7c6da1ac5616a5fcbe90d896`; native owner `7f7165c23a515801190448f83d2f54a97c64958d`, application proof `b722aa041317c03eef05aa6e253546220def1c92`. This is an opt-in transport component, not completed Fincode integration or production admission. No dependency version/features, native codec, grant, deadline, queue target or default is changed.
+
+## Problem and implementation
+
+The actual Mac worker already skips unforced raw repeats while idle. ScreenCaptureKit's [idle status](https://developer.apple.com/documentation/screencapturekit/scframestatus/idle) means it generated no new frame because the display did not change; suppressing a nonexistent repeat loop would not fix the actual resume problem. A transport can retain an old bandwidth target across silence. In the retained baseline, no RTP is sent for three seconds, capacity falls from 3 Mbps to 250 kbps, and a permitted 64005-byte synthetic access unit arrives after 2.135 seconds, although its sender releases it in 134.666 ms. Its held 1500 kbps estimate is over three seconds old. Sender departure alone does not establish receiver latency.
+
+`SendControl::with_quiet_resume_probes()` enables the explicit `WebRtcVideo::probe_quiet_resume()` API. Nothing runs periodically or changes existing callers. It requires an already-written, connected controlled epoch and two seconds without media. The caller requests a probe before resumed encoding/admission. Thirty-two padding-only RTP packets use the same SSRC and last video timestamp, advancing sequence/release accounting without a codec payload, marker, presentation timestamp, keyframe receipt or completed video picture. Total serialized RTP is 8704 bytes in these tests. Packet/debt and optional flow counters include the actual traffic; video-frame counters do not.
+
+Exact original SSRC/sequence/departure slots bind all receiver reports, with fixed retention and duplicate/stale suppression. All 32 arrivals and a nonzero receive span must be reported within the unchanged 500 ms operation budget. Receiver packet dispersion seeds the controller no higher than its prior media target, subject to the configured floor; it does not instantly raise encoder quality. Independently, the first resumed byte budget is capped by the measured receive rate. This short cluster is not a guarantee of future capacity. The cap expires after two seconds by tightening to the smaller measured/configured-floor rate, never increasing stale burst credit; a later probe requires fresh exact reports. Only exact subsequent normal-media feedback releases the cap. Later padding retransmissions cannot masquerade as that feedback.
+
+The pinned SDK's additive `RtpPaddingOnly` attribute converts its explicit zero payload into final RFC 3550 padding immediately before SRTP encryption. Serialized length is preserved through congestion/pacing, the receiver obtains an empty payload, and ordinary RTP serialization is unchanged. NACK history restores the padding tag. Padding validation is bounded before allocating one wire buffer. An internal typed message carries the attribute across the SDK's interceptor/SRTP boundary; no external RTP crate or dependency feature is changed. Provenance now records both the existing ICE-list patch and this opt-in addition.
+
+Missing/lost/late feedback fails this component attempt and closes its transport; authority close, cancellation and epoch retirement fence waiters. No fake media progress or new authority is produced. Fincode still needs a bounded, generation/authority-aware application recovery policy for those failures, rather than treating a failed probe as usable capacity.
+
+## Current results
+
+| Condition after three seconds of silence | Resumed synthetic payload | Probe time | Probe + complete reception | Maximum proxy residence |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline, capacity falls to 250 kbps | 64005 bytes | none | 2135.350 ms | 1999.914 ms |
+| Explicit probe, capacity remains 3 Mbps | 64005 bytes | 64.799 ms | 252.970 ms | 52.917 ms |
+| Explicit probe, capacity falls to 250 kbps | 7461 bytes | 361.173 ms | 621.619 ms | 293.658 ms |
+
+The fast case retains the complete 64005-byte payload. The slow case uses a **smaller** synthetic payload chosen within the fresh budget and existing 25% headroom; it is not the same video/image work or an equal-quality improvement. No native image was re-encoded here. Both explicit cases use sustained RTP-debt accounting and have zero proxy overflow. The application must still implement and qualify the corresponding actual-byte re-encode/compatible-keyframe behavior.
+
+Each three-second quiet window records zero RTP, 384 forward UDP-payload bytes and 444 reverse UDP-payload bytes, six datagrams each way. These are separate encrypted-UDP component observations, including its media control traffic, excluding IP/link headers, Connect/Noise, TURN/TLS and provider billing. They are too short for sustained targets and do not establish complete application idle bandwidth. Probes add traffic when requested; blindly probing every small sporadic text edit could waste bandwidth.
+
+A single lost probe packet closes the current attempt in 65.170 ms; explicit authority close cancels it in 12.172 ms. Both preserve the last real presentation timestamp and deliver only empty padding, without another video picture. Pure contracts additionally cover wire validation, ordinary serialization, duplicate/stale reports, lost/missing/late feedback, cap expiry, exact media-only release, NACK/debt/frame accounting and epoch/close fencing.
+
+All 19 selected Rust tests pass at the exact source: one flow-epoch contract, two probe lifetime/NACK contracts, four probe/wire/expiry contracts, four actual encrypted-UDP success/failure cases, six producer-debt contracts, one feedback-epoch contract and one retained negative baseline. The library/test build and strict Clippy pass. Every command has a process-group deadline; builds/tests use the shared Mac lock, nice 19, two jobs and an owned target. No whole suite, formatting, native capture/input, user-app launch or visual verification runs.
+
+## Evidence and remaining work
+
+The owner-only archive `/Users/sondre/Documents/Fincode Desktop Lab Evidence/2026-11-06/quiet-resume-probe` retains 69 indexed originals. All 50 recorded command groups were independently absent after exit. It includes the original baseline, initial missing-documentation and binding/visibility compile failures, two intermediate successful sources and current results, exact helpers/runner, and an initial retention-parser failure. That parser missed Rust progress dots before numeric rows; only the prefix handling was corrected, without changing runtime results or gates. Raw logs/archives stay outside Git.
+
+Run `python3 -B media/results/2026-11-06-quiet-resume/verify.py --archive <retained-artifact-directory>` from a clean checkout containing this proof, with an external deadline. The full archive is required. It verifies tracked hashes, originals, sources, exits/counts, numeric oracles and cleanup; final replay supervision is retained separately.
+
+Next integrate the request/feedback boundary into the actual Mac factory, preserving the unsent reference chain, native byte admission, compatible IDR replacement, monotonic PTS, consent, control/authority, epochs and fixed output/send/replacement budgets. Avoid the probe for safely small text deltas, but retain an unprobed quiet fence across small-packet feedback: one tiny acknowledgement proves liveness, not capacity. Current `begin_probe` requires two seconds since normal media; staged internal requests/VideoUpdate handling must address a later large burst after an intervening tiny delta. Qualify real WebKit/mobile decode, actual quality/resources, recovery/revoke and selected routes before enabling the application default. Blank/suspended/stalled capture handling and physical device/network qualification remain open. Do not infer CPU/RAM/GPU/power or billed savings from this component.
+
+Windows/manual visual work remain stopped. No new agents, screenshots, persisted screen pixels, OS input, SSH/key retry, deployment, release or merge. Keep draft.
