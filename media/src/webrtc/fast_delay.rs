@@ -7,31 +7,50 @@ use rtc::interceptor::{ArrivalGroupAccumulator,InterGroupDelay,OveruseDetector,R
 
 const TREND_WINDOW:usize=20;
 #[derive(Default)]
-enum Trendline {#[default] Empty,Tracking {at:Instant,arrival_ms:f64,accumulated:f64,smoothed:f64,count:u16,samples:[(f64,f64);TREND_WINDOW],used:usize,next:usize}}
+enum TrendPhase {#[default] Empty,Tracking {at:Instant,arrival_ms:f64,accumulated:f64,smoothed:f64,count:u16,used:usize,next:usize}}
+#[derive(Default)]
+struct Trendline {phase:TrendPhase,samples:[(f64,f64);TREND_WINDOW]}
 impl Trendline {
     fn update(&mut self,group:InterGroupDelay)->Option<f64> {
-        let Self::Tracking {at,arrival_ms,accumulated,smoothed,count,samples,used,next}=self else {
-            *self=Self::Tracking {at:group.at,arrival_ms:0.0,accumulated:0.0,smoothed:0.0,count:0,samples:[(0.0,0.0);TREND_WINDOW],used:0,next:0};return None;
+        let TrendPhase::Tracking {at,arrival_ms,accumulated,smoothed,count,used,next}=&mut self.phase else {
+            // Fixed scratch storage survives reset; the phase owns which rows
+            // are valid, so an old generation contributes no measurement.
+            self.phase=TrendPhase::Tracking {at:group.at,arrival_ms:0.0,accumulated:0.0,smoothed:0.0,count:0,used:0,next:0};return None;
         };
         if group.at<=*at {return None;}
         let departure_ms=group.at.duration_since(*at).as_secs_f64()*1000.0;let delta=departure_ms+group.delta_ms;
-        if !delta.is_finite() || delta<0.0 || delta>2000.0 { *self=Self::Empty;return None; }
+        if !delta.is_finite() || !(0.0..=2000.0).contains(&delta) {self.phase=TrendPhase::Empty;return None;}
         *at=group.at;*arrival_ms+=delta;*accumulated+=group.delta_ms;*smoothed=0.9* *smoothed+0.1* *accumulated;*count=count.saturating_add(1).min(60);
-        samples[*next]=(*arrival_ms,*smoothed);*next=(*next+1)%TREND_WINDOW;*used=(*used+1).min(TREND_WINDOW);
+        self.samples[*next]=(*arrival_ms,*smoothed);*next=(*next+1)%TREND_WINDOW;*used=(*used+1).min(TREND_WINDOW);
         if *used<TREND_WINDOW {return None;}
-        let (x,y)=samples.iter().fold((0.0,0.0),|(x,y),(a,b)|(x+a,y+b));let x=x/TREND_WINDOW as f64;let y=y/TREND_WINDOW as f64;
-        let (covariance,variance)=samples.iter().fold((0.0,0.0),|(cov,var),(a,b)|(cov+(a-x)*(b-y),var+(a-x)*(a-x)));
+        let (x,y)=self.samples.iter().fold((0.0,0.0),|(x,y),(a,b)|(x+a,y+b));let x=x/TREND_WINDOW as f64;let y=y/TREND_WINDOW as f64;
+        let (covariance,variance)=self.samples.iter().fold((0.0,0.0),|(cov,var),(a,b)|(cov+(a-x)*(b-y),var+(a-x)*(a-x)));
         (variance>0.0).then(||covariance/variance*f64::from(*count)*4.0)
     }
+}
+#[derive(Default)]
+enum ArrivalClock {#[default] Empty,Running {remote:Duration,origin:Instant,last:Instant}}
+#[derive(Default)]
+struct ReceiverRate {clock:ArrivalClock,rate:RateCalculator}
+impl ReceiverRate {
+    fn add(&mut self,now:Instant,arrival:Duration,bytes:usize) {
+        if matches!(self.clock,ArrivalClock::Empty) {self.clock=ArrivalClock::Running {remote:arrival,origin:now,last:now};}
+        let ArrivalClock::Running {remote,origin,last}=&mut self.clock else {return;};
+        // This is a synthetic interval clock only. No sender/receiver absolute
+        // clocks are subtracted, and feedback batching cannot compress a rate.
+        let Some(mapped)=arrival.checked_sub(*remote).and_then(|elapsed|origin.checked_add(elapsed)) else {return;};
+        if mapped<*last {return;}*last=mapped;self.rate.add(mapped,bytes);
+    }
+    fn bitrate(&mut self)->Option<f64> {match self.clock {ArrivalClock::Empty=>None,ArrivalClock::Running {last,..}=>self.rate.rate_bits_per_second(last)}}
 }
 
 pub(super) struct FastGcc {
     groups:ArrivalGroupAccumulator,filter:Trendline,detector:OveruseDetector,
-    rate:RateCalculator,delay:RateController,loss:LossController,min:f64,max:f64,target:f64,
+    rate:ReceiverRate,delay:RateController,loss:LossController,min:f64,max:f64,target:f64,
 }
 impl FastGcc {
     pub(super) fn new(initial:f64,min:f64,max:f64)->Self {
-        Self {groups:ArrivalGroupAccumulator::default(),filter:Trendline::default(),detector:OveruseDetector::new(),rate:RateCalculator::default(),
+        Self {groups:ArrivalGroupAccumulator::default(),filter:Trendline::default(),detector:OveruseDetector::new(),rate:ReceiverRate::default(),
             delay:RateController::new(initial,min,max),loss:LossController::new(initial,min,max),min,max,target:initial}
     }
 }
@@ -40,10 +59,10 @@ impl BandwidthEstimator for FastGcc {
         if reports.is_empty() {return;}
         let mut usage=self.detector.usage();
         for report in reports {
-            if report.arrived {self.rate.add(now,report.size);}
-            if let Some(group)=self.groups.accumulate(report) {if let Some(signal)=self.filter.update(group) {usage=self.detector.update(group.at,signal);}}
+            if report.arrived && let Some(arrival)=report.arrival {self.rate.add(now,arrival,report.size);}
+            if let Some(group)=self.groups.accumulate(report) && let Some(signal)=self.filter.update(group) {usage=self.detector.update(group.at,signal);}
         }
-        let delay=self.delay.update(now,usage,self.rate.rate_bits_per_second(now));
+        let delay=self.delay.update(now,usage,self.rate.bitrate());
         let loss=self.loss.update(now,reports.iter().filter(|report|!report.arrived).count(),reports.len());
         self.target=delay.min(loss).clamp(self.min,self.max);
     }
@@ -56,6 +75,13 @@ mod tests {
     use super::*;
     fn report(id:u64,origin:Instant,sent_ms:u64,arrival_ms:u64)->PacketReport {
         PacketReport {ssrc:1,id,rtp_sequence_number:id as u16,is_twcc:true,twcc_sequence_number:id as u16,size:1200,arrived:true,departure:origin+Duration::from_millis(sent_ms),arrival:Some(Duration::from_millis(arrival_ms)),ecn:Default::default()}
+    }
+    #[test]
+    fn adaptive_fast_delay_rate_uses_receiver_intervals_and_ignores_old_samples() {
+        let now=Instant::now();let mut rate=ReceiverRate::default();assert!(rate.bitrate().is_none());
+        for i in 0..10 {rate.add(now,Duration::from_millis(100+i*10),1200);}
+        let measured=rate.bitrate().unwrap();assert!((900_000.0..=1_200_000.0).contains(&measured));
+        rate.add(now,Duration::from_millis(1),9999);assert_eq!(rate.bitrate(),Some(measured));
     }
     #[test]
     fn adaptive_fast_delay_tracks_sustained_queue_growth_within_the_same_rate_limits() {

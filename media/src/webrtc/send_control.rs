@@ -140,9 +140,12 @@ impl GccTrace {
         }
     }
 }
-enum Engine {Standard(Gcc),Fast(super::fast_delay::FastGcc)}
+enum Engine {Standard(Box<Gcc>),Fast(Box<super::fast_delay::FastGcc>)}
 impl Engine {
-    fn new(limits:SendControl)->Self {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match limits.delay {DelayControl::Standard=>Self::Standard(Gcc::new(initial,min,max)),DelayControl::Trendline=>Self::Fast(super::fast_delay::FastGcc::new(initial,min,max))}}
+    fn new(limits:SendControl)->Self {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match limits.delay {DelayControl::Standard=>Self::Standard(Box::new(Gcc::new(initial,min,max))),DelayControl::Trendline=>Self::Fast(Box::new(super::fast_delay::FastGcc::new(initial,min,max)))}}
+}
+impl Engine {
+    fn reset(&mut self,limits:SendControl) {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match self {Self::Standard(inner)=>**inner=Gcc::new(initial,min,max),Self::Fast(inner)=>**inner=super::fast_delay::FastGcc::new(initial,min,max)}}
 }
 impl BandwidthEstimator for Engine {
     fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {match self {Self::Standard(inner)=>inner.on_reports(now,reports),Self::Fast(inner)=>inner.on_reports(now,reports)}}
@@ -159,7 +162,7 @@ impl BandwidthEstimator for Estimator {
     fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {
         let mut epoch=self.control.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if self.epoch!=epoch.id {
-            self.inner=Engine::new(self.control.limits);self.epoch=epoch.id;
+            self.inner.reset(self.control.limits);self.epoch=epoch.id;
             #[cfg(test)]
             if self.trace.is_some() {self.trace=Some(GccTrace::new());}
         }
