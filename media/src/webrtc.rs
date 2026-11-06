@@ -649,18 +649,25 @@ impl WebRtcVideo {
     pub async fn service_resume_probe(&mut self,ticket:ResumeProbeTicket)->Result<ResumeProbeObservation,WebRtcError> {
         let (payload_type,_generation)=self.probe_parameters()?;
         let SendMode::Controlled {state,..}=&self.send_mode else {return Err(WebRtcError::Configuration);};let state=Arc::clone(state);
-        let wait=state.begin_requested_probe(ticket,self.ssrc,self.sequence)?;
+        state.begin_requested_probe(ticket,self.ssrc,self.sequence)?;
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         let timestamp=self.timestamp.wrapping_add(((i128::from(self.last_pts.ok_or(WebRtcError::Configuration)?)-i128::from(self.first_pts.ok_or(WebRtcError::Configuration)?))*90_000/1_000_000) as u32);
-        let result=tokio::time::timeout(wait,async {
-            for _ in 0..send_control::probe::PACKETS {
-                let packet=rtc::rtp::Packet {header:rtc::rtp::Header {version:2,padding:true,payload_type,sequence_number:self.sequence,timestamp,ssrc:self.ssrc,..Default::default()},payload:Bytes::from_static(&[0;251])};self.sequence=self.sequence.wrapping_add(1);
-                if self.ended() {return Err(WebRtcError::Ended);}
-                tokio::select! {biased;_=self.closer.wake.notified()=>return Err(WebRtcError::Ended),result=self.track.write_rtp(packet)=>{result.map_err(transport)?;}}
-                let SendMode::Controlled {submitted,..}=&mut self.send_mode else {return Err(WebRtcError::Configuration);};*submitted=submitted.checked_add(1).ok_or(WebRtcError::Transport)?;
-                if *submitted%send_control::WINDOW==0 {state.wait_released(*submitted).await?;}
+        let result=tokio::time::timeout_at(ticket.deadline().into(),async {
+            for attempt in 0..2 {
+                for _ in 0..send_control::probe::PACKETS {
+                    let packet=rtc::rtp::Packet {header:rtc::rtp::Header {version:2,padding:true,payload_type,sequence_number:self.sequence,timestamp,ssrc:self.ssrc,..Default::default()},payload:Bytes::from_static(&[0;251])};self.sequence=self.sequence.wrapping_add(1);
+                    if self.ended() {return Err(WebRtcError::Ended);}
+                    tokio::select! {biased;_=self.closer.wake.notified()=>return Err(WebRtcError::Ended),result=self.track.write_rtp(packet)=>{result.map_err(transport)?;}}
+                    let SendMode::Controlled {submitted,..}=&mut self.send_mode else {return Err(WebRtcError::Configuration);};*submitted=submitted.checked_add(1).ok_or(WebRtcError::Transport)?;
+                    if *submitted%send_control::WINDOW==0 {state.wait_released(*submitted).await?;}
+                }
+                match state.probe_observation(ticket).await? {
+                    send_control::probe::Outcome::Complete(value)=>return Ok(value),
+                    send_control::probe::Outcome::Retry if attempt==0=>state.begin_probe_retry(ticket,self.ssrc,self.sequence)?,
+                    send_control::probe::Outcome::Retry=>return Err(WebRtcError::Transport),
+                }
             }
-            state.probe_observation(ticket).await
+            Err(WebRtcError::Transport)
         }).await.map_err(|_|WebRtcError::Deadline).and_then(|result|result);
         if result.is_ok() {guard.0=None;}else {self.close();}result
     }

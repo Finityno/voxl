@@ -21,7 +21,7 @@ fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 /// Local qualification limits. The maximum must also fit the viewer's request.
 /// Rates limit the media target, not provider-billed or encoded-byte ceilings.
 #[derive(Debug,Clone,Copy)]
-pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl,producer:ProducerControl,observe_flow:bool,quiet_probes:bool}
+pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl,producer:ProducerControl,observe_flow:bool,quiet_probes:probe::Policy}
 /// Local pacing qualification. Headroom changes packet departure timing, not
 /// the encoder's average target. It can still queue on a constrained path.
 #[derive(Debug,Clone,Copy,Default)]
@@ -36,7 +36,7 @@ pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacin
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
-        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard,producer:ProducerControl::Unbounded,observe_flow:false,quiet_probes:false})
+        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard,producer:ProducerControl::Unbounded,observe_flow:false,quiet_probes:probe::Policy::Disabled})
     }
     pub fn with_pacing_gain(mut self,gain:PacingGain)->Self {self.gain=gain;self}
     pub fn with_delay_control(mut self,delay:DelayControl)->Self {self.delay=delay;self}
@@ -44,7 +44,10 @@ impl SendControl {
     /// Bounded numeric diagnostics only, with no packet payload retention.
     pub fn with_flow_observation(mut self)->Self {self.observe_flow=true;self}
     /// Enables an explicit bounded probe API; creates no periodic traffic.
-    pub fn with_quiet_resume_probes(mut self)->Self {self.quiet_probes=true;self}
+    pub fn with_quiet_resume_probes(mut self)->Self {self.quiet_probes=probe::Policy::Single;self}
+    /// Retry a fully reported lossy cluster once with 32 fresh packets. Both
+    /// attempts share the original deadline; unknown feedback never qualifies.
+    pub fn with_quiet_resume_probe_retry(mut self)->Self {self.quiet_probes=probe::Policy::RetryOnce;self}
     fn paced_bps(self,media_bps:u32)->u32 {match self.gain {PacingGain::MediaRate=>media_bps,PacingGain::Responsive=>(u64::from(media_bps)*5/2) as u32}}
     fn budget(self,bps:u32,age:Option<Duration>)->FrameBudget {
         let paced=self.paced_bps(bps);
@@ -85,7 +88,7 @@ impl Control {
     pub(super) fn decorate(&self,message:&mut TaggedPacket)->Result<(),Error> {
         if !self.active() {return Err(Error::Other("desktop pacing ended".into()));}
         if matches!(message.message.packet,Packet::Rtp(_)) && !message.message.has(&Attribute::Retransmission) {
-            if self.limits.quiet_probes && let Packet::Rtp(packet)=&message.message.packet {
+            if self.limits.quiet_probes.enabled() && let Packet::Rtp(packet)=&message.message.packet {
                 let index=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner).probe.packet_index(packet);
                 if let Some(index)=index {message.message.add(Attribute::Custom(Arc::new(probe::ProbePacket {index})));message.message.add(Attribute::Custom(Arc::new(rtc::rtp_transceiver::RtpPaddingOnly)));}
             }
@@ -129,7 +132,7 @@ impl Control {
     }
     pub(super) fn prepare_frame(&self,bytes:usize)->Result<Option<ResumeProbeTicket>,WebRtcError> {
         if !self.active() {return Err(WebRtcError::Ended);}
-        if !self.limits.quiet_probes {return Ok(None);}
+        if !self.limits.quiet_probes.enabled() {return Ok(None);}
         if bytes==0 || bytes>MAX_FRAME_BYTES {return Err(WebRtcError::InvalidFrame);}
         let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);let now=Instant::now();
         if matches!(epoch.media,MediaActivity::Written {at,..} if now.saturating_duration_since(at)>=Duration::from_secs(2)) {epoch.probe.quiet(now);}
@@ -153,8 +156,16 @@ impl Control {
         if epoch.id!=ticket.epoch {return Err(WebRtcError::Ended);}
         let wait=ticket.remaining(now).ok_or(WebRtcError::Deadline)?;
         let ceiling=match epoch.rate {Rate::Observed {bps,..}=>bps,Rate::Unknown=>return Err(WebRtcError::Configuration)};
-        if !epoch.probe.begin(ticket,now,ceiling,ssrc,sequence) {return Err(WebRtcError::Configuration);}
+        if !epoch.probe.begin(ticket,now,ceiling,ssrc,sequence,self.limits.quiet_probes) {return Err(WebRtcError::Configuration);}
         Ok(wait)
+    }
+    pub(super) fn begin_probe_retry(&self,ticket:ResumeProbeTicket,ssrc:u32,sequence:u16)->Result<(),WebRtcError> {
+        if !self.active() {return Err(WebRtcError::Ended);}
+        let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);let now=Instant::now();
+        if epoch.id!=ticket.epoch {return Err(WebRtcError::Ended);}
+        ticket.remaining(now).ok_or(WebRtcError::Deadline)?;
+        let ceiling=match epoch.rate {Rate::Observed {bps,..}=>bps,Rate::Unknown=>return Err(WebRtcError::Configuration)};
+        if !epoch.probe.begin_retry(ticket,now,ceiling,ssrc,sequence) {return Err(WebRtcError::Configuration);}Ok(())
     }
     pub(super) fn probe_result(&self,ticket:ResumeProbeTicket)->Result<ResumeProbeStatus,WebRtcError> {
         if !self.active() {return Err(WebRtcError::Ended);}
@@ -165,10 +176,11 @@ impl Control {
     fn begin_probe(&self,ssrc:u32,sequence:u16)->Result<ResumeProbeTicket,WebRtcError> {
         let ticket=self.prepare_frame(MAX_FRAME_BYTES)?.ok_or(WebRtcError::Configuration)?;self.begin_requested_probe(ticket,ssrc,sequence)?;Ok(ticket)
     }
-    pub(super) async fn probe_observation(&self,expected:ResumeProbeTicket)->Result<ResumeProbeObservation,WebRtcError> {
+    pub(super) async fn probe_observation(&self,expected:ResumeProbeTicket)->Result<probe::Outcome,WebRtcError> {
         loop {
             let revision=self.changes.revision();if !self.active() {return Err(WebRtcError::Ended);}
-            match self.probe_result(expected)? {ResumeProbeStatus::Ready(value)=>return Ok(value),ResumeProbeStatus::Retired=>return Err(WebRtcError::Ended),ResumeProbeStatus::Pending=>{}}
+            match self.probe_result(expected)? {ResumeProbeStatus::Ready(value)=>return Ok(probe::Outcome::Complete(value)),ResumeProbeStatus::Retired=>return Err(WebRtcError::Ended),ResumeProbeStatus::Pending=>{}}
+            if self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner).probe.retry_pending(expected) {return Ok(probe::Outcome::Retry);}
             self.changes.wait(revision).await;
         }
     }
@@ -185,12 +197,12 @@ impl Control {
         match result {Ok(budget) if self.active()=>budget,Ok(_)=>None,Err(())=>{self.fail();None}}
     }
     fn released_rtp(&self,epoch_id:u64,message:&TaggedPacket)->bool {
-        if matches!(self.limits.producer,ProducerControl::Unbounded) && !self.limits.quiet_probes && !self.limits.observe_flow {return self.active();}
+        if matches!(self.limits.producer,ProducerControl::Unbounded) && !self.limits.quiet_probes.enabled() && !self.limits.observe_flow {return self.active();}
         let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if !self.active() || epoch.id!=epoch_id {return false;}
         let Packet::Rtp(packet)=&message.message.packet else {return false;};
         let mut result=epoch.debt.charge(message.now,packet.marshal_size());
-        if self.limits.quiet_probes {
+        if self.limits.quiet_probes.enabled() {
             if let Some(probe)=message.message.custom::<probe::ProbePacket>() {if !message.message.has(&Attribute::Retransmission) {result=result.and_then(|()|epoch.probe.sent(probe.index,packet,message.now));}}
             else if message.message.custom::<rtc::rtp_transceiver::RtpPaddingOnly>().is_none() && !message.message.has(&Attribute::Retransmission) {
                 if matches!(epoch.media,MediaActivity::Written {at,..} if message.now.saturating_duration_since(at)>=Duration::from_secs(2)) {epoch.probe.quiet(message.now);}
@@ -267,7 +279,8 @@ impl BandwidthEstimator for Estimator {
         if current.is_empty() || !self.control.active() {return;}
         let media=match epoch.media {MediaActivity::Unsent=>None,MediaActivity::Written {at,ssrc,sequence}=>Some((at,ssrc,sequence))};
         epoch.probe.media_feedback(&current,media);
-        let probed=match epoch.probe.feedback(&current,now,self.control.limits.min) {Ok(value)=>value,Err(())=>{drop(epoch);self.control.fail();return;}};
+        let outcome=match epoch.probe.feedback(&current,now,self.control.limits.min) {Ok(value)=>value,Err(())=>{drop(epoch);self.control.fail();return;}};
+        let probed=match outcome {probe::Feedback::Complete(value)=>Some(value),_=>None};
         self.inner.on_reports(now,&current);
         if let Some(observation)=probed {self.inner.reset_to(self.control.limits,observation.target_kbps*1000);}
         epoch.flow.feedback(now,&current,self.inner.delay_observations());
@@ -282,7 +295,7 @@ impl BandwidthEstimator for Estimator {
         let selected=if changed {bps} else {old};
         if epoch.debt.reprice(now,selected).is_err() {drop(epoch);self.control.fail();return;}
         epoch.rate=Rate::Observed {bps:selected,at:now,revision};drop(epoch);
-        if changed || probed.is_some() {self.control.changes.changed();}
+        if changed || probed.is_some() || matches!(outcome,probe::Feedback::Retry) {self.control.changes.changed();}
     }
     fn target_bitrate(&self)->f64 {self.inner.target_bitrate()}
     fn stats(&self)->EstimatorStats {self.inner.stats()}

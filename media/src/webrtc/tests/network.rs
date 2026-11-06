@@ -140,16 +140,21 @@ async fn pair_with_control(control:SendControl)->(WebRtcVideo,Arc<dyn PeerConnec
 }
 fn frame(bytes:usize,keyframe:bool,pts:i64)->EncodedFrame {let mut annex_b=vec![0x77;bytes];annex_b[..5].copy_from_slice(&[0,0,0,1,if keyframe {0x65} else {0x41}]);EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe,presentation_time_micros:pts}}
 async fn exact_frame(packets:&mut mpsc::Receiver<rtc::rtp::Packet>,expected:&[u8],timestamp:u32) {
-    let mut pieces=BTreeMap::new();let mut first=None;let mut marker=false;let mut bytes=0;
+    exact_frame_with_padding(packets,expected,timestamp,None).await;
+}
+async fn exact_frame_with_padding(packets:&mut mpsc::Receiver<rtc::rtp::Packet>,expected:&[u8],timestamp:u32,padding_timestamp:Option<u32>)->u32 {
+    let mut pieces=BTreeMap::new();let mut first=None;let mut marker=false;let mut bytes=0;let mut padding=0;
     while !marker || bytes<expected.len() {
-        let packet=packets.recv().await.unwrap();assert_eq!(packet.header.timestamp,timestamp);
+        let packet=packets.recv().await.unwrap();
+        if packet.payload.is_empty() && padding_timestamp.is_some() {assert!(packet.header.padding && !packet.header.marker);assert_eq!(Some(packet.header.timestamp),padding_timestamp);padding+=1;continue;}
+        assert_eq!(packet.header.timestamp,timestamp);
         let mut payload=Vec::new();
         if packet.payload[0]&31==28 {if packet.payload[1]&0x80!=0 {payload.push((packet.payload[0]&0xe0)|(packet.payload[1]&31));}payload.extend_from_slice(&packet.payload[2..]);} else {payload.extend_from_slice(&packet.payload);}
         let origin=*first.get_or_insert(packet.header.sequence_number);
         if let std::collections::btree_map::Entry::Vacant(entry)=pieces.entry(packet.header.sequence_number.wrapping_sub(origin)) {bytes+=payload.len();entry.insert(payload);}marker|=packet.header.marker;
         assert!(pieces.len()<=256 && bytes<=expected.len());
     }
-    assert_eq!(pieces.into_values().flatten().collect::<Vec<_>>(),expected);
+    assert_eq!(pieces.into_values().flatten().collect::<Vec<_>>(),expected);padding
 }
 #[test]
 fn adaptive_network_fixture_serializes_caps_queue_and_never_resets_credit_on_capacity_change() {
@@ -218,6 +223,47 @@ fn quiet_probe(capacity:u32) {
 fn adaptive_network_quiet_probe_missing_packet_closes_without_fake_media_progress() {quiet_probe_failure(false);}
 #[test]
 fn adaptive_network_quiet_probe_authority_close_cancels_without_fake_media_progress() {quiet_probe_failure(true);}
+#[test]
+fn adaptive_network_quiet_retry_recovers_one_loss_with_a_fresh_complete_cluster() {quiet_probe_retry(QuietFault::Once);}
+#[test]
+fn adaptive_network_quiet_retry_second_loss_still_closes_without_fake_progress() {quiet_probe_retry(QuietFault::Twice);}
+#[test]
+fn adaptive_network_quiet_retry_slow_path_keeps_the_original_deadline() {quiet_probe_retry(QuietFault::Slow);}
+#[test]
+fn adaptive_network_quiet_retry_authority_close_cancels_the_second_cluster() {quiet_probe_retry(QuietFault::Close);}
+#[derive(Debug,Clone,Copy)]
+enum QuietFault {Once,Twice,Slow,Close}
+fn quiet_probe_retry(fault:QuietFault) {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_producer_control(ProducerControl::RtpDebt).with_quiet_resume_probe_retry().with_flow_observation();
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
+        let first=frame(24_005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let first_stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,first_stamp.rtp_timestamp).await;
+        let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
+        assert!(video.bitrate_estimate().is_some());tokio::time::sleep(Duration::from_secs(3)).await;let before=link.snapshot().await;
+        let capacity=if matches!(fault,QuietFault::Slow) {250_000} else {3_000_000};link.condition(Shape::new(capacity,10,0,Some(before.rtp+5))).await;
+        let closer=video.close_handle();let began=Instant::now();
+        let result=if matches!(fault,QuietFault::Twice|QuietFault::Close) {
+            let (result,())=tokio::join!(video.probe_quiet_resume(),async {
+                let boundary=before.rtp+if matches!(fault,QuietFault::Close) {40} else {32};
+                while link.snapshot().await.rtp<boundary {tokio::time::sleep(Duration::from_millis(1)).await;}
+                if matches!(fault,QuietFault::Close) {closer.close();} else {link.condition(Shape::new(capacity,10,0,Some(before.rtp+37))).await;}
+            });result
+        } else {video.probe_quiet_resume().await};
+        let probe_time=began.elapsed();let after=link.snapshot().await;assert_eq!(after.overflow,0);assert_eq!(video.last_pts,Some(1_000_000));
+        if matches!(fault,QuietFault::Once) {
+            let observed=result.unwrap();assert_eq!((observed.attempts,observed.packets,observed.arrived),(2,32,32));assert!(!video.ended());assert!(probe_time<Duration::from_millis(500));assert_eq!(after.dropped,1);assert_eq!(closer.flow_observation().unwrap().completed_frames,1);
+            let budget=closer.frame_budget().unwrap();assert!(64005<=u64::from(budget.payload_bytes)*4/5);
+            let unit=frame(64005,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();
+            let padding=exact_frame_with_padding(&mut packets,&expected,stamp.rtp_timestamp,Some(first_stamp.rtp_timestamp)).await;let total=began.elapsed();assert!(padding>=63);assert!(total<Duration::from_millis(750));assert_eq!(closer.flow_observation().unwrap().completed_frames,2);
+            eprintln!("quiet_retry_success attempts={} fresh_arrivals={} padding_received={padding} padding_original_rtp_bytes={} probe_us={} resume_bytes=64005 total_us={} queue_max_us={} dropped={} overflow=0",observed.attempts,observed.arrived,observed.attempts*8704,probe_time.as_micros(),total.as_micros(),after.max_queue_micros,after.dropped);
+        } else {
+            assert!(result.is_err());assert!(video.ended());assert!(probe_time<Duration::from_millis(750));assert_eq!(after.dropped,if matches!(fault,QuietFault::Twice) {2} else {1});
+            eprintln!("quiet_retry_failure fault={fault:?} elapsed_us={} rtp_packets={} dropped={} fake_video_frames=0 overflow=0",probe_time.as_micros(),after.rtp-before.rtp,after.dropped);
+        }
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+        while let Ok(packet)=packets.try_recv() {assert!(packet.header.padding && !packet.header.marker && packet.payload.is_empty());assert_eq!(packet.header.timestamp,first_stamp.rtp_timestamp);}
+    }).await.expect("bounded fresh-cluster retry and original loss/authority budget");});
+}
 #[test]
 fn adaptive_network_quiet_worker_keeps_the_fence_after_a_small_resumed_delta() {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
