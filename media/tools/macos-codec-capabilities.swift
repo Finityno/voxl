@@ -26,7 +26,10 @@ let observations = codecs.map { name, type -> [String: Any] in
     let flags = entries.map { $0[kVTVideoEncoderList_IsHardwareAccelerated as String] as? Bool }
     let hardwareCount = flags.compactMap { $0 }.filter { $0 }.count
     let unknownCount = flags.filter { $0 == nil }.count
-    let hardware: Any = hardwareCount > 0 ? true : unknownCount > 0 ? NSNull() : false
+    let hardware: Any
+    if hardwareCount > 0 { hardware = true }
+    else if unknownCount > 0 { hardware = NSNull() }
+    else { hardware = false }
     return ["codec": name, "hardwareEncodeReported": hardware,
         "listedEncoderCount": entries.count, "listedHardwareEncoderCount": hardwareCount,
         "encodersWithoutHardwareFlag": unknownCount,
