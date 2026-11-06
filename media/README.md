@@ -902,3 +902,14 @@ with its age, because the pacer retains that rate. Neither proves capacity.
 Closed/failed transport returns no budget. Encoder target observation still
 rejects stale feedback independently. A worker must enforce its own admission,
 compatible fresh keyframe and authority lifetime; no partial frame may be sent.
+
+The [controlled encrypted-UDP fixture](results/2026-11-06-network-control/README.md)
+now exercises a bounded loopback bottleneck, delay/jitter, one actual NACK repair
+and real TWCC across a capacity drop/recovery. Its simulated producer holds the
+last verified target on stale feedback, as the native worker does. Four selected
+checks and strict Clippy pass at their exact test source. The path still builds
+about 3.1 seconds of maximum queue residence after a 3 Mbps to 500 kbps drop;
+this is explicit counterevidence to low-latency admission, despite final-target
+recovery and finite queues. Production media, application pins/defaults and
+performance targets are unchanged. Native/physical-path capacity/loss, matched
+quality and complete endpoint resources remain separate qualification.

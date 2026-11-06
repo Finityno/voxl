@@ -1,0 +1,346 @@
+{
+  "source": "3495070e63ed455ba3cc2cc5953392f9b7a822fb",
+  "unchangedProductionSource": "e3568aa21395996ba5403479f00b8eb06f12160c",
+  "testOnly": true,
+  "latencyAdmission": false,
+  "defaultChanged": false,
+  "groups": [
+    {
+      "job": "candidate-duplicate",
+      "name": "load",
+      "pgid": 29438,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-duplicate",
+      "name": "toolchain",
+      "pgid": 29445,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-duplicate",
+      "name": "diff",
+      "pgid": 29450,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-duplicate",
+      "name": "test-build",
+      "pgid": 29455,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-duplicate",
+      "name": "adaptive-contracts",
+      "pgid": 29861,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-gathering",
+      "name": "load",
+      "pgid": 32542,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-gathering",
+      "name": "toolchain",
+      "pgid": 32547,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-gathering",
+      "name": "diff",
+      "pgid": 32552,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-gathering",
+      "name": "test-build",
+      "pgid": 32557,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "candidate-gathering",
+      "name": "adaptive-contracts",
+      "pgid": 32589,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-capacity-model",
+      "name": "load",
+      "pgid": 33784,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-capacity-model",
+      "name": "toolchain",
+      "pgid": 33789,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-capacity-model",
+      "name": "diff",
+      "pgid": 33794,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-capacity-model",
+      "name": "test-build",
+      "pgid": 33799,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-capacity-model",
+      "name": "adaptive-contracts",
+      "pgid": 33819,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "load",
+      "pgid": 35453,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "toolchain",
+      "pgid": 35458,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "diff",
+      "pgid": 35465,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "test-build",
+      "pgid": 35471,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "adaptive-contracts",
+      "pgid": 35491,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lint-feedback",
+      "name": "strict-clippy",
+      "pgid": 35518,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "load",
+      "pgid": 36966,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "toolchain",
+      "pgid": 36973,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "diff",
+      "pgid": 36978,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "test-build",
+      "pgid": 36983,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "adaptive-contracts",
+      "pgid": 37005,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "final",
+      "name": "strict-clippy",
+      "pgid": 37038,
+      "independentlyAbsent": true
+    }
+  ],
+  "originalFileCount": 41,
+  "executions": [
+    {
+      "job": "candidate-duplicate",
+      "source": "55bcdad0162261cc43cbbeab1c508024cc77e637",
+      "passed": 1,
+      "failed": 3,
+      "receipt": "receipts/candidate-duplicate.json.gz"
+    },
+    {
+      "job": "candidate-gathering",
+      "source": "d4404e85da2556a4a73d8d331ea460c0cb2bae1a",
+      "passed": 1,
+      "failed": 3,
+      "receipt": "receipts/candidate-gathering.json.gz"
+    },
+    {
+      "job": "initial-capacity-model",
+      "source": "246b472b1a88d63d0dba74dee2cdb316d4260abe",
+      "passed": 3,
+      "failed": 1,
+      "receipt": "receipts/initial-capacity-model.json.gz"
+    },
+    {
+      "job": "lint-feedback",
+      "source": "71b23ad81a4d18e6101181abeef60169901e5917",
+      "passed": 4,
+      "failed": 0,
+      "receipt": "receipts/lint-feedback.json.gz"
+    },
+    {
+      "job": "final",
+      "source": "3495070e63ed455ba3cc2cc5953392f9b7a822fb",
+      "passed": 4,
+      "failed": 0,
+      "receipt": "receipts/final.json.gz"
+    }
+  ],
+  "bottleneck": [
+    {
+      "send_us": 220365,
+      "receiver_us": 604881,
+      "queued_us": 385183,
+      "peak_queue": 64,
+      "udp_bytes": 106961,
+      "drops": 0,
+      "duplicates": 0
+    }
+  ],
+  "capacity": [
+    {
+      "stage": 0,
+      "capacity_bps": 3000000,
+      "sent_frames": 62,
+      "media_min_bps": 1500000,
+      "recovery_max_bps": 0,
+      "recovery_final_bps": 0,
+      "rtp": 309,
+      "delivered": 310,
+      "overflow": 0,
+      "peak_queue": 7,
+      "queue_max_us": 34998,
+      "received_packets": 305
+    },
+    {
+      "stage": 1,
+      "capacity_bps": 500000,
+      "sent_frames": 215,
+      "media_min_bps": 449000,
+      "recovery_max_bps": 0,
+      "recovery_final_bps": 0,
+      "rtp": 780,
+      "delivered": 601,
+      "overflow": 0,
+      "peak_queue": 197,
+      "queue_max_us": 3113361,
+      "received_packets": 592
+    },
+    {
+      "stage": 2,
+      "capacity_bps": 3000000,
+      "sent_frames": 307,
+      "media_min_bps": 449000,
+      "recovery_max_bps": 629000,
+      "recovery_final_bps": 629000,
+      "rtp": 968,
+      "delivered": 992,
+      "overflow": 0,
+      "peak_queue": 197,
+      "queue_max_us": 3113361,
+      "received_packets": 966
+    }
+  ],
+  "targetTrace": [
+    {
+      "stage": 0,
+      "elapsed_us": 166187,
+      "media_kbps": 1500,
+      "held_producer_kbps": 1275,
+      "estimate_age_us": 6728
+    },
+    {
+      "stage": 1,
+      "elapsed_us": 2022970,
+      "media_kbps": 1500,
+      "held_producer_kbps": 1275,
+      "estimate_age_us": 38707
+    },
+    {
+      "stage": 1,
+      "elapsed_us": 3838540,
+      "media_kbps": 523,
+      "held_producer_kbps": 445,
+      "estimate_age_us": 18965
+    },
+    {
+      "stage": 1,
+      "elapsed_us": 5158232,
+      "media_kbps": 449,
+      "held_producer_kbps": 382,
+      "estimate_age_us": 9014
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 7046428,
+      "media_kbps": 449,
+      "held_producer_kbps": 382,
+      "estimate_age_us": 1897209
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 7508918,
+      "media_kbps": 485,
+      "held_producer_kbps": 412,
+      "estimate_age_us": 17265
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 8102624,
+      "media_kbps": 521,
+      "held_producer_kbps": 443,
+      "estimate_age_us": 1507
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 8729790,
+      "media_kbps": 557,
+      "held_producer_kbps": 473,
+      "estimate_age_us": 13032
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 9356598,
+      "media_kbps": 593,
+      "held_producer_kbps": 504,
+      "estimate_age_us": 30529
+    },
+    {
+      "stage": 2,
+      "elapsed_us": 9950239,
+      "media_kbps": 629,
+      "held_producer_kbps": 535,
+      "estimate_age_us": 9406
+    }
+  ],
+  "loss": [
+    {
+      "rtp": 23,
+      "dropped": 1,
+      "duplicates": 1,
+      "peak_queue": 15,
+      "queued_us": 65881
+    }
+  ],
+  "scope": "Loopback candidate ports through an owned encrypted UDP proxy. UDP payload serialization excludes IP/link overhead; count-bounded FIFO and fixed/deterministic delay/jitter. Synthetic H264-shaped bytes, simulated producer holding the last fresh feedback-derived target, no native encoding/decoder, physical network, TURN/auth/input, quality, full CPU/memory/power or performance admission."
+}
