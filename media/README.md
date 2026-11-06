@@ -389,6 +389,14 @@ API contracts: [Windows capture frame ownership](https://learn.microsoft.com/en-
 [native capture interval](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.graphicscapturesession.minupdateinterval),
 [video processor input bindings](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11videodevice-createvideoprocessorinputview).
 
+The Mac `codec_probe` optionally accepts `--streaming-rate-policy=on` to
+apply and verify the same average/burst policy as the adaptive Fincode worker
+before any input. It uses the selected session's configured bitrate, records
+verified bytes/window (400 ms hardware; 1000 ms CPU), and leaves ordinary probe
+runs unchanged. Use `--tuning=compatible` for CPU H.264; experimental low-latency
+tuning requires hardware. A verified policy still does not bound actual frames.
+This fixed-setting probe does not emulate adaptive feedback or transport.
+
 `media/tools/desktop-workload.swift` generates an offscreen coding fixture at
 30fps (default) or 60fps: a one-second prefix and eight observed seconds, split
 into two-second still-text, typing, scrolling and window-movement phases. Its

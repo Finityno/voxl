@@ -55,6 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let mut args: Vec<_> = std::env::args().collect();
     let tuning_name = option(&mut args,"--tuning=")?.unwrap_or_else(||"compatible".to_owned());
+    let streaming_policy=match option(&mut args,"--streaming-rate-policy=")?.as_deref() {None|Some("off")=>false,Some("on")=>true,_=>return Err("streaming rate policy must be on or off".into())};
     let priority_name=option(&mut args,"--priority=")?.unwrap_or_else(||"default".to_owned());
     let priority=match priority_name.as_str() {"default"=>EncodingPriority::Default,"speed"=>EncodingPriority::Speed,"quality"=>EncodingPriority::Quality,_=>return Err("unknown encoding priority".into())};
     let max_frame_qp=option(&mut args,"--max-frame-qp=")?.map(|value|value.parse::<u8>()).transpose()?.map(MaxFrameQp::new).transpose()?;
@@ -96,7 +97,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--max-frame-delay=N] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--streaming-rate-policy=on|off] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--max-frame-delay=N] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -148,6 +149,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     if let Some(cycle)=input_cycle {println!("input_sequence=cyclic source_frames={} prefix_frames={} observed_cycle_frames={}",cycle.frames,cycle.prefix,cycle.frames-cycle.prefix);}
     let mut encoder = VideoEncoder::new_tuned_with_options(config,tuning,EncodingOptions {priority,max_frame_qp,max_frame_delay},|| {})?;
+    if streaming_policy {
+        encoder.set_streaming_bitrate_target(config.bitrate_kbps)?;
+        let (bytes,millis)=encoder.burst_limit().ok_or("streaming burst readback missing")?;
+        if encoder.bitrate_target_kbps()!=config.bitrate_kbps || bytes!=config.bitrate_kbps*50 || millis!=if encoder.using_hardware() {400} else {1000} {return Err("streaming native policy readback differs".into());}
+        println!("streaming_policy=verified target_kbps={} burst_bytes={bytes} burst_millis={millis}",encoder.bitrate_target_kbps());
+    }
     println!("hardware_selection={:?}",encoder.acceleration_selection());
     println!("encoding_priority={:?} priority_property_verified={}",encoder.encoding_priority(),encoder.encoding_priority()!=EncodingPriority::Default);
     if let Some(limit)=encoder.max_frame_qp() {println!("max_frame_qp={} qp_property_verified=true",limit.get());}
