@@ -27,7 +27,7 @@ impl BandwidthEstimator for FastGcc {
         self.target=delay.min(loss).clamp(self.min,self.max);
     }
     fn target_bitrate(&self)->f64 {self.target}
-    fn stats(&self)->EstimatorStats {EstimatorStats {delay_based_bitrate:Some(self.delay.target()),loss_based_bitrate:Some(self.loss.target()),packet_loss:self.loss.average_loss(),round_trip_time:None}}
+    fn stats(&self)->EstimatorStats {let mut stats=EstimatorStats::default();stats.delay_based_bitrate=Some(self.delay.target());stats.loss_based_bitrate=Some(self.loss.target());stats.packet_loss=self.loss.average_loss();stats}
 }
 
 #[cfg(test)]
