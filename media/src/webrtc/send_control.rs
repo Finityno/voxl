@@ -362,7 +362,9 @@ mod tests {
             let mut pacer=BoundedPacer::new(Arc::clone(&control));let start=Instant::now();let mut sent=0;let mut last=start;
             for sequence in 0..100 {pacer.handle_write(packet(&control,sequence,start)).unwrap();}
             for _ in 0..200 {
-                let Some(next)=pacer.poll_timeout() else {break;};last=next;pacer.handle_timeout(next).unwrap();
+                // The SDK rounds sub-nanosecond token deficits to zero. A real
+                // wake advances the clock; the virtual schedule must do so too.
+                let Some(next)=pacer.poll_timeout() else {break;};last=next.max(last+Duration::from_nanos(1));pacer.handle_timeout(last).unwrap();
                 while pacer.poll_write().is_some() {sent+=1;}
                 if sent==100 {break;}
             }
