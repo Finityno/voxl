@@ -89,7 +89,7 @@ impl Receiver {
 impl PeerConnectionEventHandler for Receiver {
     async fn on_track(&self,track:Arc<dyn TrackRemote>) {
         let packets=self.packets.clone();self.tasks.lock().unwrap().spawn(async move {
-            while let Some(event)=track.poll().await {if let TrackRemoteEvent::OnRtpPacket(packet)=event {if packets.try_send(packet).is_err() {break;}}}
+            while let Some(event)=track.poll().await {if let TrackRemoteEvent::OnRtpPacket(packet)=event && packets.try_send(packet).is_err() {break;}}
         });
     }
 }
@@ -122,12 +122,13 @@ async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<Receiver>,mpsc::Receiv
 }
 fn frame(bytes:usize,keyframe:bool,pts:i64)->EncodedFrame {let mut annex_b=vec![0x77;bytes];annex_b[..5].copy_from_slice(&[0,0,0,1,if keyframe {0x65} else {0x41}]);EncodedFrame {codec:VideoCodec::H264,annex_b,keyframe,presentation_time_micros:pts}}
 async fn exact_frame(packets:&mut mpsc::Receiver<rtc::rtp::Packet>,expected:&[u8],timestamp:u32) {
-    let mut pieces=BTreeMap::new();let mut marker=false;let mut bytes=0;
+    let mut pieces=BTreeMap::new();let mut first=None;let mut marker=false;let mut bytes=0;
     while !marker || bytes<expected.len() {
         let packet=packets.recv().await.unwrap();assert_eq!(packet.header.timestamp,timestamp);
         let mut payload=Vec::new();
         if packet.payload[0]&31==28 {if packet.payload[1]&0x80!=0 {payload.push((packet.payload[0]&0xe0)|(packet.payload[1]&31));}payload.extend_from_slice(&packet.payload[2..]);} else {payload.extend_from_slice(&packet.payload);}
-        if !pieces.contains_key(&packet.header.sequence_number) {bytes+=payload.len();pieces.insert(packet.header.sequence_number,payload);}marker|=packet.header.marker;
+        let origin=*first.get_or_insert(packet.header.sequence_number);
+        if let std::collections::btree_map::Entry::Vacant(entry)=pieces.entry(packet.header.sequence_number.wrapping_sub(origin)) {bytes+=payload.len();entry.insert(payload);}marker|=packet.header.marker;
         assert!(pieces.len()<=256 && bytes<=expected.len());
     }
     assert_eq!(pieces.into_values().flatten().collect::<Vec<_>>(),expected);
@@ -168,19 +169,19 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
         let (mut video,receiver,events,mut packets,mut link)=pair().await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
         let reader=tokio::spawn(async move {while packets.recv().await.is_some() {seen.fetch_add(1,Ordering::Relaxed);}});
-        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut estimates=0;
+        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;
         for (stage,bps,seconds) in [(0,3_000_000,2),(1,500_000,5),(2,3_000_000,3)] {
             link.condition(Shape::new(bps,20,5,None)).await;let until=Instant::now()+Duration::from_secs(seconds);let mut interval=tokio::time::interval(Duration::from_millis(33));interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
             while Instant::now()<until {
                 interval.tick().await;
-                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}if stage==2 {recovered_max=recovered_max.max(estimate.target_kbps*1000);}}
+                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
                 let target=video.close_handle().bitrate_target_kbps().unwrap_or(1275);let bytes=(target as usize*1000/8/30).max(900);sequence+=1;
                 video.send(frame(bytes,sequence==1 || sequence%60==0,sequence*33_333)).await.unwrap();
             }
-            let s=link.snapshot().await;eprintln!("headroom_capacity stage={stage} capacity_bps={bps} sent_frames={sequence} media_min_bps={low_min} recovery_max_bps={recovered_max} rtp={} delivered={} overflow={} peak_queue={} queue_max_us={} received_packets={}",s.rtp,s.delivered,s.overflow,s.peak_queue,s.max_queue_micros,consumed.load(Ordering::Relaxed));
+            let s=link.snapshot().await;eprintln!("headroom_capacity stage={stage} capacity_bps={bps} sent_frames={sequence} media_min_bps={low_min} recovery_max_bps={recovered_max} recovery_final_bps={recovered_final} rtp={} delivered={} overflow={} peak_queue={} queue_max_us={} received_packets={}",s.rtp,s.delivered,s.overflow,s.peak_queue,s.max_queue_micros,consumed.load(Ordering::Relaxed));
             assert!(s.peak_queue<=QUEUE_LIMIT);
         }
-        assert!(estimates>0 && low_min<1_000_000,"real feedback must lower the media target below the offered load");assert!(recovered_max>=low_min && !video.ended());
+        assert!(estimates>0 && low_min<1_000_000,"real feedback must lower the media target below the offered load");assert!(recovered_final>low_min*11/10 && !video.ended(),"capacity recovery must raise the final media target by more than ten percent");
         video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;reader.abort();assert!(reader.await.unwrap_err().is_cancelled());
     }).await.expect("bounded capacity drop/recovery");});
 }
