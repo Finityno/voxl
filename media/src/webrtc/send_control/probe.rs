@@ -3,6 +3,7 @@
 use super::*;
 pub(in crate::webrtc) const PACKETS:usize=32;
 pub(in crate::webrtc) const DEADLINE:Duration=Duration::from_millis(500);
+const FRESHNESS:Duration=Duration::from_secs(2);
 #[derive(Clone,Copy)]
 pub(super) struct ProbePacket {pub(super) index:usize}
 #[derive(Clone,Copy)]
@@ -13,7 +14,7 @@ pub struct ResumeProbeObservation {pub packets:u32,pub arrived:u32,pub received_
 pub(super) enum Probe {Idle,Collecting(Box<Collection>),Complete {observation:ResumeProbeObservation,at:Instant},Failed}
 impl Probe {
     pub(super) fn begin(&mut self,now:Instant,ceiling:u32,ssrc:u32,sequence:u16)->bool {
-        if !matches!(self,Self::Idle) {return false;}
+        if !matches!(self,Self::Idle) && !matches!(self,Self::Complete {at,..} if now.saturating_duration_since(*at)>FRESHNESS) {return false;}
         *self=Self::Collecting(Box::new(Collection {slots:[Slot::Unsent;PACKETS],deadline:now+DEADLINE,ceiling,ssrc,sequence}));true
     }
     pub(super) fn packet_index(&self,packet:&rtc::rtp::Packet)->Option<usize> {
@@ -50,7 +51,9 @@ impl Probe {
         *self=Self::Complete {observation,at:now};Ok(Some(observation))
     }
     pub(super) fn observation(&self)->Result<Option<ResumeProbeObservation>,()> {match self {Self::Complete {observation,..}=>Ok(Some(*observation)),Self::Failed=>Err(()),_=>Ok(None)}}
-    pub(super) fn cap(&self)->Option<u32> {match self {Self::Complete {observation,..}=>Some(observation.received_bps),_=>None}}
+    pub(super) fn cap(&self,now:Instant,minimum:u32)->Option<u32> {
+        match self {Self::Complete {observation,at}=>Some(if now.saturating_duration_since(*at)<=FRESHNESS {observation.received_bps} else {observation.received_bps.min(minimum)}),_=>None}
+    }
     pub(super) fn media_feedback(&mut self,reports:&[PacketReport],media:Option<(Instant,u32,u16)>) {
         if let Self::Complete {at,..}=self && let Some((departure,ssrc,sequence))=media && departure>*at
             && reports.iter().any(|report|report.arrived && report.departure==departure && report.ssrc==ssrc && report.rtp_sequence_number==sequence) {*self=Self::Idle;}
@@ -70,9 +73,9 @@ mod tests {
         let reports:Vec<_>=(0..PACKETS as u16).map(|sequence|report(now,sequence)).collect();
         assert!(probe.feedback(&reports[..16],now,250_000).unwrap().is_none());assert!(probe.feedback(&reports[..16],now,250_000).unwrap().is_none());
         let observed=probe.feedback(&reports[16..],now,250_000).unwrap().unwrap();assert_eq!((observed.packets,observed.arrived,observed.target_kbps),(32,32,250));assert_eq!(observed.arrival_span,Duration::from_millis(31));
-        assert_eq!(probe.cap(),Some(192_000));assert!(probe.feedback(&reports,now,250_000).unwrap().is_none());probe.media_feedback(&reports,None);assert!(probe.cap().is_some());
-        let mut new=report(now,0);new.departure=now+Duration::from_nanos(1);probe.media_feedback(&[new.clone()],Some((new.departure,55,1)));assert!(probe.cap().is_some());
-        probe.media_feedback(std::slice::from_ref(&new),Some((new.departure,55,0)));assert!(probe.cap().is_none());
+        assert_eq!(probe.cap(now,250_000),Some(192_000));assert!(probe.feedback(&reports,now,250_000).unwrap().is_none());probe.media_feedback(&reports,None);assert!(probe.cap(now,250_000).is_some());
+        let mut new=report(now,0);new.departure=now+Duration::from_nanos(1);probe.media_feedback(&[new.clone()],Some((new.departure,55,1)));assert!(probe.cap(now,250_000).is_some());
+        probe.media_feedback(std::slice::from_ref(&new),Some((new.departure,55,0)));assert!(probe.cap(now,250_000).is_none());
     }
     #[test]
     fn resume_probe_loss_missing_or_late_feedback_never_qualifies() {
@@ -82,7 +85,7 @@ mod tests {
             let mut reports:Vec<_>=(0..PACKETS as u16).map(|sequence|report(now,sequence)).collect();
             let at=if fault==2 {now+DEADLINE+Duration::from_nanos(1)} else {now};
             if fault==0 {reports[0].arrived=false;reports[0].arrival=None;}else if fault==1 {reports[0].arrival=None;}
-            assert!(probe.feedback(&reports,at,250_000).is_err());assert!(probe.observation().is_err());assert!(probe.cap().is_none());
+            assert!(probe.feedback(&reports,at,250_000).is_err());assert!(probe.observation().is_err());assert!(probe.cap(at,250_000).is_none());
         }
     }
     #[test]
@@ -96,5 +99,15 @@ mod tests {
             let mut invalid=padding.clone();match fault {0=>invalid.header.padding=false,1=>invalid.header.marker=true,2=>invalid.payload=Bytes::from(vec![0;256]),_=>invalid.payload=Bytes::from(vec![1;251])}
             assert!(rtc::rtp_transceiver::RtpPaddingOnly::marshal(&invalid).is_err());
         }
+    }
+    #[test]
+    fn resume_probe_cap_expires_conservatively_and_a_later_probe_rejects_old_reports() {
+        let now=Instant::now();let mut probe=Probe::Idle;assert!(probe.begin(now,1_500_000,55,0));
+        for index in 0..PACKETS {probe.sent(index,&packet(index as u16),now).unwrap();}
+        let reports:Vec<_>=(0..PACKETS as u16).map(|sequence|{let mut r=report(now,sequence);r.arrival=Some(Duration::from_micros(u64::from(sequence)*50));r}).collect();
+        let value=probe.feedback(&reports,now,250_000).unwrap().unwrap();assert_eq!(value.target_kbps,1500);assert!(probe.cap(now,250_000).unwrap()>1_500_000);
+        let later=now+FRESHNESS+Duration::from_nanos(1);assert_eq!(probe.cap(later,250_000),Some(250_000));
+        assert!(probe.begin(later,1_500_000,55,0));for index in 0..PACKETS {probe.sent(index,&packet(index as u16),later).unwrap();}
+        assert!(probe.feedback(&reports,later,250_000).unwrap().is_none());assert!(probe.observation().unwrap().is_none());
     }
 }

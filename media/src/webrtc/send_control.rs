@@ -124,7 +124,7 @@ impl Control {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if !self.active() {return None;}
         let mut budget=match epoch.rate {Rate::Unknown=>self.limits.initial_frame_budget(),Rate::Observed {bps,at,..}=>self.limits.budget(bps,Some(at.elapsed()))};
-        if let Some(cap)=epoch.probe.cap() {budget.payload_bytes=budget.payload_bytes.min((u64::from(cap)*315/8000) as u32);}
+        if let Some(cap)=epoch.probe.cap(Instant::now(),self.limits.min) {budget.payload_bytes=budget.payload_bytes.min((u64::from(cap)*315/8000) as u32);}
         Some(budget)
     }
     pub(super) fn begin_probe(&self,ssrc:u32,sequence:u16)->Result<u64,WebRtcError> {
