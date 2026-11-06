@@ -15,9 +15,9 @@ pub(super) enum Feedback {Pending,Retry,Complete(ResumeProbeObservation)}
 pub(in crate::webrtc) enum Outcome {Retry,Complete(ResumeProbeObservation)}
 #[derive(Clone,Copy)]
 enum Slot {Unsent,Sent {ssrc:u32,sequence:u16,departure:Instant},Arrived {arrival:Duration,bytes:u32},Lost}
-pub(super) struct Collection {slots:[Slot;PACKETS],ticket:ResumeProbeTicket,ceiling:u32,ssrc:u32,sequence:u16,attempt:Attempt}
+pub(super) struct Collection {slots:[Slot;PACKETS],ticket:ResumeProbeTicket,ceiling:u32,ssrc:u32,sequence:u16,attempt:Attempt,transmitted_rtp_bytes:u32}
 #[derive(Debug,Clone,Copy)]
-pub struct ResumeProbeObservation {pub packets:u32,pub arrived:u32,pub received_rtp_bytes:u32,pub arrival_span:Duration,pub received_bps:u32,pub target_kbps:u32,pub attempts:u32}
+pub struct ResumeProbeObservation {pub packets:u32,pub arrived:u32,pub received_rtp_bytes:u32,pub arrival_span:Duration,pub received_bps:u32,pub target_kbps:u32,pub attempts:u32,pub transmitted_rtp_bytes:u32}
 /// Opaque current-epoch request; neither view nor input authority is granted.
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
 pub struct ResumeProbeTicket {pub(super) epoch:u64,serial:u64,deadline:Instant}
@@ -47,7 +47,7 @@ impl Probe {
     }
     pub(super) fn begin(&mut self,ticket:ResumeProbeTicket,now:Instant,ceiling:u32,ssrc:u32,sequence:u16,policy:Policy)->bool {
         if !matches!(self,Self::Requested {ticket:current,..} if *current==ticket) || ticket.remaining(now).is_none() {return false;}
-        *self=Self::Collecting(Box::new(Collection {slots:[Slot::Unsent;PACKETS],ticket,ceiling,ssrc,sequence,attempt:if matches!(policy,Policy::RetryOnce) {Attempt::First} else {Attempt::Single}}));true
+        *self=Self::Collecting(Box::new(Collection {slots:[Slot::Unsent;PACKETS],ticket,ceiling,ssrc,sequence,attempt:if matches!(policy,Policy::RetryOnce) {Attempt::First} else {Attempt::Single},transmitted_rtp_bytes:0}));true
     }
     pub(super) fn retry_pending(&self,ticket:ResumeProbeTicket)->bool {matches!(self,Self::Retry(collection) if collection.ticket==ticket)}
     pub(super) fn begin_retry(&mut self,ticket:ResumeProbeTicket,now:Instant,ceiling:u32,ssrc:u32,sequence:u16)->bool {
@@ -65,6 +65,7 @@ impl Probe {
     pub(super) fn sent(&mut self,index:usize,packet:&rtc::rtp::Packet,now:Instant)->Result<(),()> {
         let Self::Collecting(collection)=self else {return Err(());};
         if collection.ticket.remaining(now).is_none() || index>=PACKETS || !matches!(collection.slots[index],Slot::Unsent) || !packet.header.padding || packet.payload.iter().any(|byte|*byte!=0) {return Err(());}
+        collection.transmitted_rtp_bytes=collection.transmitted_rtp_bytes.checked_add(packet.marshal_size().try_into().map_err(|_|())?).ok_or(())?;
         collection.slots[index]=Slot::Sent {ssrc:packet.header.ssrc,sequence:packet.header.sequence_number,departure:now};Ok(())
     }
     pub(super) fn feedback(&mut self,reports:&[PacketReport],now:Instant,min:u32)->Result<Feedback,()> {
@@ -92,7 +93,7 @@ impl Probe {
         let measured=u128::from(bytes-first_bytes)*8_000_000_000/span.as_nanos();
         let received_bps=u32::try_from(measured.min(u128::from(u32::MAX))).map_err(|_|())?;
         let bps=received_bps.clamp(min,collection.ceiling);
-        let observation=ResumeProbeObservation {packets:PACKETS as u32,arrived:PACKETS as u32,received_rtp_bytes:bytes,arrival_span:span,received_bps,target_kbps:bps/1000,attempts:if matches!(collection.attempt,Attempt::Retry) {2} else {1}};
+        let observation=ResumeProbeObservation {packets:PACKETS as u32,arrived:PACKETS as u32,received_rtp_bytes:bytes,arrival_span:span,received_bps,target_kbps:bps/1000,attempts:if matches!(collection.attempt,Attempt::Retry) {2} else {1},transmitted_rtp_bytes:collection.transmitted_rtp_bytes};
         *self=Self::Complete {ticket:collection.ticket,observation,at:now};Ok(Feedback::Complete(observation))
     }
     #[cfg(test)]
@@ -134,7 +135,7 @@ mod tests {
         let later=now+Duration::from_millis(200);assert!(probe.begin_retry(ticket,later,300_000,55,16));
         let mut reports=Vec::new();for index in 0..PACKETS as u16 {let sequence=16+index;probe.sent(usize::from(index),&packet(sequence),later).unwrap();let mut value=report(later,sequence);value.arrival=Some(Duration::from_micros(u64::from(index)*100));reports.push(value);}
         let old:Vec<_>=(0..PACKETS as u16).map(|index|report(now,65_520u16.wrapping_add(index))).collect();assert!(matches!(probe.feedback(&old,later,250_000).unwrap(),Feedback::Pending));
-        let Feedback::Complete(observed)=probe.feedback(&reports,later,250_000).unwrap() else {panic!("fresh complete retry");};assert_eq!((observed.attempts,observed.packets,observed.arrived,observed.target_kbps),(2,32,32,300));
+        let Feedback::Complete(observed)=probe.feedback(&reports,later,250_000).unwrap() else {panic!("fresh complete retry");};assert_eq!((observed.attempts,observed.packets,observed.arrived,observed.target_kbps),(2,32,32,300));assert_eq!(observed.transmitted_rtp_bytes,64*packet(0).marshal_size() as u32);
         assert!(matches!(probe.poll(ticket,later).unwrap(),ResumeProbeStatus::Ready(_)));assert!(matches!(probe.poll(ticket,ticket.deadline()),Err(WebRtcError::Deadline)));
     }
     #[test]

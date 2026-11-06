@@ -255,7 +255,8 @@ fn quiet_probe_retry(fault:QuietFault) {
             let budget=closer.frame_budget().unwrap();assert!(64005<=u64::from(budget.payload_bytes)*4/5);
             let unit=frame(64005,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();
             let padding=exact_frame_with_padding(&mut packets,&expected,stamp.rtp_timestamp,Some(first_stamp.rtp_timestamp)).await;let total=began.elapsed();assert!(padding>=63);assert!(total<Duration::from_millis(750));assert_eq!(closer.flow_observation().unwrap().completed_frames,2);
-            eprintln!("quiet_retry_success attempts={} fresh_arrivals={} padding_received={padding} padding_original_rtp_bytes={} probe_us={} resume_bytes=64005 total_us={} queue_max_us={} dropped={} overflow=0",observed.attempts,observed.arrived,observed.attempts*8704,probe_time.as_micros(),total.as_micros(),after.max_queue_micros,after.dropped);
+            assert_eq!(observed.transmitted_rtp_bytes,17408);
+            eprintln!("quiet_retry_success attempts={} fresh_arrivals={} padding_received={padding} padding_original_rtp_bytes={} probe_us={} resume_bytes=64005 total_us={} queue_max_us={} dropped={} overflow=0",observed.attempts,observed.arrived,observed.transmitted_rtp_bytes,probe_time.as_micros(),total.as_micros(),after.max_queue_micros,after.dropped);
         } else {
             assert!(result.is_err());assert!(video.ended());assert!(probe_time<Duration::from_millis(750));assert_eq!(after.dropped,if matches!(fault,QuietFault::Twice) {2} else {1});
             eprintln!("quiet_retry_failure fault={fault:?} elapsed_us={} rtp_packets={} dropped={} fake_video_frames=0 overflow=0",probe_time.as_micros(),after.rtp-before.rtp,after.dropped);
