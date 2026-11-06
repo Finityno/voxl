@@ -9,7 +9,7 @@ use crate::codec::VideoCodec;
 use objc2_core_media::{CMTime, CMTimeFlags};
 use std::ffi::c_void;
 use std::ptr::{self, NonNull};
-use std::sync::{OnceLock, atomic::{AtomicUsize, Ordering}, mpsc::{self, Receiver, SyncSender}};
+use std::sync::{Arc, OnceLock, atomic::{AtomicUsize, Ordering}, mpsc::{self, Receiver, SyncSender}};
 
 /// Retained immutable native image. No safe API exposes writable pixel memory.
 pub struct PixelBuffer(NonNull<c_void>);
@@ -120,6 +120,12 @@ impl EncodingOptions {
     }
 }
 
+/// Optional event wake for a worker that also waits for capture or delivery
+/// capacity. Output is queued before this hook runs, including terminal errors.
+/// The hook must return promptly and must not call back into this encoder.
+/// Panics close the encoder and are contained at the Rust/C boundary.
+pub trait OutputWake:Send+Sync {fn wake(&self);}
+
 struct CallbackState {
     sender: SyncSender<Result<EncodedFrame,MediaError>>,
     failure: OnceLock<MediaError>,
@@ -128,20 +134,29 @@ struct CallbackState {
     // Every foreign callback announces an idle point, including early failures.
     idle: fn(),
     codec: VideoCodec,
+    output_wake: OnceLock<Arc<dyn OutputWake>>,
 }
 impl CallbackState {
+    fn wake(&self) {
+        if let Some(wake)=self.output_wake.get()
+            && std::panic::catch_unwind(std::panic::AssertUnwindSafe(||wake.wake())).is_err()
+            && self.failure.set(MediaError::Closed).is_ok() {
+            let _=self.sender.try_send(Err(MediaError::Closed));
+        }
+    }
     fn fail(&self,error:MediaError) {
         if self.failure.set(error).is_ok() {
             // Wake a waiting worker on failure without blocking the native
             // callback. A full queue already has output to wake that worker;
             // its terminal-state check prevents publishing those deltas.
             let _=self.sender.try_send(Err(error));
+            self.wake();
         }
     }
     fn publish(&self,frame:EncodedFrame) {
         if self.failure.get().is_some() {return;}
         match self.sender.try_send(Ok(frame)) {
-            Ok(())=>{},
+            Ok(())=>self.wake(),
             Err(mpsc::TrySendError::Full(_))=>self.fail(MediaError::Backpressure),
             Err(mpsc::TrySendError::Disconnected(_))=>self.fail(MediaError::Closed),
         }
@@ -225,7 +240,7 @@ impl VideoEncoder {
             }
         };
         let (sender, receiver) = mpsc::sync_channel(2);
-        let mut callback = Box::new(CallbackState { sender, failure: OnceLock::new(), pending: AtomicUsize::new(0), idle, codec: config.codec });
+        let mut callback = Box::new(CallbackState { sender, failure: OnceLock::new(), pending: AtomicUsize::new(0), idle, codec: config.codec, output_wake: OnceLock::new() });
         let mut session = ptr::null_mut();
         // Specification borrows only immortal framework constants; callbacks
         // are intentionally null so the dictionary does not own those values.
@@ -318,6 +333,14 @@ impl VideoEncoder {
     /// A present request had matching native integer readback. None leaves the
     /// property untouched and observes no internal default or actual frame QP.
     pub fn max_frame_qp(&self)->Option<MaxFrameQp> {self.options.max_frame_qp}
+
+    /// Install once, before the first successful submission. Existing callers
+    /// keep their channel wait and no additional callback. A wake is a hint:
+    /// recheck output/error and the other worker conditions under its wait lock.
+    pub fn install_output_wake(&mut self,wake:Arc<dyn OutputWake>)->Result<(),MediaError> {
+        if self.last_pts.is_some() || self.callback.pending.load(Ordering::Acquire)!=0 {return Err(MediaError::Configuration);}
+        self.callback.output_wake.set(wake).map_err(|_|MediaError::Configuration)
+    }
 
     fn configure_source_color(&mut self, buffer: Object) -> Result<(), MediaError> {
         match &self.color {

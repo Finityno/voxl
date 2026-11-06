@@ -50,7 +50,43 @@ fn submit(encoder: &mut VideoEncoder, image: &PixelBuffer, pts: i64) {
 
 fn callback_state()->(CallbackState,Receiver<Result<EncodedFrame,MediaError>>) {
     let(sender,receiver)=mpsc::sync_channel(2);
-    (CallbackState {sender,failure:OnceLock::new(),pending:AtomicUsize::new(1),idle:|| {},codec:VideoCodec::H264},receiver)
+    (CallbackState {sender,failure:OnceLock::new(),pending:AtomicUsize::new(1),idle:|| {},codec:VideoCodec::H264,output_wake:OnceLock::new()},receiver)
+}
+
+struct CountWake {count:AtomicUsize,panic:bool}
+impl OutputWake for CountWake {
+    fn wake(&self) {self.count.fetch_add(1,Ordering::AcqRel);assert!(!self.panic,"injected wake failure");}
+}
+#[test]
+fn output_wake_publishes_before_signaling_and_signals_only_the_first_failure() {
+    let(state,receiver)=callback_state();let wake=Arc::new(CountWake {count:AtomicUsize::new(0),panic:false});
+    assert!(state.output_wake.set(wake.clone()).is_ok());
+    state.publish(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![0,0,0,1,0x65],keyframe:true,presentation_time_micros:0});
+    assert_eq!(wake.count.load(Ordering::Acquire),1);assert!(receiver.try_recv().unwrap().is_ok());
+    state.fail(MediaError::Backpressure);state.fail(MediaError::Closed);
+    assert_eq!(wake.count.load(Ordering::Acquire),2);assert_eq!(receiver.try_recv().unwrap().unwrap_err(),MediaError::Backpressure);
+}
+#[test]
+fn output_wake_panic_is_contained_and_preserves_the_first_native_failure() {
+    for failed in [false,true] {
+        let(state,receiver)=callback_state();let wake=Arc::new(CountWake {count:AtomicUsize::new(0),panic:true});
+        assert!(state.output_wake.set(wake.clone()).is_ok());
+        if failed {state.fail(MediaError::InvalidFrame);} else {
+            state.publish(EncodedFrame {codec:VideoCodec::H264,annex_b:vec![1],keyframe:true,presentation_time_micros:0});
+        }
+        assert_eq!(wake.count.load(Ordering::Acquire),1);
+        assert_eq!(state.failure.get(),Some(&if failed {MediaError::InvalidFrame} else {MediaError::Closed}));
+        assert!(receiver.try_recv().is_ok());
+    }
+}
+#[test]
+fn output_wake_installation_is_once_only_and_precedes_native_submission() {
+    let wake=Arc::new(CountWake {count:AtomicUsize::new(0),panic:false});let mut encoder=encoder();
+    assert!(encoder.install_output_wake(wake.clone()).is_ok());
+    assert_eq!(encoder.install_output_wake(wake.clone()),Err(MediaError::Configuration));
+    submit(&mut encoder,&image(false,None),0);
+    assert_eq!(encoder.install_output_wake(wake.clone()),Err(MediaError::Configuration));
+    drop(encoder);assert_eq!(wake.count.load(Ordering::Acquire),1);
 }
 
 #[test]

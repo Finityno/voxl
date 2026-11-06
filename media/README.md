@@ -219,6 +219,13 @@ not infer them from a filename. Partial reads fail and release the native buffer
 Input read/generation costs are not production capture or endpoint CPU evidence.
 
 `codec_probe --pipeline-depth=1|2` adds a bounded local asynchronous experiment.
+Mac embedders that wait for capture and delivery capacity as well as encoder
+output can install an `OutputWake` once, before the first submission. Output or
+the first terminal error is queued before signaling; the hook must return
+promptly without re-entering the encoder. Hook panics close the encoder and
+cannot unwind across the native boundary. Existing constructors retain their
+channel wait with no hook, thread or queue-depth change.
+
 The default is one; two requires explicit hardware. At most two submissions,
 including queued outputs, can be pending. The producer drains available output,
 waits on the callback until the next submission/output deadline, and drains the
