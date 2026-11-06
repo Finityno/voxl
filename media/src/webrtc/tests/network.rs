@@ -185,12 +185,12 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
         let (mut video,receiver,events,mut packets,mut link)=pair().await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
         let reader=tokio::spawn(async move {while packets.recv().await.is_some() {seen.fetch_add(1,Ordering::Relaxed);}});
-        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;let experiment=Instant::now();let mut traces=0;let mut last_trace=None;
+        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;let experiment=Instant::now();let mut traces=0;let mut last_trace=None;let mut constrained=None;let mut first_reduction=None;
         for (stage,bps,seconds) in [(0,3_000_000,2),(1,500_000,5),(2,3_000_000,3)] {
-            link.condition(Shape::new(bps,20,5,None)).await;let until=Instant::now()+Duration::from_secs(seconds);let mut interval=tokio::time::interval(Duration::from_millis(33));interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+            link.condition(Shape::new(bps,20,5,None)).await;if stage==1 {constrained=Some(Instant::now());}let until=Instant::now()+Duration::from_secs(seconds);let mut interval=tokio::time::interval(Duration::from_millis(33));interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
             while Instant::now()<until {
                 interval.tick().await;
-                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}else if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
+                if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);if estimate.target_kbps<1000 && first_reduction.is_none() {first_reduction=constrained.map(|at|at.elapsed());}}else if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
                 // The native worker holds its last verified target on stale or
                 // unknown feedback; it never jumps back to the initial prior.
                 if let Some(target)=video.close_handle().bitrate_target_kbps() {encoder_target=target;}
@@ -202,6 +202,11 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
             }
             let s=link.snapshot().await;eprintln!("headroom_capacity stage={stage} capacity_bps={bps} sent_frames={sequence} media_min_bps={low_min} recovery_max_bps={recovered_max} recovery_final_bps={recovered_final} rtp={} delivered={} overflow={} peak_queue={} queue_max_us={} received_packets={}",s.rtp,s.delivered,s.overflow,s.peak_queue,s.max_queue_micros,consumed.load(Ordering::Relaxed));
             assert!(s.peak_queue<=QUEUE_LIMIT);
+            if stage==1 {
+                eprintln!("headroom_transient first_reduction_us={} max_residence_us={}",first_reduction.map_or(u128::MAX,|elapsed|elapsed.as_micros()),s.max_queue_micros);
+                assert!(first_reduction.is_some_and(|elapsed|elapsed<=Duration::from_millis(500)),"first media reduction must occur within500ms of the capacity drop");
+                assert!(s.max_queue_micros<=750_000,"transient queue residence must stay below750ms");
+            }
         }
         assert!(estimates>0 && low_min<1_000_000,"real feedback must lower the media target below the offered load");assert!(recovered_final>low_min*11/10 && !video.ended(),"capacity recovery must raise the final media target by more than ten percent");
         video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;reader.abort();assert!(reader.await.unwrap_err().is_cancelled());

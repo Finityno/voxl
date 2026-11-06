@@ -123,10 +123,23 @@ impl Control {
     }
 }
 
-pub(super) struct Estimator {inner:Gcc,control:Arc<Control>,epoch:u64}
+#[cfg(test)]
+struct GccTrace {slope:rtc::interceptor::SlopeEstimator,detector:rtc::interceptor::OveruseDetector,origin:Instant,left:u16}
+#[cfg(test)]
+impl GccTrace {
+    fn new()->Self {Self {slope:rtc::interceptor::SlopeEstimator::new(),detector:rtc::interceptor::OveruseDetector::new(),origin:Instant::now(),left:128}}
+    fn record(&mut self,now:Instant,reports:&[PacketReport],gcc:&Gcc) {
+        let mut last=None;
+        for report in reports {if let Some(trend)=self.slope.accumulate(report) {let threshold=self.detector.threshold_ms();let usage=self.detector.update(trend.at,trend.estimate_ms);last=Some((trend,threshold,usage));}}
+        if self.left>0 && let Some((trend,threshold,usage))=last {
+            self.left-=1;eprintln!("gcc_trace elapsed_us={} reports={} raw_ms={:.3} filtered_ms={:.3} threshold_ms={:.3} usage={usage:?} delay_bps={:.0} loss_bps={:.0}",now.duration_since(self.origin).as_micros(),reports.len(),trend.measurement_ms,trend.estimate_ms,threshold,gcc.delay_based_bitrate(),gcc.loss_based_bitrate());
+        }
+    }
+}
+pub(super) struct Estimator {inner:Gcc,control:Arc<Control>,epoch:u64,#[cfg(test)] trace:Option<GccTrace>}
 impl Estimator {
     pub(super) fn new(control:Arc<Control>)->Self {
-        let limits=control.limits;Self {inner:Gcc::new(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max)),control,epoch:0}
+        let limits=control.limits;Self {inner:Gcc::new(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max)),control,epoch:0,#[cfg(test)] trace:std::env::var_os("VOXL_TRACE_GCC").map(|_|GccTrace::new())}
     }
 }
 impl BandwidthEstimator for Estimator {
@@ -134,10 +147,14 @@ impl BandwidthEstimator for Estimator {
         let mut epoch=self.control.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if self.epoch!=epoch.id {
             let p=self.control.limits;self.inner=Gcc::new(f64::from(p.initial),f64::from(p.min),f64::from(p.max));self.epoch=epoch.id;
+            #[cfg(test)]
+            if self.trace.is_some() {self.trace=Some(GccTrace::new());}
         }
         let current:Vec<_>=reports.iter().filter(|report|report.departure>=epoch.started && report.departure<=now).cloned().collect();
         if current.is_empty() || !self.control.active() {return;}
         self.inner.on_reports(now,&current);
+        #[cfg(test)]
+        if let Some(trace)=&mut self.trace {trace.record(now,&current,&self.inner);}
         let target=self.inner.target_bitrate();
         if !target.is_finite() || target<=0.0 {drop(epoch);self.control.fail();return;}
         let bps=(target as u32).clamp(self.control.limits.min,self.control.limits.max);
