@@ -4,6 +4,9 @@
 // tens of gigabytes. The prefix and observed cycle stay separate from the
 // capture clock: native output timestamps never repeat when input pixels do.
 #[cfg(any(target_os="macos",test))]
+#[path="support/probe_pipeline.rs"]
+mod probe_pipeline;
+#[cfg(any(target_os="macos",test))]
 #[derive(Clone,Copy,Debug,PartialEq,Eq)]
 struct InputCycle {prefix:usize,frames:usize}
 #[cfg(any(target_os="macos",test))]
@@ -26,6 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     use voxl_media::{EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning};
     use voxl_media::codec::VideoCodec;
     use voxl_media::macos::{VideoEncoder, PixelBuffer, EncodingPriority, EncodingOptions, MaxFrameQp};
+    use probe_pipeline::{Pipeline,Submission,Action};
     #[link(name = "CoreVideo", kind = "framework")]
     unsafe extern "C" {
         fn CVPixelBufferCreate(allocator: *const c_void, width: usize, height: usize, format: u32, attrs: *const c_void, out: *mut *const c_void) -> i32;
@@ -68,6 +72,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let warmup = parse_count(option(&mut args,"--warmup-frames=")?,0)?;
     let count = parse_count(option(&mut args,"--frames=")?,60)?;
+    let pipeline_depth=parse_count(option(&mut args,"--pipeline-depth=")?,1)?;
+    let mut pipeline=Pipeline::new(pipeline_depth)?;
     let force_period = option(&mut args,"--force-keyframe-period=")?.map(|value|value.parse::<usize>()).transpose()?;
     let pattern = option(&mut args,"--pattern=")?.unwrap_or_else(||"mono".to_owned());
     let pixel_range = option(&mut args,"--pixel-range=")?.unwrap_or_else(||"video".to_owned());
@@ -89,7 +95,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -99,6 +105,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     if input_path.is_some() && pattern!="mono" { return Err("file input cannot be combined with a generated pattern".into()); }
     let config = EncoderConfig { codec, width, height, fps, bitrate_kbps, preference };
+    if pipeline_depth!=1 && preference!=EncoderPreference::RequireHardware {return Err("pipelining experiment requires explicitly selected hardware".into());}
     tuning.validate(&config)?;
     if priority!=EncodingPriority::Default && preference!=EncoderPreference::RequireHardware {return Err("encoding priority requires explicitly selected hardware".into());}
     if max_frame_qp.is_some() && preference!=EncoderPreference::RequireHardware {return Err("maximum frame QP requires explicitly selected hardware".into());}
@@ -149,9 +156,49 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut keyframes = 0;
     let mut keyframe_indices = Vec::new();
     let mut first_frame_ms = None;
+    let mut output_arrivals_ms=Vec::new();
+    let mut submission_lateness_ms=Vec::new();
+    {
+    let mut consume=|output:voxl_media::EncodedFrame,pipeline:&mut Pipeline|->Result<(),Box<dyn std::error::Error>> {
+        // Receipt time includes any producer work before it drains this output;
+        // it is not a driver/GPU callback timestamp or decoder presentation time.
+        let received=Instant::now();
+        let entry=pipeline.complete(output.presentation_time_micros,received)?;
+        let index=entry.index;let forced=entry.forced;
+        let latency = received.duration_since(entry.submitted).as_secs_f64()*1000.0;
+        if forced && !output.keyframe { return Err("forced keyframe was not observed".into()); }
+        if index == 0 {
+            first_frame_ms = Some(latency);
+            match codec {
+                VideoCodec::H264 => println!("profile_level_id={:02x?}",voxl_media::h264_profile_level_id(&output.annex_b)?),
+                VideoCodec::Hevc => println!("hevc_fmtp={}",voxl_media::hevc_main_profile(&output.annex_b)?.fmtp()),
+                VideoCodec::Av1 => unreachable!(),
+            }
+        }
+        if output.codec != codec { return Err("codec mismatch".into()); }
+        if output.presentation_time_micros != (index as i64)*1_000_000/i64::from(fps) { return Err("timestamp mismatch".into()); }
+        total_bytes += output.annex_b.len();
+        if output.keyframe { keyframe_indices.push(index); }
+        if index>=warmup {bytes += output.annex_b.len();keyframes += usize::from(output.keyframe);latencies.push(latency);output_arrivals_ms.push(received.duration_since(started).as_secs_f64()*1000.0);}
+        file.write_all(&output.annex_b)?;
+        if let Some(framed) = &mut framed {
+            framed.write_all(&output.presentation_time_micros.to_be_bytes())?;
+            framed.write_all(&[u8::from(output.keyframe)])?;
+            framed.write_all(&u32::try_from(output.annex_b.len())?.to_be_bytes())?;
+            framed.write_all(&output.annex_b)?;
+        }
+        Ok(())
+    };
     for index in 0..warmup+count {
         let deadline = started + Duration::from_secs_f64(index as f64 / f64::from(fps));
-        if let Some(wait) = deadline.checked_duration_since(Instant::now()) { std::thread::sleep(wait); }
+        loop {
+            if let Some(output)=encoder.take_output().map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;continue;}
+            match pipeline.action(Instant::now(),deadline)? {
+                Action::Submit=>break,
+                Action::Sleep(wait)=>std::thread::sleep(wait),
+                Action::Receive(wait)=>if let Some(output)=encoder.wait_output(wait).map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;},
+            }
+        }
         if let (Some(input),Some(cycle))=(&mut input,input_cycle) {
             let offset=u64::try_from(cycle.source_frame(index,warmup))?.checked_mul(frame_bytes).ok_or("cyclic frame offset overflow")?;
             input.seek(SeekFrom::Start(offset))?;
@@ -222,34 +269,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         unsafe { CFRelease(raw); }
         let submitted = Instant::now();
         let forced = index==0 || force_period.is_some_and(|period|index.is_multiple_of(period));
-        encoder.encode(&image,(index as i64)*1_000_000/i64::from(fps),forced)?;
-        // Use the native callback wake, as the application's dedicated worker
-        // does. Record arrival before logging or writing the encoded stream so
-        // the measured interval excludes file and profile-output overhead.
-        let output = encoder.wait_output(Duration::from_secs(2)).map_err(|error|encoder.failure_cause().unwrap_or(error))?.ok_or("encoder output deadline")?;
-        let latency = submitted.elapsed().as_secs_f64()*1000.0;
-        if forced && !output.keyframe { return Err("forced keyframe was not observed".into()); }
-        if index == 0 {
-            first_frame_ms = Some(latency);
-            match codec {
-                VideoCodec::H264 => println!("profile_level_id={:02x?}",voxl_media::h264_profile_level_id(&output.annex_b)?),
-                VideoCodec::Hevc => println!("hevc_fmtp={}",voxl_media::hevc_main_profile(&output.annex_b)?.fmtp()),
-                VideoCodec::Av1 => unreachable!(),
-            }
-        }
-        if output.codec != codec { return Err("codec mismatch".into()); }
-        if output.presentation_time_micros != (index as i64)*1_000_000/i64::from(fps) { return Err("timestamp mismatch".into()); }
-        total_bytes += output.annex_b.len();
-        if output.keyframe { keyframe_indices.push(index); }
-        if index>=warmup {bytes += output.annex_b.len();keyframes += usize::from(output.keyframe);latencies.push(latency);}
-        file.write_all(&output.annex_b)?;
-        if let Some(framed) = &mut framed {
-            framed.write_all(&output.presentation_time_micros.to_be_bytes())?;
-            framed.write_all(&[u8::from(output.keyframe)])?;
-            framed.write_all(&u32::try_from(output.annex_b.len())?.to_be_bytes())?;
-            framed.write_all(&output.annex_b)?;
-        }
+        let pts=(index as i64)*1_000_000/i64::from(fps);
+        pipeline.submit(Submission {index,pts,forced,submitted})?;
+        if index>=warmup {submission_lateness_ms.push(submitted.saturating_duration_since(deadline).as_secs_f64()*1000.0);}
+        encoder.encode(&image,pts,forced)?;
     }
+    while !pipeline.empty() {
+        let wait=pipeline.receive_wait(Instant::now())?;
+        if let Some(output)=encoder.wait_output(wait).map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;}
+    }
+    }
+    if pipeline.submitted()!=warmup+count || pipeline.completed()!=warmup+count {return Err("pipeline frame count mismatch".into());}
+    println!("pipeline_depth={pipeline_depth} maximum_pending={} submitted_frames={} completed_frames={} output_order=verified",pipeline.maximum(),pipeline.submitted(),pipeline.completed());
+    println!("output_arrivals_ms={output_arrivals_ms:?}");
+    println!("submission_lateness_ms={submission_lateness_ms:?}");
     println!("wait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms={:.2}",first_frame_ms.ok_or("first frame missing")?);
     println!("encode_samples_ms={latencies:?}");
     println!("keyframe_indices={keyframe_indices:?} total_stream_bytes={total_bytes}");

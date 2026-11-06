@@ -218,6 +218,36 @@ pattern. Supply the actual file's range/color tags explicitly; the probe does
 not infer them from a filename. Partial reads fail and release the native buffer.
 Input read/generation costs are not production capture or endpoint CPU evidence.
 
+`codec_probe --pipeline-depth=1|2` adds a bounded local asynchronous experiment.
+The default is one; two requires explicit hardware. At most two submissions,
+including queued outputs, can be pending. The producer drains available output,
+waits on the callback until the next submission/output deadline, and drains the
+final frames. It checks every output's FIFO capture timestamp and forced
+keyframe, never drops an encoded delta, and fails on an expired two-second
+submission deadline. No library/application default, queue size or codec option
+changes. Printed latency remains encode-call to producer receipt, including
+drain scheduling; it is not a native callback timestamp or presentation latency.
+
+`media/tools/run-pipeline-probe.py` compares depths one and two on the same
+generated motion/text pixels, codec, bitrate and native settings. For example:
+
+```sh
+python3 media/tools/run-pipeline-probe.py --revision "$(git rev-parse HEAD)" \
+  --output /tmp/voxl-pipeline-pilot --resolution 2160p --fps 60 --runs 2
+```
+
+It uses the checkout's own target, shared Mac lock, nice 19, two jobs, process
+group deadlines, compiler hashes, actual access-unit clocks/keyframes and
+independent decoding. Pair order alternates. Geometry choices are exact
+1920×1080 and 3840×2160; a 2160p/60 source needs several GiB of private generated
+pixels, checked before running. Foreground/channel errors and full/text/thin
+per-frame SSIM regressions remain explicit; no gate is loosened for throughput.
+Completion FPS is measured from producer receipts rather than nominal PTS, and
+source-read/pacing lateness, latency, bytes and probe CPU/RSS remain separate.
+These are component experiments, excluding OS helpers/GPU/power and full
+application baselines, not permission to promote a default or claim 60fps
+playback, text/codec admission, bandwidth savings or physical-device performance.
+
 ### Windows encoder component
 
 `windows::VideoEncoder` is a thread-owned Media Foundation component, separate

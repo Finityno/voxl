@@ -3,6 +3,7 @@
 import importlib.util
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 
 spec = importlib.util.spec_from_file_location("matched_codecs",Path(__file__).with_name("run-matched-codecs.py"))
@@ -11,6 +12,19 @@ spec.loader.exec_module(runner)
 
 
 class CodecEvidenceTests(unittest.TestCase):
+    def test_reusable_geometry_keeps_the_legacy_default_and_exact_4k_source_shape(self):
+        defaults=runner.Runner(SimpleNamespace(workspace=Path('/tmp/unused'),developer_dir=None))
+        self.assertIn('1920x1080',defaults.source_args());self.assertEqual(defaults.fps,30)
+        high=runner.Runner(SimpleNamespace(workspace=Path('/tmp/unused'),developer_dir=None,width=3840,height=2160,fps=60))
+        self.assertIn('3840x2160',high.source_args());self.assertIn('60',high.source_args())
+
+    def test_pipeline_evidence_requires_bounded_fifo_counts_and_advancing_receipt_clock(self):
+        text='pipeline_depth=2 maximum_pending=2 submitted_frames=4 completed_frames=4 output_order=verified\noutput_arrivals_ms=[20.0, 40.0, 60.0]\nsubmission_lateness_ms=[0.0, 1.0, 2.0]\n'
+        value=runner.pipeline_evidence(text,2,4,3)
+        self.assertEqual(value['observedCompletionFps'],50.0);self.assertEqual(value['maximumPending'],2)
+        for bad in [text.replace('maximum_pending=2','maximum_pending=3'),text.replace('completed_frames=4','completed_frames=3'),text.replace('20.0, 40.0, 60.0','20.0, 20.0, 60.0'),text.replace('[0.0, 1.0, 2.0]','[0.0, 1.0]'),text.replace('[0.0, 1.0, 2.0]','[0.0, True, 2.0]')]:
+            with self.assertRaises(ValueError):runner.pipeline_evidence(bad,2,4,3)
+
     def test_profile_priority_is_explicit_without_default_alias_or_codec_substitution(self):
         self.assertEqual(runner.profile("h264:compatible:3000"),("h264","compatible",3000,"default",None))
         self.assertEqual(runner.profile("hevc:low-latency-compatible:1500:speed"),("hevc","low-latency-compatible",1500,"speed",None))

@@ -130,10 +130,28 @@ def profile(specification):
     return codec,tuning,int(bitrate),priority,maximum_qp
 
 
+def pipeline_evidence(text, expected_depth, total, observed):
+    require(type(expected_depth) is int and expected_depth in [1,2] and 1 <= observed <= total <= 19800, "invalid pipeline observation request")
+    match = re.search(r"^pipeline_depth=(\d+) maximum_pending=(\d+) submitted_frames=(\d+) completed_frames=(\d+) output_order=verified$", text, re.M)
+    require(match is not None and int(match[1]) == expected_depth and 1 <= int(match[2]) <= expected_depth and list(map(int, match.group(3,4))) == [total,total], "pipeline bound/order/count mismatch")
+    arrival_match = re.search(r"^output_arrivals_ms=(\[.*\])$", text, re.M)
+    late_match = re.search(r"^submission_lateness_ms=(\[.*\])$", text, re.M)
+    require(arrival_match is not None and late_match is not None, "missing pipeline timing samples")
+    arrivals, late = ast.literal_eval(arrival_match[1]), ast.literal_eval(late_match[1])
+    require(len(arrivals) == len(late) == observed and all(type(v) in (int,float) and math.isfinite(v) and v >= 0 for v in arrivals+late), "invalid pipeline timing samples")
+    require(all(after > before for before, after in zip(arrivals, arrivals[1:])), "pipeline output receipt clock did not advance")
+    interval = (arrivals[-1]-arrivals[0])/1000 if observed > 1 else None
+    return {"requestedDepth":expected_depth,"maximumPending":int(match[2]),"submittedFrames":total,"completedFrames":total,
+        "observedOutputArrivalsMs":arrivals,"submissionLatenessMs":late,"outputFirstToLastSeconds":interval,
+        "observedCompletionFps":(observed-1)/interval if interval is not None else None,
+        "scope":"Bounded ordered output receipts in the probe process. Includes producer drain scheduling; not native callback timestamps, application playback cadence or end-to-end latency."}
+
+
 class Runner:
     def __init__(self, args):
         self.args, self.steps, self.cases = args, [], []
         self.fps = getattr(args,"fps",30)
+        self.width, self.height = getattr(args,"width",1920), getattr(args,"height",1080)
         self.terminal, self.exit_code = False, None
         self.environment = os.environ | {"CARGO_TARGET_DIR":str(args.workspace/"media/target"),"CARGO_BUILD_JOBS":"2","CARGO_BUILD_WARNINGS":"deny","CARGO_INCREMENTAL":"0","RUSTC_WRAPPER":"","CI":"true","GIT_OPTIONAL_LOCKS":"0","PYTHONDONTWRITEBYTECODE":"1","LC_ALL":"C","OMP_NUM_THREADS":"1","OPENBLAS_NUM_THREADS":"1"}
         if args.developer_dir:
@@ -200,7 +218,7 @@ class Runner:
             generator = self.args.output/"private/desktop-workload"
             self.run("generator-build",["xcrun","--sdk","macosx","swiftc","-O","-swift-version","6","-strict-concurrency=complete","-warnings-as-errors","media/tools/desktop-workload.swift","-o",str(generator)],120,True)
             fixture = self.args.output/"private/fixture"
-            self.run("generate",[str(generator),str(fixture),"1920","1080",str(self.fps)],180)
+            self.run("generate",[str(generator),str(fixture),str(self.width),str(self.height),str(self.fps)],180)
         require(fixture.is_dir() and not fixture.is_symlink(), "expected an owned generated fixture directory")
         import importlib.util
         path = self.args.workspace/"media/tools/analyze-text-workload.py"
@@ -208,21 +226,21 @@ class Runner:
         metrics = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(metrics)
         manifest, _, _, validation = metrics.reference(fixture)
-        require(manifest["width"] == 1920 and manifest["height"] == 1080 and manifest["fps"] == self.fps, "fixture geometry/cadence must match the requested 1080p profile")
+        require(manifest["width"] == self.width and manifest["height"] == self.height and manifest["fps"] == self.fps, "fixture geometry/cadence must match the requested profile")
         raw = fixture/"reference.nv12"
         font = Path(manifest["fontURL"])
         require(font == Path("/System/Library/Fonts/Menlo.ttc") and manifest["fontPostScriptName"] == "Menlo-Regular", "unexpected installed font")
         write(self.args.output/"fixture.json",{"manifest":manifest,"manifestSha256":digest(fixture/"manifest.json"),"validation":validation,"currentGeneratorSourceSha256":digest(self.args.workspace/"media/tools/desktop-workload.swift"),"currentlyInstalledFontSha256":digest(font),"reuse":self.args.fixture is not None,"scope":"Reused assets are identified by their byte hashes; current source/font hashes do not establish their historical generation environment."})
         observation = self.args.output/"private/observation-reference.nv12"
-        prefix = 1920*1080*3//2*manifest["warmupFrames"]
+        prefix = self.width*self.height*3//2*manifest["warmupFrames"]
         with raw.open("rb") as source, observation.open("xb") as destination:
             source.seek(prefix)
             shutil.copyfileobj(source,destination,1024*1024)
-        require(observation.stat().st_size == 1920*1080*3//2*manifest["observedFrames"], "observed reference length mismatch")
+        require(observation.stat().st_size == self.width*self.height*3//2*manifest["observedFrames"], "observed reference length mismatch")
         return fixture, manifest, observation
 
     def source_args(self):
-        return ["-f","rawvideo","-pixel_format","nv12","-video_size","1920x1080","-framerate",str(self.fps),"-color_range","pc","-colorspace","bt709","-color_primaries","bt709","-color_trc","iec61966-2-1"]
+        return ["-f","rawvideo","-pixel_format","nv12","-video_size",f"{self.width}x{self.height}","-framerate",str(self.fps),"-color_range","pc","-colorspace","bt709","-color_primaries","bt709","-color_trc","iec61966-2-1"]
 
     def rgb(self, name, path, manifest, output, raw=False):
         frames, warmup = self.args.observation_seconds*self.fps, self.args.warmup_seconds*self.fps
@@ -238,22 +256,24 @@ class Runner:
         self.run(name,command,180)
         require(output.stat().st_size == region["width"]*region["height"]*3*frames, "normalized RGB frame count mismatch")
 
-    def case(self, executable, specification, run, fixture, manifest, observation):
+    def case(self, executable, specification, run, fixture, manifest, observation, *, pipeline_depth=1, name=None):
         codec, tuning, bitrate, priority, maximum_qp = profile(specification)
-        name = f"run-{run}-{specification.replace(':','-')}"
+        name = name or f"run-{run}-{specification.replace(':','-')}"
         folder = self.args.output/"private"/name
         folder.mkdir(mode=0o700)
         video, framed, rgb = folder/("encoded."+codec), folder/"frames.vxfr", folder/"thin.rgb"
         frames, warmup = self.args.observation_seconds*self.fps, self.args.warmup_seconds*self.fps
         before = digest(fixture/"reference.nv12")
-        command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}","--width=1920","--height=1080",f"--fps={self.fps}","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix="+str(manifest["warmupFrames"]),"--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),f"--force-keyframe-period={self.fps*2}"]
+        command = ["/usr/bin/time","-lp",str(executable),"hardware",str(video),codec,str(framed),f"--warmup-frames={warmup}",f"--frames={frames}",f"--width={self.width}",f"--height={self.height}",f"--fps={self.fps}","--pixel-range=full","--color-tags=srgb","--input-nv12="+str(fixture/"reference.nv12"),"--input-cycle-prefix="+str(manifest["warmupFrames"]),"--tuning="+tuning,"--priority="+priority,"--bitrate-kbps="+str(bitrate),f"--force-keyframe-period={self.fps*2}"]
+        command.append("--pipeline-depth="+str(pipeline_depth))
         if maximum_qp is not None:command.append("--max-frame-qp="+str(maximum_qp))
         log = self.run(name,command,self.args.warmup_seconds+self.args.observation_seconds+20,True)
         text = log.read_text()
         samples = ast.literal_eval(re.search(r"^encode_samples_ms=(\[.*\])$",text,re.M).group(1))
         require(len(samples) == frames and all(isinstance(v,(int,float)) and math.isfinite(v) and 0 <= v <= 2500 for v in samples), "encode sample count/value mismatch")
         summary = re.search(r"^codec=(H264|Hevc) hardware=(true|false) width=(\d+) height=(\d+) fps=(\d+) target_bitrate_kbps=(\d+) frames=(\d+) warmup_frames=(\d+) .+ wall_seconds=([0-9.]+)",text,re.M)
-        require(summary is not None and summary.group(1) == ("H264" if codec == "h264" else "Hevc") and summary.group(2) == "true" and list(map(int,summary.group(3,4,5,6,7,8))) == [1920,1080,self.fps,bitrate,frames,warmup], "native requested/observed profile mismatch")
+        require(summary is not None and summary.group(1) == ("H264" if codec == "h264" else "Hevc") and summary.group(2) == "true" and list(map(int,summary.group(3,4,5,6,7,8))) == [self.width,self.height,self.fps,bitrate,frames,warmup], "native requested/observed profile mismatch")
+        pipeline_observation = pipeline_evidence(text,pipeline_depth,warmup+frames,frames)
         acceleration = re.search(r"^hardware_selection=(\w+)$",text,re.M).group(1)
         require(acceleration in ["QueriedHardware","RequiredHardware"], "hardware selection not established")
         actual_priority = re.search(r"^encoding_priority=(Default|Speed|Quality) priority_property_verified=(true|false)$",text,re.M)
@@ -269,7 +289,7 @@ class Runner:
         streams = json.loads(decode.read_text())["streams"]
         require(len(streams) == 1, "unexpected decoded stream count")
         metadata = streams[0]
-        require(metadata["codec_name"] == codec and metadata["width"] == 1920 and metadata["height"] == 1080 and int(metadata["nb_read_frames"]) == warmup+frames and [metadata[k] for k in ["color_range","color_space","color_transfer","color_primaries"]] == ["pc","bt709","iec61966-2-1","bt709"], "independent decode/format mismatch")
+        require(metadata["codec_name"] == codec and metadata["width"] == self.width and metadata["height"] == self.height and int(metadata["nb_read_frames"]) == warmup+frames and [metadata[k] for k in ["color_range","color_space","color_transfer","color_primaries"]] == ["pc","bt709","iec61966-2-1","bt709"], "independent decode/format mismatch")
         graph = f"[0:v]trim=start_frame={warmup}:end_frame={warmup+frames},settb=1/{self.fps},setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame={frames},settb=1/{self.fps},setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file="+str(folder/"full.ssim")+"[full];"
         for index,label,key in [(1,"text","codeText"),(2,"thin","thinColoredText")]:
             region = manifest["regions"][key]
@@ -280,6 +300,7 @@ class Runner:
         self.rgb(name+"-rgb",video,manifest,rgb)
         wall, nominal = float(summary.group(9)), (warmup+frames-1)/self.fps
         record = {"name":name,"specification":specification,"independentRun":run,"oraclesComplete":False,"encodingAndDecodeOraclesComplete":True,"inputSha256":before,"encodedSha256":digest(video),"framedSha256":digest(framed),"normalizedRgbSha256":digest(rgb),"actualDecodedMetadata":metadata,"hardwareSelection":acceleration,"accessUnits":units,"encodeLatencyMs":{"samples":samples,"p50":sorted(samples)[math.ceil(len(samples)*.5)-1],"p95":sorted(samples)[math.ceil(len(samples)*.95)-1],"maximum":max(samples),"scope":"encode call to output callback received, excludes source read/fill"},"probeWallSeconds":wall,"pacing":{"nominalFirstToLastFrameSeconds":nominal,"wallMinusNominalSeconds":wall-nominal,"scope":"Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."},"processResources":{"wallSeconds":cpu["real"],"userSeconds":cpu["user"],"systemSeconds":cpu["sys"],"averageCpuPercentOneCore":100*(cpu["user"]+cpu["sys"])/cpu["real"],"maximumResidentBytes":rss,"scope":"macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"},"quality":quality,"rgbPath":str(rgb)}
+        record["pipeline"] = pipeline_observation
         record["encodingPriority"] = {"requested":priority,"nativePropertyVerified":priority != "default","scope":"Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."}
         record["maximumFrameQp"] = {"requested":maximum_qp,"nativePropertyVerified":maximum_qp is not None,"scope":"Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."}
         self.cases.append(record)
