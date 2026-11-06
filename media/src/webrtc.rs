@@ -187,8 +187,13 @@ pub struct VideoCloseHandle {
     runtime: tokio::runtime::Handle,
     changes: Arc<ChangeSignal>,
     relays: Arc<stream_turn::StreamRelays>,
+    control: Option<Arc<send_control::Control>>,
 }
 impl VideoCloseHandle {
+    /// Fresh feedback-derived encoder target including transport headroom. Native
+    /// workers can read this while the serial sender is awaiting paced RTP.
+    /// Unknown, stale, retired or closed feedback never raises an encoder rate.
+    pub fn bitrate_target_kbps(&self)->Option<u32> {self.control.as_ref().and_then(|control|control.encoder_target())}
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();
@@ -383,7 +388,7 @@ impl WebRtcVideo {
         }
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
-        let closer = VideoCloseHandle { closed,wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
+        let closer = VideoCloseHandle { closed,wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays,control:control.clone() };
         Ok(Self { peer,sender,track,events,closer,offer,negotiation:Negotiation::InitialAnswer {setup,startup},ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default(),VideoFormat::Av1Main(_) => Box::<Av1Payloader>::default() },

@@ -72,6 +72,13 @@ impl Control {
             Rate::Observed {bps,at,..}=>Some(BitrateEstimate {target_kbps:(bps/1000).max(250),age:at.elapsed()}),
         }
     }
+    pub(super) fn encoder_target(&self)->Option<u32> {
+        let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        match epoch.rate {
+            Rate::Observed {bps,at,..} if self.active() && at.elapsed()<=Duration::from_secs(2)=>Some(((u64::from(bps)*85/100)/1000).max(250) as u32),
+            _=>None,
+        }
+    }
     pub(super) fn changed_target(&self,seen:&mut (u64,u64))->Option<u32> {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         match epoch.rate {
@@ -308,5 +315,16 @@ mod tests {
         control.retire();estimator.on_reports(now+Duration::from_millis(2),&[report]);assert!(control.estimate().is_none());
         let mut epoch=control.epoch.lock().unwrap();epoch.rate=Rate::Observed {bps:500_000,at:Instant::now(),revision:1};drop(epoch);
         assert_eq!(control.changed_target(&mut seen),Some(425));
+    }
+    #[test]
+    fn adaptive_worker_observation_rejects_unknown_stale_retired_and_closed_rates() {
+        let control=control();assert!(control.encoder_target().is_none());
+        control.epoch.lock().unwrap().rate=Rate::Observed {bps:500_000,at:Instant::now(),revision:1};
+        assert_eq!(control.encoder_target(),Some(425));assert_eq!(control.encoder_target(),Some(425));
+        control.epoch.lock().unwrap().rate=Rate::Observed {bps:500_000,at:Instant::now()-Duration::from_secs(3),revision:2};
+        assert!(control.encoder_target().is_none());control.retire();assert!(control.encoder_target().is_none());
+        control.epoch.lock().unwrap().rate=Rate::Observed {bps:700_000,at:Instant::now(),revision:1};
+        assert_eq!(control.encoder_target(),Some(595));control.authority.store(true,Ordering::Release);
+        assert!(control.encoder_target().is_none());
     }
 }

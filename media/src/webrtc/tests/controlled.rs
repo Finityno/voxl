@@ -37,6 +37,7 @@ fn adaptive_udp_loopback_preserves_access_units_clock_and_real_twcc_feedback() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
         let (mut video,receiver,mut packets)=pair(true).await;
+        let worker=video.close_handle();assert!(worker.bitrate_target_kbps().is_none());
         assert!(video.bitrate_estimate().is_none());
         let first=frame(true,1_000_000);let expected=first.annex_b[4..].to_vec();let started=Instant::now();
         let stamp=video.send_with_stamp(first).await.unwrap();
@@ -48,8 +49,9 @@ fn adaptive_udp_loopback_preserves_access_units_clock_and_real_twcc_feedback() {
             loop {match video.next_update().await {VideoUpdate::BitrateTarget(kbps)=>{assert!((250..=850).contains(&kbps));break;},VideoUpdate::Ended=>panic!("controlled transport ended"),_=>{}}}
         }).await.unwrap();
         let estimate=video.bitrate_estimate().unwrap();assert!((250..=1000).contains(&estimate.target_kbps));assert!(estimate.age<Duration::from_secs(2));
+        assert!((250..=850).contains(&worker.bitrate_target_kbps().unwrap()));
         assert_eq!(video.route_statistics().await.route,MediaRoute::Direct);
-        video.close();assert!(video.ended());receiver.close().await.unwrap();
+        video.close();assert!(video.ended());assert!(worker.bitrate_target_kbps().is_none());receiver.close().await.unwrap();
     }).await.expect("bounded controlled UDP loopback");});
 }
 #[test]
