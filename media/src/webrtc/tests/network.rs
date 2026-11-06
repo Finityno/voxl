@@ -99,7 +99,7 @@ fn candidate(sdp:&str,proxy:SocketAddr)->(String,SocketAddr) {
         if line.starts_with("a=candidate:") {
             let mut fields:Vec<_>=line.split_whitespace().map(str::to_owned).collect();
             assert!(fields.len()>=8 && fields[2].eq_ignore_ascii_case("udp") && fields[7]=="host");
-            let address:SocketAddr=format!("{}:{}",fields[4],fields[5]).parse().unwrap();assert!(address.ip().is_loopback() && actual.is_none());actual=Some(address);
+            let address:SocketAddr=format!("{}:{}",fields[4],fields[5]).parse().unwrap();assert!(address.ip().is_loopback());if let Some(previous)=actual {assert_eq!(address,previous,"fixture candidates must share the same owned socket");}actual=Some(address);
             fields[4]=proxy.ip().to_string();fields[5]=proxy.port().to_string();lines.push(fields.join(" "));
         } else {lines.push(line.to_owned());}
     }
