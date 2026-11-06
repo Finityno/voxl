@@ -32,13 +32,13 @@ enum Health {Active,Failed}
 
 pub(super) struct Control {
     limits:SendControl,authority:Arc<AtomicBool>,changes:Arc<ChangeSignal>,
-    health:AtomicU8,issued:AtomicU64,released:AtomicU64,epoch_id:AtomicU64,epoch:Mutex<Epoch>,
+    health:AtomicU8,issued:AtomicU64,released:AtomicU64,release_target:AtomicU64,epoch_id:AtomicU64,epoch:Mutex<Epoch>,
 }
 #[derive(Debug,Clone,Copy)]
 struct Ticket {ordinal:u64,epoch:u64}
 impl Control {
     pub(super) fn new(limits:SendControl,authority:Arc<AtomicBool>,changes:Arc<ChangeSignal>)->Arc<Self> {
-        Arc::new(Self {limits,authority,changes,health:AtomicU8::new(Health::Active as u8),issued:AtomicU64::new(0),released:AtomicU64::new(0),epoch_id:AtomicU64::new(0),epoch:Mutex::new(Epoch {id:0,started:Instant::now(),rate:Rate::Unknown})})
+        Arc::new(Self {limits,authority,changes,health:AtomicU8::new(Health::Active as u8),issued:AtomicU64::new(0),released:AtomicU64::new(0),release_target:AtomicU64::new(0),epoch_id:AtomicU64::new(0),epoch:Mutex::new(Epoch {id:0,started:Instant::now(),rate:Rate::Unknown})})
     }
     fn active(&self)->bool {!self.authority.load(Ordering::Acquire) && !self.failed()}
     pub(super) fn failed(&self)->bool {self.health.load(Ordering::Acquire)!=Health::Active as u8}
@@ -82,10 +82,13 @@ impl Control {
         }
     }
     pub(super) async fn wait_released(&self,ticket:u64)->Result<(),WebRtcError> {
+        // One serial producer: only its chunk/frame boundary needs a wake.
+        // Earlier packet releases advance the counter without waking its task.
+        self.release_target.store(ticket,Ordering::Release);
         loop {
             let revision=self.changes.revision();
             if !self.active() {return Err(WebRtcError::Ended);}
-            if self.released.load(Ordering::Acquire)>=ticket {return Ok(());}
+            if self.released.load(Ordering::Acquire)>=ticket {self.release_target.store(0,Ordering::Release);return Ok(());}
             self.changes.wait(revision).await;
         }
     }
@@ -197,7 +200,9 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
                 if ticket.epoch!=self.epoch {continue;}
                 if !message.message.has(&Attribute::Retransmission) {
                     if ticket.ordinal!=self.control.released.load(Ordering::Acquire).saturating_add(1) {self.control.fail();self.state=Pacing::Stopped;return None;}
-                    self.control.released.store(ticket.ordinal,Ordering::Release);self.control.changes.changed();
+                    self.control.released.store(ticket.ordinal,Ordering::Release);
+                    let target=self.control.release_target.load(Ordering::Acquire);
+                    if target!=0 && ticket.ordinal>=target {self.control.changes.changed();}
                 }
             }
             return Some(message);
