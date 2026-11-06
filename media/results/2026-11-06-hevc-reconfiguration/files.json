@@ -1,0 +1,57 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1370,
+    "sha256": "a662848effe1ca46cc6919f2d6e02f74c3083697bda6a3ba8ac59aec37e8415d"
+  },
+  {
+    "path": "cleanup.json",
+    "bytes": 118,
+    "sha256": "06d903ef712760c99069d920bd3eeb3553da2d8c73faea0f53c3bf718978c9df"
+  },
+  {
+    "path": "logs/diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/hevc-profile-contracts.log.gz",
+    "bytes": 106,
+    "sha256": "2cdc751bb6ad4cc1161107580ba5c48b8155e9210cd1d23fe548cd86c11396af"
+  },
+  {
+    "path": "logs/load.log.gz",
+    "bytes": 81,
+    "sha256": "fde93889d40d6d9abe85d21bb5c38f5f0f989f7c1aa87bd9b819ca5f71faeebd"
+  },
+  {
+    "path": "logs/strict-clippy.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "receipt.json",
+    "bytes": 5161,
+    "sha256": "dea2852f19497dd004f8ef393c0091fc7da5a3a38b993bc1310a4115dbb8a374"
+  },
+  {
+    "path": "runner.py",
+    "bytes": 1877,
+    "sha256": "97e247dd921f3a64101fefe40cd3b228267d58895352a5429789b13bef8a7819"
+  },
+  {
+    "path": "verify.py",
+    "bytes": 1341,
+    "sha256": "f01f37b63f89ac4d943878a126da6d26c58e95b2b85d29e81e4a5c4557706f30"
+  }
+]
