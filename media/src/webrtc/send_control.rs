@@ -4,7 +4,10 @@ use super::*;
 use rtc::interceptor::{Attribute,BandwidthEstimator,EstimatorStats,Gcc,Interceptor,Packet,PacketReport,PacerBuilder,PacerInterceptor,StreamInfo,TaggedPacket,PACER_MIN_BURST_BITS};
 use rtc::sansio::Protocol;
 use rtc::shared::error::Error;
+use rtc::shared::marshal::MarshalSize;
 use std::collections::{VecDeque,HashMap};
+mod debt;
+pub use debt::{ProducerControl,ProducerBudget};
 
 pub(super) const WINDOW:u64=16;
 pub(super) const FRAME_DEADLINE:Duration=Duration::from_millis(500);
@@ -14,7 +17,7 @@ fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 /// Local qualification limits. The maximum must also fit the viewer's request.
 /// Rates limit the media target, not provider-billed or encoded-byte ceilings.
 #[derive(Debug,Clone,Copy)]
-pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl}
+pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl,producer:ProducerControl}
 /// Local pacing qualification. Headroom changes packet departure timing, not
 /// the encoder's average target. It can still queue on a constrained path.
 #[derive(Debug,Clone,Copy,Default)]
@@ -29,10 +32,11 @@ pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacin
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
-        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard})
+        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard,producer:ProducerControl::Unbounded})
     }
     pub fn with_pacing_gain(mut self,gain:PacingGain)->Self {self.gain=gain;self}
     pub fn with_delay_control(mut self,delay:DelayControl)->Self {self.delay=delay;self}
+    pub fn with_producer_control(mut self,producer:ProducerControl)->Self {self.producer=producer;self}
     fn paced_bps(self,media_bps:u32)->u32 {match self.gain {PacingGain::MediaRate=>media_bps,PacingGain::Responsive=>(u64::from(media_bps)*5/2) as u32}}
     fn budget(self,bps:u32,age:Option<Duration>)->FrameBudget {
         let paced=self.paced_bps(bps);
@@ -46,7 +50,10 @@ impl SendControl {
 pub struct BitrateEstimate {pub target_kbps:u32,pub age:Duration}
 #[derive(Clone,Copy)]
 enum Rate {Unknown,Observed {bps:u32,at:Instant,revision:u64}}
-struct Epoch {id:u64,started:Instant,rate:Rate}
+struct Epoch {id:u64,started:Instant,rate:Rate,debt:debt::Ledger}
+impl Epoch {
+    fn new(id:u64,limits:SendControl)->Self {let started=Instant::now();Self {id,started,rate:Rate::Unknown,debt:debt::Ledger::new(limits.producer,started,limits.initial)}}
+}
 #[repr(u8)]
 #[derive(Clone,Copy)]
 enum Health {Active,Failed}
@@ -59,7 +66,7 @@ pub(super) struct Control {
 struct Ticket {ordinal:u64,epoch:u64}
 impl Control {
     pub(super) fn new(limits:SendControl,authority:Arc<AtomicBool>,changes:Arc<ChangeSignal>)->Arc<Self> {
-        Arc::new(Self {limits,authority,changes,health:AtomicU8::new(Health::Active as u8),issued:AtomicU64::new(0),released:AtomicU64::new(0),release_target:AtomicU64::new(0),epoch_id:AtomicU64::new(0),epoch:Mutex::new(Epoch {id:0,started:Instant::now(),rate:Rate::Unknown})})
+        Arc::new(Self {limits,authority,changes,health:AtomicU8::new(Health::Active as u8),issued:AtomicU64::new(0),released:AtomicU64::new(0),release_target:AtomicU64::new(0),epoch_id:AtomicU64::new(0),epoch:Mutex::new(Epoch::new(0,limits))})
     }
     fn active(&self)->bool {!self.authority.load(Ordering::Acquire) && !self.failed()}
     pub(super) fn failed(&self)->bool {self.health.load(Ordering::Acquire)!=Health::Active as u8}
@@ -83,7 +90,7 @@ impl Control {
     pub(super) fn retire(&self) {
         let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         let Some(id)=epoch.id.checked_add(1) else {self.fail();return;};
-        *epoch=Epoch {id,started:Instant::now(),rate:Rate::Unknown};
+        *epoch=Epoch::new(id,self.limits);
         self.released.store(self.issued.load(Ordering::Acquire),Ordering::Release);
         self.epoch_id.store(id,Ordering::Release);self.changes.changed();
     }
@@ -104,6 +111,20 @@ impl Control {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if !self.active() {return None;}
         Some(match epoch.rate {Rate::Unknown=>self.limits.initial_frame_budget(),Rate::Observed {bps,at,..}=>self.limits.budget(bps,Some(at.elapsed()))})
+    }
+    pub(super) fn producer_budget(&self)->Option<ProducerBudget> {self.producer_budget_at(Instant::now())}
+    fn producer_budget_at(&self,now:Instant)->Option<ProducerBudget> {
+        if !self.active() {return None;}
+        let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let result=epoch.debt.snapshot(now);drop(epoch);
+        match result {Ok(budget) if self.active()=>budget,Ok(_)=>None,Err(())=>{self.fail();None}}
+    }
+    fn released_rtp(&self,epoch_id:u64,now:Instant,bytes:usize)->bool {
+        if matches!(self.limits.producer,ProducerControl::Unbounded) {return self.active();}
+        let mut epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        if !self.active() || epoch.id!=epoch_id {return false;}
+        let result=epoch.debt.charge(now,bytes);drop(epoch);
+        if result.is_err() {self.fail();return false;}self.active()
     }
     pub(super) fn changed_target(&self,seen:&mut (u64,u64))->Option<u32> {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
@@ -177,7 +198,9 @@ impl BandwidthEstimator for Estimator {
         let (old,revision)=match epoch.rate {Rate::Unknown=>(0,0),Rate::Observed {bps,revision,..}=>(bps,revision)};
         let changed=old==0 || old.abs_diff(bps)>=old/20;
         let revision=if changed {revision.saturating_add(1)} else {revision};
-        epoch.rate=Rate::Observed {bps:if changed {bps} else {old},at:now,revision};drop(epoch);
+        let selected=if changed {bps} else {old};
+        if epoch.debt.reprice(now,selected).is_err() {drop(epoch);self.control.fail();return;}
+        epoch.rate=Rate::Observed {bps:selected,at:now,revision};drop(epoch);
         if changed {self.control.changes.changed();}
     }
     fn target_bitrate(&self)->f64 {self.inner.target_bitrate()}
@@ -259,12 +282,15 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
         let Pacing::Running {inner,pending,..}=&mut self.state else {return None;};
         loop {
             let message=inner.poll_write()?;
-            if matches!(message.message.packet,Packet::Rtp(_)) {
+            if let Packet::Rtp(packet)=&message.message.packet {
                 if pending.pop_front().is_none() {self.control.fail();self.state=Pacing::Stopped;return None;}
                 let Some(ticket)=message.message.custom::<Ticket>() else {self.control.fail();self.state=Pacing::Stopped;return None;};
                 // Old NACK-buffer copies may reappear after a restart. Retire
                 // them with the old generation, never send them on the new path.
                 if ticket.epoch!=self.epoch {continue;}
+                // Account at pacing release, before waking the producer. NACK
+                // retransmissions consume rate too, but never producer tickets.
+                if !self.control.released_rtp(ticket.epoch,message.now,packet.marshal_size()) {self.state=Pacing::Stopped;return None;}
                 if !message.message.has(&Attribute::Retransmission) {
                     if ticket.ordinal!=self.control.released.load(Ordering::Acquire).saturating_add(1) {self.control.fail();self.state=Pacing::Stopped;return None;}
                     self.control.released.store(ticket.ordinal,Ordering::Release);
@@ -432,6 +458,29 @@ mod tests {
             assert_eq!(budget.media_target_bps,rate*1000);assert!(budget.payload_bytes>0 && budget.payload_bytes as usize<=crate::MAX_FRAME_BYTES);assert!(budget.estimate_age.is_none());
             let paced=f64::from(budget.pacing_target_bps);assert!(f64::from(budget.payload_bytes)*8.0/paced<0.35);
         }}
+    }
+
+    #[test]
+    fn producer_debt_pacer_counts_retransmission_and_retires_old_epoch_before_release() {
+        let limits=SendControl::new(250,1000,1000).unwrap().with_producer_control(ProducerControl::RtpDebt);
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));
+        let mut pacer=BoundedPacer::new(Arc::clone(&control));let now=Instant::now();
+        let original=packet(&control,0,now);let raw=original.message.packet.clone();
+        pacer.handle_write(original).unwrap();pacer.handle_timeout(now).unwrap();assert!(pacer.poll_write().is_some());
+        let first=control.producer_budget_at(now).unwrap();assert_eq!(first.rtp_packets,1);assert!(first.wait>Duration::ZERO);
+        let retransmit=||TaggedPacket {now,transport:Default::default(),message:rtc::interceptor::AttributedPacket::new(raw.clone()).with(Attribute::Retransmission)};
+        pacer.handle_write(retransmit()).unwrap();let next=pacer.poll_timeout().unwrap();pacer.handle_timeout(next).unwrap();assert!(pacer.poll_write().is_some());
+        let second=control.producer_budget_at(next).unwrap();assert_eq!(second.rtp_packets,2);assert_eq!(second.rtp_bytes,first.rtp_bytes*2);assert_eq!(second.reserved_bytes,128);assert_eq!(control.released.load(Ordering::Acquire),1);
+        control.retire();assert_eq!(control.producer_budget().unwrap().rtp_packets,0);assert_eq!(control.producer_budget().unwrap().wait,Duration::ZERO);
+        pacer.handle_write(retransmit()).unwrap();pacer.handle_timeout(next).unwrap();assert!(pacer.poll_write().is_none());assert_eq!(control.producer_budget().unwrap().rtp_packets,0);
+        control.authority.store(true,Ordering::Release);assert!(control.producer_budget().is_none());
+    }
+
+    #[test]
+    fn producer_debt_excess_is_terminal_without_extending_the_frame_deadline() {
+        let limits=SendControl::new(250,250,250).unwrap().with_producer_control(ProducerControl::RtpDebt);
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));
+        assert!(!control.released_rtp(0,Instant::now(),200_000));assert!(control.failed());assert!(control.producer_budget().is_none());assert_eq!(FRAME_DEADLINE,Duration::from_millis(500));
     }
 
     #[test]

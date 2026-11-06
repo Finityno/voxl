@@ -27,7 +27,7 @@ mod relay_interfaces;
 mod signaling;
 mod send_control;
 mod fast_delay;
-pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl};
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -198,6 +198,9 @@ impl VideoCloseHandle {
     /// Worker-readable admission policy while the serial sender is pacing.
     /// This is a configuration/estimate snapshot, not measured link capacity.
     pub fn frame_budget(&self)->Option<FrameBudget> {self.control.as_ref().and_then(|control|control.frame_budget())}
+    /// Optional raw-producer debt gate, including retransmissions. No wait here
+    /// extends the bounded send deadline or authorizes dropping encoded frames.
+    pub fn producer_budget(&self)->Option<ProducerBudget> {self.control.as_ref().and_then(|control|control.producer_budget())}
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();

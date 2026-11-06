@@ -933,3 +933,17 @@ failed candidates and three final runs: roughly 298–300 ms initial response an
 1.8 s / 3.1 s. These are synthetic encrypted-UDP cases, not native decoder,
 physical network, quality, resource or default admission. No queue/deadline or
 optimistic product target was relaxed.
+
+### Optional sustained producer debt
+
+`SendControl::with_producer_control(ProducerControl::RtpDebt)` exposes a
+`VideoCloseHandle::producer_budget()` snapshot for a raw-input gate. It accounts
+serialized RTP at pacing release, including current-epoch retransmissions, plus
+an explicit 64-byte reserve per packet. This is not complete wire or billed
+traffic; RTCP, ICE, TURN/TLS and route-specific overhead remain separate.
+Debt repays at the media target, not the responsive pacing gain. Rate changes
+preserve already incurred debt; idle time earns no burst credit. Retiring a
+transport epoch resets its ledger. Overflow or over five seconds of estimated
+debt ends this experimental transport. The 500 ms frame-send deadline is unchanged.
+The embedder must wait before encoding/coalesce raw capture, never discard
+inter-predicted output to repay debt. Existing constructors leave this disabled.
