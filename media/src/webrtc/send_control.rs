@@ -337,7 +337,7 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
         let Pacing::Running {inner,pending,..}=&mut self.state else {return None;};
         loop {
             let message=inner.poll_write()?;
-            if let Packet::Rtp(packet)=&message.message.packet {
+            if let Packet::Rtp(_)=&message.message.packet {
                 if pending.pop_front().is_none() {self.control.fail();self.state=Pacing::Stopped;return None;}
                 let Some(ticket)=message.message.custom::<Ticket>() else {self.control.fail();self.state=Pacing::Stopped;return None;};
                 // Old NACK-buffer copies may reappear after a restart. Retire
@@ -569,8 +569,8 @@ mod tests {
     fn flow_observation_retirement_fences_old_packets_and_close() {
         let limits=SendControl::new(250,1000,1000).unwrap().with_flow_observation();
         let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));let now=Instant::now();
-        control.observe_rtp(0,&packet(&control,1,now));assert_eq!(control.flow_observation().unwrap().released_packets,1);
-        control.retire();control.observe_rtp(0,&packet(&control,2,now));let value=control.flow_observation().unwrap();assert_eq!(value.epoch,1);assert_eq!(value.released_packets,0);assert!(value.feedback_age_micros.is_none());
+        assert!(control.released_rtp(0,&packet(&control,1,now)));assert_eq!(control.flow_observation().unwrap().released_packets,1);
+        control.retire();assert!(!control.released_rtp(0,&packet(&control,2,now)));let value=control.flow_observation().unwrap();assert_eq!(value.epoch,1);assert_eq!(value.released_packets,0);assert!(value.feedback_age_micros.is_none());
         control.authority.store(true,Ordering::Release);assert!(control.flow_observation().is_none());
     }
 

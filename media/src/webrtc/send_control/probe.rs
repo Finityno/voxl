@@ -1,8 +1,8 @@
 //! A requested quiet-resume probe, never periodic keepalive/video traffic.
 //! Exact original departures bind receiver reports; no payloads are retained.
 use super::*;
-pub(super) const PACKETS:usize=32;
-pub(super) const DEADLINE:Duration=Duration::from_millis(500);
+pub(in crate::webrtc) const PACKETS:usize=32;
+pub(in crate::webrtc) const DEADLINE:Duration=Duration::from_millis(500);
 #[derive(Clone,Copy)]
 pub(super) struct ProbePacket {pub(super) index:usize}
 #[derive(Clone,Copy)]
