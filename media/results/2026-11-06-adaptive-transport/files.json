@@ -1,0 +1,219 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7686,
+      "sha256": "16e24fe0c5f618c77a7b3206aca7b644497608f115254e4b2728d62b7d2f1bbe"
+    },
+    {
+      "path": "comparison.json",
+      "bytes": 5499,
+      "sha256": "0d8491277d1ee7af0d86422a0cf07e02abee4748fcd463330e0f8d7ddcc47768"
+    },
+    {
+      "path": "helpers/bounded-runner.py",
+      "bytes": 32539,
+      "sha256": "5d773f3c57ebe859164e679a1b2263ced08fec1085b19c247eca89b8d69bb620"
+    },
+    {
+      "path": "helpers/clippy-confirm.py",
+      "bytes": 1832,
+      "sha256": "f5eadaf604575a5118c53693c7f643aef85a13dded478b8b5b8ef1893793e553"
+    },
+    {
+      "path": "helpers/first-runtime.py",
+      "bytes": 1822,
+      "sha256": "47bcd9d2694fa4a83a32ab3867c22947b0cbf9a889c1b208ee92d4b79ec14147"
+    },
+    {
+      "path": "helpers/initial-build.py",
+      "bytes": 1822,
+      "sha256": "806e4aa0df1c12cf590a6dfcbf73dd0e8dc440ca875a6584050057e99371014d"
+    },
+    {
+      "path": "helpers/runtime-confirm.py",
+      "bytes": 2146,
+      "sha256": "cd37e91fbc5d1609bfbf40667ea2ffd0903b813dd274b82c518d6444cd03e48d"
+    },
+    {
+      "path": "helpers/smaller-burst.py",
+      "bytes": 1822,
+      "sha256": "cf98745bae532d0b10bdc0fca98b3052e96bd15e09cea2ffcb8b10fe59ad6787"
+    },
+    {
+      "path": "logs/clippy-confirm-diff.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/clippy-confirm-load.log.gz",
+      "bytes": 81,
+      "sha256": "d5aab850c697071e47163285d339734d984e27d388ef107ef8d97ebfafb62d71"
+    },
+    {
+      "path": "logs/clippy-confirm-strict-clippy.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/clippy-confirm-toolchain.log.gz",
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    {
+      "path": "logs/clippy-confirm-unchanged-core.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/first-runtime-adaptive-contracts.log.gz",
+      "bytes": 112,
+      "sha256": "3d2dd4e24263291fda6dda95919db755c1276c295fa4d2f2ae1fdafaf7dd64f0"
+    },
+    {
+      "path": "logs/first-runtime-diff.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/first-runtime-load.log.gz",
+      "bytes": 81,
+      "sha256": "36a8395cd8d9bf67f843bd960c31fb1c50800405483ed8f5ed9d6c87bbc0749b"
+    },
+    {
+      "path": "logs/first-runtime-strict-clippy.log.gz",
+      "bytes": 159,
+      "sha256": "2fab451c699a8b8d3dc0ab9b3e383b7218fc431eadaec5e136d7921079c0e05b"
+    },
+    {
+      "path": "logs/first-runtime-test-build.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/first-runtime-toolchain.log.gz",
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    {
+      "path": "logs/initial-build-diff.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/initial-build-load.log.gz",
+      "bytes": 81,
+      "sha256": "c8dae41a0cd46e1ceca2a55777c217d3ab7740e484ecf8ab089305c9fbb0db7d"
+    },
+    {
+      "path": "logs/initial-build-test-build.log.gz",
+      "bytes": 266,
+      "sha256": "05565b247a509ada31fe0d10e481d818b7c3e26b6e18a3e0df77e01b8e905cd5"
+    },
+    {
+      "path": "logs/initial-build-toolchain.log.gz",
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    {
+      "path": "logs/runtime-confirm-adaptive-contracts.log.gz",
+      "bytes": 112,
+      "sha256": "5f993c37b7f86ca0c1dc2e0956c9641918b5fb0f35ae6a86213987267f947f49"
+    },
+    {
+      "path": "logs/runtime-confirm-diff.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/runtime-confirm-legacy-h264.log.gz",
+      "bytes": 107,
+      "sha256": "d729cbd76ad367980343dd8f38a15c6306bdd45bebbc2c969abf0fec06cedb66"
+    },
+    {
+      "path": "logs/runtime-confirm-legacy-hevc.log.gz",
+      "bytes": 107,
+      "sha256": "d729cbd76ad367980343dd8f38a15c6306bdd45bebbc2c969abf0fec06cedb66"
+    },
+    {
+      "path": "logs/runtime-confirm-load.log.gz",
+      "bytes": 81,
+      "sha256": "c0358a0e9c6051b5c5b5b04bdedf8ba86156de9b1078cf500228028ab79eeaca"
+    },
+    {
+      "path": "logs/runtime-confirm-strict-clippy.log.gz",
+      "bytes": 197,
+      "sha256": "248c3765a953c2a99d0bae946ee3099c6460bef84ba6cf2b2e77a7818eccb769"
+    },
+    {
+      "path": "logs/runtime-confirm-test-build.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/runtime-confirm-toolchain.log.gz",
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    {
+      "path": "logs/smaller-burst-adaptive-contracts.log.gz",
+      "bytes": 384,
+      "sha256": "92fb19dc15e56ca0a489a796c286f111136f57ddfbbc704f849200625eee4469"
+    },
+    {
+      "path": "logs/smaller-burst-diff.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/smaller-burst-load.log.gz",
+      "bytes": 80,
+      "sha256": "7c97d530a1cb24488ccea054074f7b6701b4971086ce1cfaf0681dd1c6c9c297"
+    },
+    {
+      "path": "logs/smaller-burst-test-build.log.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "logs/smaller-burst-toolchain.log.gz",
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    {
+      "path": "platform.json",
+      "bytes": 337,
+      "sha256": "4f132642e9b7121dc8390f1e4be0ee49faafb893c875ba4a15e86443d2c29267"
+    },
+    {
+      "path": "receipts/clippy-confirm.json.gz",
+      "bytes": 1528,
+      "sha256": "d3cfa3ecafde30a6227d9eacc7d53d700a6122c50633513bc450524da563cbba"
+    },
+    {
+      "path": "receipts/first-runtime.json.gz",
+      "bytes": 1640,
+      "sha256": "7962db2af63ccb7e20aaacfb424138abb217bef317223b9d7bfe2c00d21849fc"
+    },
+    {
+      "path": "receipts/initial-build.json.gz",
+      "bytes": 1477,
+      "sha256": "781356e48a9bbd54f4ebcc166a9f9ce19978dac415f5c2427c6ad031bac57580"
+    },
+    {
+      "path": "receipts/runtime-confirm.json.gz",
+      "bytes": 1848,
+      "sha256": "4d432986a8f80fc3427e6cac15347e76c6756ea2f9202d0b37d08812c57cb781"
+    },
+    {
+      "path": "receipts/smaller-burst.json.gz",
+      "bytes": 1536,
+      "sha256": "c7b1b1b1db8f39036d0a971568ac4fa04038c2bdef716472c80a7a7e9ef5d3e9"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 2932,
+      "sha256": "9aad1cc48571ffa01d7b54c68db2a34098c7f8a3fec25b7c83f84856e3db7e00"
+    }
+  ]
+}

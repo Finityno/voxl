@@ -840,3 +840,10 @@ Hardware selection, color, geometry and frame clock do not change. Previously
 submitted frames may retain the old target. The initial `bitrate_target_kbps`
 getter is the configured request, not an initial native observation. An average
 encoder target is not a hard network ceiling or measured quality/byte saving.
+
+[Exact-source adaptive precursor evidence](results/2026-11-06-adaptive-transport/README.md)
+retains 13 adaptive/2 legacy test passes, final strict library/tests/examples
+Clippy, the earlier build/test/lint failures and a standalone numeric verifier.
+Native encoder retuning and synthetic-NAL transport are separate component
+scopes. Application coupling, actual changing-capacity/loss/live-recovery,
+decoder/quality/resource tests and default admission remain required.
