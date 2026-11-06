@@ -106,16 +106,20 @@ impl MaxFrameQp {
     pub fn get(self)->u8 {self.0}
 }
 
-/// Local opt-in experiments. Default leaves both native properties untouched.
+/// Local opt-in experiments. Default leaves all native properties untouched.
 #[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
 pub struct EncodingOptions {
     pub priority:EncodingPriority,
     pub max_frame_qp:Option<MaxFrameQp>,
+    /// Maximum native compression-window delay, in frames. Zero may make the
+    /// encode call synchronous. This neither changes our two-output bound nor
+    /// proves callback latency or quality; unsupported limits fail at creation.
+    pub max_frame_delay:Option<u32>,
 }
 impl EncodingOptions {
     fn validate(self,config:&EncoderConfig)->Result<(),MediaError> {
         self.priority.validate(config)?;
-        if self.max_frame_qp.is_some() && config.preference!=EncoderPreference::RequireHardware {return Err(MediaError::Configuration);}
+        if (self.max_frame_qp.is_some() || self.max_frame_delay.is_some()) && config.preference!=EncoderPreference::RequireHardware {return Err(MediaError::Configuration);}
         Ok(())
     }
 }
@@ -231,6 +235,9 @@ impl VideoEncoder {
         let qp_key=if options.max_frame_qp.is_some() {
             Some(optional_constant(c"kVTCompressionPropertyKey_MaxAllowedFrameQP").ok_or(MediaError::Configuration)?)
         } else {None};
+        let delay_key=if options.max_frame_delay.is_some() {
+            Some(optional_constant(c"kVTCompressionPropertyKey_MaxFrameDelayCount").ok_or(MediaError::Configuration)?)
+        } else {None};
         // SAFETY: this linked framework constant is an immortal CFStringRef.
         let profile = if config.codec == VideoCodec::Hevc { unsafe { kVTProfileLevel_HEVC_Main_AutoLevel } } else {
             match tuning.profile {
@@ -272,6 +279,9 @@ impl VideoEncoder {
             if let (Some(key),Some(limit))=(qp_key,options.max_frame_qp) {
                 encoder.number("maximum frame QP",key,i64::from(limit.get()))?;
             }
+            if let (Some(key),Some(limit))=(delay_key,options.max_frame_delay) {
+                encoder.number("maximum frame delay",key,i64::from(limit))?;
+            }
             // Low-latency rate control specifies an infinite GOP. Its caller
             // owns explicit recovery/periodic IDR requests; do not overwrite
             // that selection with the ordinary two-second interval.
@@ -292,6 +302,14 @@ impl VideoEncoder {
                 check("query maximum frame QP",VTSessionCopyProperty(encoder.session.as_ptr(),key,ptr::null(),&mut actual))?;
                 if actual.is_null() {return Err(MediaError::Configuration);}
                 let matches=integer_property_matches(actual,i64::from(limit.get()));
+                CFRelease(actual);
+                if !matches {return Err(MediaError::Configuration);}
+            }
+            if let (Some(key),Some(limit))=(delay_key,options.max_frame_delay) {
+                let mut actual=ptr::null();
+                check("query maximum frame delay",VTSessionCopyProperty(encoder.session.as_ptr(),key,ptr::null(),&mut actual))?;
+                if actual.is_null() {return Err(MediaError::Configuration);}
+                let matches=integer_property_matches(actual,i64::from(limit));
                 CFRelease(actual);
                 if !matches {return Err(MediaError::Configuration);}
             }
@@ -333,6 +351,9 @@ impl VideoEncoder {
     /// A present request had matching native integer readback. None leaves the
     /// property untouched and observes no internal default or actual frame QP.
     pub fn max_frame_qp(&self)->Option<MaxFrameQp> {self.options.max_frame_qp}
+    /// A present request had matching native integer readback. None observes
+    /// no internal default. Zero can block encode until its output is emitted.
+    pub fn max_frame_delay(&self)->Option<u32> {self.options.max_frame_delay}
 
     /// Install once, before the first successful submission. Existing callers
     /// keep their channel wait and no additional callback. A wake is a hint:

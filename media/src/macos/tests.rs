@@ -160,6 +160,39 @@ fn maximum_frame_qp_rejects_invalid_limits_and_implicit_software_fallback() {
 }
 
 #[test]
+fn maximum_frame_delay_requires_hardware_without_implicit_fallback() {
+    let mut config=EncoderConfig {codec:VideoCodec::H264,width:320,height:180,fps:30,bitrate_kbps:500,preference:EncoderPreference::Software};
+    assert_eq!(EncodingOptions::default().max_frame_delay,None);
+    for limit in [0,1,u32::MAX] {
+        let options=EncodingOptions {max_frame_delay:Some(limit),..Default::default()};
+        for preference in [EncoderPreference::Software,EncoderPreference::PreferHardware] {
+            config.preference=preference;
+            assert!(matches!(VideoEncoder::new_tuned_with_options(config,EncoderTuning::default(),options,|| {}),Err(MediaError::Configuration)));
+        }
+        config.preference=EncoderPreference::RequireHardware;assert!(options.validate(&config).is_ok());
+    }
+}
+
+#[test]
+fn maximum_frame_delay_readback_preserves_zero_and_rejects_float_boolean_or_unlimited() {
+    // SAFETY: stack values stay live during CFNumberCreate, and every owned
+    // number is released. CFBoolean is a borrowed immortal framework object.
+    unsafe {
+        for limit in [0i64,1,i64::from(u32::MAX)] {
+            let integer=CFNumberCreate(ptr::null(),4,(&limit as *const i64).cast());
+            assert!(!integer.is_null());assert!(integer_property_matches(integer,limit));
+            assert!(!integer_property_matches(integer,limit+1));CFRelease(integer);
+        }
+        let unlimited=-1i64;let zero=0.0f64;
+        let integer=CFNumberCreate(ptr::null(),4,(&unlimited as *const i64).cast());
+        let real=CFNumberCreate(ptr::null(),6,(&zero as *const f64).cast());
+        assert!(!integer.is_null() && !real.is_null());
+        for value in [integer,real,kCFBooleanFalse,ptr::null()] {assert!(!integer_property_matches(value,0));}
+        CFRelease(integer);CFRelease(real);
+    }
+}
+
+#[test]
 fn maximum_frame_qp_readback_rejects_noninteger_or_mismatched_native_values() {
     // SAFETY: these number inputs remain valid during creation; each returned
     // owned CF object is released after inspecting its type and exact value.

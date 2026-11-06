@@ -58,6 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let priority_name=option(&mut args,"--priority=")?.unwrap_or_else(||"default".to_owned());
     let priority=match priority_name.as_str() {"default"=>EncodingPriority::Default,"speed"=>EncodingPriority::Speed,"quality"=>EncodingPriority::Quality,_=>return Err("unknown encoding priority".into())};
     let max_frame_qp=option(&mut args,"--max-frame-qp=")?.map(|value|value.parse::<u8>()).transpose()?.map(MaxFrameQp::new).transpose()?;
+    let max_frame_delay=option(&mut args,"--max-frame-delay=")?.map(|value|value.parse::<u32>()).transpose()?;
     let tuning = match tuning_name.as_str() {
         "compatible" => EncoderTuning::default(),
         "high" => EncoderTuning { rate_control: EncoderRateControl::RealTime, profile: EncoderProfile::H264High },
@@ -95,7 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let preference = match args.get(1).map(String::as_str) {
         Some("hardware") => EncoderPreference::RequireHardware,
         Some("software") => EncoderPreference::Software,
-        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--max-frame-delay=N] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
     };
     let path = args.get(2).ok_or("output path required")?;
     let codec = match args.get(3).map(String::as_str) {
@@ -109,6 +110,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tuning.validate(&config)?;
     if priority!=EncodingPriority::Default && preference!=EncoderPreference::RequireHardware {return Err("encoding priority requires explicitly selected hardware".into());}
     if max_frame_qp.is_some() && preference!=EncoderPreference::RequireHardware {return Err("maximum frame QP requires explicitly selected hardware".into());}
+    if max_frame_delay.is_some() && preference!=EncoderPreference::RequireHardware {return Err("maximum frame delay requires explicitly selected hardware".into());}
     if let Some(path)=&input_path && !std::fs::symlink_metadata(path)?.file_type().is_file() {
         return Err("NV12 input must be a regular non-symlink file".into());
     }
@@ -145,10 +147,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         [quantize(y),quantize(128.0+scale*(blue-luma)/1.8556),quantize(128.0+scale*(red-luma)/1.5748)]
     });
     if let Some(cycle)=input_cycle {println!("input_sequence=cyclic source_frames={} prefix_frames={} observed_cycle_frames={}",cycle.frames,cycle.prefix,cycle.frames-cycle.prefix);}
-    let mut encoder = VideoEncoder::new_tuned_with_options(config,tuning,EncodingOptions {priority,max_frame_qp},|| {})?;
+    let mut encoder = VideoEncoder::new_tuned_with_options(config,tuning,EncodingOptions {priority,max_frame_qp,max_frame_delay},|| {})?;
     println!("hardware_selection={:?}",encoder.acceleration_selection());
     println!("encoding_priority={:?} priority_property_verified={}",encoder.encoding_priority(),encoder.encoding_priority()!=EncodingPriority::Default);
     if let Some(limit)=encoder.max_frame_qp() {println!("max_frame_qp={} qp_property_verified=true",limit.get());}
+    if let Some(limit)=encoder.max_frame_delay() {println!("max_frame_delay={limit} delay_property_verified=true");}
     let started = Instant::now();
     let mut bytes = 0;
     let mut total_bytes = 0;

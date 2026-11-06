@@ -123,7 +123,7 @@ callbacks. These are component observations with explicit resource/network
 limits, not production codec admission or provider-billed savings.
 
 `macos::VideoEncoder::new_tuned_with_options` additionally accepts
-`EncodingOptions { priority, max_frame_qp }`. Optional `MaxFrameQp::new(N)`
+`EncodingOptions { priority, max_frame_qp, max_frame_delay }`. Optional `MaxFrameQp::new(N)`
 accepts 1 through 51 and requires explicit hardware and exact native integer
 readback after preparation;
 unsupported/ignored values fail. Existing constructors leave this property
@@ -141,6 +141,15 @@ three old/current decoded default pairs. At1080p60, QP32/34/36 do not improve
 the measured payload/foreground results; QP28 drops output after two warmup
 frames. Failed receipts and analysis-only continuations remain explicit. No
 new limit is admitted, and the consuming application stays on its earlier pin.
+
+Optional `max_frame_delay: Some(N)` requests the native `MaxFrameDelayCount`
+compression-window limit, with explicit hardware selection and exact integer
+readback after preparation. Unsupported or ignored requests fail. Zero can make
+the native encode call synchronous; one permits one delayed frame. The library's
+two-output queue bound and terminal backpressure behavior stay the same. None
+leaves this property untouched and observes no encoder default. The probe accepts
+`--max-frame-delay=N` and logs verified requests. This experimental control is
+not an application default or a latency, quality or resource improvement claim.
 
 The [failure/wake follow-up](results/2026-11-05-encoder-failures/README.md)
 retains the first terminal encoder cause and wakes waiting workers through the
