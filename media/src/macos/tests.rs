@@ -290,7 +290,28 @@ fn streaming_bitrate(codec:VideoCodec,preference:EncoderPreference) {
     let mut encoder=VideoEncoder::new(EncoderConfig {codec,width:320,height:180,fps:30,bitrate_kbps:1000,preference},|| {}).unwrap();
     let pixel=image(false,None);
     for (index,kbps) in [1000,350,750].into_iter().enumerate() {
-        encoder.set_streaming_bitrate_target(kbps).unwrap();assert_eq!(encoder.bitrate_target_kbps(),kbps);
+        let result=encoder.set_streaming_bitrate_target(kbps);
+        if result.is_err() {
+            // SAFETY: inspect only typed numeric property metadata on this
+            // owned session; never read pixels or untyped array elements.
+            unsafe {
+                let mut value=ptr::null();let status=VTSessionCopyProperty(encoder.session.as_ptr(),kVTCompressionPropertyKey_DataRateLimits,ptr::null(),&mut value);
+                eprintln!("burst_readback status={status} result={result:?}");
+                if !value.is_null() {
+                    if CFGetTypeID(value)==CFArrayGetTypeID() {
+                        let count=CFArrayGetCount(value);eprintln!("burst_readback count={count}");
+                        for index in 0..count.min(4) {
+                            let item=CFArrayGetValueAtIndex(value,index);let mut number=0f64;
+                            if !item.is_null() && CFGetTypeID(item)==CFNumberGetTypeID() {
+                                let read=CFNumberGetValue(item,6,(&mut number as *mut f64).cast());eprintln!("burst_readback index={index} read={read} value={number:?} float={}",CFNumberIsFloatType(item));
+                            }
+                        }
+                    }
+                    CFRelease(value);
+                }
+            }
+        }
+        result.unwrap();assert_eq!(encoder.bitrate_target_kbps(),kbps);
         encoder.encode(&pixel,index as i64*33_333,true).unwrap();
         let frame=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();
         assert!(frame.keyframe && !frame.annex_b.is_empty());assert_eq!(frame.codec,codec);
