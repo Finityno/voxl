@@ -947,3 +947,16 @@ transport epoch resets its ledger. Overflow or over five seconds of estimated
 debt ends this experimental transport. The 500 ms frame-send deadline is unchanged.
 The embedder must wait before encoding/coalesce raw capture, never discard
 inter-predicted output to repay debt. Existing constructors leave this disabled.
+
+### Optional numeric flow observations
+
+`SendControl::with_flow_observation()` enables a metadata-only ledger exposed
+by `VideoCloseHandle::flow_observation()`. It matches at most 512 retained RTP
+release identities against feedback departure/sequence identities, counting
+evictions, unmatched reports and retransmissions explicitly. Pending feedback
+is not an exact measurement of packets still in the network. Loss reports and
+late/duplicated feedback matter. No RTP payload, addresses or remote absolute
+clock are retained. Frame-marker totals and pacing duration describe the pacer,
+not actual decode latency; bytes are measured before later TWCC/SRTP framing.
+Counters include trend groups/signals/resets without changing controller policy.
+The monitor is disabled by default and adds no thread or timer.
