@@ -1,16 +1,37 @@
-//! Opt-in composition of the SDK's public GCC stages. Only Kalman process
-//! noise differs (0.1 vs0.001); no threshold, loss, AIMD or rate limit is widened.
-//! Independent of the pacing gain. This is local qualification, not a new default.
+//! Opt-in accumulated-delay regression over a fixed20-group window. The
+//! grouping, overuse hysteresis, AIMD, loss and rate limits use SDK components.
+//! This is an independent composition inspired by WebRTC's trendline signal,
+//! not an implementation of its complete controller or a new default.
 use super::*;
-use rtc::interceptor::{ArrivalGroupAccumulator,Kalman,OveruseDetector,RateCalculator,RateController,LossController,BandwidthEstimator,EstimatorStats,PacketReport};
+use rtc::interceptor::{ArrivalGroupAccumulator,InterGroupDelay,OveruseDetector,RateCalculator,RateController,LossController,BandwidthEstimator,EstimatorStats,PacketReport};
+
+const TREND_WINDOW:usize=20;
+#[derive(Default)]
+enum Trendline {#[default] Empty,Tracking {at:Instant,arrival_ms:f64,accumulated:f64,smoothed:f64,count:u16,samples:[(f64,f64);TREND_WINDOW],used:usize,next:usize}}
+impl Trendline {
+    fn update(&mut self,group:InterGroupDelay)->Option<f64> {
+        let Self::Tracking {at,arrival_ms,accumulated,smoothed,count,samples,used,next}=self else {
+            *self=Self::Tracking {at:group.at,arrival_ms:0.0,accumulated:0.0,smoothed:0.0,count:0,samples:[(0.0,0.0);TREND_WINDOW],used:0,next:0};return None;
+        };
+        if group.at<=*at {return None;}
+        let departure_ms=group.at.duration_since(*at).as_secs_f64()*1000.0;let delta=departure_ms+group.delta_ms;
+        if !delta.is_finite() || delta<0.0 || delta>2000.0 { *self=Self::Empty;return None; }
+        *at=group.at;*arrival_ms+=delta;*accumulated+=group.delta_ms;*smoothed=0.9* *smoothed+0.1* *accumulated;*count=count.saturating_add(1).min(60);
+        samples[*next]=(*arrival_ms,*smoothed);*next=(*next+1)%TREND_WINDOW;*used=(*used+1).min(TREND_WINDOW);
+        if *used<TREND_WINDOW {return None;}
+        let (x,y)=samples.iter().fold((0.0,0.0),|(x,y),(a,b)|(x+a,y+b));let x=x/TREND_WINDOW as f64;let y=y/TREND_WINDOW as f64;
+        let (covariance,variance)=samples.iter().fold((0.0,0.0),|(cov,var),(a,b)|(cov+(a-x)*(b-y),var+(a-x)*(a-x)));
+        (variance>0.0).then(||covariance/variance*f64::from(*count)*4.0)
+    }
+}
 
 pub(super) struct FastGcc {
-    groups:ArrivalGroupAccumulator,filter:Kalman,detector:OveruseDetector,
+    groups:ArrivalGroupAccumulator,filter:Trendline,detector:OveruseDetector,
     rate:RateCalculator,delay:RateController,loss:LossController,min:f64,max:f64,target:f64,
 }
 impl FastGcc {
     pub(super) fn new(initial:f64,min:f64,max:f64)->Self {
-        Self {groups:ArrivalGroupAccumulator::default(),filter:Kalman::new().with_process_noise(0.1),detector:OveruseDetector::new(),rate:RateCalculator::default(),
+        Self {groups:ArrivalGroupAccumulator::default(),filter:Trendline::default(),detector:OveruseDetector::new(),rate:RateCalculator::default(),
             delay:RateController::new(initial,min,max),loss:LossController::new(initial,min,max),min,max,target:initial}
     }
 }
@@ -20,7 +41,7 @@ impl BandwidthEstimator for FastGcc {
         let mut usage=self.detector.usage();
         for report in reports {
             if report.arrived {self.rate.add(now,report.size);}
-            if let Some(group)=self.groups.accumulate(report) {usage=self.detector.update(group.at,self.filter.update(group.delta_ms));}
+            if let Some(group)=self.groups.accumulate(report) {if let Some(signal)=self.filter.update(group) {usage=self.detector.update(group.at,signal);}}
         }
         let delay=self.delay.update(now,usage,self.rate.rate_bits_per_second(now));
         let loss=self.loss.update(now,reports.iter().filter(|report|!report.arrived).count(),reports.len());

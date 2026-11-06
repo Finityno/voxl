@@ -21,7 +21,7 @@ pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayC
 pub enum PacingGain {#[default] MediaRate,Responsive}
 /// Local estimator qualification; pacing and media ceilings remain independent.
 #[derive(Debug,Clone,Copy,Default)]
-pub enum DelayControl {#[default] Standard,FastKalman}
+pub enum DelayControl {#[default] Standard,Trendline}
 /// Advisory encoded-byte admission from the selected pacing configuration.
 /// Unknown feedback uses the configured prior; a held estimate is not capacity.
 #[derive(Debug,Clone,Copy)]
@@ -142,7 +142,7 @@ impl GccTrace {
 }
 enum Engine {Standard(Gcc),Fast(super::fast_delay::FastGcc)}
 impl Engine {
-    fn new(limits:SendControl)->Self {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match limits.delay {DelayControl::Standard=>Self::Standard(Gcc::new(initial,min,max)),DelayControl::FastKalman=>Self::Fast(super::fast_delay::FastGcc::new(initial,min,max))}}
+    fn new(limits:SendControl)->Self {let (initial,min,max)=(f64::from(limits.initial),f64::from(limits.min),f64::from(limits.max));match limits.delay {DelayControl::Standard=>Self::Standard(Gcc::new(initial,min,max)),DelayControl::Trendline=>Self::Fast(super::fast_delay::FastGcc::new(initial,min,max))}}
 }
 impl BandwidthEstimator for Engine {
     fn on_reports(&mut self,now:Instant,reports:&[PacketReport]) {match self {Self::Standard(inner)=>inner.on_reports(now,reports),Self::Fast(inner)=>inner.on_reports(now,reports)}}

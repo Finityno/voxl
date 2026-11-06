@@ -184,7 +184,7 @@ fn adaptive_network_single_packet_loss_is_repaired_without_partial_access_unit_o
 #[test]
 fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps_recovery_bounded() {capacity(DelayControl::Standard,false);}
 #[test]
-fn adaptive_network_fast_delay_keeps_the_transient_response_and_queue_within_the_new_gate() {capacity(DelayControl::FastKalman,true);}
+fn adaptive_network_fast_delay_keeps_the_transient_response_and_queue_within_the_new_gate() {capacity(DelayControl::Trendline,true);}
 fn capacity(delay:DelayControl,fast:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
         let (mut video,receiver,events,mut packets,mut link)=pair_with_delay(delay).await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
