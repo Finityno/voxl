@@ -16,7 +16,7 @@ impl Shape {
 }
 #[derive(Clone,Default,Debug)]
 struct LinkStats {rtp:u64,delivered:u64,dropped:u64,overflow:u64,duplicates:u64,bytes:u64,peak_queue:usize,max_queue_micros:u64}
-struct Queued {at:Instant,received:Instant,bytes:Vec<u8>}
+struct Queued {at:Instant,finished:Instant,delay:Duration,received:Instant,bytes:Vec<u8>}
 struct Direction {queue:VecDeque<Queued>,available:Instant,last_due:Instant,seen:VecDeque<u16>,stats:LinkStats}
 impl Direction {
     fn new()->Self {let now=Instant::now();Self {queue:VecDeque::new(),available:now,last_due:now,seen:VecDeque::new(),stats:LinkStats::default()}}
@@ -33,7 +33,20 @@ impl Direction {
         self.available=self.available.max(now)+Duration::from_secs_f64(bytes.len() as f64*8.0/f64::from(shape.bps));
         let jitter=if self.stats.rtp%4==0 {shape.jitter} else {Duration::ZERO};
         let at=(self.available+shape.delay+jitter).max(self.last_due);self.last_due=at;
-        self.queue.push_back(Queued {at,received:now,bytes:bytes.to_vec()});self.stats.peak_queue=self.stats.peak_queue.max(self.queue.len());
+        self.queue.push_back(Queued {at,finished:self.available,delay:shape.delay+jitter,received:now,bytes:bytes.to_vec()});self.stats.peak_queue=self.stats.peak_queue.max(self.queue.len());
+    }
+    fn reconfigure(&mut self,old_bps:u32,new_bps:u32,now:Instant) {
+        // Service already performed is spent. Remaining serialization follows
+        // the new capacity; bytes already propagating keep their arrival time.
+        let mut finish=now;let mut due=now;
+        for packet in &mut self.queue {
+            if packet.finished>now {
+                let bits=(packet.finished.duration_since(now).as_secs_f64()*f64::from(old_bps)).min(packet.bytes.len() as f64*8.0);
+                finish+=Duration::from_secs_f64(bits/f64::from(new_bps));packet.finished=finish;packet.at=(finish+packet.delay).max(due);
+            }
+            due=packet.at;
+        }
+        self.available=finish;self.last_due=due;
     }
     fn next(&self)->Option<Instant> {self.queue.front().map(|packet|packet.at)}
     async fn release(&mut self,socket:&UdpSocket,peer:SocketAddr,now:Instant) {
@@ -52,12 +65,12 @@ impl Link {
         assert!(sender.ip().is_loopback() && receiver.ip().is_loopback());
         let sender_address=a.local_addr().unwrap();let receiver_address=b.local_addr().unwrap();let (commands,mut changes)=mpsc::channel(4);
         let task=tokio::spawn(async move {
-            let mut forward=Direction::new();let mut reverse=Direction::new();let mut shape=None;let mut from_a=vec![0u8;65_536];let mut from_b=vec![0u8;65_536];
+            let mut forward=Direction::new();let mut reverse=Direction::new();let mut shape:Option<Shape>=None;let mut from_a=vec![0u8;65_536];let mut from_b=vec![0u8;65_536];
             loop {
                 let next=match (forward.next(),reverse.next()) {(Some(a),Some(b))=>a.min(b),(Some(at),None)|(None,Some(at))=>at,(None,None)=>Instant::now()+Duration::from_secs(30)};
                 tokio::select! {
                     command=changes.recv()=>match command {
-                        Some(Command::Condition(value,done))=>{shape=Some(value);let _=done.send(());},
+                        Some(Command::Condition(value,done))=>{if let Some(old)=shape {let now=Instant::now();forward.reconfigure(old.bps,value.bps,now);reverse.reconfigure(old.bps,value.bps,now);}shape=Some(value);let _=done.send(());},
                         Some(Command::Snapshot(reply))=>{let _=reply.send(forward.stats.clone());},None=>break,
                     },
                     packet=a.recv_from(&mut from_a)=>{
@@ -139,8 +152,9 @@ async fn exact_frame(packets:&mut mpsc::Receiver<rtc::rtp::Packet>,expected:&[u8
 fn adaptive_network_fixture_serializes_caps_queue_and_never_resets_credit_on_capacity_change() {
     let mut direction=Direction::new();let now=Instant::now();let packet=vec![0;1000];let slow=Shape::new(1_000_000,20,10,None);
     direction.enqueue(&packet,now,slow);direction.enqueue(&packet,now,slow);
-    assert_eq!(direction.queue[1].at-direction.queue[0].at,Duration::from_millis(8));let tail=direction.available;
-    direction.enqueue(&packet,now,Shape::new(500_000,20,0,None));assert_eq!(direction.available,tail+Duration::from_millis(16));
+    assert_eq!(direction.queue[1].at-direction.queue[0].at,Duration::from_millis(8));direction.reconfigure(1_000_000,500_000,now+Duration::from_millis(4));
+    assert_eq!(direction.queue[0].finished,now+Duration::from_millis(12));assert_eq!(direction.queue[1].finished,now+Duration::from_millis(28));
+    direction.enqueue(&packet,now+Duration::from_millis(4),Shape::new(500_000,20,0,None));assert_eq!(direction.available,now+Duration::from_millis(44));
     for _ in 0..QUEUE_LIMIT {direction.enqueue(&packet,now,slow);}
     assert_eq!(direction.queue.len(),QUEUE_LIMIT);assert_eq!(direction.stats.peak_queue,QUEUE_LIMIT);assert_eq!(direction.stats.overflow,3);
 }
@@ -171,13 +185,15 @@ fn adaptive_network_real_twcc_reduces_media_target_when_capacity_falls_and_keeps
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(25),async {
         let (mut video,receiver,events,mut packets,mut link)=pair().await;let consumed=Arc::new(AtomicU64::new(0));let seen=Arc::clone(&consumed);
         let reader=tokio::spawn(async move {while packets.recv().await.is_some() {seen.fetch_add(1,Ordering::Relaxed);}});
-        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;
+        let mut sequence=0;let mut low_min=1_500_000;let mut recovered_max=0;let mut recovered_final=0;let mut estimates=0;let mut encoder_target=1275;
         for (stage,bps,seconds) in [(0,3_000_000,2),(1,500_000,5),(2,3_000_000,3)] {
             link.condition(Shape::new(bps,20,5,None)).await;let until=Instant::now()+Duration::from_secs(seconds);let mut interval=tokio::time::interval(Duration::from_millis(33));interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
             while Instant::now()<until {
                 interval.tick().await;
                 if let Some(estimate)=video.bitrate_estimate() {assert!((250..=1500).contains(&estimate.target_kbps));estimates+=1;if stage==1 {low_min=low_min.min(estimate.target_kbps*1000);}if stage==2 {recovered_final=estimate.target_kbps*1000;recovered_max=recovered_max.max(recovered_final);}}
-                let target=video.close_handle().bitrate_target_kbps().unwrap_or(1275);let bytes=(target as usize*1000/8/30).max(900);sequence+=1;
+                // The native worker holds its last verified target on stale or
+                // unknown feedback; it never jumps back to the initial prior.
+                if let Some(target)=video.close_handle().bitrate_target_kbps() {encoder_target=target;}let bytes=(encoder_target as usize*1000/8/30).max(900);sequence+=1;
                 video.send(frame(bytes,sequence==1 || sequence%60==0,sequence*33_333)).await.unwrap();
             }
             let s=link.snapshot().await;eprintln!("headroom_capacity stage={stage} capacity_bps={bps} sent_frames={sequence} media_min_bps={low_min} recovery_max_bps={recovered_max} recovery_final_bps={recovered_final} rtp={} delivered={} overflow={} peak_queue={} queue_max_us={} received_packets={}",s.rtp,s.delivered,s.overflow,s.peak_queue,s.max_queue_micros,consumed.load(Ordering::Relaxed));
