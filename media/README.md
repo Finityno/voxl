@@ -193,6 +193,18 @@ CPU is higher. Lower requests retain scrolling-text regressions; 20000 uses
 more bytes than H.264. This is an experimental candidate for sustained broader
 testing, not application admission, a bitrate ceiling or a codec-default change.
 
+The [sustained quality follow-up](results/2026-11-06-sustained-quality/README.md)
+now decodes 9,900 frames per codec after 30s warmup and 300s observation.
+HEVC quality/8000 retains improved measured text/foreground metrics in all
+9,000 observed frames, with 12.67% fewer payload bytes and slower callback p95
+(14.99ms versus 12.24ms). This is one sustained pair, not the required repeated
+broader/60fps admission or a full-app CPU/memory result. The same pack adds a
+strictly compiled native `media/tools/macos-codec-capabilities.swift` inventory:
+this M5 Pro reports hardware decoding for H.264/HEVC/AV1 but no registered
+VideoToolbox AV1 encoder. Missing encoder hardware flags stay unknown; codec
+metadata does not establish exact-profile support, available resources or the
+receiver engine's actual hardware use. No new codec is advertised.
+
 `codec_probe` also accepts `--width=N --height=N --fps=N --bitrate-kbps=N`
 within the encoder's normal bounds. Defaults remain 1280x720, 30fps, 2500kbps.
 `--input-nv12=PATH` reads a regular, non-symlink, tightly packed NV12 file directly

@@ -1,0 +1,56 @@
+{
+  "encoderSourceRevision": "8a4a52bf66ec46da5a2bb323c6b56f92e0bd1b9b",
+  "cases": [
+    {
+      "specification": "h264:compatible:3000",
+      "decodedFrames": 9900,
+      "observedFrames": 9000,
+      "videoPayloadMbps": 1.03677296,
+      "payloadBytesSavedPercent": 0.0,
+      "encodeCallbackP95Ms": 12.235792,
+      "wholeProbeCpuPercentOneCore": 3.5963158213658124,
+      "wholeProbePeakRssMiB": 40.484375,
+      "textSsimFramesLowerThanControl": 0,
+      "textSsimWorstDelta": 0.0,
+      "foregroundAggregateFramesWorse": 0,
+      "foregroundChannelFramesWorse": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "foregroundMeanAbsoluteRgbError": 13.648889951736868,
+      "textSsimPhaseMeans": {
+        "still": 0.9995061916666668,
+        "typing": 0.9994739833333334,
+        "scrolling": 0.9998401166666666,
+        "window-movement": 0.9993778166666668
+      }
+    },
+    {
+      "specification": "hevc:compatible:8000:quality",
+      "decodedFrames": 9900,
+      "observedFrames": 9000,
+      "videoPayloadMbps": 0.9054487733333333,
+      "payloadBytesSavedPercent": 12.666629217130298,
+      "encodeCallbackP95Ms": 14.991375,
+      "wholeProbeCpuPercentOneCore": 3.459976973883536,
+      "wholeProbePeakRssMiB": 40.578125,
+      "textSsimFramesLowerThanControl": 0,
+      "textSsimWorstDelta": 2.8999999999945736e-05,
+      "foregroundAggregateFramesWorse": 0,
+      "foregroundChannelFramesWorse": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "foregroundMeanAbsoluteRgbError": 12.920824633865893,
+      "textSsimPhaseMeans": {
+        "still": 0.9999326618421053,
+        "typing": 0.9998861631578947,
+        "scrolling": 0.99989775,
+        "window-movement": 0.9997631666666665
+      }
+    }
+  ],
+  "scope": "One sustained generated-pixel pair. Warmup excluded from payload/latency/quality, not process CPU/RSS. No complete endpoint, hardware-decoder, wire-cost, power, physical network or codec admission."
+}
