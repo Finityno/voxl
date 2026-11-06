@@ -25,6 +25,8 @@ mod feedback;
 mod stream_turn;
 mod relay_interfaces;
 mod signaling;
+mod send_control;
+pub use send_control::{SendControl,BitrateEstimate};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -219,7 +221,9 @@ pub struct WebRtcVideo {
     updates: UpdatePhase,
     checked_relay_failure: u64,
     checked_remote_candidates:u64,
+    send_mode:SendMode,
 }
+enum SendMode {Immediate,Controlled {state:Arc<send_control::Control>,submitted:u64,rate_seen:(u64,u64)}}
 
 #[derive(Clone)]
 struct RestartSetup {bindings:Vec<String>,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,policy:RoutePolicy}
@@ -248,7 +252,7 @@ impl Drop for NegotiationGuard {fn drop(&mut self) {if let Some(close)=self.0.ta
 #[derive(Clone,Copy)]
 enum UpdatePhase {Waiting,Connected,Disconnected}
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
-pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,Ended}
+pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,BitrateTarget(u32),Ended}
 
 struct OpeningPeer(Option<Arc<dyn PeerConnection>>, tokio::runtime::Handle);
 impl Drop for OpeningPeer {
@@ -260,6 +264,18 @@ impl Drop for OpeningPeer {
 }
 
 impl WebRtcVideo {
+    /// Local qualification path. Existing constructors keep their unpaced
+    /// behavior until the embedder admits the complete encoder/network loop.
+    pub async fn open_controlled(config:WebRtcConfig,limits:SendControl)->Result<Self,WebRtcError> {
+        Self::open_controlled_mode(config,limits,false).await
+    }
+    pub async fn open_trickle_controlled(config:WebRtcConfig,limits:SendControl)->Result<Self,WebRtcError> {
+        Self::open_controlled_mode(config,limits,true).await
+    }
+    async fn open_controlled_mode(config:WebRtcConfig,limits:SendControl,trickle:bool)->Result<Self,WebRtcError> {
+        let grace=if trickle {config.route_policy.turn_grace()} else {Duration::ZERO};
+        Self::open_controlled_runtime(config,None,trickle,grace,|runtime|runtime,Some(limits)).await
+    }
     pub async fn open(config: WebRtcConfig) -> Result<Self, WebRtcError> {
         Self::open_with_tls(config,None).await
     }
@@ -281,7 +297,11 @@ impl WebRtcVideo {
     async fn open_with_grace(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration)->Result<Self,WebRtcError> {
         Self::open_with_runtime(config,tls,trickle,turn_delay,|runtime|runtime).await
     }
-    async fn open_with_runtime<F>(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration,adapt_runtime:F)->Result<Self,WebRtcError>
+    async fn open_with_runtime<F>(config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration,adapt_runtime:F)->Result<Self,WebRtcError>
+    where F:FnOnce(Arc<dyn webrtc::runtime::Runtime>)->Arc<dyn webrtc::runtime::Runtime>+Send {
+        Self::open_controlled_runtime(config,tls,trickle,turn_delay,adapt_runtime,None).await
+    }
+    async fn open_controlled_runtime<F>(mut config:WebRtcConfig,tls:Option<Arc<tokio_rustls::rustls::ClientConfig>>,trickle:bool,turn_delay:Duration,adapt_runtime:F,limits:Option<SendControl>)->Result<Self,WebRtcError>
     where F:FnOnce(Arc<dyn webrtc::runtime::Runtime>)->Arc<dyn webrtc::runtime::Runtime>+Send {
         if config.bind_addresses.is_empty() || config.bind_addresses.len() > 8 || config.ice_servers.len() > 4
             || config.bind_addresses.iter().any(|address| address.parse::<std::net::SocketAddr>().is_err())
@@ -295,6 +315,8 @@ impl WebRtcVideo {
         let setup=trickle.then(||RestartSetup {bindings:config.bind_addresses.clone(),tls:tls.clone(),policy:config.route_policy});
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
+        let closed=Arc::new(AtomicBool::new(false));
+        let control=limits.map(|limits|send_control::Control::new(limits,Arc::clone(&closed),Arc::clone(&changes)));
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes),turn_delay).await?);
         let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connection: AtomicU8::new(Connection::Waiting as u8),ice:Mutex::new(RTCIceConnectionState::New),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
@@ -305,8 +327,13 @@ impl WebRtcVideo {
         let mut media = MediaEngine::default();
         media.register_codec(RTCRtpCodecParameters { rtp_codec: codec.clone(), payload_type: 102 },RtpCodecKind::Video).map_err(transport)?;
         let keyframe = Arc::new(AtomicBool::new(true));
-        let registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?
-            .with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)));
+        let mut registry = register_default_interceptors(Registry::new(),&mut media).map_err(transport)?;
+        if let Some(control)=&control {
+            use rtc::peer_connection::configuration::interceptor_registry::{configure_congestion_control,CongestionFeedback};
+            registry=configure_congestion_control(registry,send_control::Estimator::new(Arc::clone(control)),CongestionFeedback::Twcc,&mut media).map_err(transport)?
+                .with(rtc::interceptor::Slot::Pacer,send_control::BoundedPacer::new(Arc::clone(control)));
+        }
+        let registry=registry.with(rtc::interceptor::Slot::from(14_000),feedback::KeyframeFeedback::new(Arc::clone(&keyframe),Arc::clone(&changes)).controlled(control.clone()));
         // Browser mDNS hosts commonly become peer-reflexive candidates here.
         // Proven direct connectivity must not wait the SDK's extra 0.5/1 s
         // nomination policy and lose to the embedder's shorter relay grace.
@@ -351,11 +378,12 @@ impl WebRtcVideo {
         }
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
-        let closer = VideoCloseHandle { closed: Arc::new(AtomicBool::new(false)),wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
+        let closer = VideoCloseHandle { closed,wake: Arc::new(Notify::new()),peer: Arc::clone(&peer),runtime,changes,relays };
         Ok(Self { peer,sender,track,events,closer,offer,negotiation:Negotiation::InitialAnswer {setup,startup},ssrc,
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default(),VideoFormat::Av1Main(_) => Box::<Av1Payloader>::default() },
-            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0 })
+            keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0,
+            send_mode:match control {Some(state)=>SendMode::Controlled {state,submitted:0,rate_seen:(0,0)},None=>SendMode::Immediate} })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
@@ -366,14 +394,16 @@ impl WebRtcVideo {
     /// ICE reachability is available before DTLS and the sender transport.
     /// Use it to retire optional startup relay work, never to permit RTP/input.
     pub fn ice_connected(&self)->bool {!self.ended() && self.events.ice_connected()}
-    pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.connection()==Connection::Ended }
+    pub fn ended(&self) -> bool { self.closer.closed.load(Ordering::Acquire) || self.events.connection()==Connection::Ended
+        || matches!(&self.send_mode,SendMode::Controlled {state,..} if state.failed()) }
+    pub fn bitrate_estimate(&self)->Option<BitrateEstimate> {match &self.send_mode {SendMode::Immediate=>None,SendMode::Controlled {state,..}=>state.estimate()}}
     /// Wait without polling for first connection, coalesced keyframe feedback
     /// or terminal close. A pending rate-limited PLI has one deadline; idle
     /// connected media has no periodic timer. Cancelling a wait loses no state.
     pub async fn next_update(&mut self) -> VideoUpdate {
         loop {
             let revision=self.events.changes.revision();
-            if self.ended() {return VideoUpdate::Ended;}
+            if self.ended() {self.close();return VideoUpdate::Ended;}
             if self.negotiation.payload().is_some() && let Some(signals)=&self.events.signals {
                 let changed=signals.remote_revision();
                 if changed!=self.checked_remote_candidates {
@@ -404,6 +434,8 @@ impl WebRtcVideo {
                 return VideoUpdate::Connected;
             }
             if connected && self.take_keyframe_request() {return VideoUpdate::KeyframeRequested;}
+            if connected && let SendMode::Controlled {state,rate_seen,..}=&mut self.send_mode
+                && let Some(kbps)=state.changed_target(rate_seen) {return VideoUpdate::BitrateTarget(kbps);}
             let deadline=if connected && self.keyframe.load(Ordering::Acquire) {
                 self.last_keyframe_request.map(|last|last+Duration::from_millis(250))
             } else {None};
@@ -521,6 +553,7 @@ impl WebRtcVideo {
         for server in &config.ice_servers {validated.add_ice_server(server.urls.clone(),server.username.clone(),server.credential.clone())?;}
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         self.negotiation=Negotiation::PreparingRestart;
+        if let SendMode::Controlled {state,..}=&self.send_mode {state.retire();}
         if startup_only {self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;}
         else {self.peer.quiesce_ice_gathering_for_restart().await.map_err(transport)?;}
         if self.ended() {return Err(WebRtcError::Ended);}
@@ -586,13 +619,15 @@ impl WebRtcVideo {
             || self.last_pts.is_some_and(|last| presentation_time_micros <= last)
         { return Err(WebRtcError::InvalidFrame); }
         if self.first_pts.is_none() && !keyframe { return Err(WebRtcError::InvalidFrame); }
+        let mut guard=NegotiationGuard(Some(self.closer.clone()));
         let first_pts = *self.first_pts.get_or_insert(presentation_time_micros);
         let ticks = (i128::from(presentation_time_micros)-i128::from(first_pts))*90_000/1_000_000;
         let timestamp = self.timestamp.wrapping_add(ticks as u32);
         let payloads = self.payloader.payload(1100,&data).map_err(transport)?;
         if payloads.is_empty() { self.close(); return Err(WebRtcError::InvalidFrame); }
         let last = payloads.len() - 1;
-        let result = tokio::time::timeout(Duration::from_millis(200),async {
+        let deadline=match self.send_mode {SendMode::Immediate=>Duration::from_millis(200),SendMode::Controlled {..}=>send_control::FRAME_DEADLINE};
+        let result = tokio::time::timeout(deadline,async {
             for (index,payload) in payloads.into_iter().enumerate() {
                 let packet = rtc::rtp::Packet { header: rtc::rtp::header::Header { version: 2, marker: index == last,
                     payload_type,sequence_number: self.sequence,timestamp,ssrc: self.ssrc,..Default::default() },payload };
@@ -603,10 +638,15 @@ impl WebRtcVideo {
                     _ = self.closer.wake.notified() => return Err(WebRtcError::Ended),
                     result = self.track.write_rtp(packet) => { result.map_err(transport)?; }
                 }
+                if let SendMode::Controlled {state,submitted,..}=&mut self.send_mode {
+                    *submitted=submitted.checked_add(1).ok_or(WebRtcError::Transport)?;
+                    if *submitted%send_control::WINDOW==0 || index==last {state.wait_released(*submitted).await?;}
+                }
             }
             Ok::<_,WebRtcError>(())
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
         if result.is_err() { self.close(); }
+        if result.is_ok() {guard.0=None;}
         self.last_pts = Some(presentation_time_micros);
         result.map(|()|VideoFrameStamp {generation,rtp_timestamp:timestamp})
     }

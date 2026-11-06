@@ -13,9 +13,11 @@ pub(super) struct KeyframeFeedback {
     changes: Arc<super::ChangeSignal>,
     read: VecDeque<TaggedPacket>,
     write: VecDeque<TaggedPacket>,
+    control:Option<Arc<super::send_control::Control>>,
 }
 impl KeyframeFeedback {
-    pub fn new(keyframe: Arc<AtomicBool>,changes: Arc<super::ChangeSignal>) -> Self { Self {keyframe,changes,read: VecDeque::new(),write: VecDeque::new()} }
+    pub fn new(keyframe: Arc<AtomicBool>,changes: Arc<super::ChangeSignal>) -> Self { Self {keyframe,changes,read: VecDeque::new(),write: VecDeque::new(),control:None} }
+    pub(super) fn controlled(mut self,control:Option<Arc<super::send_control::Control>>)->Self {self.control=control;self}
 }
 impl Protocol<TaggedPacket,TaggedPacket,()> for KeyframeFeedback {
     type Rout = TaggedPacket;
@@ -34,7 +36,8 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for KeyframeFeedback {
         Ok(())
     }
     fn poll_read(&mut self) -> Option<TaggedPacket> { self.read.pop_front() }
-    fn handle_write(&mut self,message: TaggedPacket) -> Result<(),Error> {
+    fn handle_write(&mut self,mut message: TaggedPacket) -> Result<(),Error> {
+        if let Some(control)=&self.control {control.decorate(&mut message)?;}
         if self.write.len() >= 64 { return Err(Error::Other("desktop media queue is full".into())); }
         self.write.push_back(message);
         Ok(())

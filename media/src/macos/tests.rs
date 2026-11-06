@@ -263,3 +263,25 @@ fn color_configuration_rejects_non_string_attachment() {
     assert!(matches!(encoder.encode(&malformed,0,true),Err(MediaError::InvalidFrame)));
     assert!(matches!(encoder.encode(&malformed,33333,true),Err(MediaError::Closed)));
 }
+
+fn dynamic_bitrate(codec:VideoCodec,preference:EncoderPreference) {
+    let mut encoder=VideoEncoder::new(EncoderConfig {codec,width:320,height:180,fps:30,bitrate_kbps:1000,preference},|| {}).unwrap();
+    let hardware=encoder.using_hardware();let pixel=image(false,None);
+    for (index,kbps) in [750,350,1000].into_iter().enumerate() {
+        encoder.set_bitrate_target(kbps).unwrap();assert_eq!(encoder.bitrate_target_kbps(),kbps);
+        assert_eq!(encoder.using_hardware(),hardware);
+        encoder.encode(&pixel,index as i64*33_333,true).unwrap();
+        let frame=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();
+        assert!(frame.keyframe && !frame.annex_b.is_empty());assert_eq!(frame.codec,codec);assert_eq!(frame.presentation_time_micros,index as i64*33_333);
+    }
+    assert_eq!(encoder.set_bitrate_target(249),Err(MediaError::Configuration));
+    assert_eq!(encoder.set_bitrate_target(1001),Err(MediaError::Configuration));
+    assert_eq!(encoder.bitrate_target_kbps(),1000);
+    submit(&mut encoder,&pixel,100_000);
+}
+#[test]
+fn adaptive_native_software_h264_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::H264,EncoderPreference::Software);}
+#[test]
+fn adaptive_native_hardware_h264_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::H264,EncoderPreference::RequireHardware);}
+#[test]
+fn adaptive_native_hardware_hevc_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::Hevc,EncoderPreference::RequireHardware);}

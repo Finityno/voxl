@@ -803,3 +803,38 @@ CPU AV1 fixture generation does not admit software AV1 for interactive use.
 References: [AV1 RTP payload format](https://aomediacodec.github.io/av1-rtp-spec/),
 [approved AV1 bitstream specification](https://aomediacodec.github.io/av1-spec/av1-spec.pdf),
 [SVT-AV1 parameters](https://github.com/AOMediaCodec/SVT-AV1/blob/main/Docs/Parameters.md).
+
+### Network-control qualification
+
+`WebRtcVideo::open_controlled` and `open_trickle_controlled` accept validated
+`SendControl::new(min_kbps, initial_kbps, max_kbps)` limits. They are a separate
+qualification path while the complete application loop is being admitted.
+Existing constructors retain their ordinary behavior. The controlled path uses
+the pinned SDK's GCC/TWCC algorithm and token bucket, with a four-packet burst,
+256 total held/released RTP packets and a 500 ms packet/frame deadline. It waits
+for paced release every sixteen original packets and at each frame boundary;
+accepting a driver command alone cannot finish a controlled send. Packet loss
+inside the pacing queue is terminal, never a successful partial encoded frame.
+Close retires queued RTP through the same synchronous authority flag. A cancelled
+frame-send future now closes either sender mode, preventing reuse after a partial
+access unit. These limits are resource bounds, not latency/performance admission.
+
+Current-generation NACK retransmissions retain pacing without falsely finishing
+a producer send. The SDK buffers raw RTP, so a bounded 1024-entry identity map
+restores the private ticket lost at that boundary. Restart retires that map,
+queued packets and old-path feedback; fresh authenticated keyframe/generation
+rules still belong to the embedder. A target is unknown until feedback exists;
+a GCC target may still reflect its initial prior until enough reports arrive.
+`bitrate_estimate` includes its age, and `VideoUpdate::BitrateTarget(kbps)` reserves
+15% of the pacing target for packet overhead/retransmissions, floored at the
+encoder's existing 250 kbps minimum. The embedder must enforce the original
+viewer ceiling and apply updates on its codec worker. No new thread or recurring
+idle polling is introduced. This path is not yet application default admission.
+
+`macos::VideoEncoder::set_bitrate_target` retunes future submissions on the same
+session, bounded by the original configured target. It requires exact typed
+integer native readback; a partially applied or unverified change is terminal.
+Hardware selection, color, geometry and frame clock do not change. Previously
+submitted frames may retain the old target. The initial `bitrate_target_kbps`
+getter is the configured request, not an initial native observation. An average
+encoder target is not a hard network ceiling or measured quality/byte saving.

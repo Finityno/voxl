@@ -174,6 +174,7 @@ pub struct VideoEncoder {
     callback: Box<CallbackState>,
     receiver: Receiver<Result<EncodedFrame,MediaError>>,
     config: EncoderConfig,
+    bitrate_target_kbps: u32,
     acceleration: EncoderAcceleration,
     options: EncodingOptions,
     last_pts: Option<i64>,
@@ -265,7 +266,7 @@ impl VideoEncoder {
         unsafe { CFRelease(specification); }
         check("create encoder",code)?;
         let session = NonNull::new(session).ok_or(MediaError::Configuration)?;
-        let mut encoder = Self { session, callback, receiver, config,
+        let mut encoder = Self { session, callback, receiver, config, bitrate_target_kbps:config.bitrate_kbps,
             acceleration: if hardware { EncoderAcceleration::RequiredHardware } else { EncoderAcceleration::DisabledHardware }, options, last_pts: None, color: ColorConfiguration::AwaitingFirstFrame };
         unsafe {
             encoder.property("real time", kVTCompressionPropertyKey_RealTime, kCFBooleanTrue)?;
@@ -345,6 +346,41 @@ impl VideoEncoder {
     }
     pub fn using_hardware(&self) -> bool { self.acceleration.using_hardware() }
     pub fn acceleration_selection(&self) -> EncoderAcceleration { self.acceleration }
+    /// Initially the configured request, not a native observation. A successful
+    /// set_bitrate_target verifies the updated average target with typed readback.
+    /// Neither value is a hard wire-rate limit or an observed encoded bitrate.
+    pub fn bitrate_target_kbps(&self)->u32 {self.bitrate_target_kbps}
+
+    /// Retune future submissions on this same worker-owned session, including
+    /// the explicit CPU encoder. Already submitted frames keep their old target.
+    /// Never exceed the original configured ceiling. A partially applied native
+    /// change is terminal unless exact integer readback establishes its result.
+    pub fn set_bitrate_target(&mut self,kbps:u32)->Result<(),MediaError> {
+        if !(250..=self.config.bitrate_kbps).contains(&kbps) {return Err(MediaError::Configuration);}
+        if self.callback.failure.get().is_some() {return Err(MediaError::Closed);}
+        let result=(|| {
+            let expected=i64::from(kbps)*1000;
+            // SAFETY: this linked property is an immortal framework CFString.
+            let key=unsafe {kVTCompressionPropertyKey_AverageBitRate};
+            self.number("update bitrate",key,expected)?;
+            let mut value=ptr::null();
+            // SAFETY: the producer owns this live session. Copy returns an
+            // owned CF object, inspected by type before integer conversion.
+            let code=unsafe {VTSessionCopyProperty(self.session.as_ptr(),key,ptr::null(),&mut value)};
+            let matches=code==0 && integer_property_matches(value,expected);
+            if !value.is_null() {
+                // SAFETY: Copy returned this owned CF object, even on failure.
+                unsafe {CFRelease(value);}
+            }
+            check("read updated bitrate",code)?;
+            if !matches {return Err(MediaError::Configuration);}
+            Ok(())
+        })();
+        match result {
+            Ok(())=>{self.bitrate_target_kbps=kbps;Ok(())},
+            Err(error)=>{self.callback.fail(error);Err(error)},
+        }
+    }
     /// Non-default values had matching native CFBoolean readback. Default is
     /// unspecified, not an observation of the encoder's internal preference.
     pub fn encoding_priority(&self)->EncodingPriority {self.options.priority}
