@@ -285,3 +285,24 @@ fn adaptive_native_software_h264_retunes_with_typed_readback_and_preserves_outpu
 fn adaptive_native_hardware_h264_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::H264,EncoderPreference::RequireHardware);}
 #[test]
 fn adaptive_native_hardware_hevc_retunes_with_typed_readback_and_preserves_output() {dynamic_bitrate(VideoCodec::Hevc,EncoderPreference::RequireHardware);}
+
+fn streaming_bitrate(codec:VideoCodec,preference:EncoderPreference) {
+    let mut encoder=VideoEncoder::new(EncoderConfig {codec,width:320,height:180,fps:30,bitrate_kbps:1000,preference},|| {}).unwrap();
+    let pixel=image(false,None);
+    for (index,kbps) in [1000,350,750].into_iter().enumerate() {
+        encoder.set_streaming_bitrate_target(kbps).unwrap();assert_eq!(encoder.bitrate_target_kbps(),kbps);
+        encoder.encode(&pixel,index as i64*33_333,true).unwrap();
+        let frame=encoder.wait_output(Duration::from_secs(2)).unwrap().unwrap();
+        assert!(frame.keyframe && !frame.annex_b.is_empty());assert_eq!(frame.codec,codec);
+        assert!(frame.annex_b.len()<=kbps as usize*50,"observed keyframe exceeded configured hard burst window");
+    }
+    assert_eq!(encoder.set_streaming_bitrate_target(249),Err(MediaError::Configuration));
+    assert_eq!(encoder.set_streaming_bitrate_target(1001),Err(MediaError::Configuration));
+    submit(&mut encoder,&pixel,100_000);
+}
+#[test]
+fn adaptive_streaming_software_h264_verifies_burst_and_average_targets() {streaming_bitrate(VideoCodec::H264,EncoderPreference::Software);}
+#[test]
+fn adaptive_streaming_hardware_h264_verifies_burst_and_average_targets() {streaming_bitrate(VideoCodec::H264,EncoderPreference::RequireHardware);}
+#[test]
+fn adaptive_streaming_hardware_hevc_verifies_burst_and_average_targets() {streaming_bitrate(VideoCodec::Hevc,EncoderPreference::RequireHardware);}

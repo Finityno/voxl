@@ -6,6 +6,14 @@ use objc2_core_media::CMTime;
 pub type Object = *const c_void;
 pub type Session = *mut c_void;
 pub type Output = unsafe extern "C" fn(*mut c_void, *mut c_void, i32, u32, Object);
+#[repr(C)]
+pub struct ArrayCallbacks {
+    pub version:isize,
+    pub retain:Option<unsafe extern "C" fn(Object,Object)->Object>,
+    pub release:Option<unsafe extern "C" fn(Object,Object)>,
+    pub copy_description:Option<unsafe extern "C" fn(Object)->Object>,
+    pub equal:Option<unsafe extern "C" fn(Object,Object)->bool>,
+}
 // VideoToolbox/VTErrors.h: an unrecognized or unsupported session property.
 pub const kVTPropertyNotSupportedErr: i32 = -12900;
 // Darwin dlfcn.h. Resolve optional newer data symbols without raising the
@@ -32,6 +40,7 @@ unsafe extern "C" {
     pub static kVTCompressionPropertyKey_RealTime: Object;
     pub static kVTCompressionPropertyKey_AllowFrameReordering: Object;
     pub static kVTCompressionPropertyKey_AverageBitRate: Object;
+    pub static kVTCompressionPropertyKey_DataRateLimits: Object;
     pub static kVTCompressionPropertyKey_ExpectedFrameRate: Object;
     pub static kVTCompressionPropertyKey_MaxKeyFrameInterval: Object;
     pub static kVTCompressionPropertyKey_ProfileLevel: Object;
@@ -49,6 +58,11 @@ unsafe extern "C" {
     pub fn CFRelease(value: Object);
     pub fn CFDictionaryCreateMutable(allocator: Object, capacity: isize, key_callbacks: Object, value_callbacks: Object) -> Session;
     pub fn CFDictionarySetValue(dictionary: Session, key: Object, value: Object);
+    pub fn CFArrayCreate(allocator:Object,values:*const Object,count:isize,callbacks:*const ArrayCallbacks)->Object;
+    pub fn CFArrayGetTypeID()->usize;
+    pub fn CFArrayGetCount(array:Object)->isize;
+    pub fn CFArrayGetValueAtIndex(array:Object,index:isize)->Object;
+    pub static kCFTypeArrayCallBacks:ArrayCallbacks;
     pub fn CFNumberCreate(allocator: Object, kind: isize, value: *const c_void) -> Object;
     pub fn CFNumberGetTypeID() -> usize;
     pub fn CFNumberIsFloatType(value: Object) -> bool;

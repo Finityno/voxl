@@ -381,6 +381,44 @@ impl VideoEncoder {
             Err(error)=>{self.callback.fail(error);Err(error)},
         }
     }
+
+    /// Adaptive transport qualification: retain a hard 400 ms encoded-byte
+    /// window as well as the average target. This bounds keyframe bursts before
+    /// pacing; it is not quality, achieved wire-rate or congestion admission.
+    /// Unsupported/ignored properties or partial changes are terminal.
+    pub fn set_streaming_bitrate_target(&mut self,kbps:u32)->Result<(),MediaError> {
+        if !(250..=self.config.bitrate_kbps).contains(&kbps) {return Err(MediaError::Configuration);}
+        if self.callback.failure.get().is_some() {return Err(MediaError::Closed);}
+        let bytes=i64::from(kbps)*50;
+        let seconds=0.4f64;
+        let result=(|| {
+            // SAFETY: stack numbers stay live through creation; the CFType
+            // callbacks retain both numbers for any retained native array.
+            let limit=unsafe {CFNumberCreate(ptr::null(),4,(&bytes as *const i64).cast())};
+            if limit.is_null() {return Err(MediaError::Configuration);}
+            let duration=unsafe {CFNumberCreate(ptr::null(),6,(&seconds as *const f64).cast())};
+            if duration.is_null() {unsafe {CFRelease(limit);}return Err(MediaError::Configuration);}
+            let values=[limit,duration];
+            let array=unsafe {CFArrayCreate(ptr::null(),values.as_ptr(),2,&raw const kCFTypeArrayCallBacks)};
+            unsafe {CFRelease(limit);CFRelease(duration);}
+            if array.is_null() {return Err(MediaError::Configuration);}
+            // SAFETY: this linked property is an immortal framework CFString.
+            let key=unsafe {kVTCompressionPropertyKey_DataRateLimits};
+            let set=self.property("update burst limit",key,array);
+            unsafe {CFRelease(array);}set?;
+            let mut value=ptr::null();
+            // SAFETY: this worker owns the live session; Copy returns a CF
+            // object which is type-checked before array/number access.
+            let code=unsafe {VTSessionCopyProperty(self.session.as_ptr(),key,ptr::null(),&mut value)};
+            let matches=code==0 && burst_property_matches(value,bytes,seconds);
+            if !value.is_null() {unsafe {CFRelease(value);}}
+            check("read updated burst limit",code)?;
+            if !matches {return Err(MediaError::Configuration);}
+            self.set_bitrate_target(kbps)
+        })();
+        if let Err(error)=&result {self.callback.fail(*error);}
+        result
+    }
     /// Non-default values had matching native CFBoolean readback. Default is
     /// unspecified, not an observation of the encoder's internal preference.
     pub fn encoding_priority(&self)->EncodingPriority {self.options.priority}
@@ -524,6 +562,18 @@ fn integer_property_matches(value:Object,expected:i64)->bool {
         let mut actual=0i64;
         CFGetTypeID(value)==CFNumberGetTypeID() && !CFNumberIsFloatType(value)
             && CFNumberGetValue(value,4,(&mut actual as *mut i64).cast()) && actual==expected
+    }
+}
+
+fn burst_property_matches(value:Object,bytes:i64,seconds:f64)->bool {
+    if value.is_null() {return false;}
+    // SAFETY: callers hold a retained CF object. Inspect every container and
+    // element before typed APIs; booleans and non-finite durations are rejected.
+    unsafe {
+        if CFGetTypeID(value)!=CFArrayGetTypeID() || CFArrayGetCount(value)!=2 {return false;}
+        let size=CFArrayGetValueAtIndex(value,0);let duration=CFArrayGetValueAtIndex(value,1);let mut actual=0f64;
+        integer_property_matches(size,bytes) && !duration.is_null() && CFGetTypeID(duration)==CFNumberGetTypeID()
+            && CFNumberGetValue(duration,6,(&mut actual as *mut f64).cast()) && actual.is_finite() && actual==seconds
     }
 }
 
