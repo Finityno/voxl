@@ -226,6 +226,13 @@ pub struct HevcProfile {
     constraints: [u8; 6],
 }
 impl HevcProfile {
+    /// Whether an in-band replacement remains within this advertised Main
+    /// profile. Keep tier, compatibility and constraints identical, and never
+    /// raise the level. This is not receiver capability or authority evidence.
+    pub fn permits_reconfiguration(&self,actual:&Self)->bool {
+        self.tier==actual.tier && self.compatibility==actual.compatibility
+            && self.constraints==actual.constraints && actual.level<=self.level
+    }
     /// RFC 7798 format parameters for a single RTP stream, without decoding
     /// order numbers. Parameter sets are repeated in-band with keyframes.
     pub fn fmtp(&self) -> String {
@@ -272,6 +279,16 @@ pub fn hevc_main_profile(annex_b: &[u8]) -> Result<HevcProfile, MediaError> {
 #[cfg(test)]
 mod hevc_profile_tests {
     use super::*;
+    #[test]
+    fn hevc_profile_reconfiguration_never_expands_advertised_constraints() {
+        let original=HevcProfile {tier:false,level:123,compatibility:0x60000000,constraints:[0xb0,0,0,0,0,0]};
+        assert!(original.permits_reconfiguration(&original));
+        assert!(original.permits_reconfiguration(&HevcProfile {level:93,..original}));
+        assert!(!original.permits_reconfiguration(&HevcProfile {level:150,..original}));
+        assert!(!original.permits_reconfiguration(&HevcProfile {tier:true,..original}));
+        assert!(!original.permits_reconfiguration(&HevcProfile {compatibility:0x40000000,..original}));
+        assert!(!original.permits_reconfiguration(&HevcProfile {constraints:[0,0,0,0,0,0],..original}));
+    }
     #[test]
     fn hevc_profile_removes_emulation_prevention_and_advertises_actual_level() {
         // SPS header, sps_max_sub_layers_minus1/temporal nesting, then Main
