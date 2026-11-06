@@ -202,7 +202,8 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
                     if ticket.ordinal!=self.control.released.load(Ordering::Acquire).saturating_add(1) {self.control.fail();self.state=Pacing::Stopped;return None;}
                     self.control.released.store(ticket.ordinal,Ordering::Release);
                     let target=self.control.release_target.load(Ordering::Acquire);
-                    if target!=0 && ticket.ordinal>=target {self.control.changes.changed();}
+                    if target!=0 && ticket.ordinal>=target
+                        && self.control.release_target.compare_exchange(target,0,Ordering::AcqRel,Ordering::Acquire).is_ok() {self.control.changes.changed();}
                 }
             }
             return Some(message);
@@ -267,6 +268,20 @@ mod tests {
             }
             assert!(control.failed());assert!(pacer.poll_write().is_none());assert!(pacer.poll_timeout().is_none());
         }
+    }
+    #[test]
+    fn adaptive_producer_release_wake_is_coalesced_at_the_requested_boundary() {
+        let control=control();let mut pacer=BoundedPacer::new(Arc::clone(&control));let now=Instant::now();
+        control.release_target.store(3,Ordering::Release);
+        for sequence in 0..10 {pacer.handle_write(packet(&control,sequence,now)).unwrap();}
+        let revision=control.changes.revision();
+        while control.released.load(Ordering::Acquire)<10 {
+            let deadline=pacer.poll_timeout().unwrap();pacer.handle_timeout(deadline).unwrap();
+            while pacer.poll_write().is_some() {}
+            let released=control.released.load(Ordering::Acquire);
+            assert_eq!(control.changes.revision(),revision+u64::from(released>=3));
+        }
+        assert_eq!(control.release_target.load(Ordering::Acquire),0);
     }
     #[test]
     fn adaptive_retransmissions_keep_the_current_epoch_without_false_producer_completion() {
