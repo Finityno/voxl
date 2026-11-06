@@ -118,7 +118,7 @@
   "normalization": "Published paths normalized; original commands, logs, numeric rows, bitstreams and qualifier scripts remain in the owner-only archive. No rendered pixels, font or bitstreams published.",
   "encoderBinaryReuse": "Initial release build and strict Clippy at unchanged encoder source were reused, with executable hash checked before/after. No repeated build or Clippy in sustained run.",
   "files": {
-    "README.md": "a5d1aa27e8e1172df29a2e27a246255af52d65e9a555e1083b9a194b8ba1446e",
+    "README.md": "97e67f9a033e41b3dfbb5fc0060cf9650dd482603f59b9e908705b036dbd2388",
     "compiler-artifact.json": "cfe16d582398129efb5b9d15bb8273c84bca321567466ee82a237b25889cdf14",
     "inventory-qualification.json": "373cca73dca814bf876bd105cfe8cc581f4924ebff6288814d3b77a910cbbbfa",
     "inventory.json": "5fa6401a07a283bab5b7ea23a55a3e4af01ee82b7c53282f31c960191e1ed6e6",

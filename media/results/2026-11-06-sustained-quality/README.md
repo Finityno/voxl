@@ -30,7 +30,8 @@ established resource improvement. Process CPU includes initialization, file I/O
 and warmup; RSS is not physical footprint. GPU/OS helpers, viewer, baseline
 subtraction, power, capture, wire/relay billing and actual presentation/input
 latency are outside this encoder component. No 60fps, full-app resource or
-codec admission follows, and the optimistic 3ms encode target is not met.
+codec admission follows; this 30fps run does not establish the optimistic
+3ms encode target for the separate 1080p60 profile.
 No consuming pin, tuning/default or performance target changed.
 
 ## Native hardware inventory
