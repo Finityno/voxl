@@ -1,0 +1,92 @@
+[
+  {
+    "job": "failed-compile",
+    "step": "load",
+    "pgid": 20150,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-compile",
+    "step": "toolchain",
+    "pgid": 20155,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-compile",
+    "step": "diff",
+    "pgid": 20160,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-compile",
+    "step": "media-test-build",
+    "pgid": 20165,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "load",
+    "pgid": 27994,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "toolchain",
+    "pgid": 27999,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "diff",
+    "pgid": 28052,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-test-build",
+    "pgid": 28065,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "flow-epoch-contract",
+    "pgid": 28081,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-lifetime-contracts",
+    "pgid": 28088,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-contracts",
+    "pgid": 28095,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-network",
+    "pgid": 28102,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "producer-debt-contracts",
+    "pgid": 28462,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "feedback-epoch-contract",
+    "pgid": 28469,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-tests-strict-clippy",
+    "pgid": 28476,
+    "independentlyAbsent": true
+  }
+]

@@ -1,0 +1,105 @@
+{
+  "source": "0570b08f9510774d2bfd627a0319171ec910f0a3",
+  "scope": "Staged epoch-ticket worker boundary and synthetic encrypted UDP; native application results are retained separately.",
+  "counts": {
+    "flow-epoch-contract": 1,
+    "probe-lifetime-contracts": 4,
+    "probe-contracts": 4,
+    "probe-network": 6,
+    "producer-debt-contracts": 6,
+    "feedback-epoch-contract": 1
+  },
+  "selectedRustPassed": 22,
+  "strictClippy": true,
+  "applicationDefaultEnabled": false,
+  "productionAdmission": false,
+  "newDependenciesOrFeatures": false,
+  "archive": "/Users/sondre/Documents/Fincode Desktop Lab Evidence/2026-11-06/staged-quiet-resume",
+  "ownedGroups": 15,
+  "network": [
+    {
+      "capacity_bps": 3000000,
+      "padding_packets": 32,
+      "padding_rtp_bytes": 8704,
+      "receiver_span_us": 23250,
+      "measured_rtp_bps": 2901333,
+      "target_kbps": 1500,
+      "frame_budget_bytes": 114239,
+      "resume_bytes": 64005,
+      "probe_us": 65962,
+      "total_resume_us": 255829,
+      "queue_max_us": 54026,
+      "overflow": 0
+    },
+    {
+      "capacity_bps": 250000,
+      "padding_packets": 32,
+      "padding_rtp_bytes": 8704,
+      "receiver_span_us": 286750,
+      "measured_rtp_bps": 235243,
+      "target_kbps": 250,
+      "frame_budget_bytes": 9262,
+      "resume_bytes": 7409,
+      "probe_us": 370516,
+      "total_resume_us": 630004,
+      "queue_max_us": 294622,
+      "overflow": 0
+    }
+  ],
+  "idle": [
+    {
+      "capacity_bps": 3000000,
+      "observation_ms": 3000,
+      "forward_udp_bytes": 384,
+      "reverse_udp_bytes": 444,
+      "forward_datagrams": 6,
+      "reverse_datagrams": 6,
+      "rtp_packets": 0
+    },
+    {
+      "capacity_bps": 250000,
+      "observation_ms": 3000,
+      "forward_udp_bytes": 384,
+      "reverse_udp_bytes": 444,
+      "forward_datagrams": 6,
+      "reverse_datagrams": 6,
+      "rtp_packets": 0
+    }
+  ],
+  "faults": [
+    {
+      "authority_close": "true",
+      "elapsed_us": 11719,
+      "dropped": 0,
+      "fake_video_frames": 0
+    },
+    {
+      "authority_close": "false",
+      "elapsed_us": 61811,
+      "dropped": 1,
+      "fake_video_frames": 0
+    }
+  ],
+  "tinyThenLarge": [
+    {
+      "small_rtp_packets": 2,
+      "padding_packets": 32,
+      "resume_bytes": 64005,
+      "total_us": 288077
+    }
+  ],
+  "baseline": [
+    {
+      "quiet_rtp_packets": 0,
+      "held_media_kbps": 1500,
+      "estimate_age_us": 3015667,
+      "frame_budget_bytes": 147656,
+      "resume_bytes": 64005,
+      "send_us": 135537,
+      "receiver_us": 2134921,
+      "queue_max_us": 1998539,
+      "overflow": 0
+    }
+  ],
+  "archiveOriginals": 22
+}
