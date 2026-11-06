@@ -15,7 +15,7 @@ impl Shape {
     }
 }
 #[derive(Clone,Default,Debug)]
-struct LinkStats {rtp:u64,delivered:u64,dropped:u64,overflow:u64,duplicates:u64,bytes:u64,peak_queue:usize,max_queue_micros:u64}
+struct LinkStats {rtp:u64,delivered:u64,dropped:u64,overflow:u64,duplicates:u64,bytes:u64,reverse_bytes:u64,reverse_datagrams:u64,peak_queue:usize,max_queue_micros:u64}
 struct Queued {at:Instant,finished:Instant,delay:Duration,received:Instant,bytes:Vec<u8>}
 struct Direction {queue:VecDeque<Queued>,available:Instant,last_due:Instant,seen:VecDeque<u16>,stats:LinkStats}
 impl Direction {
@@ -71,7 +71,7 @@ impl Link {
                 tokio::select! {
                     command=changes.recv()=>match command {
                         Some(Command::Condition(value,done))=>{if let Some(old)=shape {let now=Instant::now();forward.reconfigure(old.bps,value.bps,now);reverse.reconfigure(old.bps,value.bps,now);}shape=Some(value);let _=done.send(());},
-                        Some(Command::Snapshot(reply))=>{let _=reply.send(forward.stats.clone());},None=>break,
+                        Some(Command::Snapshot(reply))=>{let mut snapshot=forward.stats.clone();snapshot.reverse_bytes=reverse.stats.bytes;snapshot.reverse_datagrams=reverse.stats.delivered;let _=reply.send(snapshot);},None=>break,
                     },
                     packet=a.recv_from(&mut from_a)=>{
                         let (length,source)=packet.unwrap();assert_eq!(source,receiver);
@@ -192,12 +192,13 @@ fn adaptive_network_quiet_probe_bounds_resume_after_capacity_falls() {quiet_prob
 fn adaptive_network_quiet_probe_preserves_the_large_frame_on_an_unchanged_fast_path() {quiet_probe(3_000_000);}
 fn quiet_probe(capacity:u32) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
-        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probes().with_flow_observation();
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_producer_control(ProducerControl::RtpDebt).with_quiet_resume_probes().with_flow_observation();
         let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
         assert!(matches!(video.probe_quiet_resume().await,Err(WebRtcError::Configuration)));assert!(!video.ended());
         let first=frame(24_005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
         let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
-        assert!(video.bitrate_estimate().is_some());let quiet=link.snapshot().await;tokio::time::sleep(Duration::from_secs(3)).await;assert_eq!(link.snapshot().await.rtp,quiet.rtp);
+        assert!(video.bitrate_estimate().is_some());let quiet=link.snapshot().await;tokio::time::sleep(Duration::from_secs(3)).await;let idle=link.snapshot().await;assert_eq!(idle.rtp,quiet.rtp);
+        eprintln!("quiet_resume_idle capacity_bps={capacity} observation_ms=3000 forward_udp_bytes={} reverse_udp_bytes={} forward_datagrams={} reverse_datagrams={} rtp_packets=0",idle.bytes-quiet.bytes,idle.reverse_bytes-quiet.reverse_bytes,idle.delivered-quiet.delivered,idle.reverse_datagrams-quiet.reverse_datagrams);
         link.condition(Shape::new(capacity,10,0,None)).await;let began=Instant::now();let observed=video.probe_quiet_resume().await.unwrap();let probe_time=began.elapsed();
         for _ in 0..observed.packets {let packet=packets.recv().await.unwrap();assert!(packet.header.padding && !packet.header.marker && packet.payload.is_empty());assert_eq!(packet.header.timestamp,stamp.rtp_timestamp);}
         assert_eq!((observed.packets,observed.arrived),(32,32));assert_eq!(video.close_handle().flow_observation().unwrap().completed_frames,1,"padding cannot manufacture a completed video picture");
@@ -209,6 +210,26 @@ fn quiet_probe(capacity:u32) {
         assert_eq!(video.close_handle().flow_observation().unwrap().completed_frames,2);assert!(!video.ended());
         video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
     }).await.expect("bounded actual padding/TWCC quiet resume");});
+}
+#[test]
+fn adaptive_network_quiet_probe_missing_packet_closes_without_fake_media_progress() {quiet_probe_failure(false);}
+#[test]
+fn adaptive_network_quiet_probe_authority_close_cancels_without_fake_media_progress() {quiet_probe_failure(true);}
+fn quiet_probe_failure(close:bool) {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probes();
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
+        let first=frame(24_005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
+        assert!(video.bitrate_estimate().is_some());tokio::time::sleep(Duration::from_secs(3)).await;let before=link.snapshot().await;
+        if !close {link.condition(Shape::new(3_000_000,10,0,Some(before.rtp+5))).await;}
+        let closer=video.close_handle();let began=Instant::now();
+        let result=if close {let (result,())=tokio::join!(video.probe_quiet_resume(),async {tokio::time::sleep(Duration::from_millis(10)).await;closer.close();});result}else {video.probe_quiet_resume().await};
+        assert!(matches!(result,Err(WebRtcError::Ended|WebRtcError::Transport|WebRtcError::Deadline)));assert!(video.ended());assert_eq!(video.last_pts,Some(1_000_000));assert!(began.elapsed()<Duration::from_millis(750));
+        let stats=link.snapshot().await;if !close {assert_eq!(stats.dropped,1);}eprintln!("quiet_resume_failure authority_close={close} elapsed_us={} dropped={} fake_video_frames=0",began.elapsed().as_micros(),stats.dropped);
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+        while let Ok(packet)=packets.try_recv() {assert!(packet.header.padding && !packet.header.marker && packet.payload.is_empty());assert_eq!(packet.header.timestamp,stamp.rtp_timestamp);}
+    }).await.expect("bounded loss/close quiet-resume probe");});
 }
 fn bottleneck(delay:DelayControl) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(12),async {
