@@ -26,7 +26,7 @@ mod stream_turn;
 mod relay_interfaces;
 mod signaling;
 mod send_control;
-pub use send_control::{SendControl,BitrateEstimate};
+pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
 
@@ -194,6 +194,9 @@ impl VideoCloseHandle {
     /// workers can read this while the serial sender is awaiting paced RTP.
     /// Unknown, stale, retired or closed feedback never raises an encoder rate.
     pub fn bitrate_target_kbps(&self)->Option<u32> {self.control.as_ref().and_then(|control|control.encoder_target())}
+    /// Worker-readable admission policy while the serial sender is pacing.
+    /// This is a configuration/estimate snapshot, not measured link capacity.
+    pub fn frame_budget(&self)->Option<FrameBudget> {self.control.as_ref().and_then(|control|control.frame_budget())}
     pub fn close(&self) {
         if self.closed.swap(true,Ordering::AcqRel) { return; }
         self.wake.notify_one();

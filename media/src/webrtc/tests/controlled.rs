@@ -1,8 +1,11 @@
 use super::*;
 
 async fn pair(feedback:bool)->(WebRtcVideo,Arc<dyn PeerConnection>,mpsc::Receiver<rtc::rtp::Packet>) {
+    pair_with_limits(feedback,SendControl::new(250,1000,1000).unwrap()).await
+}
+async fn pair_with_limits(feedback:bool,limits:SendControl)->(WebRtcVideo,Arc<dyn PeerConnection>,mpsc::Receiver<rtc::rtp::Packet>) {
     let config=WebRtcConfig::direct_first(VideoFormat::H264 {profile_level_id:[66,224,31]},vec!["127.0.0.1:0".into()]);
-    let mut video=WebRtcVideo::open_controlled(config,SendControl::new(250,1000,1000).unwrap()).await.unwrap();
+    let mut video=WebRtcVideo::open_controlled(config,limits).await.unwrap();
     assert!(video.offer().contains("transport-cc") && video.offer().contains("transport-wide-cc"));
     let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
     let registry=if feedback {register_default_interceptors(Registry::new(),&mut media).unwrap()} else {Registry::new()};
@@ -87,4 +90,20 @@ fn adaptive_each_generation_requires_a_completed_keyframe_boundary() {
     assert!(boundary.accepts(0,false));assert!(!boundary.accepts(1,false));assert!(boundary.accepts(1,true));
     boundary=SentBoundary::Written(1);
     assert!(boundary.accepts(1,false));assert!(!boundary.accepts(0,false));assert!(!boundary.accepts(2,false));
+}
+
+#[test]
+fn adaptive_responsive_udp_preserves_a_large_access_unit_without_raising_media_target() {
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {tokio::time::timeout(Duration::from_secs(10),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive);
+        let (mut video,receiver,mut packets)=pair_with_limits(true,limits).await;
+        let budget=video.close_handle().frame_budget().unwrap();assert_eq!(budget.media_target_kbps,1500);assert_eq!(budget.pacing_target_kbps,3750);
+        let mut access=frame(true,1_000_000);access.annex_b.resize(103_281,0x77);let expected=access.annex_b[4..].to_vec();
+        assert!(access.annex_b.len()<=budget.payload_bytes as usize);
+        let started=Instant::now();let stamp=video.send_with_stamp(access).await.unwrap();
+        assert!(started.elapsed()<Duration::from_millis(500));let (timestamp,received)=receive(&mut packets).await;
+        assert_eq!(received,expected);assert_eq!(timestamp,stamp.rtp_timestamp);
+        video.close();receiver.close().await.unwrap();
+    }).await.expect("bounded responsive UDP access unit");});
 }

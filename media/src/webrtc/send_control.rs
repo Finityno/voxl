@@ -12,14 +12,31 @@ const MAX_QUEUED:usize=256;
 fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 
 /// Local qualification limits. The maximum must also fit the viewer's request.
-/// Rates are RTP pacing targets, not provider-billed or encoded-byte ceilings.
+/// Rates limit the media target, not provider-billed or encoded-byte ceilings.
 #[derive(Debug,Clone,Copy)]
-pub struct SendControl {min:u32,initial:u32,max:u32}
+pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain}
+/// Local pacing qualification. Headroom changes packet departure timing, not
+/// the encoder's average target. It can still queue on a constrained path.
+#[derive(Debug,Clone,Copy,Default)]
+pub enum PacingGain {#[default] MediaRate,Responsive}
+/// Advisory encoded-byte admission from the selected pacing configuration.
+/// Unknown feedback uses the configured prior; a held estimate is not capacity.
+#[derive(Debug,Clone,Copy)]
+pub struct FrameBudget {pub payload_bytes:u32,pub media_target_kbps:u32,pub pacing_target_kbps:u32,pub estimate_age:Option<Duration>}
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
-        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000})
+        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate})
     }
+    pub fn with_pacing_gain(mut self,gain:PacingGain)->Self {self.gain=gain;self}
+    fn paced_bps(self,media_bps:u32)->u32 {match self.gain {PacingGain::MediaRate=>media_bps,PacingGain::Responsive=>(u64::from(media_bps)*5/2) as u32}}
+    fn budget(self,bps:u32,age:Option<Duration>)->FrameBudget {
+        let paced=self.paced_bps(bps);
+        // 350 ms of pacing, reserving ten percent for packet overhead and
+        // coalesced estimator changes. The send deadline stays at 500 ms.
+        FrameBudget {payload_bytes:(u64::from(paced)*315/8000) as u32,media_target_kbps:bps/1000,pacing_target_kbps:paced/1000,estimate_age:age}
+    }
+    pub fn initial_frame_budget(self)->FrameBudget {self.budget(self.initial,None)}
 }
 #[derive(Debug,Clone,Copy)]
 pub struct BitrateEstimate {pub target_kbps:u32,pub age:Duration}
@@ -78,6 +95,11 @@ impl Control {
             Rate::Observed {bps,at,..} if self.active() && at.elapsed()<=Duration::from_secs(2)=>Some(((u64::from(bps)*85/100)/1000).max(250) as u32),
             _=>None,
         }
+    }
+    pub(super) fn frame_budget(&self)->Option<FrameBudget> {
+        let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        if !self.active() {return None;}
+        Some(match epoch.rate {Rate::Unknown=>self.limits.initial_frame_budget(),Rate::Observed {bps,at,..}=>self.limits.budget(bps,Some(at.elapsed()))})
     }
     pub(super) fn changed_target(&self,seen:&mut (u64,u64))->Option<u32> {
         let epoch=self.epoch.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
@@ -138,7 +160,8 @@ impl BoundedPacer {
         Self {state:Self::running(control.limits),control,epoch:0}
     }
     fn running(limits:SendControl)->Pacing {
-        Pacing::Running {inner:Box::new(PacerBuilder::new().with_target_bitrate(f64::from(limits.initial)).with_burst_bits(burst_bits(f64::from(limits.initial))).with_queue_limit(MAX_QUEUED).build()),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
+        let paced=f64::from(limits.paced_bps(limits.initial));
+        Pacing::Running {inner:Box::new(PacerBuilder::new().with_target_bitrate(paced).with_burst_bits(burst_bits(paced)).with_queue_limit(MAX_QUEUED).build()),pending:VecDeque::new(),history:HashMap::new(),order:VecDeque::new()}
     }
     fn ready(&mut self,now:Option<Instant>)->bool {
         if !self.control.active() {self.state=Pacing::Stopped;return false;}
@@ -162,7 +185,11 @@ impl Protocol<TaggedPacket,TaggedPacket,()> for BoundedPacer {
                 self.control.fail();self.state=Pacing::Stopped;return Err(Error::Other("invalid desktop pacing estimate".into()));
             }
         let Pacing::Running {inner,..}=&mut self.state else {return Ok(());};inner.handle_read(message)?;
-        if let Some(rate)=rate {*inner.pacer_mut()=inner.pacer().clone().with_burst_bits(burst_bits(rate));}
+        if let Some(rate)=rate {
+            let paced=f64::from(self.control.limits.paced_bps(rate as u32));
+            inner.pacer_mut().set_target_bitrate(paced);
+            *inner.pacer_mut()=inner.pacer().clone().with_burst_bits(burst_bits(paced));
+        }
         Ok(())
     }
     fn poll_read(&mut self)->Option<TaggedPacket> {
@@ -327,4 +354,49 @@ mod tests {
         assert_eq!(control.encoder_target(),Some(595));control.authority.store(true,Ordering::Release);
         assert!(control.encoder_target().is_none());
     }
+    #[test]
+    fn adaptive_responsive_pacing_drains_the_known_keyframe_burst_within_the_existing_deadline() {
+        for gain in [PacingGain::MediaRate,PacingGain::Responsive] {
+            let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(gain);
+            let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));
+            let mut pacer=BoundedPacer::new(Arc::clone(&control));let start=Instant::now();let mut sent=0;let mut last=start;
+            for sequence in 0..100 {pacer.handle_write(packet(&control,sequence,start)).unwrap();}
+            for _ in 0..200 {
+                let Some(next)=pacer.poll_timeout() else {break;};last=next;pacer.handle_timeout(next).unwrap();
+                while pacer.poll_write().is_some() {sent+=1;}
+                if sent==100 {break;}
+            }
+            match gain {
+                PacingGain::MediaRate=>{assert!(sent<100 && control.failed());},
+                PacingGain::Responsive=>{assert_eq!(sent,100);assert!(!control.failed());assert!(last.duration_since(start)<Duration::from_millis(300));},
+            }
+        }
+    }
+    #[test]
+    fn adaptive_responsive_rate_updates_preserve_credit_media_feedback_and_epoch_retirement() {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive);
+        let control=Control::new(limits,Arc::new(AtomicBool::new(false)),Arc::new(ChangeSignal::default()));
+        let mut pacer=BoundedPacer::new(Arc::clone(&control));let now=Instant::now();
+        for sequence in 0..2 {pacer.handle_write(packet(&control,sequence,now)).unwrap();}
+        pacer.handle_timeout(now).unwrap();while pacer.poll_write().is_some() {}
+        let update=TaggedPacket {now,transport:Default::default(),message:rtc::interceptor::AttributedPacket::new(Packet::Rtcp(vec![])).with(Attribute::TargetBitrateChanged {bits_per_second:500_000.0})};
+        pacer.handle_read(update).unwrap();
+        let Pacing::Running {inner,..}=&pacer.state else {panic!("active responsive pacer");};
+        assert_eq!(inner.pacer().target_bitrate(),1_250_000.0);assert!(!inner.pacer().can_afford(8000.0));
+        let forwarded=pacer.poll_read().unwrap();assert!(matches!(forwarded.message.get(&Attribute::TargetBitrateChanged {bits_per_second:0.0}),Some(Attribute::TargetBitrateChanged {bits_per_second}) if *bits_per_second==500_000.0));
+        control.epoch.lock().unwrap().rate=Rate::Observed {bps:500_000,at:now,revision:1};
+        assert_eq!(control.encoder_target(),Some(425));let budget=control.frame_budget().unwrap();assert_eq!(budget.media_target_kbps,500);assert_eq!(budget.pacing_target_kbps,1250);
+        control.retire();assert!(control.frame_budget().unwrap().estimate_age.is_none());assert!(pacer.ready(None));
+        let Pacing::Running {inner,..}=&pacer.state else {panic!("new responsive epoch");};assert_eq!(inner.pacer().target_bitrate(),3_750_000.0);
+        control.authority.store(true,Ordering::Release);assert!(control.frame_budget().is_none());
+    }
+    #[test]
+    fn adaptive_frame_budget_is_finite_for_all_supported_media_rates_and_gains() {
+        for rate in [250,1500,20_000] {for gain in [PacingGain::MediaRate,PacingGain::Responsive] {
+            let limits=SendControl::new(250,rate,rate).unwrap().with_pacing_gain(gain);let budget=limits.initial_frame_budget();
+            assert_eq!(budget.media_target_kbps,rate);assert!(budget.payload_bytes>0 && budget.payload_bytes as usize<=crate::MAX_FRAME_BYTES);assert!(budget.estimate_age.is_none());
+            let paced=f64::from(budget.pacing_target_kbps)*1000.0;assert!(f64::from(budget.payload_bytes)*8.0/paced<0.35);
+        }}
+    }
+
 }
