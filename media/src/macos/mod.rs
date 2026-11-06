@@ -398,6 +398,10 @@ impl VideoEncoder {
         let bytes=i64::from(kbps)*50;
         let seconds=if self.using_hardware() {0.4f64} else {1.0f64};
         let result=(|| {
+            // Establish the desired average first; setting it after the hard
+            // limit could reconfigure a provider's rate controller. Read both
+            // back after the final mutation, never just each intermediate set.
+            self.set_bitrate_target(kbps)?;
             // SAFETY: stack numbers stay live through creation; the CFType
             // callbacks retain both numbers for any retained native array.
             let limit=unsafe {CFNumberCreate(ptr::null(),4,(&bytes as *const i64).cast())};
@@ -420,7 +424,14 @@ impl VideoEncoder {
             if !value.is_null() {unsafe {CFRelease(value);}}
             check("read updated burst limit",code)?;
             if !matches {return Err(MediaError::Configuration);}
-            self.set_bitrate_target(kbps)
+            let mut average=ptr::null();
+            // SAFETY: same owned session; only typed integer metadata is read.
+            let code=unsafe {VTSessionCopyProperty(self.session.as_ptr(),kVTCompressionPropertyKey_AverageBitRate,ptr::null(),&mut average)};
+            let matches=code==0 && integer_property_matches(average,i64::from(kbps)*1000);
+            if !average.is_null() {unsafe {CFRelease(average);}}
+            check("read burst average bitrate",code)?;
+            if !matches {return Err(MediaError::Configuration);}
+            Ok(())
         })();
         match &result {Ok(())=>self.burst_limit=Some((bytes as u32,if self.using_hardware() {400} else {1000})),Err(error)=>self.callback.fail(*error)}
         result
