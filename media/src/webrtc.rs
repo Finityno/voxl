@@ -496,7 +496,7 @@ impl WebRtcVideo {
             } else {None};
             tokio::select! {
                 event=self.receipts.poll()=>{
-                    let generation=match self.negotiation {Negotiation::Ready {generation,..} if connected=>Some(generation),_=>None};
+                    let generation=match self.negotiation {Negotiation::Ready {generation,..} if self.connected()=>Some(generation),_=>None};
                     match self.receipts.event(event,generation) {
                         Ok(receipts::Outcome::None)=>{},Ok(receipts::Outcome::Decoded(receipt))=>return VideoUpdate::FrameDecoded(receipt),
                         Ok(receipts::Outcome::Closed)=>return VideoUpdate::FrameReceiptsClosed,
