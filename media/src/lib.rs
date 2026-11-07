@@ -2,6 +2,7 @@
 //! an application event loop, or link the standalone server's x264 dependency.
 
 pub mod codec;
+pub mod h264;
 pub mod av1;
 #[cfg(target_os = "windows")]
 pub mod windows;

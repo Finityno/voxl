@@ -75,13 +75,15 @@ fn image()->PixelBuffer {
 fn native_source_quality_actual_software_decode_preserves_pts_range_and_retained_images() {
     let config=EncoderConfig {codec:VideoCodec::H264,width:320,height:180,fps:30,bitrate_kbps:4000,preference:EncoderPreference::Software};
     let mut encoder=VideoEncoder::new(config,||{}).unwrap();assert!(!encoder.using_hardware());
-    let mut decoder=H264QualityDecoder::new(320,180,true,||{}).unwrap();let source=image();let mut retained=None;let mut observer=FrameObserver::new(320*180*3/2).unwrap();
+    let mut decoder=H264QualityDecoder::new(320,180,true,||{}).unwrap();assert_eq!(decoder.parameter_signal(),None);let source=image();let mut retained=None;let mut observer=FrameObserver::new(320*180*3/2).unwrap();
     for index in 0..4 {
         let pts=index*33333;encoder.encode(&source,pts,index==0).unwrap();let output=encoder.wait_output(Duration::from_millis(500)).unwrap().expect("actual encoder output");assert_eq!(output.presentation_time_micros,pts);
-        let decoded=decoder.decode(&output).unwrap();let difference=compare_frames(&source,&decoded).unwrap();assert!(difference.color_tags_complete);assert_eq!(difference.planes.map(|plane|plane.samples),[57600,14400,14400]);
+        let decoded=decoder.decode(&output).unwrap();
+        let signal=decoder.parameter_signal().expect("active encoded SPS metadata");assert_eq!(signal.video_signal,Some(crate::h264::VideoSignal {video_format:5,full_range:true,colour_description:Some([1,13,1])}));
+        let difference=compare_frames(&source,&decoded).unwrap();assert!(difference.color_tags_complete);assert_eq!(difference.planes.map(|plane|plane.samples),[57600,14400,14400]);
         if index==0 {assert_eq!(observer.observe(&decoded),Ok(FrameComparison::Initial));retained=Some(decoded);}
     }
     assert_eq!(observer.observe(retained.as_ref().unwrap()),Ok(FrameComparison::Equal));
     let repeated=EncodedFrame {presentation_time_micros:33333,..frame(annex(&[&[0x61,1]]))};
-    assert!(decoder.decode(&repeated).is_err());assert!(matches!(decoder.decode(&repeated),Err(MediaError::Closed)));
+    assert!(decoder.decode(&repeated).is_err());assert!(matches!(decoder.decode(&repeated),Err(MediaError::Closed)));assert_eq!(decoder.parameter_signal(),None);
 }

@@ -1090,6 +1090,21 @@ still needs a source-to-publication fence, loss/recovery handling and measured
 quality settling. Local send completion alone is insufficient.
 
 
+### Literal H.264 parameter signaling
+
+`h264::sps_signal` reads a raw SPS NAL prefix through VUI colour/range and
+chroma-location signaling. It removes validated emulation prevention, bounds
+encoded parameter storage to 16 KiB and bounds all variable-length loops.
+It handles baseline/main/extended and the explicit high-profile syntax.
+Absent fields stay absent and unspecified/reserved colour codes stay numeric;
+no colour default, metadata rewrite or image conversion is performed. This is
+not a complete SPS/HRD/trailing-syntax validator or a decoder capability claim.
+The local quality decoder exposes the active parsed descriptor with
+`parameter_signal`; initial/closed decoders have no descriptor. Parsing occurs
+once per local decoder construction, outside any production encoder path.
+Native and peer colour agreement and actual stream qualification still need
+measurement; API availability alone does not prove either.
+
 ### Opt-in local H.264 source-fidelity qualification
 
 `macos::quality::H264QualityDecoder` reconstructs the fork encoder's bounded

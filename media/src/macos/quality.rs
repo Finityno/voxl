@@ -73,9 +73,10 @@ unsafe extern "C" fn decoded(_context:*mut c_void,source:*mut c_void,status:i32,
     if result.is_err() || idle.is_err() {*slot.output.lock().unwrap_or_else(|value|value.into_inner())=Output::Failed(MediaError::Closed);}
 }
 
-struct Native {session:Session,format:Owned,parameters:Parameters}
+struct Native {session:Session,format:Owned,parameters:Parameters,signal:crate::h264::SpsSignal}
 impl Native {
     fn new(parameters:Parameters,size:(u32,u32),format:u32)->Result<Self,MediaError> {
+        let signal=crate::h264::sps_signal(&parameters.sps)?;
         let pointers=[parameters.sps.as_ptr(),parameters.pps.as_ptr()];let sizes=[parameters.sps.len(),parameters.pps.len()];let mut description=ptr::null();
         // SAFETY: two bounded immutable parameter sets live through this Create
         // call. CoreMedia copies the parameter data into its owned description.
@@ -104,7 +105,7 @@ impl Native {
             }
             check("quality decoder create",code)?;return Err(MediaError::Configuration);
         }
-        Ok(Self {session,format:description,parameters})
+        Ok(Self {session,format:description,parameters,signal})
     }
     fn decode(&self,unit:&AccessUnit<'_>,pts:i64,idle:fn())->Result<PixelBuffer,MediaError> {
         let bytes=unit.length_prefixed();let mut block=ptr::null();
@@ -145,6 +146,11 @@ impl H264QualityDecoder {
     pub fn new(width:u32,height:u32,full_range:bool,idle:fn())->Result<Self,MediaError> {
         if !(320..=4096).contains(&width) || !(180..=2160).contains(&height) || !width.is_multiple_of(2) || !height.is_multiple_of(2) || u64::from(width)*u64::from(height)>3840*2160 {return Err(MediaError::Configuration);}
         Ok(Self {size:(width,height),format:u32::from_be_bytes(if full_range {*b"420f"} else {*b"420v"}),idle,phase:Phase::Initial})
+    }
+    /// Literal SPS prefix metadata from the active bounded parameter sets.
+    /// This does not change decode configuration or fill missing colour defaults.
+    pub fn parameter_signal(&self)->Option<crate::h264::SpsSignal> {
+        match &self.phase {Phase::Active {native,..}=>Some(native.signal),_=>None}
     }
     pub fn decode(&mut self,frame:&EncodedFrame)->Result<PixelBuffer,MediaError> {
         let phase=std::mem::replace(&mut self.phase,Phase::Closed);
