@@ -965,7 +965,8 @@ The monitor is disabled by default and adds no thread or timer.
 
 `SendControl::with_quiet_resume_probes()` enables the explicit
 `WebRtcVideo::probe_quiet_resume()` operation after an already-written connected
-epoch has sent no media for two seconds. It creates no periodic RTP/video.
+epoch needs to refresh bulk capacity, including after silence or sparse tiny
+updates. It creates no periodic RTP/video.
 Thirty-two authenticated padding-only packets bind exact receiver reports within
 500 ms, seed a bounded target and cap the first resumed byte budget. Expired
 credit only tightens; missing/lost/late feedback or close cannot produce a frame
