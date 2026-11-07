@@ -4,6 +4,9 @@ use super::*;
 use webrtc::data_channel::{DataChannel,DataChannelEvent};
 
 struct Receiver {media:ReceiverEvents,channels:mpsc::Sender<Arc<dyn DataChannel>>}
+struct SenderEvents;
+#[async_trait]
+impl PeerConnectionEventHandler for SenderEvents {}
 #[async_trait]
 impl PeerConnectionEventHandler for Receiver {
     async fn on_track(&self,track:Arc<dyn TrackRemote>) {self.media.on_track(track).await;}
@@ -90,7 +93,7 @@ fn decoded_receipt_sdk_preserves_incoming_dcep_reliability_metadata() {
             let (packets,_unused)=mpsc::channel(1);let (channels,mut incoming)=mpsc::channel(1);
             let receiver=PeerConnectionBuilder::new().with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},channels}))
                 .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
-            let sender=PeerConnectionBuilder::new().with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            let sender=PeerConnectionBuilder::new().with_handler(Arc::new(SenderEvents)).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
             let local=sender.create_data_channel("policy-fixture",Some(RTCDataChannelInit {ordered,max_retransmits:retransmits,max_packet_life_time:lifetime,..Default::default()})).await.unwrap();
             sender.set_local_description(sender.create_offer(None).await.unwrap()).await.unwrap();
             receiver.set_remote_description(RTCSessionDescription::offer(sender.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
