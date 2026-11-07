@@ -1088,3 +1088,39 @@ channel or decoded RTP metadata simply provide no evidence.
 A receipt proves neither source equality nor decoded quality. Idle suppression
 still needs a source-to-publication fence, loss/recovery handling and measured
 quality settling. Local send completion alone is insufficient.
+
+
+### Opt-in local H.264 source-fidelity qualification
+
+`macos::quality::H264QualityDecoder` reconstructs the fork encoder's bounded
+four-byte-start-code H.264 output locally. It is a qualification component,
+not a newly advertised network decoder/provider. An initial IDR and complete
+parameter sets, fixed geometry/parameters, monotonic sender PTS and a 512-frame
+limit are required. Errors close the chain. NAL count, parameter-set bytes and
+access-unit bytes are capped before native work. Output geometry and pixel
+range are verified, with no silent conversion fallback.
+
+Decode uses neither asynchronous nor temporal-processing flags. The installed
+SDK promises callback completion before the decode call returns; callback
+panics and the embedding idle hook are contained. No Rust thread is created.
+An external process-group deadline is still required: synchronous framework
+calls are not themselves interruptible through this API.
+
+`macos::compare_frames` returns exact active-byte Y/Cb/Cr sample counts,
+changed counts, maximum differences and absolute/squared errors for immutable
+NV12 images. Geometry, range and colour tags must match; padding is excluded.
+Absent tags remain absent and are explicitly reported as incomplete. No pixels
+are retained/exported by comparison. These are captured-NV12 reconstruction
+errors, not desktop-RGB, peer-decoder or perceptual/text quality admission.
+Callers must bound retained decoded images; this API does not bound native
+pools or total process/GPU memory.
+
+At source `ac0a921a26af1089d3394ccb9db5625c61a21d4a`, five selected native Mac
+tests and strict default-feature library/tests/examples Clippy pass. They
+include a real software H.264 round trip, retained-image immutability, exact
+plane/padding errors, malformed-input caps, callback failures and fail-closed
+state. The 512-frame exhaustion boundary, hardware/other codecs and received
+picture parity are not exercised by that component cohort. An embedding owned
+capture qualifier uses the component with bounded local reconstruction history;
+its additional source/claim/streaming evidence is separately scoped. No encoder,
+codec, transport or production-default selection changes.
