@@ -1053,3 +1053,15 @@ CPU wall cost across the median case comparisons, while Metal reduces process
 CPU for some larger cases. This does not select an application default. Native
 capture synchronization, colour/authority/publication invalidation, decoded
 quality, freshness and sustained endpoint/GPU/power costs remain required.
+
+Mac `FrameObserver` now provides the CPU observation primitive without enabling
+suppression. It owns one explicitly bounded tight snapshot of active NV12 rows,
+ignores padding, and reports Initial/Equal/Different relative to the previous
+successful observation. Geometry, pixel range and the encoder's three copied
+colour tags (primaries, transfer, YCbCr matrix) start a new snapshot. Other
+attachments and publication/authority/decoded quality are outside this API.
+Errors/reset release the snapshot, and a replacement releases the old allocation
+before requesting another. Capacity reports Vec storage, not allocator or
+process RAM. There is no retained source surface, hash, thread, timer or default
+encoder behavior change. Callers must explicitly reset at source/authority/
+recovery boundaries; an observed baseline is never a sent/decoded baseline.
