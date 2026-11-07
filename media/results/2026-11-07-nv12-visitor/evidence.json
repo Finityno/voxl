@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "source": "d7b46350673f89ccbdfa1f975a61889872fde91c",
+  "platform": "aarch64-apple-darwin",
+  "testsPassed": 2,
+  "pixelsPersisted": false,
+  "peerParityAdmission": false,
+  "qualityAdmission": false,
+  "resourceSavingsAdmission": false,
+  "checks": [
+    {
+      "name": "headroom",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import shutil;n=shutil.disk_usage(\".\").free;print(n);assert n>53_500_000_000"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.0447152080014348,
+      "deadlineSeconds": 20,
+      "groupGone": true,
+      "signals": [],
+      "logSha256": "5ea8baab7a1575e12dede076ff7ec03c186722af54afb33dd9fc6112f2ac6dd2"
+    },
+    {
+      "name": "media-test-build",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "--no-run"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.9545710000675172,
+      "deadlineSeconds": 300,
+      "groupGone": true,
+      "signals": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "nv12-visitor-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "native_nv12_visitor",
+        "--",
+        "--nocapture"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.33697154093533754,
+      "deadlineSeconds": 60,
+      "groupGone": true,
+      "signals": [],
+      "logSha256": "fb821bbc3a011c7575afa45abb63e4ffe906ece0324100b58502fb844fd8f75b"
+    },
+    {
+      "name": "strict-media",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "--tests",
+        "--examples",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.6266995000187308,
+      "deadlineSeconds": 300,
+      "groupGone": true,
+      "signals": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

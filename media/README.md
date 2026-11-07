@@ -1124,3 +1124,14 @@ picture parity are not exercised by that component cohort. An embedding owned
 capture qualifier uses the component with bounded local reconstruction history;
 its additional source/claim/streaming evidence is separately scoped. No encoder,
 codec, transport or production-default selection changes.
+### Read-only NV12 rows for owned qualification
+
+`macos::visit_nv12_bytes` visits active Y rows and then interleaved UV rows in
+canonical NV12 order, excluding padding, while holding one native read lock.
+It creates no image copy and retains no surface after return. Its metadata
+preserves validated range and maps only recognized colour strings; absent or
+unrecognized tags remain unknown. A callback panic releases the lock. The
+[two-test native proof](results/2026-11-07-nv12-visitor/README.md) and strict
+Clippy cover this API without admitting host/peer equality or resource savings.
+The caller owns hashing, digest retention and any additional authority fences.
+
