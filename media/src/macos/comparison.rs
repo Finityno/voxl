@@ -13,7 +13,7 @@ unsafe extern "C" {
     fn CVPixelBufferGetHeightOfPlane(buffer:Object,plane:usize)->usize;
     fn CVPixelBufferLockBaseAddress(buffer:Object,flags:u64)->i32;
     fn CVPixelBufferUnlockBaseAddress(buffer:Object,flags:u64)->i32;
-    fn CVPixelBufferGetBaseAddressOfPlane(buffer:Object,plane:usize)->*const u8;
+    fn CVPixelBufferGetBaseAddressOfPlane(buffer:Object,plane:usize)->*mut u8;
     fn CVPixelBufferGetBytesPerRowOfPlane(buffer:Object,plane:usize)->usize;
 }
 

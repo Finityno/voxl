@@ -22,7 +22,7 @@ fn image(size:(usize,usize),change:Option<(usize,usize)>,padding:bool,full:bool,
         CFRelease(attributes);CFRelease(number);assert_eq!(status,0);assert!(!raw.is_null());
         assert_eq!(CVPixelBufferLockBaseAddress(raw,0),0);
         for (plane,rows) in [(0,height),(1,height/2)] {
-            let base=CVPixelBufferGetBaseAddressOfPlane(raw,plane).cast_mut();let stride=CVPixelBufferGetBytesPerRowOfPlane(raw,plane);assert!(!base.is_null() && stride>=width);
+            let base=CVPixelBufferGetBaseAddressOfPlane(raw,plane);let stride=CVPixelBufferGetBytesPerRowOfPlane(raw,plane);assert!(!base.is_null() && stride>=width);
             for row in 0..rows {
                 ptr::write_bytes(base.add(row*stride),if padding {0xa5} else {0x5a},stride);
                 for column in 0..width {*base.add(row*stride+column)=((row*width+column+plane*73)%256) as u8;}
