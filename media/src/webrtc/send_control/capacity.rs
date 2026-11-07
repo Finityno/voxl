@@ -11,7 +11,7 @@ enum Slot {Empty,Pending(Identity),Arrived {identity:Identity,arrival:Duration,b
 #[derive(Clone,Copy)]
 enum Evidence {Unknown,Measured {at:Instant,bps:u32}}
 impl Evidence {
-    fn newer(self,other:Self)->Self {match (self,other) {(Self::Measured {at:left,..},Self::Measured {at:right,..}) if left>=right=>self,(_,Self::Unknown)=>self,_=>other}}
+    fn newer(self,other:Self)->Self {match (self,other) {(Self::Measured {at:left,bps:a},Self::Measured {at:right,bps:b}) if left==right=>Self::Measured {at:left,bps:a.min(b)},(Self::Measured {at:left,..},Self::Measured {at:right,..}) if left>right=>self,(_,Self::Unknown)=>self,_=>other}}
     fn cap(self,now:Instant)->Option<u32> {match self {Self::Measured {at,bps} if now.checked_duration_since(at).is_some_and(|age|age<=probe::FRESHNESS)=>Some(bps),_=>None}}
 }
 pub(super) struct Window {slots:[Slot;SLOTS],next:usize,evidence:Evidence}
@@ -95,6 +95,14 @@ mod tests {
         capacity.feedback(&reports,now+Duration::from_millis(12));assert!(capacity.cap(now+Duration::from_millis(12)).is_some());
         capacity=Capacity::new(true);for index in 0..12u16 {capacity.sent(&packet(65532u16.wrapping_add(index),90000),now+Duration::from_secs(1)+Duration::from_millis(u64::from(index)));}
         capacity.feedback(&reports,now+Duration::from_millis(1012));assert!(capacity.cap(now+Duration::from_millis(1012)).is_none());
+    }
+    #[test]
+    fn normal_capacity_coalesced_departures_can_tighten_but_never_refresh_or_raise_credit() {
+        let now=Instant::now();let mut capacity=Capacity::new(true);let mut reports=Vec::new();
+        for index in 0..12u16 {capacity.sent(&packet(index,90000),now);reports.push(report(now,index,if index<8 {u64::from(index)*1000} else {u64::from(index)*4000}));}
+        capacity.feedback(&reports[..8],now+Duration::from_millis(10));assert_eq!(capacity.cap(now+Duration::from_millis(10)),Some(8_960_000));
+        capacity.feedback(&reports[8..],now+Duration::from_millis(50));let full=2_240_000;assert_eq!(capacity.cap(now+Duration::from_millis(50)),Some(full));
+        capacity.feedback(&reports[..8],now+Duration::from_secs(1));assert_eq!(capacity.cap(now+Duration::from_secs(1)),Some(full));assert!(capacity.cap(now+probe::FRESHNESS+Duration::from_nanos(1)).is_none());
     }
     #[test]
     fn normal_capacity_disabled_allocates_no_window_and_probe_evidence_expires() {
