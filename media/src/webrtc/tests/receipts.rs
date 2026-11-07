@@ -80,3 +80,29 @@ fn decoded_receipt_malformed_wire_ends_only_its_own_stream() {
         assert!(video.ended());receiver.close().await.unwrap();
     }).await.expect("bounded malformed receipt loopback");});
 }
+
+#[test]
+fn decoded_receipt_sdk_preserves_incoming_dcep_reliability_metadata() {
+    use webrtc::data_channel::RTCDataChannelInit;
+    let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {tokio::time::timeout(Duration::from_secs(20),async {
+        for (ordered,retransmits,lifetime) in [(true,None,None),(false,None,None),(true,Some(0),None),(false,Some(u16::MAX),None),(true,None,Some(0)),(false,None,Some(u16::MAX))] {
+            let (packets,_unused)=mpsc::channel(1);let (channels,mut incoming)=mpsc::channel(1);
+            let receiver=PeerConnectionBuilder::new().with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},channels}))
+                .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            let sender=PeerConnectionBuilder::new().with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            let local=sender.create_data_channel("policy-fixture",Some(RTCDataChannelInit {ordered,max_retransmits:retransmits,max_packet_life_time:lifetime,..Default::default()})).await.unwrap();
+            sender.set_local_description(sender.create_offer(None).await.unwrap()).await.unwrap();
+            receiver.set_remote_description(RTCSessionDescription::offer(sender.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
+            receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+            sender.set_remote_description(RTCSessionDescription::answer(receiver.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
+            let remote=incoming.recv().await.unwrap();
+            loop {match remote.poll().await {Some(DataChannelEvent::OnOpen)=>break,other=>panic!("unexpected policy channel opening: {other:?}")}}
+            assert_eq!(remote.ordered().await.unwrap(),ordered);
+            assert_eq!(remote.max_retransmits().await.unwrap(),retransmits);
+            assert_eq!(remote.max_packet_life_time().await.unwrap(),lifetime);
+            assert!(!remote.negotiated().await.unwrap());
+            drop(local);sender.close().await.unwrap();receiver.close().await.unwrap();
+        }
+    }).await.expect("bounded DCEP policy loopbacks");});
+}

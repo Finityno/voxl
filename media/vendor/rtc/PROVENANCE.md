@@ -38,3 +38,10 @@ decoding, allocation release, performance or resource savings.
 Updates must verify the new archive/checksum and licenses, compare production
 dependency/features, preserve the empty-list patch and rerun the parent's scoped
 configuration, media and forced-relay checks. No upstream submission is made.
+
+Incoming DCEP channels also preserve the advertised reliability policy in the
+public metadata. The imported accept path discarded both optional limits even
+for a partially reliable channel. Zero is retained as `Some(0)`; values beyond
+the WebRTC API's unsigned 16-bit bound are rejected instead of truncated.
+Parent SCTP loopbacks check reliable, timed and retransmission-limited channels,
+including ordered/unordered delivery and zero-valued limits.

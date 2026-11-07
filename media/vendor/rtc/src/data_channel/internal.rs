@@ -3,7 +3,7 @@ use crate::data_channel::parameters::DataChannelParameters;
 use crate::data_channel::state::RTCDataChannelState;
 use datachannel::data_channel::DataChannelConfig;
 use sansio::Protocol;
-use sctp::{PayloadProtocolIdentifier, StreamId};
+use sctp::{PayloadProtocolIdentifier, ReliabilityType, StreamId};
 use shared::error::{Error, Result};
 use std::time::Instant;
 
@@ -162,10 +162,20 @@ impl RTCDataChannelInternal {
 
         let data_channel_config = data_channel.config();
 
-        let (unordered, _reliability_type) =
+        let (unordered, reliability_type) =
             ::datachannel::data_channel::DataChannel::get_reliability_params(
                 data_channel_config.channel_type,
             );
+        // Preserve the peer's DCEP policy in the public channel metadata.
+        // In particular, zero retransmissions is Some(0), not reliable/None.
+        let parameter = || u16::try_from(data_channel_config.reliability_parameter)
+            .map_err(|_| Error::OtherDataChannelErr("DCEP reliability parameter exceeds the WebRTC API bound".into()));
+        let (max_packet_life_time, max_retransmits) = match reliability_type {
+            ReliabilityType::Reliable => (None, None),
+            ReliabilityType::Rexmit => (None, Some(parameter()?)),
+            ReliabilityType::Timed => (Some(parameter()?), None),
+            _ => return Err(Error::OtherDataChannelErr("Unsupported DCEP reliability policy".into())),
+        };
 
         // `negotiated: None` — the peer opened this channel in-band over DCEP, so it is not an
         // out-of-band channel however well-known its stream id now is. The stream id is set
@@ -174,8 +184,8 @@ impl RTCDataChannelInternal {
             label: data_channel_config.label.clone(),
             protocol: data_channel_config.protocol.clone(),
             ordered: !unordered,
-            max_packet_life_time: None,
-            max_retransmits: None,
+            max_packet_life_time,
+            max_retransmits,
             negotiated: None,
         });
         // Known from the wire: no deferral needed, and it must be registered so locally
