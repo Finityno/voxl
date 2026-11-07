@@ -9,7 +9,7 @@ impl Writer {
     fn finish(mut self)->Vec<u8> {
         self.bit(true);while !self.0.len().is_multiple_of(8) {self.bit(false);}
         let mut bytes=vec![0x67];let mut zeros=0;
-        for chunk in self.0.chunks_exact(8) {
+        for chunk in self.0.as_chunks::<8>().0 {
             let value=chunk.iter().fold(0u8,|v,b|(v<<1)|u8::from(*b));if zeros==2 && value<=3 {bytes.push(3);zeros=0;}
             bytes.push(value);zeros=if value==0 {zeros+1} else {0};
         }bytes
