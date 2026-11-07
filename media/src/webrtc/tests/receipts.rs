@@ -15,8 +15,8 @@ async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<dyn DataChannel>,mpsc:
     assert!(video.offer().contains("m=application"));assert!(!video.frame_receipts_available());
     let mut media=MediaEngine::default();media.register_default_codecs().unwrap();
     let (sender,packets)=mpsc::channel(4);let (channels,mut incoming)=mpsc::channel(1);
-    let receiver=PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(Receiver {media:ReceiverEvents {packets:sender},channels}))
-        .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+    let receiver:Arc<dyn PeerConnection>=Arc::new(PeerConnectionBuilder::new().with_media_engine(media).with_handler(Arc::new(Receiver {media:ReceiverEvents {packets:sender},channels}))
+        .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap());
     receiver.set_remote_description(RTCSessionDescription::offer(video.offer().to_owned()).unwrap()).await.unwrap();
     receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
     let mut video=video;video.answer(receiver.local_description().await.unwrap().sdp).await.unwrap();
