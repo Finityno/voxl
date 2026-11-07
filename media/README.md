@@ -1032,3 +1032,24 @@ GOP, forced IDR and sparse presentation-time limit separately from network/quali
 admission. [Apple's frame limit](https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_maxkeyframeinterval)
 and [time limit](https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_maxkeyframeintervalduration)
 are combined; a frame count alone does not bound variable-cadence duration.
+
+### Memory-only CPU and Metal comparison
+
+`tools/run-frame-comparison.py` builds an optimized, strict Swift experiment at
+an exact clean source. It uses the shared native build slot and bounded process
+groups, creates generated NV12 surfaces in memory, and measures full active-byte
+comparison on CPU and Metal at three geometries. No capture, UI, pixel files,
+streaming or frame suppression is involved. A separate CPU-only process and
+three within-process CPU/Metal repeats retain their own scope.
+
+```text
+python3 -B media/tools/run-frame-comparison.py --workspace <checkout> \
+  --revision <full-clean-sha> --output /tmp/unique-frame-comparison \
+  --developer-dir <Xcode-Developer-directory> --samples 60 --runs 3
+```
+
+The [M5 Pro observations](results/2026-11-07-frame-comparison/README.md) show lower
+CPU wall cost across the median case comparisons, while Metal reduces process
+CPU for some larger cases. This does not select an application default. Native
+capture synchronization, colour/authority/publication invalidation, decoded
+quality, freshness and sustained endpoint/GPU/power costs remain required.

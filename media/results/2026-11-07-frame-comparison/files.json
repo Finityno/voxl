@@ -1,0 +1,72 @@
+[
+  {
+    "path": "logs/initial-build-load.log.gz",
+    "bytes": 85,
+    "sha256": "3cf295e9364180675ac7863521850c8b12d568ac2a3f90aa20a33bed3af0309d"
+  },
+  {
+    "path": "logs/initial-build-guard-contracts.log.gz",
+    "bytes": 54,
+    "sha256": "b0b435df711d83680611e42780c207a499a8b2b3052b79e8c23596e55af0261a"
+  },
+  {
+    "path": "logs/initial-build-toolchain.log.gz",
+    "bytes": 125,
+    "sha256": "4746e3d6e6b69f10a8f57a90f4e7ed83c82f9473dc31862a8df0c5ddc318a82b"
+  },
+  {
+    "path": "logs/initial-build-build.log.gz",
+    "bytes": 434,
+    "sha256": "0623815e586e3fe3b91d2a34eea9071ab2357bd626186cd883abf26da4c775b2"
+  },
+  {
+    "path": "logs/complete-load.log.gz",
+    "bytes": 84,
+    "sha256": "1cd2fff0fef427f3b66ae1a0d9e6559078a729fb0fe2f2b2fdb5e36251a4da95"
+  },
+  {
+    "path": "logs/complete-guard-contracts.log.gz",
+    "bytes": 54,
+    "sha256": "aa010b476b34d245fb424e1e3e27d628745f335ae1617a677cf193ed4949659b"
+  },
+  {
+    "path": "logs/complete-toolchain.log.gz",
+    "bytes": 125,
+    "sha256": "4746e3d6e6b69f10a8f57a90f4e7ed83c82f9473dc31862a8df0c5ddc318a82b"
+  },
+  {
+    "path": "logs/complete-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "comparison.json.gz",
+    "bytes": 9290,
+    "sha256": "d6ff882cea466a29916ee8a542bb14efcf7aa057dda609b95380f39146679789"
+  },
+  {
+    "path": "cpu-control.json.gz",
+    "bytes": 1911,
+    "sha256": "f2663684fafa3399a589ce62f54cca842ee6dc4e4af4f394eefc6a3123fd9130"
+  },
+  {
+    "path": "host.json",
+    "bytes": 349,
+    "sha256": "717b7d1bdb6c2eaf8070efab84e2b69a8b83139e8d4316ac4c8db34732f67775"
+  },
+  {
+    "path": "artifacts.json",
+    "bytes": 3247,
+    "sha256": "fd57d39a06e59d2f8bca378c02be0e58b992dc7a2a8e843a442980edaaf8aa38"
+  },
+  {
+    "path": "cleanup.json",
+    "bytes": 1215,
+    "sha256": "0356cb8f7c4a299b814288c2508649c8f9219ec35af73f220b1bfc3ab65b3d82"
+  },
+  {
+    "path": "receipts.json",
+    "bytes": 8945,
+    "sha256": "ebe56a36e3358353215a9cdacefdb38e10baf7abf5bdc8579e4c2b24789fea83"
+  }
+]

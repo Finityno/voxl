@@ -1,0 +1,56 @@
+{
+  "observedAtUtc": "2026-11-07T05:25:59.582338+00:00",
+  "groups": [
+    {
+      "pgid": 81127,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 81196,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 82786,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 82792,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 83328,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 83386,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 84529,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 84573,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 84746,
+      "independentlyAbsent": true
+    },
+    {
+      "pgid": 85108,
+      "independentlyAbsent": true
+    }
+  ],
+  "completeQueueReleased": true,
+  "initialQueueReleased": true,
+  "source": "69c924898ae38678de4fef888938f8b0e62d1b2a",
+  "earlyUncommittedAttempt": {
+    "execSession": 51703,
+    "terminalExitCode": 1,
+    "reason": "45-second shared-slot timeout before compiler launch, observed in coordinator tool output; no receipt files in its empty temporary output directory",
+    "exactSource": null,
+    "commandCoverage": false
+  },
+  "trackedSourceClean": true
+}
