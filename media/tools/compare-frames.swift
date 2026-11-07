@@ -184,7 +184,7 @@ final class GPUContext {
     }
     func wait(_ command: MTLCommandBuffer, image: CVPixelBuffer?, wrappers: [CVMetalTexture]) throws {
         let done = DispatchSemaphore(value: 0)
-        command.addCompletedHandler { _ in withExtendedLifetime((image, wrappers)) { done.signal() } }
+        command.addCompletedHandler { _ in withExtendedLifetime((image, wrappers)) { _ = done.signal() } }
         command.commit()
         try require(done.wait(timeout: .now() + .seconds(2)) == .success, "GPU completion deadline; experiment must stop")
         try require(command.status == .completed, "GPU command did not complete successfully")
