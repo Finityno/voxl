@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "source": "bc480baf27b0a518ae74526c8381a5a04131bfce",
+  "scope": "bounded_literal_h264_sps_prefix_and_native_software_fixture",
+  "commands": [
+    {
+      "name": "strict-media",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "--tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 1.0940471671056002,
+      "deadlineSeconds": 300,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "groupGone": true,
+      "cleanupSignals": []
+    },
+    {
+      "name": "parser-test-build",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "--no-run"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 1.0791913329157978,
+      "deadlineSeconds": 300,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "groupGone": true,
+      "cleanupSignals": []
+    },
+    {
+      "name": "sps-parser-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "h264::tests::",
+        "--",
+        "--nocapture"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.45097770798020065,
+      "deadlineSeconds": 90,
+      "logSha256": "dfde8ae53a581601e0612847035d8ef7fc19b0668dbdb8161959d9d3525e771a",
+      "groupGone": true,
+      "cleanupSignals": []
+    },
+    {
+      "name": "native-sps-test",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "-j1",
+        "-q",
+        "--message-format=short",
+        "macos::quality::tests::native_source_quality_actual_software_decode_preserves_pts_range_and_retained_images",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.4327623751014471,
+      "deadlineSeconds": 120,
+      "logSha256": "f88cfebc2160b873fcc1e7f02a303348dfafa01461b2992f030af384e95666e3",
+      "groupGone": true,
+      "cleanupSignals": []
+    }
+  ],
+  "tests": {
+    "parser": 6,
+    "nativeSoftware": 1
+  },
+  "nativeFixture": {
+    "frames": 4,
+    "geometry": [
+      320,
+      180
+    ],
+    "hardware": false,
+    "signal": {
+      "videoFormat": 5,
+      "fullRange": true,
+      "colourDescription": [
+        1,
+        13,
+        1
+      ]
+    },
+    "descriptorMissingInitiallyAndAfterRetirement": true
+  },
+  "previousFailure": {
+    "source": "61363036b8e0ea44aa232fb7ffc02039e0d540e9",
+    "command": "strict-media",
+    "exitCode": 101,
+    "reason": "fixed-size test chunk lint",
+    "logSha256": "e98b6a5a2b9eb404aad614295d9f52585e6da9a4c9e2a1553f6326b0b2544c8a"
+  },
+  "pixelPersistence": false,
+  "networkQualification": false,
+  "frameIdentityAdmission": false,
+  "colourRenderingAdmission": false,
+  "qualityAdmission": false,
+  "resourceSavingsAdmission": false
+}

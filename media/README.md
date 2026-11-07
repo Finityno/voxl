@@ -1102,8 +1102,11 @@ not a complete SPS/HRD/trailing-syntax validator or a decoder capability claim.
 The local quality decoder exposes the active parsed descriptor with
 `parameter_signal`; initial/closed decoders have no descriptor. Parsing occurs
 once per local decoder construction, outside any production encoder path.
-Native and peer colour agreement and actual stream qualification still need
-measurement; API availability alone does not prove either.
+The [literal signal qualification](results/2026-11-07-sps-signal/README.md)
+records six parser tests and one native software encode/decode test: four
+synthetic sRGB-tagged full-range frames carry literal SPS colour codes
+[1, 13, 1]. This is native component evidence only. Native/peer agreement,
+rendered colour and actual stream qualification still need measurement.
 
 ### Opt-in local H.264 source-fidelity qualification
 
