@@ -1,0 +1,18 @@
+{
+  "exitCode": 0,
+  "groupGone": true,
+  "pgid": 84722,
+  "deadlineSeconds": 30,
+  "seconds": 0.202,
+  "command": [
+    "/usr/bin/nice",
+    "-n",
+    "19",
+    "python3",
+    "-B",
+    "/tmp/fincode-verify-published-codecs.py"
+  ],
+  "helperSha256": "1abeca03dc341bb0ffd9124c3a253f195df159d2593a57a4f055b543ef017244",
+  "output": "{\"source\": \"f1f08a424d7e405543f4088c522c19f5c49b22bc\", \"rowCounts\": {\"samples\": 18000, \"ssim\": 54000, \"foreground\": 27000}, \"exactDerivedMetricReproduction\": true}\n",
+  "helperText": "from pathlib import Path\nimport csv,hashlib,importlib.util,json,math\np=Path('$SOURCE_WORKTREE/media/results/2026-11-05-sustained-codecs')\nspec=importlib.util.spec_from_file_location('metrics',Path('$CHECKOUT/media/tools/run-matched-codecs.py'));module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\nd=json.loads((p/'summary.json').read_text());raw={'samples':0,'ssim':0,'foreground':0}\nfor c in d['cases']:\n rows=list(csv.DictReader((p/(c['name']+'-samples.csv')).open()))\n assert len(rows)==9000\n assert all(int(r['observedFrame'])==i and int(r['captureFrame'])==900+i and int(r['sourceFrame'])==30+i%240 for i,r in enumerate(rows))\n raw['samples']+=len(rows);sizes=[int(r['annexBBytes'])for r in rows];lat=sorted(float(r['encodeCallbackMs'])for r in rows)\n assert sum(sizes)==c['accessUnits']['observedAnnexBBytes'];assert lat[8549]==c['encodeLatencyMs']['p95']\n for label in ['full','text','thin']:\n  parsed=module.parse_ssim(p/(c['name']+'-'+label+'.ssim'),9000);assert parsed==c['quality'][label];raw['ssim']+=parsed['frames']\nfor label,c in d['foreground']['variants'].items():\n rows=list(csv.DictReader((p/(label+'-foreground.csv')).open()));assert len(rows)==9000;raw['foreground']+=len(rows)\n errors=[(int(r['rErrorSum'])+int(r['gErrorSum'])+int(r['bErrorSum']))/(9792*3)for r in rows]\n assert sum(sorted(errors))/9000==c['meanAbsoluteForegroundRgbCodeError']\nbase,hevc=d['cases'];assert d['observedAnnexBReductionFraction']==1-hevc['accessUnits']['observedAnnexBBytes']/base['accessUnits']['observedAnnexBBytes']\nassert raw=={'samples':18000,'ssim':54000,'foreground':27000}\nprint(json.dumps({'source':d['source'],'rowCounts':raw,'exactDerivedMetricReproduction':True}))\n"
+}

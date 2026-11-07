@@ -1,0 +1,32 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "originalResultSha256": "4d0962b2df50dfa0cee3eba83c6b27d06934575c6484affcb38ff39b15a78d2a",
+  "sourceFailureRetained": true,
+  "noEncoderRerun": true,
+  "independentlyAbsentOriginalGroups": [
+    75835,
+    75840,
+    75845,
+    75850,
+    75855,
+    75862,
+    75867,
+    75872,
+    75883,
+    75895,
+    75900,
+    75916,
+    75921,
+    75929,
+    75934,
+    75952,
+    75957,
+    75962,
+    75967,
+    75981,
+    75986,
+    75991,
+    75997
+  ],
+  "scope": "Foreground analysis of three completed encode/decode cases only. Original four-case matrix remains failed; HEVC low latency is unavailable at this observation."
+}

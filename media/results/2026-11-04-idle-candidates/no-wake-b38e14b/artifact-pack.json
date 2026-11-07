@@ -1,0 +1,12 @@
+{
+  "source_sha": "b38e14bc9f3da844abc23dde438ae9c10d413b32",
+  "test_blob": "c8d4c44d994f96cbba40a664b50e7db78b97728e",
+  "files": {
+    "commands.log": "timeout -k 5 30 git bundle verify /workspace/voxl-idle-baseline-b38e14b.bundle \ntimeout -k 5 30 git fetch /workspace/voxl-idle-baseline-b38e14b.bundle HEAD \ngit switch --detach b38e14bc9f3da844abc23dde438ae9c10d413b32 \ntimeout -k 5 900 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short \ntimeout -k 5 20 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short late_trickle_candidates_replace_the_drivers_parked_deadlines -- --nocapture \n",
+    "exits.tsv": "bundle-verify\t0\nfetch-bundle\t0\nswitch\t0\nbuild\t0\ntest\t101\n",
+    "test-blob.log": "c8d4c44d994f96cbba40a664b50e7db78b97728e\n",
+    "build.log": "",
+    "test.log": "\nrunning 1 test\n\nthread 'webrtc::tests::idle_candidates::late_trickle_candidates_replace_the_drivers_parked_deadlines' (65214) panicked at src/webrtc/tests/idle_candidates.rs:94:21:\nlate candidates must replace old parked waits and arm their own ICE timers: Elapsed(())\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nwebrtc::tests::idle_candidates::late_trickle_candidates_replace_the_drivers_parked_deadlines --- FAILED\n\nfailures:\n\nfailures:\n    webrtc::tests::idle_candidates::late_trickle_candidates_replace_the_drivers_parked_deadlines\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 31 filtered out; finished in 0.28s\n\nerror: test failed, to rerun pass `--lib`\n",
+    "final-source.log": "b38e14bc9f3da844abc23dde438ae9c10d413b32\n"
+  }
+}

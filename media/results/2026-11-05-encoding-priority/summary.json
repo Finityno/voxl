@@ -1,0 +1,278 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "hardware": "Apple M5 Pro, Mac17,8; macOS27.2 26B5101f",
+  "api": {
+    "rustSelectedTestsPassed": 1,
+    "pythonSelectedTestsPassed": 5,
+    "regularPriorityModesDecoded": 4,
+    "explicitPriorityLowLatencyCombinationsUnavailable": 4,
+    "defaultControlDecodedFramesTotal": 192,
+    "allSuccessfulNativeAvailabilityAndDefaultControlDecodedFrames": 320,
+    "initialQueueExitCode": 1,
+    "initialInnerExitCode": 0,
+    "correctedControllerAndWorkerExitCodes": [
+      0,
+      0
+    ]
+  },
+  "pilots": {
+    "priority-pilot": [
+      {
+        "case": "h264:compatible:3000",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 1248875,
+        "meanAnnexBMbps": 1.248875,
+        "encodeP95Ms": 12.231916,
+        "meanForegroundRgbError": 13.849085846722948,
+        "aggregateWorseFramesThanH264Baseline": 0,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "encodingPriority": {
+          "requested": "default",
+          "nativePropertyVerified": false,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "6d3ce7beed2db5809abeb69a09e4c8ed51c2ff8024847ac48b927a8d8080a606",
+        "fullyCompletedOriginalMatrixCase": true,
+        "postFailureAnalysis": false
+      },
+      {
+        "case": "h264:compatible:3000:speed",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 1248875,
+        "meanAnnexBMbps": 1.248875,
+        "encodeP95Ms": 11.720625,
+        "meanForegroundRgbError": 13.849085846722948,
+        "aggregateWorseFramesThanH264Baseline": 0,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "encodingPriority": {
+          "requested": "speed",
+          "nativePropertyVerified": true,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "6759ac6af98adaceb3ab8652873e9ad9461e9253c8919354e8f69fde91eff4f5",
+        "fullyCompletedOriginalMatrixCase": true,
+        "postFailureAnalysis": false
+      },
+      {
+        "case": "hevc:compatible:1500",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 772445,
+        "meanAnnexBMbps": 0.772445,
+        "encodeP95Ms": 14.613959,
+        "meanForegroundRgbError": 13.356075679693173,
+        "aggregateWorseFramesThanH264Baseline": 0,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "encodingPriority": {
+          "requested": "default",
+          "nativePropertyVerified": false,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "5824b0754268d31675b30b7272f156e22ce125fccecd71cc12fe6fc57859f20f",
+        "fullyCompletedOriginalMatrixCase": true,
+        "postFailureAnalysis": false
+      },
+      {
+        "case": "hevc:compatible:1500:speed",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 1002146,
+        "meanAnnexBMbps": 1.002146,
+        "encodeP95Ms": 10.541584,
+        "meanForegroundRgbError": 13.64704577432825,
+        "aggregateWorseFramesThanH264Baseline": 20,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 4,
+          "g": 174,
+          "b": 31
+        },
+        "encodingPriority": {
+          "requested": "speed",
+          "nativePropertyVerified": true,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "8156f9ddd75da0db365bf08c203ce947b55f84f55d77310ff90658854acb069d",
+        "fullyCompletedOriginalMatrixCase": true,
+        "postFailureAnalysis": false
+      }
+    ],
+    "low-latency-pilot": [
+      {
+        "case": "h264:compatible:3000",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 1248875,
+        "meanAnnexBMbps": 1.248875,
+        "encodeP95Ms": 12.506333,
+        "meanForegroundRgbError": 13.849085846722948,
+        "aggregateWorseFramesThanH264Baseline": 0,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "encodingPriority": {
+          "requested": "default",
+          "nativePropertyVerified": false,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "29310cd02477db44c66504928fb465b6836ef457924c3f80ce35fe135e9ed839",
+        "fullyCompletedOriginalMatrixCase": false,
+        "postFailureAnalysis": true
+      },
+      {
+        "case": "h264:low-latency-compatible:3000",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 888269,
+        "meanAnnexBMbps": 0.888269,
+        "encodeP95Ms": 5.383417,
+        "meanForegroundRgbError": 14.07257341594045,
+        "aggregateWorseFramesThanH264Baseline": 178,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 143,
+          "g": 210,
+          "b": 95
+        },
+        "encodingPriority": {
+          "requested": "default",
+          "nativePropertyVerified": false,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "11fc3e03d8a051c36ac2d482899ba04e6cd363fbd380f2a7a2358f4009ba3912",
+        "fullyCompletedOriginalMatrixCase": false,
+        "postFailureAnalysis": true
+      },
+      {
+        "case": "hevc:compatible:1500",
+        "observedFrames": 240,
+        "decodedFramesIncludingWarmup": 270,
+        "observedBytes": 772445,
+        "meanAnnexBMbps": 0.772445,
+        "encodeP95Ms": 13.104375,
+        "meanForegroundRgbError": 13.356075679693173,
+        "aggregateWorseFramesThanH264Baseline": 0,
+        "channelWorseFramesThanH264Baseline": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "encodingPriority": {
+          "requested": "default",
+          "nativePropertyVerified": false,
+          "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+        },
+        "encodedSha256": "80de1716d52f5a4dda3e301e8088281af61ae1ef802882eb1b43cd14b4762071",
+        "fullyCompletedOriginalMatrixCase": false,
+        "postFailureAnalysis": true
+      }
+    ]
+  },
+  "ownedCommandGroupsIndependentlyAbsent": [
+    2704,
+    2711,
+    2716,
+    2760,
+    2778,
+    2812,
+    2825,
+    2830,
+    2841,
+    2846,
+    2852,
+    2857,
+    2863,
+    2869,
+    2877,
+    2882,
+    2890,
+    2897,
+    2903,
+    2913,
+    2923,
+    2930,
+    2938,
+    2945,
+    2953,
+    2960,
+    2968,
+    2973,
+    2978,
+    2983,
+    2988,
+    2993,
+    2700,
+    5870,
+    6347,
+    6358,
+    6365,
+    6375,
+    30545,
+    30550,
+    30555,
+    30560,
+    30565,
+    30570,
+    30575,
+    30580,
+    30602,
+    31300,
+    31315,
+    31456,
+    31461,
+    31469,
+    31480,
+    31495,
+    31500,
+    31505,
+    31510,
+    31526,
+    31531,
+    31536,
+    31541,
+    31568,
+    31573,
+    31578,
+    31583,
+    75835,
+    75840,
+    75845,
+    75850,
+    75855,
+    75862,
+    75867,
+    75872,
+    75883,
+    75895,
+    75900,
+    75916,
+    75921,
+    75929,
+    75934,
+    75952,
+    75957,
+    75962,
+    75967,
+    75981,
+    75986,
+    75991,
+    75997,
+    87427
+  ],
+  "productionAdmission": false,
+  "scope": "One short 1s warmup +8s observed fixed generated 1080p30 clip per pilot case; not steady-state repeatability or platform/profile qualification. Original low-latency matrix failed, three completed cases separately analyzed without encoding again. Speed and H264 low-latency candidates regress foreground quality; no defaults/targets changed."
+}

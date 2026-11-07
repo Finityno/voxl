@@ -1,0 +1,11 @@
+{
+  "source": "1f94f7618dc3e11abb15ad858112c8f4686a2320",
+  "exitCode": 1,
+  "reason": "Requested 24000 kbps exceeds the existing 20000-kbps profile bound; plan refused before output directory/build/native execution. This was a coordinator plan correction, not a new passing test.",
+  "correctedPlan": [
+    "h264:compatible:3000",
+    "hevc:low-latency-compatible:18000",
+    "hevc:low-latency-compatible:20000"
+  ],
+  "outputDidNotExist": true
+}

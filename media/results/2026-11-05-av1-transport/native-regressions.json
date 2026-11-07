@@ -1,0 +1,543 @@
+{
+  "result": {
+    "sources": {
+      "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation": "636e04d62998883ccd8a6cf824e812a18b56dac8",
+      "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation": "f64d3611bb91b6350bb704059e0839ae809e304d"
+    },
+    "terminal": true,
+    "exitCode": 0,
+    "steps": [
+      {
+        "name": "load",
+        "command": [
+          "/usr/bin/uptime"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 10,
+        "exitCode": 0,
+        "seconds": 0.055,
+        "pgid": 53212,
+        "groupGone": true,
+        "logSha256": "3a421b6e1a2a0e18e1b632abc76784e26f4e274778266117896e8eb9926611f5",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "sender-build",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--features",
+          "webrtc",
+          "--example",
+          "encoded_peer_probe"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 900,
+        "exitCode": 0,
+        "seconds": 0.545,
+        "pgid": 53221,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--features",
+          "webrtc",
+          "--lib",
+          "--examples",
+          "--tests",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 600,
+        "exitCode": 0,
+        "seconds": 0.32,
+        "pgid": 53235,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "codec-build",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--release",
+          "--example",
+          "codec_probe"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 600,
+        "exitCode": 0,
+        "seconds": 0.196,
+        "pgid": 53250,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "phone-build",
+        "command": [
+          "/usr/bin/xcodebuild",
+          "-scheme",
+          "FincodeApplication",
+          "-destination",
+          "platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058",
+          "-derivedDataPath",
+          "/tmp/fincode-desktop-native-1ee9358/DerivedData",
+          "-jobs",
+          "2",
+          "-parallel-testing-enabled",
+          "NO",
+          "build-for-testing",
+          "-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 600,
+        "exitCode": 0,
+        "seconds": 4.139,
+        "pgid": 53264,
+        "groupGone": true,
+        "logSha256": "6a9658f00ca79babe9c3fe8e36784c58f924db525ead6384433d4be867c5083f",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "owned-boot",
+        "command": [
+          "/usr/bin/xcrun",
+          "simctl",
+          "boot",
+          "4A894872-174F-4DE8-8147-93D22AAB1058"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 20,
+        "exitCode": 0,
+        "seconds": 0.566,
+        "pgid": 53356,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "owned-boot-ready",
+        "command": [
+          "/usr/bin/xcrun",
+          "simctl",
+          "bootstatus",
+          "4A894872-174F-4DE8-8147-93D22AAB1058",
+          "-b"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 120,
+        "exitCode": 0,
+        "seconds": 1.164,
+        "pgid": 53423,
+        "groupGone": true,
+        "logSha256": "8eb12ac742e942dffc25079e6f3fe11929311f76ed1cf78cc54103784902a235",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "h264-encode",
+        "command": [
+          "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe",
+          "hardware",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/source.h264",
+          "h264",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/frames.vxfr"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 45,
+        "exitCode": 0,
+        "seconds": 2.574,
+        "pgid": 53497,
+        "groupGone": true,
+        "logSha256": "8497a460def38fb176f26fe0f58b2a9534853c407c22bc711df6accbd37555fd",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "h264-test",
+        "command": [
+          "/usr/bin/xcodebuild",
+          "-scheme",
+          "FincodeApplication",
+          "-destination",
+          "platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058",
+          "-derivedDataPath",
+          "/tmp/fincode-desktop-native-1ee9358/DerivedData",
+          "-jobs",
+          "2",
+          "-parallel-testing-enabled",
+          "NO",
+          "test-without-building",
+          "-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()",
+          "-resultBundlePath",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult",
+          "TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51426"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 100,
+        "exitCode": 0,
+        "seconds": 15.285,
+        "pgid": 53561,
+        "groupGone": true,
+        "logSha256": "c5e3ef7ac6c4826961a2c1ec40dd1f0471477c8e52c5e6e6835605ed09a987df",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "h264-sender",
+        "command": [
+          "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/examples/encoded_peer_probe",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/frames.vxfr",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/offer.sdp",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/answer.sdp",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/sender-done"
+        ],
+        "deadlineSeconds": 100,
+        "exitCode": 0,
+        "seconds": 17.775,
+        "pgid": 53547,
+        "groupGone": true,
+        "logSha256": "21176bbe0d6b14b184413e6863e1000c9cd3ab5ac18a53836e921ad126bf122d"
+      },
+      {
+        "name": "h264-summary",
+        "command": [
+          "/usr/bin/xcrun",
+          "xcresulttool",
+          "get",
+          "test-results",
+          "summary",
+          "--path",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 20,
+        "exitCode": 0,
+        "seconds": 0.138,
+        "pgid": 53781,
+        "groupGone": true,
+        "logSha256": "44bf13b526309fa74ca351ee298d7b7048c4021c583144d4f620c0216ac304de",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "h264-counts",
+        "counts": {
+          "passedTests": 1,
+          "failedTests": 0,
+          "skippedTests": 0
+        },
+        "exitCode": 0
+      },
+      {
+        "name": "h264-sender-final",
+        "pgid": 53547,
+        "groupGone": true,
+        "exitCode": 0
+      },
+      {
+        "name": "hevc-encode",
+        "command": [
+          "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe",
+          "hardware",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/source.hevc",
+          "hevc",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/frames.vxfr"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+        "deadlineSeconds": 45,
+        "exitCode": 0,
+        "seconds": 2.135,
+        "pgid": 53798,
+        "groupGone": true,
+        "logSha256": "668d9cc441b1e8aedc712ad435fdd9d5607ec943ba30bf7c8a3c51a0ee845604",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "hevc-test",
+        "command": [
+          "/usr/bin/xcodebuild",
+          "-scheme",
+          "FincodeApplication",
+          "-destination",
+          "platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058",
+          "-derivedDataPath",
+          "/tmp/fincode-desktop-native-1ee9358/DerivedData",
+          "-jobs",
+          "2",
+          "-parallel-testing-enabled",
+          "NO",
+          "test-without-building",
+          "-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()",
+          "-resultBundlePath",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult",
+          "TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51486"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 100,
+        "exitCode": 0,
+        "seconds": 11.744,
+        "pgid": 54163,
+        "groupGone": true,
+        "logSha256": "1616c8d0cf5178a9da41ee56213ddc5dd7a661e8b09b50366bc738a675517a35",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "hevc-sender",
+        "command": [
+          "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/examples/encoded_peer_probe",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/frames.vxfr",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/offer.sdp",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/answer.sdp",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/sender-done"
+        ],
+        "deadlineSeconds": 100,
+        "exitCode": 0,
+        "seconds": 13.395,
+        "pgid": 54125,
+        "groupGone": true,
+        "logSha256": "d8f419567d5f169fa50f44c93ba7aa49d40d17bc97d2353951dc9036d4253ff5"
+      },
+      {
+        "name": "hevc-summary",
+        "command": [
+          "/usr/bin/xcrun",
+          "xcresulttool",
+          "get",
+          "test-results",
+          "summary",
+          "--path",
+          "/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 20,
+        "exitCode": 0,
+        "seconds": 0.14,
+        "pgid": 54624,
+        "groupGone": true,
+        "logSha256": "2c0caaaf69fbafb36587e1cf4e124431f10549e0a84c73746f9fbf6d62f59a28",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "hevc-counts",
+        "counts": {
+          "passedTests": 1,
+          "failedTests": 0,
+          "skippedTests": 0
+        },
+        "exitCode": 0
+      },
+      {
+        "name": "hevc-sender-final",
+        "pgid": 54125,
+        "groupGone": true,
+        "exitCode": 0
+      },
+      {
+        "name": "owned-shutdown",
+        "command": [
+          "/usr/bin/xcrun",
+          "simctl",
+          "shutdown",
+          "4A894872-174F-4DE8-8147-93D22AAB1058"
+        ],
+        "cwd": "/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation",
+        "deadlineSeconds": 20,
+        "exitCode": 0,
+        "seconds": 3.255,
+        "pgid": 54637,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      }
+    ],
+    "helperSha256": "cfa0df850d2b702f32170a219de6176a0475d029058751322b750c56881a6a9e",
+    "completedCases": [
+      "h264",
+      "hevc"
+    ],
+    "attemptedCases": [
+      "h264",
+      "hevc"
+    ],
+    "unexecutedCases": [],
+    "scope": "Separate H264/HEVC regressions after the current Simulator omitted AV1 and failed the positive AV1 attempt. No AV1 pass, Connect admission, desktop capture/input, physical phone or performance qualification."
+  },
+  "texts": {
+    "hevc-summary.log": {
+      "sha256": "2c0caaaf69fbafb36587e1cf4e124431f10549e0a84c73746f9fbf6d62f59a28",
+      "bytes": 1021,
+      "text": "{\n  \"devicesAndConfigurations\" : [\n    {\n      \"device\" : {\n        \"architecture\" : \"arm64\",\n        \"deviceId\" : \"4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"deviceName\" : \"Fincode-Desktop-Access\",\n        \"modelName\" : \"iPhone\",\n        \"osBuildNumber\" : \"24A94425\",\n        \"osVersion\" : \"27.1\",\n        \"platform\" : \"iOS Simulator\"\n      },\n      \"expectedFailures\" : 0,\n      \"failedTests\" : 0,\n      \"passedTests\" : 1,\n      \"skippedTests\" : 0,\n      \"testPlanConfiguration\" : {\n        \"configurationId\" : \"1\",\n        \"configurationName\" : \"Test Scheme Action\"\n      }\n    }\n  ],\n  \"environmentDescription\" : \"FincodeApplication \u00b7 Built with macOS 27.2\",\n  \"expectedFailures\" : 0,\n  \"failedTests\" : 0,\n  \"finishTime\" : 1793883109.319,\n  \"passedTests\" : 1,\n  \"result\" : \"Passed\",\n  \"runtimeWarnings\" : [\n\n  ],\n  \"skippedTests\" : 0,\n  \"startTime\" : 1793883100.279,\n  \"statistics\" : [\n\n  ],\n  \"testFailures\" : [\n\n  ],\n  \"title\" : \"Test - FincodeApplication\",\n  \"topInsights\" : [\n\n  ],\n  \"totalTestCount\" : 1\n}\n"
+    },
+    "hevc-encode.log": {
+      "sha256": "668d9cc441b1e8aedc712ad435fdd9d5607ec943ba30bf7c8a3c51a0ee845604",
+      "bytes": 1535,
+      "text": "requested_tuning=compatible warmup_frames=0 observed_frames=60 force_keyframe_period=None\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nhardware_selection=QueriedHardware\nhevc_fmtp=profile-space=0;profile-id=1;tier-flag=0;level-id=93;profile-compatibility-indicator=60000000;interop-constraints=b00000000000;tx-mode=SRST;sprop-max-don-diff=0\nwait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms=32.78\nencode_samples_ms=[32.777415999999995, 5.677, 2.95775, 2.8163329999999998, 4.93775, 4.687792, 2.985625, 5.255916999999999, 5.327292, 2.978583, 6.570167, 6.725417, 6.495500000000001, 6.447208000000001, 7.627417, 7.181208, 7.740375, 7.483125, 3.093, 3.1254999999999997, 3.1844170000000003, 3.196917, 3.346708, 3.235917, 3.166, 3.140667, 3.1178339999999998, 5.152584, 7.4185, 3.165667, 7.102291999999999, 7.4644580000000005, 7.285208, 7.542708, 7.465333, 8.179333, 5.862459, 8.32575, 7.466292, 5.451041, 7.510458, 7.568125, 7.584874999999999, 7.441709, 7.791250000000001, 7.43325, 7.542584, 7.380084, 7.31575, 7.469125, 7.477792, 6.470917, 7.873, 5.39175, 2.987417, 2.9935, 2.939333, 2.99125, 3.0531249999999996, 2.980417]\nkeyframe_indices=[0] total_stream_bytes=54402\ncodec=Hevc hardware=true width=1280 height=720 fps=30 target_bitrate_kbps=2500 frames=60 warmup_frames=0 keyframes=1 bytes=54402 encoded_kbps=217.6 encode_p50_ms=6.45 encode_p95_ms=7.87 wall_seconds=1.977 percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps\n"
+    },
+    "run.py": {
+      "sha256": "cfa0df850d2b702f32170a219de6176a0475d029058751322b750c56881a6a9e",
+      "bytes": 9890,
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib,threading,http.server\nP=pathlib.Path;OUT=P(__file__).parent;VOXL=P('/Users/sondre/Documents/GitHub/voxl-desktop-native-validation');PHONE=P('/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation');SOURCES={str(VOXL):'636e04d62998883ccd8a6cf824e812a18b56dac8',str(PHONE):'f64d3611bb91b6350bb704059e0839ae809e304d'};DEVICE='4A894872-174F-4DE8-8147-93D22AAB1058';DD='/tmp/fincode-desktop-native-1ee9358/DerivedData';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode.app/Contents/Developer','GIT_OPTIONAL_LOCKS':'0','CI':'true'};RUST=ENV|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(VOXL/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0'}\nos.umask(0o077);steps=[];child=None;sender=None;timer=None;terminal=False;code=1;cases=['h264','hevc'];completed=[];attempted=[]\nif INNER:(OUT/'private').mkdir(mode=0o700)\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef stop(p):\n if p is not None and not gone(p.pid):\n  os.killpg(p.pid,signal.SIGTERM)\n  try:p.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(p.pid):os.killpg(p.pid,signal.SIGKILL)\n  p.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef verify():\n for root,sha in SOURCES.items():\n  assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True,timeout=10).strip()==sha\n  assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=root,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'sources':SOURCES,'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'completedCases':completed,'attemptedCases':attempted,'unexecutedCases':[x for x in cases if x not in attempted],'scope':'Separate H264/HEVC regressions after the current Simulator omitted AV1 and failed the positive AV1 attempt. No AV1 pass, Connect admission, desktop capture/input, physical phone or performance qualification.'},indent=2)+'\\n')\ndef run(name,command,deadline,cwd=VOXL,env=ENV,allowed=(0,)):\n global child\n verify();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  try:r=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:stop(child);r=124\n  stop(child)\n verify();steps.append({'name':name,'command':command,'cwd':str(cwd),'deadlineSeconds':deadline,'exitCode':r,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'sourceCleanBefore':True,'sourceCleanAfter':True});save();assert gone(child.pid);child=None;assert r in allowed;return r\nclass Fixture(http.server.BaseHTTPRequestHandler):\n def log_message(self,*args):pass\n def reply(self,status,body=b''):\n  self.send_response(status);self.send_header('Content-Length',str(len(body)));self.send_header('Cache-Control','no-store');self.send_header('X-Fincode-Probe-Codec',self.server.codec)\n  if self.server.codec=='av1':\n   for k,v in {'Width':'320','Height':'180','Max-Width':'320','Max-Height':'180'}.items():self.send_header('X-Fincode-Probe-'+k,v)\n  self.end_headers();self.wfile.write(body)\n def do_GET(self):\n  name={'/offer':'offer.sdp','/sender-done':'sender-done'}.get(self.path)\n  if name is None:return self.reply(404)\n  file=self.server.folder/name\n  if not file.exists():return self.reply(409)\n  self.reply(200,file.read_bytes())\n def do_POST(self):\n  name={'/answer':'answer.sdp','/result':'receiver-result.json'}.get(self.path)\n  try:length=int(self.headers.get('Content-Length','0'))\n  except ValueError:return self.reply(400)\n  if name is None or not 0<length<=256*1024:return self.reply(400)\n  file=self.server.folder/name\n  if file.exists():return self.reply(409)\n  body=self.rfile.read(length)\n  if len(body)!=length:return self.reply(400)\n  if name=='receiver-result.json':\n   try:json.loads(body)\n   except ValueError:return self.reply(400)\n  temporary=file.with_suffix('.tmp');temporary.write_bytes(body);temporary.rename(file);self.reply(200)\nxcode=['/usr/bin/xcodebuild','-scheme','FincodeApplication','-destination','platform=iOS Simulator,id='+DEVICE,'-derivedDataPath',DD,'-jobs','2','-parallel-testing-enabled','NO'];selected=['-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()']\ndef scenario(codec):\n global sender,timer\n verify();attempted.append(codec);save();folder=OUT/'private'/codec;folder.mkdir(mode=0o700)\n if codec=='av1':framefile=VOXL/'media/tests/fixtures/av1-main-low-delay.ivf'\n else:\n  framefile=folder/'frames.vxfr';run(codec+'-encode',[str(VOXL/'media/target/release/examples/codec_probe'),'hardware',str(folder/('source.'+codec)),codec,str(framefile)],45,env=RUST)\n server=http.server.HTTPServer(('127.0.0.1',0),Fixture);server.timeout=5;server.codec=codec;server.folder=folder;port=server.server_port\n thread=threading.Thread(target=server.serve_forever,kwargs={'poll_interval':0.05},daemon=True);thread.start()\n command=[str(VOXL/'media/target/debug/examples/encoded_peer_probe'),str(framefile),str(folder/'offer.sdp'),str(folder/'answer.sdp'),str(folder/'sender-done')];start=time.monotonic();log=OUT/(codec+'-sender.log')\n try:\n  with log.open('w')as f:\n   sender=subprocess.Popen(command,cwd=VOXL,env=RUST,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n   timer=threading.Timer(100,stop,args=(sender,));timer.start()\n   deadline=time.monotonic()+10\n   while not (folder/'offer.sdp').exists():\n    if sender.poll() is not None or time.monotonic()>=deadline:raise RuntimeError('native sender offer deadline')\n    time.sleep(.05)\n   url='http://127.0.0.1:'+str(port);bundle=folder/'NativeVideo.xcresult'\n   result=run(codec+'-test',xcode+['test-without-building']+selected+['-resultBundlePath',str(bundle),'TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL='+url],100,PHONE,ENV|{'TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL':url},allowed=(0,65))\n   try:sender_code=sender.wait(timeout=10)\n   except subprocess.TimeoutExpired:stop(sender);sender_code=124\n   stop(sender);steps.append({'name':codec+'-sender','command':command,'deadlineSeconds':100,'exitCode':sender_code,'seconds':round(time.monotonic()-start,3),'pgid':sender.pid,'groupGone':gone(sender.pid),'logSha256':digest(log)});save()\n   run(codec+'-summary',['/usr/bin/xcrun','xcresulttool','get','test-results','summary','--path',str(bundle)],20,PHONE)\n   summary=json.loads((OUT/(codec+'-summary.log')).read_text());counts={k:summary.get(k)for k in ['passedTests','failedTests','skippedTests']};steps.append({'name':codec+'-counts','counts':counts,'exitCode':0 if counts=={'passedTests':1,'failedTests':0,'skippedTests':0}else 1});save()\n   assert result==0 and sender_code==0 and counts=={'passedTests':1,'failedTests':0,'skippedTests':0}\n   report=json.loads((folder/'receiver-result.json').read_text());assert report['codec']==codec and report['frames']>=10 and 'frame'in report['events']\n   if codec=='av1':assert report['width']==320 and report['height']==180 and report['receiverVideo']['mimeType'].lower()=='video/av1'and report['receiverVideo']['framesDecoded']>=10 and report['route']['direct']is True\n   (OUT/(codec+'-receiver.json')).write_text(json.dumps(report,indent=2)+'\\n');completed.append(codec);save()\n finally:\n  if timer:timer.cancel();timer.join(timeout=5);timer=None\n  stopped=sender;stop(stopped);steps.append({'name':codec+'-sender-final','pgid':stopped.pid if stopped else None,'groupGone':gone(stopped.pid)if stopped else True,'exitCode':stopped.returncode if stopped else None});save();sender=None;server.shutdown();server.server_close();thread.join(timeout=5);assert not thread.is_alive()\n  import socket\n  with socket.socket()as sock:sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);sock.bind(('127.0.0.1',port))\n  verify()\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  common=['--locked','--manifest-path','media/Cargo.toml','-j2','-q','--message-format=short']\n  run('sender-build',['cargo','build']+common+['--features','webrtc','--example','encoded_peer_probe'],900,env=RUST)\n  run('clippy',['cargo','clippy']+common+['--features','webrtc','--lib','--examples','--tests','--','-D','warnings'],600,env=RUST)\n  run('codec-build',['cargo','build']+common+['--release','--example','codec_probe'],600,env=RUST)\n  run('phone-build',xcode+['build-for-testing']+selected,600,PHONE)\n  run('owned-boot',['/usr/bin/xcrun','simctl','boot',DEVICE],20,PHONE,allowed=(0,149))\n  run('owned-boot-ready',['/usr/bin/xcrun','simctl','bootstatus',DEVICE,'-b'],120,PHONE)\n  for case in cases:scenario(case)\n code=0\nexcept BaseException as e:print(type(e).__name__,str(e),flush=True)\nfinally:\n stop(child);stop(sender)\n if timer:timer.cancel();timer.join(timeout=5)\n if INNER:\n  try:\n   run('owned-shutdown',['/usr/bin/xcrun','simctl','shutdown',DEVICE],20,PHONE,allowed=(0,149))\n   inventory=json.loads(subprocess.check_output(['/usr/bin/xcrun','simctl','list','devices','--json'],env=ENV,text=True,timeout=15));device=next(x for ds in inventory['devices'].values()for x in ds if x['udid']==DEVICE);assert device['state']=='Shutdown';(OUT/'owned-final-state.json').write_text(json.dumps({k:device[k]for k in ['udid','name','state']},indent=2)+'\\n')\n  except BaseException as e:print('cleanup',type(e).__name__,str(e),flush=True);code=1\n terminal=True;save()\nsys.exit(code)\n"
+    },
+    "h264-encode.log": {
+      "sha256": "8497a460def38fb176f26fe0f58b2a9534853c407c22bc711df6accbd37555fd",
+      "bytes": 1361,
+      "text": "requested_tuning=compatible warmup_frames=0 observed_frames=60 force_keyframe_period=None\ninput_pattern=mono requested_pixel_range=video requested_color_tags=none matrix_for_generated_bars=bt709\nhardware_selection=QueriedHardware\nprofile_level_id=[42, c0, 1f]\nwait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms=31.61\nencode_samples_ms=[31.614291, 3.05275, 2.654, 2.706417, 2.6405, 2.622667, 2.648167, 2.758666, 2.781166, 2.684375, 2.727083, 2.758292, 2.680333, 2.705458, 2.6505, 2.686916, 2.680959, 2.643958, 2.711125, 2.733584, 2.672792, 2.745542, 2.731791, 2.60575, 2.695125, 2.679125, 2.7018340000000003, 2.737083, 2.6814590000000003, 2.6344160000000003, 2.72975, 2.6940000000000004, 2.678291, 2.8126670000000003, 2.904166, 2.720791, 2.709, 2.775834, 2.831375, 2.719958, 2.643208, 2.714042, 2.632625, 2.675541, 2.6487920000000003, 2.690333, 2.726166, 2.725291, 2.713583, 2.660083, 2.698792, 2.645958, 2.662834, 2.6713750000000003, 2.693917, 2.673917, 2.700958, 2.678083, 2.732333, 2.6447089999999998]\nkeyframe_indices=[0] total_stream_bytes=64266\ncodec=H264 hardware=true width=1280 height=720 fps=30 target_bitrate_kbps=2500 frames=60 warmup_frames=0 keyframes=1 bytes=64266 encoded_kbps=257.1 encode_p50_ms=2.69 encode_p95_ms=2.83 wall_seconds=1.978 percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps\n"
+    },
+    "owned-boot-ready.log": {
+      "sha256": "8eb12ac742e942dffc25079e6f3fe11929311f76ed1cf78cc54103784902a235",
+      "bytes": 329,
+      "text": "Monitoring boot status for Fincode-Desktop-Access (4A894872-174F-4DE8-8147-93D22AAB1058).\n[2026-11-05 12:51:14 +0000] Status=2, isTerminal=NO, Elapsed=00:00.\n\tWaiting on Data Migration\n\t\tReason:(null)\n\t\tMigration Elapsed:00:00 seconds\n\n[2026-11-05 12:51:15 +0000] Status=3, isTerminal=YES, Elapsed=00:01.\n\tData Migration Failed\n\n"
+    },
+    "h264-summary.log": {
+      "sha256": "44bf13b526309fa74ca351ee298d7b7048c4021c583144d4f620c0216ac304de",
+      "bytes": 1021,
+      "text": "{\n  \"devicesAndConfigurations\" : [\n    {\n      \"device\" : {\n        \"architecture\" : \"arm64\",\n        \"deviceId\" : \"4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"deviceName\" : \"Fincode-Desktop-Access\",\n        \"modelName\" : \"iPhone\",\n        \"osBuildNumber\" : \"24A94425\",\n        \"osVersion\" : \"27.1\",\n        \"platform\" : \"iOS Simulator\"\n      },\n      \"expectedFailures\" : 0,\n      \"failedTests\" : 0,\n      \"passedTests\" : 1,\n      \"skippedTests\" : 0,\n      \"testPlanConfiguration\" : {\n        \"configurationId\" : \"1\",\n        \"configurationName\" : \"Test Scheme Action\"\n      }\n    }\n  ],\n  \"environmentDescription\" : \"FincodeApplication \u00b7 Built with macOS 27.2\",\n  \"expectedFailures\" : 0,\n  \"failedTests\" : 0,\n  \"finishTime\" : 1793883093.388,\n  \"passedTests\" : 1,\n  \"result\" : \"Passed\",\n  \"runtimeWarnings\" : [\n\n  ],\n  \"skippedTests\" : 0,\n  \"startTime\" : 1793883081.795,\n  \"statistics\" : [\n\n  ],\n  \"testFailures\" : [\n\n  ],\n  \"title\" : \"Test - FincodeApplication\",\n  \"topInsights\" : [\n\n  ],\n  \"totalTestCount\" : 1\n}\n"
+    },
+    "codec-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "h264-receiver.json": {
+      "sha256": "f0bafdf8ecc54c1702af3a3f9af9934258e8f7b6c9a10fbc500f9fd3e5e48ae8",
+      "bytes": 2394,
+      "text": "{\n  \"av1HardwareAvailable\": false,\n  \"cachedDiscoveryDuration\": \"1.5458e-05 seconds\",\n  \"callbacks\": 59,\n  \"codec\": \"h264\",\n  \"events\": [\n    \"connected\",\n    \"frame\"\n  ],\n  \"frames\": 59,\n  \"height\": 720,\n  \"hevcHardwareAvailable\": false,\n  \"missedCallbacks\": 0,\n  \"observationSeconds\": 2,\n  \"preferences\": [\n    \"h264\"\n  ],\n  \"processing\": {\n    \"boundsMicros\": [\n      100,\n      250,\n      500,\n      750,\n      1000,\n      1250,\n      1500,\n      1750,\n      2000,\n      2250,\n      2500,\n      2750,\n      3000,\n      3500,\n      4000,\n      4500,\n      5000,\n      6000,\n      7000,\n      8000,\n      10000,\n      12000,\n      15000,\n      20000,\n      25000,\n      33000,\n      50000,\n      75000,\n      100000,\n      150000,\n      250000,\n      500000\n    ],\n    \"buckets\": [\n      0,\n      0,\n      0,\n      0,\n      36,\n      0,\n      0,\n      0,\n      21,\n      0,\n      0,\n      0,\n      1,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      1,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0\n    ],\n    \"p95UpperBoundMicros\": 2000,\n    \"samples\": 59,\n    \"totalMicros\": 129000\n  },\n  \"receiverCodecs\": [\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/rtx\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=640c1f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/H265\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/VP8\"\n    },\n    {\n      \"fmtp\": \"profile-id=0\",\n      \"mimeType\": \"video/VP9\"\n    },\n    {\n      \"fmtp\": \"profile-id=2\",\n      \"mimeType\": \"video/VP9\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/red\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/ulpfec\"\n    },\n    {\n      \"fmtp\": \"repair-window=10000000\",\n      \"mimeType\": \"video/flexfec-03\"\n    }\n  ],\n  \"requestedMaxHeight\": 720,\n  \"requestedMaxWidth\": 1280,\n  \"source\": \"synthetic\",\n  \"warmupSeconds\": 0,\n  \"width\": 1280\n}\n"
+    },
+    "hevc-receiver.json": {
+      "sha256": "c60eb9fddb3eaeb54328d68442f44f8cae47ac7a6b21de345f99ccdabe097f56",
+      "bytes": 2394,
+      "text": "{\n  \"av1HardwareAvailable\": false,\n  \"cachedDiscoveryDuration\": \"9.541e-06 seconds\",\n  \"callbacks\": 60,\n  \"codec\": \"hevc\",\n  \"events\": [\n    \"connected\",\n    \"frame\"\n  ],\n  \"frames\": 60,\n  \"height\": 720,\n  \"hevcHardwareAvailable\": false,\n  \"missedCallbacks\": 0,\n  \"observationSeconds\": 2,\n  \"preferences\": [\n    \"h264\"\n  ],\n  \"processing\": {\n    \"boundsMicros\": [\n      100,\n      250,\n      500,\n      750,\n      1000,\n      1250,\n      1500,\n      1750,\n      2000,\n      2250,\n      2500,\n      2750,\n      3000,\n      3500,\n      4000,\n      4500,\n      5000,\n      6000,\n      7000,\n      8000,\n      10000,\n      12000,\n      15000,\n      20000,\n      25000,\n      33000,\n      50000,\n      75000,\n      100000,\n      150000,\n      250000,\n      500000\n    ],\n    \"buckets\": [\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      39,\n      0,\n      0,\n      0,\n      10,\n      0,\n      10,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      1,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0,\n      0\n    ],\n    \"p95UpperBoundMicros\": 4000,\n    \"samples\": 60,\n    \"totalMicros\": 179000\n  },\n  \"receiverCodecs\": [\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/rtx\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=640c1f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f\",\n      \"mimeType\": \"video/H264\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/H265\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/VP8\"\n    },\n    {\n      \"fmtp\": \"profile-id=0\",\n      \"mimeType\": \"video/VP9\"\n    },\n    {\n      \"fmtp\": \"profile-id=2\",\n      \"mimeType\": \"video/VP9\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/red\"\n    },\n    {\n      \"fmtp\": \"\",\n      \"mimeType\": \"video/ulpfec\"\n    },\n    {\n      \"fmtp\": \"repair-window=10000000\",\n      \"mimeType\": \"video/flexfec-03\"\n    }\n  ],\n  \"requestedMaxHeight\": 720,\n  \"requestedMaxWidth\": 1280,\n  \"source\": \"synthetic\",\n  \"warmupSeconds\": 0,\n  \"width\": 1280\n}\n"
+    },
+    "owned-final-state.json": {
+      "sha256": "c0c93e0158f8afe828c8c86e4fdae087fec1d3d731218b3a15fbcfaadbab6702",
+      "bytes": 112,
+      "text": "{\n  \"udid\": \"4A894872-174F-4DE8-8147-93D22AAB1058\",\n  \"name\": \"Fincode-Desktop-Access\",\n  \"state\": \"Shutdown\"\n}\n"
+    },
+    "results.json": {
+      "sha256": "96675377ab59ca0b422ee99739b0938c49c4b57271112b7723025a416c57aded",
+      "bytes": 12757,
+      "text": "{\n  \"sources\": {\n    \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\": \"636e04d62998883ccd8a6cf824e812a18b56dac8\",\n    \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\": \"f64d3611bb91b6350bb704059e0839ae809e304d\"\n  },\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.055,\n      \"pgid\": 53212,\n      \"groupGone\": true,\n      \"logSha256\": \"3a421b6e1a2a0e18e1b632abc76784e26f4e274778266117896e8eb9926611f5\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"sender-build\",\n      \"command\": [\n        \"cargo\",\n        \"build\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--features\",\n        \"webrtc\",\n        \"--example\",\n        \"encoded_peer_probe\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 0.545,\n      \"pgid\": 53221,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--examples\",\n        \"--tests\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 0.32,\n      \"pgid\": 53235,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"codec-build\",\n      \"command\": [\n        \"cargo\",\n        \"build\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--release\",\n        \"--example\",\n        \"codec_probe\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 0.196,\n      \"pgid\": 53250,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"phone-build\",\n      \"command\": [\n        \"/usr/bin/xcodebuild\",\n        \"-scheme\",\n        \"FincodeApplication\",\n        \"-destination\",\n        \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"-derivedDataPath\",\n        \"/tmp/fincode-desktop-native-1ee9358/DerivedData\",\n        \"-jobs\",\n        \"2\",\n        \"-parallel-testing-enabled\",\n        \"NO\",\n        \"build-for-testing\",\n        \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 4.139,\n      \"pgid\": 53264,\n      \"groupGone\": true,\n      \"logSha256\": \"6a9658f00ca79babe9c3fe8e36784c58f924db525ead6384433d4be867c5083f\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"owned-boot\",\n      \"command\": [\n        \"/usr/bin/xcrun\",\n        \"simctl\",\n        \"boot\",\n        \"4A894872-174F-4DE8-8147-93D22AAB1058\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 20,\n      \"exitCode\": 0,\n      \"seconds\": 0.566,\n      \"pgid\": 53356,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"owned-boot-ready\",\n      \"command\": [\n        \"/usr/bin/xcrun\",\n        \"simctl\",\n        \"bootstatus\",\n        \"4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"-b\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 120,\n      \"exitCode\": 0,\n      \"seconds\": 1.164,\n      \"pgid\": 53423,\n      \"groupGone\": true,\n      \"logSha256\": \"8eb12ac742e942dffc25079e6f3fe11929311f76ed1cf78cc54103784902a235\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"h264-encode\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe\",\n        \"hardware\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/source.h264\",\n        \"h264\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/frames.vxfr\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 2.574,\n      \"pgid\": 53497,\n      \"groupGone\": true,\n      \"logSha256\": \"8497a460def38fb176f26fe0f58b2a9534853c407c22bc711df6accbd37555fd\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"h264-test\",\n      \"command\": [\n        \"/usr/bin/xcodebuild\",\n        \"-scheme\",\n        \"FincodeApplication\",\n        \"-destination\",\n        \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"-derivedDataPath\",\n        \"/tmp/fincode-desktop-native-1ee9358/DerivedData\",\n        \"-jobs\",\n        \"2\",\n        \"-parallel-testing-enabled\",\n        \"NO\",\n        \"test-without-building\",\n        \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\",\n        \"-resultBundlePath\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult\",\n        \"TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51426\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 100,\n      \"exitCode\": 0,\n      \"seconds\": 15.285,\n      \"pgid\": 53561,\n      \"groupGone\": true,\n      \"logSha256\": \"c5e3ef7ac6c4826961a2c1ec40dd1f0471477c8e52c5e6e6835605ed09a987df\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"h264-sender\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/examples/encoded_peer_probe\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/frames.vxfr\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/offer.sdp\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/answer.sdp\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/sender-done\"\n      ],\n      \"deadlineSeconds\": 100,\n      \"exitCode\": 0,\n      \"seconds\": 17.775,\n      \"pgid\": 53547,\n      \"groupGone\": true,\n      \"logSha256\": \"21176bbe0d6b14b184413e6863e1000c9cd3ab5ac18a53836e921ad126bf122d\"\n    },\n    {\n      \"name\": \"h264-summary\",\n      \"command\": [\n        \"/usr/bin/xcrun\",\n        \"xcresulttool\",\n        \"get\",\n        \"test-results\",\n        \"summary\",\n        \"--path\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 20,\n      \"exitCode\": 0,\n      \"seconds\": 0.138,\n      \"pgid\": 53781,\n      \"groupGone\": true,\n      \"logSha256\": \"44bf13b526309fa74ca351ee298d7b7048c4021c583144d4f620c0216ac304de\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"h264-counts\",\n      \"counts\": {\n        \"passedTests\": 1,\n        \"failedTests\": 0,\n        \"skippedTests\": 0\n      },\n      \"exitCode\": 0\n    },\n    {\n      \"name\": \"h264-sender-final\",\n      \"pgid\": 53547,\n      \"groupGone\": true,\n      \"exitCode\": 0\n    },\n    {\n      \"name\": \"hevc-encode\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe\",\n        \"hardware\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/source.hevc\",\n        \"hevc\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/frames.vxfr\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 2.135,\n      \"pgid\": 53798,\n      \"groupGone\": true,\n      \"logSha256\": \"668d9cc441b1e8aedc712ad435fdd9d5607ec943ba30bf7c8a3c51a0ee845604\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"hevc-test\",\n      \"command\": [\n        \"/usr/bin/xcodebuild\",\n        \"-scheme\",\n        \"FincodeApplication\",\n        \"-destination\",\n        \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\",\n        \"-derivedDataPath\",\n        \"/tmp/fincode-desktop-native-1ee9358/DerivedData\",\n        \"-jobs\",\n        \"2\",\n        \"-parallel-testing-enabled\",\n        \"NO\",\n        \"test-without-building\",\n        \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\",\n        \"-resultBundlePath\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult\",\n        \"TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51486\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 100,\n      \"exitCode\": 0,\n      \"seconds\": 11.744,\n      \"pgid\": 54163,\n      \"groupGone\": true,\n      \"logSha256\": \"1616c8d0cf5178a9da41ee56213ddc5dd7a661e8b09b50366bc738a675517a35\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"hevc-sender\",\n      \"command\": [\n        \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/examples/encoded_peer_probe\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/frames.vxfr\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/offer.sdp\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/answer.sdp\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/sender-done\"\n      ],\n      \"deadlineSeconds\": 100,\n      \"exitCode\": 0,\n      \"seconds\": 13.395,\n      \"pgid\": 54125,\n      \"groupGone\": true,\n      \"logSha256\": \"d8f419567d5f169fa50f44c93ba7aa49d40d17bc97d2353951dc9036d4253ff5\"\n    },\n    {\n      \"name\": \"hevc-summary\",\n      \"command\": [\n        \"/usr/bin/xcrun\",\n        \"xcresulttool\",\n        \"get\",\n        \"test-results\",\n        \"summary\",\n        \"--path\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 20,\n      \"exitCode\": 0,\n      \"seconds\": 0.14,\n      \"pgid\": 54624,\n      \"groupGone\": true,\n      \"logSha256\": \"2c0caaaf69fbafb36587e1cf4e124431f10549e0a84c73746f9fbf6d62f59a28\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"hevc-counts\",\n      \"counts\": {\n        \"passedTests\": 1,\n        \"failedTests\": 0,\n        \"skippedTests\": 0\n      },\n      \"exitCode\": 0\n    },\n    {\n      \"name\": \"hevc-sender-final\",\n      \"pgid\": 54125,\n      \"groupGone\": true,\n      \"exitCode\": 0\n    },\n    {\n      \"name\": \"owned-shutdown\",\n      \"command\": [\n        \"/usr/bin/xcrun\",\n        \"simctl\",\n        \"shutdown\",\n        \"4A894872-174F-4DE8-8147-93D22AAB1058\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\",\n      \"deadlineSeconds\": 20,\n      \"exitCode\": 0,\n      \"seconds\": 3.255,\n      \"pgid\": 54637,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"cfa0df850d2b702f32170a219de6176a0475d029058751322b750c56881a6a9e\",\n  \"completedCases\": [\n    \"h264\",\n    \"hevc\"\n  ],\n  \"attemptedCases\": [\n    \"h264\",\n    \"hevc\"\n  ],\n  \"unexecutedCases\": [],\n  \"scope\": \"Separate H264/HEVC regressions after the current Simulator omitted AV1 and failed the positive AV1 attempt. No AV1 pass, Connect admission, desktop capture/input, physical phone or performance qualification.\"\n}\n"
+    },
+    "hevc-test.log": {
+      "sha256": "1616c8d0cf5178a9da41ee56213ddc5dd7a661e8b09b50366bc738a675517a35",
+      "bytes": 11760,
+      "text": "Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme FincodeApplication -destination \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\" -derivedDataPath /tmp/fincode-desktop-native-1ee9358/DerivedData -jobs 2 -parallel-testing-enabled NO test-without-building \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\" -resultBundlePath /tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult \"TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51486\"\n\nBuild settings from command line:\n    TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL = http://127.0.0.1:51486\n\nResolve Package Graph\n\n\nResolved source packages:\n  Highlightr: https://github.com/raspu/Highlightr @ 2.3.0\n  Clerk: https://github.com/clerk/clerk-ios @ 1.3.6\n  Nuke: https://github.com/kean/Nuke.git @ 13.0.6\n  swift-markdown: https://github.com/swiftlang/swift-markdown @ 0.8.0\n  PhoneNumberKit: https://github.com/PhoneNumberKit/PhoneNumberKit @ 5.0.6\n  SwiftMath: https://github.com/mgriebling/SwiftMath @ 1.7.3\n  BlurUIKit: https://github.com/TimOliver/BlurUIKit @ 1.5.0\n  cmark-gfm: https://github.com/swiftlang/swift-cmark.git @ 0.8.0\n\nWriting result bundle at path:\n\t/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult\n\n2026-11-05 13:51:40.351 xcodebuild[54163:205705322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:40.351 xcodebuild[54163:205705322] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n[deep-link] state=unpaired link=nil\nTest Suite 'Selected tests' started at 2026-11-05 13:51:45.581.\nTest Suite 'FincodeApplicationTests.xctest' started at 2026-11-05 13:51:45.581.\nTest Suite 'FincodeApplicationTests.xctest' passed at 2026-11-05 13:51:45.581.\n\t Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds\nTest Suite 'Selected tests' passed at 2026-11-05 13:51:45.581.\n\t Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2084\n\u21b3 Target Platform: arm64-apple-ios17.0-simulator\n\u25c7 Suite \"Native desktop video interoperability\" started.\n\u25c7 Test decodesNativeTransport() started.\n2026-11-05 13:51:45.675095+0100 FincodeApplication[54238:205706129] [XPCErrors] non-launching port is incompatible with service identifier \"com.apple.PointerUI.pointeruid.default-service\"\n2026-11-05 13:51:46.262281+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/com.apple.Accessibility.plist due to No such file or directory\n2026-11-05 13:51:46.262373+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/com.apple.Accessibility.plist due to No such file or directory\n2026-11-05 13:51:46.262768+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/.GlobalPreferences.plist due to No such file or directory\n2026-11-05 13:51:46.262973+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.Accessibility..plist due to No such file or directory\n2026-11-05 13:51:46.263015+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/.GlobalPreferences..plist due to No such file or directory\n2026-11-05 13:51:46.263679+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:46.263780+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:46.263855+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:46.263905+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:46.263948+0100 FincodeApplication[54238:205706129] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.WebKit.WebContent..plist due to No such file or directory\n2026-11-05 13:51:46.319929+0100 FincodeApplication[54238:205706370] [User Defaults] Could not resolve UID for user \"mobile\".\n2026-11-05 13:51:46.374350+0100 FincodeApplication[54238:205706494] [ResourceLoadStatistics] WebContent[54255] Unable to hide query parameters from script (missing data)\n2026-11-05 13:51:46.428485+0100 FincodeApplication[54238:205706494] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/Web\n2026-11-05 13:51:46.428575+0100 FincodeApplication[54238:205706494] [cfprefsd] WebContent[54255] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/Web\n2026-11-05 13:51:46.428660+0100 FincodeApplication[54238:205706494] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.coremedia.plist due to No such file or directory\n2026-11-05 13:51:46.428701+0100 FincodeApplication[54238:205706494] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.coremedia.plist due to No such file or directory\n2026-11-05 13:51:46.428740+0100 FincodeApplication[54238:205706494] [cfprefsd] WebContent[54255] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.coremedia..plist due to No such file or directory\n2026-11-05 13:51:46.511598+0100 FincodeApplication[54238:205706494] [WebRTC] WebContent[54255] MDNS registration of a host candidate failed with error 1\n2026-11-05 13:51:46.609338+0100 FincodeApplication[54238:205706494] [WebRTC] WebContent[54255] MDNS registration of a host candidate failed with error 1\nnative_receiver={\"av1HardwareAvailable\":false,\"cachedDiscoveryDuration\":\"9.541e-06 seconds\",\"callbacks\":60,\"codec\":\"hevc\",\"events\":[\"connected\",\"frame\"],\"frames\":60,\"height\":720,\"hevcHardwareAvailable\":false,\"missedCallbacks\":0,\"observationSeconds\":2,\"preferences\":[\"h264\"],\"processing\":{\"boundsMicros\":[100,250,500,750,1000,1250,1500,1750,2000,2250,2500,2750,3000,3500,4000,4500,5000,6000,7000,8000,10000,12000,15000,20000,25000,33000,50000,75000,100000,150000,250000,500000],\"buckets\":[0,0,0,0,0,0,0,0,39,0,0,0,10,0,10,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],\"p95UpperBoundMicros\":4000,\"samples\":60,\"totalMicros\":179000},\"receiverCodecs\":[{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/rtx\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=640c1f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/H265\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/VP8\"},{\"fmtp\":\"profile-id=0\",\"mimeType\":\"video\\/VP9\"},{\"fmtp\":\"profile-id=2\",\"mimeType\":\"video\\/VP9\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/red\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/ulpfec\"},{\"fmtp\":\"repair-window=10000000\",\"mimeType\":\"video\\/flexfec-03\"}],\"requestedMaxHeight\":720,\"requestedMaxWidth\":1280,\"source\":\"synthetic\",\"warmupSeconds\":0,\"width\":1280}\n\u2714 Test decodesNativeTransport() passed after 3.436 seconds.\n\u2714 Suite \"Native desktop video interoperability\" passed after 3.438 seconds.\n\u2714 Test run with 1 test in 1 suite passed after 3.438 seconds.\n2026-11-05 13:51:49.049 xcodebuild[54163:205705322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:49.049 xcodebuild[54163:205705322] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:49.050 xcodebuild[54163:205705322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:49.050 xcodebuild[54163:205705322] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:49.051 xcodebuild[54163:205705322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:49.051 xcodebuild[54163:205705322] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:49.318 xcodebuild[54163:205705322] [MT] IDETestOperationsObserverDebug: 9.006 elapsed -- Testing started completed.\n2026-11-05 13:51:49.318 xcodebuild[54163:205705322] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start\n2026-11-05 13:51:49.318 xcodebuild[54163:205705322] [MT] IDETestOperationsObserverDebug: 9.006 sec, +9.006 sec -- end\n\nTest session results, code coverage, and logs:\n\t/tmp/fincode-av1-native-636e04d/regressions/private/hevc/NativeVideo.xcresult\n\n** TEST EXECUTE SUCCEEDED **\n\nTesting started\n"
+    },
+    "clippy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "queue.json": {
+      "sha256": "f7e75492c2ff800503e01f985ddf89c0c4cd41b0a5335a8f7b1aa210837258f4",
+      "bytes": 1455,
+      "text": "{\n  \"sources\": {\n    \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\": \"636e04d62998883ccd8a6cf824e812a18b56dac8\",\n    \"/Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\": \"f64d3611bb91b6350bb704059e0839ae809e304d\"\n  },\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"/tmp/fincode-av1-native-636e04d/regressions/run.py\",\n        \"--inside-lock\"\n      ],\n      \"cwd\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 0,\n      \"seconds\": 47.688,\n      \"pgid\": 53206,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"cfa0df850d2b702f32170a219de6176a0475d029058751322b750c56881a6a9e\",\n  \"completedCases\": [],\n  \"attemptedCases\": [],\n  \"unexecutedCases\": [\n    \"h264\",\n    \"hevc\"\n  ],\n  \"scope\": \"Separate H264/HEVC regressions after the current Simulator omitted AV1 and failed the positive AV1 attempt. No AV1 pass, Connect admission, desktop capture/input, physical phone or performance qualification.\"\n}\n"
+    },
+    "owned-shutdown.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "queue.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "sender-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "owned-boot.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "phone-build.log": {
+      "sha256": "6a9658f00ca79babe9c3fe8e36784c58f924db525ead6384433d4be867c5083f",
+      "bytes": 22687,
+      "text": "Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme FincodeApplication -destination \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\" -derivedDataPath /tmp/fincode-desktop-native-1ee9358/DerivedData -jobs 2 -parallel-testing-enabled NO build-for-testing \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\"\n\nResolve Package Graph\n\n\nResolved source packages:\n  BlurUIKit: https://github.com/TimOliver/BlurUIKit @ 1.5.0\n  PhoneNumberKit: https://github.com/PhoneNumberKit/PhoneNumberKit @ 5.0.6\n  swift-markdown: https://github.com/swiftlang/swift-markdown @ 0.8.0\n  Clerk: https://github.com/clerk/clerk-ios @ 1.3.6\n  SwiftMath: https://github.com/mgriebling/SwiftMath @ 1.7.3\n  Highlightr: https://github.com/raspu/Highlightr @ 2.3.0\n  cmark-gfm: https://github.com/swiftlang/swift-cmark.git @ 0.8.0\n  Nuke: https://github.com/kean/Nuke.git @ 13.0.6\n\nBuild Preparation\nBuild task concurrency set to 2 via user default IDEBuildOperationMaxNumberOfConcurrentCompileTasks\n\nComputePackagePrebuildTargetDependencyGraph\n\nPrepare packages\n\nCreateBuildRequest\n\nSendProjectDescription\n\nCreateBuildOperation\n\nComputeTargetDependencyGraph\nnote: Building targets in dependency order\nnote: Target dependency graph (32 targets)\n    Target 'FincodeApplicationTests' in project 'FincodeApplication'\n        \u279c Explicit dependency on target 'FincodeApplication' in project 'FincodeApplication'\n    Target 'FincodeApplication' in project 'FincodeApplication'\n        \u279c Explicit dependency on target 'FincodeWidgets' in project 'FincodeApplication'\n        \u279c Explicit dependency on target 'BlurSwiftUI-product' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'Markdown-product' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'SwiftMath-product' in project 'SwiftMath'\n        \u279c Explicit dependency on target 'BlurUIKit-product' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'Highlightr-product' in project 'Highlightr'\n        \u279c Explicit dependency on target 'ClerkKit-product' in project 'Clerk'\n        \u279c Explicit dependency on target 'ClerkKitUI-product' in project 'Clerk'\n    Target 'ClerkKitUI-product' in project 'Clerk'\n        \u279c Explicit dependency on target 'ClerkKitUI' in project 'Clerk'\n        \u279c Explicit dependency on target 'Clerk_ClerkKitUI' in project 'Clerk'\n        \u279c Explicit dependency on target 'ClerkKit' in project 'Clerk'\n        \u279c Explicit dependency on target 'Nuke-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'NukeUI-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'PhoneNumberKit-product' in project 'PhoneNumberKit'\n    Target 'ClerkKitUI' in project 'Clerk'\n        \u279c Explicit dependency on target 'Clerk_ClerkKitUI' in project 'Clerk'\n        \u279c Explicit dependency on target 'ClerkKit' in project 'Clerk'\n        \u279c Explicit dependency on target 'Nuke-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'NukeUI-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'PhoneNumberKit-product' in project 'PhoneNumberKit'\n    Target 'PhoneNumberKit-product' in project 'PhoneNumberKit'\n        \u279c Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'\n        \u279c Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'\n    Target 'PhoneNumberKit' in project 'PhoneNumberKit'\n        \u279c Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'\n    Target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit' (no dependencies)\n    Target 'NukeUI-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'NukeUI' in project 'Nuke'\n        \u279c Explicit dependency on target 'Nuke' in project 'Nuke'\n    Target 'NukeUI' in project 'Nuke'\n        \u279c Explicit dependency on target 'Nuke' in project 'Nuke'\n    Target 'Nuke-product' in project 'Nuke'\n        \u279c Explicit dependency on target 'Nuke' in project 'Nuke'\n    Target 'Nuke' in project 'Nuke' (no dependencies)\n    Target 'Clerk_ClerkKitUI' in project 'Clerk' (no dependencies)\n    Target 'ClerkKit-product' in project 'Clerk'\n        \u279c Explicit dependency on target 'ClerkKit' in project 'Clerk'\n    Target 'ClerkKit' in project 'Clerk' (no dependencies)\n    Target 'Highlightr-product' in project 'Highlightr'\n        \u279c Explicit dependency on target 'Highlightr' in project 'Highlightr'\n        \u279c Explicit dependency on target 'Highlightr_Highlightr' in project 'Highlightr'\n    Target 'Highlightr' in project 'Highlightr'\n        \u279c Explicit dependency on target 'Highlightr_Highlightr' in project 'Highlightr'\n    Target 'Highlightr_Highlightr' in project 'Highlightr' (no dependencies)\n    Target 'BlurUIKit-product' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'BlurUIKit' in project 'BlurUIKit'\n    Target 'SwiftMath-product' in project 'SwiftMath'\n        \u279c Explicit dependency on target 'SwiftMath' in project 'SwiftMath'\n        \u279c Explicit dependency on target 'SwiftMath_SwiftMath' in project 'SwiftMath'\n    Target 'SwiftMath' in project 'SwiftMath'\n        \u279c Explicit dependency on target 'SwiftMath_SwiftMath' in project 'SwiftMath'\n    Target 'SwiftMath_SwiftMath' in project 'SwiftMath' (no dependencies)\n    Target 'Markdown-product' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'Markdown' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'CAtomic' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'cmark-gfm-product' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm-extensions-product' in project 'cmark-gfm'\n    Target 'Markdown' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'CAtomic' in project 'swift-markdown'\n        \u279c Explicit dependency on target 'cmark-gfm-product' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm-extensions-product' in project 'cmark-gfm'\n    Target 'cmark-gfm-extensions-product' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm-extensions' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm' in project 'cmark-gfm'\n    Target 'cmark-gfm-extensions' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm' in project 'cmark-gfm'\n    Target 'cmark-gfm-product' in project 'cmark-gfm'\n        \u279c Explicit dependency on target 'cmark-gfm' in project 'cmark-gfm'\n    Target 'cmark-gfm' in project 'cmark-gfm' (no dependencies)\n    Target 'CAtomic' in project 'swift-markdown' (no dependencies)\n    Target 'BlurSwiftUI-product' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'BlurSwiftUI' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'BlurUIKit' in project 'BlurUIKit'\n    Target 'BlurSwiftUI' in project 'BlurUIKit'\n        \u279c Explicit dependency on target 'BlurUIKit' in project 'BlurUIKit'\n    Target 'BlurUIKit' in project 'BlurUIKit' (no dependencies)\n    Target 'FincodeWidgets' in project 'FincodeApplication' (no dependencies)\n\nGatherProvisioningInputs\n\nCreateBuildDescription\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x objective-c -c /dev/null\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/FincodeApplication/Assets.xcassets\n\nReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json\n\nExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_ClerkKitUI-b.build /tmp/fincode-desktop-native-1ee9358/DerivedData/SourcePackages/checkouts/clerk-ios/Sources/ClerkKitUI/Resources/Localizable.xcstrings\n\nBuild description signature: e89d58c0bf42e81158c954048cc09389\nBuild description path: /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/XCBuildData/e89d58c0bf42e81158c954048cc09389.xcbuilddata\nClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /tmp/fincode-desktop-native-1ee9358/DerivedData/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/FincodeApplication.xcodeproj\n    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /tmp/fincode-desktop-native-1ee9358/DerivedData/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeWidgets.appex/Info.plist /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/FincodeWidgets/Info.plist (in target 'FincodeWidgets' from project 'FincodeApplication')\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\n    builtin-infoPlistUtility /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/FincodeWidgets/Info.plist -producttype com.apple.product-type.app-extension -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeWidgets.appex/Info.plist\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/SwiftMath_SwiftMath.bundle/Info.plist /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/SwiftMath.build/Debug-iphonesimulator/SwiftMath_SwiftMath-b.build/empty-SwiftMath_SwiftMath.plist (in target 'SwiftMath_SwiftMath' from project 'SwiftMath')\n    cd /tmp/fincode-desktop-native-1ee9358/DerivedData/SourcePackages/checkouts/SwiftMath\n    builtin-infoPlistUtility /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/SwiftMath.build/Debug-iphonesimulator/SwiftMath_SwiftMath-b.build/empty-SwiftMath_SwiftMath.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/SwiftMath_SwiftMath.bundle/Info.plist\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/Highlightr_Highlightr.bundle/Info.plist /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Highlightr.build/Debug-iphonesimulator/Highlightr_Highlightr-b.build/empty-Highlightr_Highlightr.plist (in target 'Highlightr_Highlightr' from project 'Highlightr')\n    cd /tmp/fincode-desktop-native-1ee9358/DerivedData/SourcePackages/checkouts/Highlightr\n    builtin-infoPlistUtility /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Highlightr.build/Debug-iphonesimulator/Highlightr_Highlightr-b.build/empty-Highlightr_Highlightr.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/Highlightr_Highlightr.bundle/Info.plist\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/Clerk_ClerkKitUI.bundle/Info.plist /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_ClerkKitUI-b.build/empty-Clerk_ClerkKitUI.plist (in target 'Clerk_ClerkKitUI' from project 'Clerk')\n    cd /tmp/fincode-desktop-native-1ee9358/DerivedData/SourcePackages/checkouts/clerk-ios\n    builtin-infoPlistUtility /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_ClerkKitUI-b.build/empty-Clerk_ClerkKitUI.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_ClerkKitUI-b.build/assetcatalog_generated_info.plist -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/Clerk_ClerkKitUI.bundle/Info.plist\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit-b.build/empty-PhoneNumberKit_PhoneNumberKit.plist (in target 'PhoneNumberKit_PhoneNumberKit' from project 'PhoneNumberKit')\n    cd /tmp/fincode-desktop-native-1ee9358/DerivedData/SourcePackages/checkouts/PhoneNumberKit\n    builtin-infoPlistUtility /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit-b.build/empty-PhoneNumberKit_PhoneNumberKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Info.plist /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/Info.plist (in target 'FincodeApplication' from project 'FincodeApplication')\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\n    builtin-infoPlistUtility /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/FincodeApplication.build/Debug-iphonesimulator/FincodeApplication.build/assetcatalog_generated_info.plist -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Clerk_ClerkKitUI.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Highlightr_Highlightr.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PhoneNumberKit_PhoneNumberKit.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeWidgets.appex -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/SwiftMath_SwiftMath.bundle -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Info.plist\n\nCopySwiftLibs /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app (in target 'FincodeApplication' from project 'FincodeApplication')\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\n    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/FincodeApplication.debug.dylib --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Frameworks --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/SystemExtensions --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/FincodeApplication.build/Debug-iphonesimulator/FincodeApplication.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os\n\nProcessInfoPlistFile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Info.plist /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/FincodeApplication.build/Debug-iphonesimulator/FincodeApplicationTests.build/empty-FincodeApplicationTests.plist (in target 'FincodeApplicationTests' from project 'FincodeApplication')\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\n    builtin-infoPlistUtility /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/FincodeApplication.build/Debug-iphonesimulator/FincodeApplicationTests.build/empty-FincodeApplicationTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Clerk_ClerkKitUI.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Highlightr_Highlightr.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/PhoneNumberKit_PhoneNumberKit.bundle -scanforprivacyfile /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/SwiftMath_SwiftMath.bundle -o /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Info.plist\n\nCopySwiftLibs /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest (in target 'FincodeApplicationTests' from project 'FincodeApplication')\n    cd /Users/sondre/Documents/GitHub/FincodeApplication-desktop-native-validation\n    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/FincodeApplicationTests --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Frameworks --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/PlugIns --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/SystemExtensions --scan-folder /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Products/Debug-iphonesimulator/FincodeApplication.app/PlugIns/FincodeApplicationTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/FincodeApplication.build/Debug-iphonesimulator/FincodeApplicationTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os\n\nPruneExplicitPrecompiledModules /tmp/fincode-desktop-native-1ee9358/DerivedData/SDKExplicitPrecompiledModules\n\nPruneExplicitPrecompiledModules /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules\n\nPruneExplicitPrecompiledModules /tmp/fincode-desktop-native-1ee9358/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules\n\n** TEST BUILD SUCCEEDED **\n\n"
+    },
+    "hevc-sender.log": {
+      "sha256": "d8f419567d5f169fa50f44c93ba7aa49d40d17bc97d2353951dc9036d4253ff5",
+      "bytes": 352,
+      "text": "loaded_frames=60 format=HevcMain(HevcProfile { tier: false, level: 93, compatibility: 1610612736, constraints: [176, 0, 0, 0, 0, 0] })\noffer_ready\nanswer_accepted\nsent_frames=60 route=RouteStatistics { route: Direct, local_relay_transport: Unknown, bytes_sent: 56544, bytes_received: 1091, current_rtt: Some(267.584\u00b5s), packets_discarded_on_send: 0 }\n"
+    },
+    "load.log": {
+      "sha256": "3a421b6e1a2a0e18e1b632abc76784e26f4e274778266117896e8eb9926611f5",
+      "bytes": 66,
+      "text": "13:51  up 20 days, 38 mins, 1 user, load averages: 2.10 2.64 2.14\n"
+    },
+    "h264-test.log": {
+      "sha256": "c5e3ef7ac6c4826961a2c1ec40dd1f0471477c8e52c5e6e6835605ed09a987df",
+      "bytes": 14460,
+      "text": "Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme FincodeApplication -destination \"platform=iOS Simulator,id=4A894872-174F-4DE8-8147-93D22AAB1058\" -derivedDataPath /tmp/fincode-desktop-native-1ee9358/DerivedData -jobs 2 -parallel-testing-enabled NO test-without-building \"-only-testing:FincodeApplicationTests/DesktopNativeVideoTests/decodesNativeTransport()\" -resultBundlePath /tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult \"TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL=http://127.0.0.1:51426\"\n\nBuild settings from command line:\n    TEST_RUNNER_FINCODE_DESKTOP_PROBE_URL = http://127.0.0.1:51426\n\nResolve Package Graph\n\n\nResolved source packages:\n  PhoneNumberKit: https://github.com/PhoneNumberKit/PhoneNumberKit @ 5.0.6\n  SwiftMath: https://github.com/mgriebling/SwiftMath @ 1.7.3\n  cmark-gfm: https://github.com/swiftlang/swift-cmark.git @ 0.8.0\n  Nuke: https://github.com/kean/Nuke.git @ 13.0.6\n  Highlightr: https://github.com/raspu/Highlightr @ 2.3.0\n  Clerk: https://github.com/clerk/clerk-ios @ 1.3.6\n  BlurUIKit: https://github.com/TimOliver/BlurUIKit @ 1.5.0\n  swift-markdown: https://github.com/swiftlang/swift-markdown @ 0.8.0\n\nWriting result bundle at path:\n\t/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult\n\n2026-11-05 13:51:22.301 xcodebuild[53561:205701631] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:22.301 xcodebuild[53561:205701631] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:28.900394+0100 FincodeApplication[53726:205703401] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric\n2026-11-05 13:51:28.960141+0100 FincodeApplication[53726:205703403] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics\nTest Suite 'Selected tests' started at 2026-11-05 13:51:29.475.\nTest Suite 'FincodeApplicationTests.xctest' started at 2026-11-05 13:51:29.476.\nTest Suite 'FincodeApplicationTests.xctest' passed at 2026-11-05 13:51:29.476.\n\t Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds\nTest Suite 'Selected tests' passed at 2026-11-05 13:51:29.476.\n\t Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2084\n\u21b3 Target Platform: arm64-apple-ios17.0-simulator\n\u25c7 Suite \"Native desktop video interoperability\" started.\n\u25c7 Test decodesNativeTransport() started.\n2026-11-05 13:51:29.570729+0100 FincodeApplication[53726:205703193] [XPCErrors] non-launching port is incompatible with service identifier \"com.apple.PointerUI.pointeruid.default-service\"\n2026-11-05 13:51:30.181245+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/com.apple.Accessibility.plist due to No such file or directory\n2026-11-05 13:51:30.181357+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/com.apple.Accessibility.plist due to No such file or directory\n2026-11-05 13:51:30.181769+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/.GlobalPreferences.plist due to No such file or directory\n2026-11-05 13:51:30.182060+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.Accessibility..plist due to No such file or directory\n2026-11-05 13:51:30.182131+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/.GlobalPreferences..plist due to No such file or directory\n2026-11-05 13:51:30.182873+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/mobile/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:30.182973+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/WebContentExtension.appex/Library/Managed Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:30.183054+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:30.183101+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.WebKit.WebContent.plist due to No such file or directory\n2026-11-05 13:51:30.183145+0100 FincodeApplication[53726:205703193] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.WebKit.WebContent..plist due to No such file or directory\n2026-11-05 13:51:30.238367+0100 FincodeApplication[53726:205703401] [User Defaults] Could not resolve UID for user \"mobile\".\n2026-11-05 13:51:30.295434+0100 FincodeApplication[53726:205703549] [ResourceLoadStatistics] WebContent[53754] Unable to hide query parameters from script (missing data)\n2026-11-05 13:51:30.380651+0100 FincodeApplication[53726:205703549] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/Web\n2026-11-05 13:51:30.380737+0100 FincodeApplication[53726:205703549] [cfprefsd] WebContent[53754] Couldn't open /var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.jVVfCz/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/ExtensionKit/Extensions/Web\n2026-11-05 13:51:30.380832+0100 FincodeApplication[53726:205703549] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.coremedia.plist due to No such file or directory\n2026-11-05 13:51:30.380874+0100 FincodeApplication[53726:205703549] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/com.apple.coremedia.plist due to No such file or directory\n2026-11-05 13:51:30.380924+0100 FincodeApplication[53726:205703549] [cfprefsd] WebContent[53754] Couldn't open /Users/sondre/Library/Developer/CoreSimulator/Devices/4A894872-174F-4DE8-8147-93D22AAB1058/data/Library/Preferences/ByHost/com.apple.coremedia..plist due to No such file or directory\n2026-11-05 13:51:30.550781+0100 FincodeApplication[53726:205703549] [WebRTC] WebContent[53754] MDNS registration of a host candidate failed with error 1\n[deep-link] state=unpaired link=nil\n2026-11-05 13:51:30.661167+0100 FincodeApplication[53726:205703549] [WebRTC] WebContent[53754] MDNS registration of a host candidate failed with error 1\nnative_receiver={\"av1HardwareAvailable\":false,\"cachedDiscoveryDuration\":\"1.5458e-05 seconds\",\"callbacks\":59,\"codec\":\"h264\",\"events\":[\"connected\",\"frame\"],\"frames\":59,\"height\":720,\"hevcHardwareAvailable\":false,\"missedCallbacks\":0,\"observationSeconds\":2,\"preferences\":[\"h264\"],\"processing\":{\"boundsMicros\":[100,250,500,750,1000,1250,1500,1750,2000,2250,2500,2750,3000,3500,4000,4500,5000,6000,7000,8000,10000,12000,15000,20000,25000,33000,50000,75000,100000,150000,250000,500000],\"buckets\":[0,0,0,0,36,0,0,0,21,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],\"p95UpperBoundMicros\":2000,\"samples\":59,\"totalMicros\":129000},\"receiverCodecs\":[{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=640c1f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/rtx\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=640c1f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f\",\"mimeType\":\"video\\/H264\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/H265\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/VP8\"},{\"fmtp\":\"profile-id=0\",\"mimeType\":\"video\\/VP9\"},{\"fmtp\":\"profile-id=2\",\"mimeType\":\"video\\/VP9\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/red\"},{\"fmtp\":\"\",\"mimeType\":\"video\\/ulpfec\"},{\"fmtp\":\"repair-window=10000000\",\"mimeType\":\"video\\/flexfec-03\"}],\"requestedMaxHeight\":720,\"requestedMaxWidth\":1280,\"source\":\"synthetic\",\"warmupSeconds\":0,\"width\":1280}\n\u2714 Test decodesNativeTransport() passed after 3.591 seconds.\n\u2714 Suite \"Native desktop video interoperability\" passed after 3.593 seconds.\n\u2714 Test run with 1 test in 1 suite passed after 3.593 seconds.\n2026-11-05 13:51:33.111414+0100 FincodeApplication[53726:205703403] [assertion] Error acquiring assertion: <Error Domain=RBSServiceErrorDomain Code=1 \"((target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.rendering AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.networking AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.webcontent))\" UserInfo={NSLocalizedFailureReason=((target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.rendering AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.networking AND target is not running or doesn't have entitlement com.apple.developer.web-browser-engine.webcontent))}>\n2026-11-05 13:51:33.113487+0100 FincodeApplication[53726:205703403] [ProcessSuspension] 0x125160540 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'XPCConnectionTerminationWatchdog' for process with PID=53754, error: (null)\n2026-11-05 13:51:33.114296+0100 FincodeApplication[53726:205703401] [assertion] Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 \"Specified target process 53756 does not exist\" UserInfo={NSLocalizedFailureReason=Specified target process 53756 does not exist}>\n2026-11-05 13:51:33.114347+0100 FincodeApplication[53726:205703401] [ProcessSuspension] 0x125160600 - ProcessAssertion::acquireSync Failed to acquire RBS assertion 'XPCConnectionTerminationWatchdog' for process with PID=53756, error: (null)\n2026-11-05 13:51:33.115325+0100 FincodeApplication[53726:205703193] [general] Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 \"(null)\" UserInfo={NSUnderlyingError=0x107cf7e10 {Error Domain=RBSRequestErrorDomain Code=3 \"No such process found\" UserInfo={NSLocalizedFailureReason=No such process found}}}\n2026-11-05 13:51:33.115635+0100 FincodeApplication[53726:205703193] [general] Failed to terminate process: Error Domain=com.apple.extensionKit.errorDomain Code=18 \"(null)\" UserInfo={NSUnderlyingError=0x107cf7570 {Error Domain=RBSRequestErrorDomain Code=3 \"No such process found\" UserInfo={NSLocalizedFailureReason=No such process found}}}\n2026-11-05 13:51:33.128 xcodebuild[53561:205701631] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:33.128 xcodebuild[53561:205701631] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:33.128 xcodebuild[53561:205701631] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:33.128 xcodebuild[53561:205701631] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:33.129 xcodebuild[53561:205701631] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).\n2026-11-05 13:51:33.129 xcodebuild[53561:205701631] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).\n2026-11-05 13:51:33.386 xcodebuild[53561:205701631] [MT] IDETestOperationsObserverDebug: 11.537 elapsed -- Testing started completed.\n2026-11-05 13:51:33.386 xcodebuild[53561:205701631] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start\n2026-11-05 13:51:33.386 xcodebuild[53561:205701631] [MT] IDETestOperationsObserverDebug: 11.537 sec, +11.537 sec -- end\n\nTest session results, code coverage, and logs:\n\t/tmp/fincode-av1-native-636e04d/regressions/private/h264/NativeVideo.xcresult\n\n** TEST EXECUTE SUCCEEDED **\n\nTesting started\n"
+    },
+    "h264-sender.log": {
+      "sha256": "21176bbe0d6b14b184413e6863e1000c9cd3ab5ac18a53836e921ad126bf122d",
+      "bytes": 282,
+      "text": "loaded_frames=60 format=H264 { profile_level_id: [66, 192, 31] }\noffer_ready\nanswer_accepted\nsent_frames=60 route=RouteStatistics { route: Direct, local_relay_transport: Unknown, bytes_sent: 66589, bytes_received: 1044, current_rtt: Some(392.416\u00b5s), packets_discarded_on_send: 0 }\n"
+    }
+  },
+  "independentlyAbsentGroups": [
+    53206,
+    53212,
+    53221,
+    53235,
+    53250,
+    53264,
+    53356,
+    53423,
+    53497,
+    53547,
+    53561,
+    53781,
+    53798,
+    54125,
+    54163,
+    54624,
+    54637
+  ],
+  "independentlyReboundHTTPPorts": [
+    51426,
+    51486
+  ]
+}

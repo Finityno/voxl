@@ -1,0 +1,279 @@
+[
+  {
+    "cohort": "initial-build",
+    "originalReceiptSha256": "0cf1c89f04c642141b005b431cb2041c7dd63a7a6c8f9a2a1cccae239367aee2",
+    "receipt": {
+      "source": "65de1a344c8deeb9cb8396f33ebb0fd7421637f9",
+      "status": "failed",
+      "runnerSha256": "cb0481109125d2095f60ff3790beef3bdabc7fd33fa822cdeefd67e6061e5763",
+      "guardSha256": "d94583e7ad59770bad3f780080c1289470bebf6d55825d44b076a88726ad870f",
+      "productionAdmission": false,
+      "startedAtUtc": "2026-11-07T05:05:30.238362+00:00",
+      "queue": {
+        "waitLimitSeconds": 900,
+        "waitSeconds": 492.231,
+        "device": 16777232,
+        "inode": 409817219,
+        "acquired": true,
+        "released": true,
+        "pid": 9946
+      },
+      "steps": [
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 83328,
+          "seconds": 0.044309250079095364,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "load",
+          "command": [
+            "uptime"
+          ],
+          "deadlineSeconds": 10,
+          "privateLog": "private/load.log",
+          "logSha256": "d5c9f70a6fa94261a51219eace45f8f3ff561cd0023f6f5fd793808c9c8a0e97"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 83386,
+          "seconds": 1.719469083007425,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "guard-contracts",
+          "command": [
+            "/usr/local/bin/python3",
+            "-B",
+            "media/tools/test-process-guard.py"
+          ],
+          "deadlineSeconds": 30,
+          "privateLog": "private/guard-contracts.log",
+          "logSha256": "e693dac8a793c859922892a0796a9e20759b57e862cc113a869879aff5a5b087"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 84746,
+          "seconds": 0.408126707887277,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "toolchain",
+          "command": [
+            "xcrun",
+            "swiftc",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "privateLog": "private/toolchain.log",
+          "logSha256": "df9a79afbb2eb356f8381fbc0edb8c69c7500b8f5b18ae594be7ced187275e13"
+        },
+        {
+          "code": 1,
+          "child_code": 1,
+          "end": "exit",
+          "pgid": 85108,
+          "seconds": 0.6425942920614034,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "build",
+          "command": [
+            "xcrun",
+            "--sdk",
+            "macosx",
+            "swiftc",
+            "-swift-version",
+            "5",
+            "-parse-as-library",
+            "-target",
+            "arm64-apple-macos14.0",
+            "-O",
+            "-warnings-as-errors",
+            "media/tools/compare-frames.swift",
+            "-o",
+            "<artifact>/initial-build/private/compare-frames"
+          ],
+          "deadlineSeconds": 120,
+          "privateLog": "private/build.log",
+          "logSha256": "237e05f1d725e4ef0a573837779673c7670b42673af1f09779eb94457b981c06"
+        }
+      ],
+      "exitCode": 1,
+      "failure": "RuntimeError: command failed or required cleanup: build"
+    }
+  },
+  {
+    "cohort": "rejected-requested-sha",
+    "originalReceiptSha256": "497411f91cb6d0d223d3468bf84e1833933e5e7cf6b4ab04e4f0f06a4fe9b30d",
+    "receipt": {
+      "source": "69c9248002ce89e34b849369fce68535a08b3cccb",
+      "status": "failed",
+      "runnerSha256": "cb0481109125d2095f60ff3790beef3bdabc7fd33fa822cdeefd67e6061e5763",
+      "guardSha256": "d94583e7ad59770bad3f780080c1289470bebf6d55825d44b076a88726ad870f",
+      "productionAdmission": false,
+      "startedAtUtc": "2026-11-07T05:20:07.321186+00:00",
+      "exitCode": 1,
+      "queue": {},
+      "steps": [],
+      "failure": "RuntimeError: exact clean source required"
+    }
+  },
+  {
+    "cohort": "complete",
+    "originalReceiptSha256": "d2cb95cfa8a19252cde8e333661c94d5df415c3acef377cbfa30c244140cb993",
+    "receipt": {
+      "source": "69c924898ae38678de4fef888938f8b0e62d1b2a",
+      "status": "complete",
+      "runnerSha256": "cb0481109125d2095f60ff3790beef3bdabc7fd33fa822cdeefd67e6061e5763",
+      "guardSha256": "d94583e7ad59770bad3f780080c1289470bebf6d55825d44b076a88726ad870f",
+      "productionAdmission": false,
+      "startedAtUtc": "2026-11-07T05:20:12.284528+00:00",
+      "queue": {
+        "waitLimitSeconds": 900,
+        "waitSeconds": 160.7,
+        "device": 16777232,
+        "inode": 409817219,
+        "acquired": true,
+        "released": true,
+        "pid": 93879
+      },
+      "steps": [
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 81127,
+          "seconds": 0.047071625012904406,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "load",
+          "command": [
+            "uptime"
+          ],
+          "deadlineSeconds": 10,
+          "privateLog": "private/load.log",
+          "logSha256": "f42c41cc134d0b076c86f6acbe01fdacb0fd6fb509a2dc7f73ad536e4ff2f866"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 81196,
+          "seconds": 2.8416286669671535,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "guard-contracts",
+          "command": [
+            "/usr/local/bin/python3",
+            "-B",
+            "media/tools/test-process-guard.py"
+          ],
+          "deadlineSeconds": 30,
+          "privateLog": "private/guard-contracts.log",
+          "logSha256": "6d493e39c92c0e22eb577882420933e350f53ead60c8eb42ded734ac79ebbd97"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 82786,
+          "seconds": 0.5189457079395652,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "toolchain",
+          "command": [
+            "xcrun",
+            "swiftc",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "privateLog": "private/toolchain.log",
+          "logSha256": "df9a79afbb2eb356f8381fbc0edb8c69c7500b8f5b18ae594be7ced187275e13"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 82792,
+          "seconds": 5.330154708120972,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "build",
+          "command": [
+            "xcrun",
+            "--sdk",
+            "macosx",
+            "swiftc",
+            "-swift-version",
+            "5",
+            "-parse-as-library",
+            "-target",
+            "arm64-apple-macos14.0",
+            "-O",
+            "-warnings-as-errors",
+            "media/tools/compare-frames.swift",
+            "-o",
+            "<artifact>/rejected-requested-sha-exact/private/compare-frames"
+          ],
+          "deadlineSeconds": 120,
+          "privateLog": "private/build.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 84529,
+          "seconds": 0.6300869579426944,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "cpu-control",
+          "command": [
+            "<artifact>/rejected-requested-sha-exact/private/compare-frames",
+            "20",
+            "1",
+            "--cpu-only"
+          ],
+          "deadlineSeconds": 120,
+          "privateLog": "private/cpu-control.log",
+          "logSha256": "4cf8a7e07c60c132c43b1eb89868bd7d41914546631c9aa33875d586eb27dfba"
+        },
+        {
+          "code": 0,
+          "child_code": 0,
+          "end": "exit",
+          "pgid": 84573,
+          "seconds": 4.433250290807337,
+          "signals": [],
+          "leader_held_until_quiet": true,
+          "group_gone": true,
+          "name": "metal-matrix",
+          "command": [
+            "<artifact>/rejected-requested-sha-exact/private/compare-frames",
+            "60",
+            "3"
+          ],
+          "deadlineSeconds": 240,
+          "privateLog": "private/metal-matrix.log",
+          "logSha256": "61dc006707ac4378c465bbda01e1cd451046f96e9474672e26cba2ad0721e8f1"
+        }
+      ],
+      "executableSha256": "c70bba6c1966c54ec3db7441d9e54915d38c698590173a47a61b3ec14e472fa9",
+      "swiftSourceSha256": "c19548312948514471e1240e61408cc8cd0a854755e831b79b0a0040e2c99852",
+      "matrixValidated": true,
+      "exitCode": 0
+    }
+  }
+]

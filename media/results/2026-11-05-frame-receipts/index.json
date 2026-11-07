@@ -1,0 +1,21 @@
+{
+  "source": "6279c1f57fb268945ea9567643eb8e4331411091",
+  "embeddedTextHashesVerified": 11,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2056,
+      "sha256": "53aba7e332cc846aede1d7c49bda024139b2ca1350aa9a8d0ee7af063e231ac0"
+    },
+    {
+      "path": "environment.json",
+      "bytes": 825,
+      "sha256": "54463f54a50152082674b794983cb682f7b29a5afcb4ec7378aab716d7c4922c"
+    },
+    {
+      "path": "evidence.json",
+      "bytes": 16067,
+      "sha256": "673af0587cca6a4fb807013a007f74461f4761bcd404f9ae47ed9de6d7466b53"
+    }
+  ]
+}

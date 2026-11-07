@@ -1,0 +1,194 @@
+{
+  "sourceRevision": "8a4a52bf66ec46da5a2bb323c6b56f92e0bd1b9b",
+  "batches": {
+    "initial": [
+      {
+        "name": "run-1-h264-compatible-3000",
+        "specification": "h264:compatible:3000",
+        "payloadMbps": 1.248875,
+        "payloadBytesSavedPercent": 0.0,
+        "encodeCallbackP95Ms": 12.4305,
+        "wholeProbeCpuPercentOneCore": 3.791982665222102,
+        "wholeProbePeakRssMiB": 39.921875,
+        "textSsimFramesLowerThanControl": 0,
+        "textSsimWorstDelta": 0.0,
+        "textSsimPhaseMeans": {
+          "still": 0.9984430999999999,
+          "typing": 0.9992013,
+          "scrolling": 0.9998438000000001,
+          "window-movement": 0.9993789999999999
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-1500-quality",
+        "specification": "hevc:compatible:1500:quality",
+        "payloadMbps": 0.772445,
+        "payloadBytesSavedPercent": 38.14873386047443,
+        "encodeCallbackP95Ms": 14.857666,
+        "wholeProbeCpuPercentOneCore": 2.869757174392936,
+        "wholeProbePeakRssMiB": 39.765625,
+        "textSsimFramesLowerThanControl": 105,
+        "textSsimWorstDelta": -0.0002729999999999677,
+        "textSsimPhaseMeans": {
+          "still": 0.9991992,
+          "typing": 0.9995821333333333,
+          "scrolling": 0.9996308333333334,
+          "window-movement": 0.9993134666666666
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-2500-quality",
+        "specification": "hevc:compatible:2500:quality",
+        "payloadMbps": 0.777661,
+        "payloadBytesSavedPercent": 37.73107797017315,
+        "encodeCallbackP95Ms": 15.238542,
+        "wholeProbeCpuPercentOneCore": 4.198895027624309,
+        "wholeProbePeakRssMiB": 39.6875,
+        "textSsimFramesLowerThanControl": 105,
+        "textSsimWorstDelta": -0.00022800000000000598,
+        "textSsimPhaseMeans": {
+          "still": 0.9992325833333333,
+          "typing": 0.9996115,
+          "scrolling": 0.9996519166666666,
+          "window-movement": 0.99931195
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-4000-quality",
+        "specification": "hevc:compatible:4000:quality",
+        "payloadMbps": 0.809041,
+        "payloadBytesSavedPercent": 35.21841657491742,
+        "encodeCallbackP95Ms": 14.614,
+        "wholeProbeCpuPercentOneCore": 3.5359116022099446,
+        "wholeProbePeakRssMiB": 39.78125,
+        "textSsimFramesLowerThanControl": 73,
+        "textSsimWorstDelta": -0.00014100000000005775,
+        "textSsimPhaseMeans": {
+          "still": 0.9993616333333333,
+          "typing": 0.9996845833333333,
+          "scrolling": 0.9997325166666666,
+          "window-movement": 0.9994387
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      }
+    ],
+    "higher": [
+      {
+        "name": "run-1-h264-compatible-3000",
+        "specification": "h264:compatible:3000",
+        "payloadMbps": 1.248875,
+        "payloadBytesSavedPercent": 0.0,
+        "encodeCallbackP95Ms": 12.539791999999998,
+        "wholeProbeCpuPercentOneCore": 3.0939226519337018,
+        "wholeProbePeakRssMiB": 39.84375,
+        "textSsimFramesLowerThanControl": 0,
+        "textSsimWorstDelta": 0.0,
+        "textSsimPhaseMeans": {
+          "still": 0.9984430999999999,
+          "typing": 0.9992013,
+          "scrolling": 0.9998438000000001,
+          "window-movement": 0.9993789999999999
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-8000-quality",
+        "specification": "hevc:compatible:8000:quality",
+        "payloadMbps": 1.056907,
+        "payloadBytesSavedPercent": 15.37127414673206,
+        "encodeCallbackP95Ms": 15.169042000000001,
+        "wholeProbeCpuPercentOneCore": 3.867403314917127,
+        "wholeProbePeakRssMiB": 39.9375,
+        "textSsimFramesLowerThanControl": 0,
+        "textSsimWorstDelta": 3.0000000000085514e-05,
+        "textSsimPhaseMeans": {
+          "still": 0.9996862,
+          "typing": 0.9998862000000001,
+          "scrolling": 0.9999106833333333,
+          "window-movement": 0.9997655833333333
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-12000-quality",
+        "specification": "hevc:compatible:12000:quality",
+        "payloadMbps": 1.13493,
+        "payloadBytesSavedPercent": 9.123811430287255,
+        "encodeCallbackP95Ms": 15.1235,
+        "wholeProbeCpuPercentOneCore": 4.088397790055248,
+        "wholeProbePeakRssMiB": 40.125,
+        "textSsimFramesLowerThanControl": 0,
+        "textSsimWorstDelta": 3.0000000000085514e-05,
+        "textSsimPhaseMeans": {
+          "still": 0.9997964666666667,
+          "typing": 0.9998812499999999,
+          "scrolling": 0.9999313333333333,
+          "window-movement": 0.9998330666666667
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      {
+        "name": "run-1-hevc-compatible-20000-quality",
+        "specification": "hevc:compatible:20000:quality",
+        "payloadMbps": 1.334991,
+        "payloadBytesSavedPercent": -6.895485937343615,
+        "encodeCallbackP95Ms": 15.090042,
+        "wholeProbeCpuPercentOneCore": 3.9735099337748343,
+        "wholeProbePeakRssMiB": 40.09375,
+        "textSsimFramesLowerThanControl": 0,
+        "textSsimWorstDelta": 3.0000000000085514e-05,
+        "textSsimPhaseMeans": {
+          "still": 0.9998665,
+          "typing": 0.9999010333333334,
+          "scrolling": 0.9999690833333333,
+          "window-movement": 0.9999238666666667
+        },
+        "foregroundAggregateFramesWorse": 0,
+        "foregroundChannelFramesWorse": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      }
+    ]
+  },
+  "scope": "Two nine-second generated-pixel pilots; one session per HEVC variant. Whole-probe CPU/RSS include startup and I/O. No capture, native receiver, wire/relay cost, power, full application or profile admission."
+}

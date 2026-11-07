@@ -1,0 +1,19 @@
+{
+  "source": "b16f75110b683dfc619b1bf262bc2c3788f5c34a",
+  "scope": "Synthetic encrypted UDP plus exact optional FrameBudget cap observation. Native results are a separate application proof.",
+  "counts": {
+    "flow-epoch-contract": 1,
+    "probe-lifetime-contracts": 5,
+    "probe-contracts": 7,
+    "probe-network": 10,
+    "producer-debt-contracts": 6,
+    "feedback-epoch-contract": 1
+  },
+  "selectedRustPassed": 30,
+  "strictClippy": true,
+  "newDependenciesOrFeatures": false,
+  "productionAdmission": false,
+  "archive": "/Users/sondre/Documents/Fincode Desktop Lab Evidence/2026-11-07/quiet-cap",
+  "archiveOriginals": 15,
+  "ownedGroups": 11
+}

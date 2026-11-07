@@ -1,0 +1,21 @@
+hardware=true width=1280 height=720 fps=30 frames=60 keyframes=1 bytes=64266 encoded_kbps=257.1 encode_p50_ms=7.64 encode_p95_ms=7.82 wall_seconds=1.979
+real 2.24
+user 0.07
+sys 0.05
+            38830080  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2149  page reclaims
+                 615  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 136  voluntary context switches
+                1057  involuntary context switches
+           799057376  instructions retired
+           305865284  cycles elapsed
+            12370664  peak memory footprint

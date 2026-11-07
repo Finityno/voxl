@@ -1,0 +1,223 @@
+{
+  "beforeSource": "0ad2646386e3a1ad7f6996632ad97b5bce7ce14d",
+  "afterSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+  "cases": [
+    {
+      "case": "h264-hardware-compatible-video-none",
+      "beforeBytes": 13124,
+      "afterBytes": 13124,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-compatible-video-bt709",
+      "beforeBytes": 13124,
+      "afterBytes": 13132,
+      "deltaBytes": 8,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-compatible-video-srgb",
+      "beforeBytes": 13124,
+      "afterBytes": 13132,
+      "deltaBytes": 8,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-compatible-full-none",
+      "beforeBytes": 12482,
+      "afterBytes": 12482,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-compatible-full-bt709",
+      "beforeBytes": 12482,
+      "afterBytes": 12482,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-compatible-full-srgb",
+      "beforeBytes": 12482,
+      "afterBytes": 12482,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-none",
+      "beforeBytes": 3566,
+      "afterBytes": 3566,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-bt709",
+      "beforeBytes": 3566,
+      "afterBytes": 3576,
+      "deltaBytes": 10,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-srgb",
+      "beforeBytes": 3566,
+      "afterBytes": 3576,
+      "deltaBytes": 10,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-none",
+      "beforeBytes": 3181,
+      "afterBytes": 3181,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-bt709",
+      "beforeBytes": 3181,
+      "afterBytes": 3181,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-srgb",
+      "beforeBytes": 3181,
+      "afterBytes": 3181,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-video-none",
+      "beforeBytes": 6494,
+      "afterBytes": 6494,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-video-bt709",
+      "beforeBytes": 6494,
+      "afterBytes": 6504,
+      "deltaBytes": 10,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-video-srgb",
+      "beforeBytes": 6494,
+      "afterBytes": 6504,
+      "deltaBytes": 10,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-full-none",
+      "beforeBytes": 5653,
+      "afterBytes": 5653,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-full-bt709",
+      "beforeBytes": 5653,
+      "afterBytes": 5653,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "hevc-hardware-compatible-full-srgb",
+      "beforeBytes": 5653,
+      "afterBytes": 5653,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 20,
+      "pictureNalCountAfter": 20,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-video-none",
+      "beforeBytes": 12986,
+      "afterBytes": 12986,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-video-bt709",
+      "beforeBytes": 12986,
+      "afterBytes": 12986,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-video-srgb",
+      "beforeBytes": 12986,
+      "afterBytes": 12986,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-full-none",
+      "beforeBytes": 12883,
+      "afterBytes": 12883,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-full-bt709",
+      "beforeBytes": 12883,
+      "afterBytes": 12883,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    },
+    {
+      "case": "h264-software-compatible-full-srgb",
+      "beforeBytes": 12883,
+      "afterBytes": 12883,
+      "deltaBytes": 0,
+      "pictureNalCountBefore": 160,
+      "pictureNalCountAfter": 160,
+      "allCompressedPictureNalsEqual": true
+    }
+  ],
+  "scope": "Static binary NAL comparison of completed independently-decoded fixtures, no new encoder execution. Same compressed picture bytes do not prove color interpretation without signaling; byte deltas are this short generated fixture, not wire or matched-quality savings."
+}

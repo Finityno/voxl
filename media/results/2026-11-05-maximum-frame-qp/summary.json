@@ -1,0 +1,340 @@
+{
+  "source": "ef7ed1071728a84ec439f7d0e78c4d42d5e7673f",
+  "oldControlSource": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "selectedRustTestsPassed": 3,
+  "selectedPythonProfileTestsPassed": 2,
+  "tinyNativeAvailableCombinations": 8,
+  "tinyAvailabilityDecodedFrames": 256,
+  "oldCurrentDefaultDecodedPairs": 3,
+  "oldCurrentDefaultDecodedFrames": 192,
+  "hdCompletedStreams": 5,
+  "hdDecodedFramesIncludingWarmup": 2700,
+  "hdObservedFrames": 2400,
+  "hdCases": [
+    {
+      "specification": "h264:compatible:3000",
+      "observedAnnexBMbps": 1.545525,
+      "encodeP95Ms": 11.740791999999999,
+      "processResources": {
+        "wallSeconds": 9.18,
+        "userSeconds": 0.24,
+        "systemSeconds": 0.39,
+        "averageCpuPercentOneCore": 6.862745098039216,
+        "maximumResidentBytes": 41713664,
+        "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+      },
+      "foreground": {
+        "meanAbsoluteForegroundRgbCodeError": 13.873429982525417,
+        "worseAggregateFrames": 0,
+        "worseChannelFrames": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      },
+      "textSsim": {
+        "mean": 0.9992012124999999,
+        "minimum": 0.997894,
+        "phaseMeans": {
+          "still": 0.9983631916666666,
+          "typing": 0.9991980083333334,
+          "scrolling": 0.9998834750000001,
+          "window-movement": 0.999360175
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      },
+      "encodedSha256": "3b86b5ad30f2d78b9f1d670d63a8ccf4aa3898bb7f7092bcffafee448224fbb9",
+      "normalizedRgbSha256": "cad8527054e46b43c71de73db9333c7cb2ea2c73b6a077ce7a4bd86713998ebc",
+      "nativeProperty": {
+        "requested": null,
+        "nativePropertyVerified": false,
+        "scope": "Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."
+      }
+    },
+    {
+      "specification": "hevc:low-latency-compatible:12000",
+      "observedAnnexBMbps": 1.242474,
+      "encodeP95Ms": 5.537167,
+      "processResources": {
+        "wallSeconds": 9.2,
+        "userSeconds": 0.27,
+        "systemSeconds": 0.37,
+        "averageCpuPercentOneCore": 6.9565217391304355,
+        "maximumResidentBytes": 49135616,
+        "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+      },
+      "foreground": {
+        "meanAbsoluteForegroundRgbCodeError": 13.173647847449164,
+        "worseAggregateFrames": 12,
+        "worseChannelFrames": {
+          "r": 12,
+          "g": 13,
+          "b": 12
+        }
+      },
+      "textSsim": {
+        "mean": 0.9995849520833333,
+        "minimum": 0.997184,
+        "phaseMeans": {
+          "still": 0.9995719333333334,
+          "typing": 0.999581275,
+          "scrolling": 0.9996567083333333,
+          "window-movement": 0.9995298916666666
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      },
+      "encodedSha256": "e33ca4851400bbf4b283c87907768d08b10cc61372852c710cec5d05831702d3",
+      "normalizedRgbSha256": "c495bcc52d90e7f5a79ee65286d409cdb95c321354dcb6943c3ada5a4c682dba",
+      "nativeProperty": {
+        "requested": null,
+        "nativePropertyVerified": false,
+        "scope": "Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."
+      }
+    },
+    {
+      "specification": "hevc:low-latency-compatible:12000:qp36",
+      "observedAnnexBMbps": 1.242474,
+      "encodeP95Ms": 5.572,
+      "processResources": {
+        "wallSeconds": 9.19,
+        "userSeconds": 0.26,
+        "systemSeconds": 0.37,
+        "averageCpuPercentOneCore": 6.855277475516867,
+        "maximumResidentBytes": 49315840,
+        "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+      },
+      "foreground": {
+        "meanAbsoluteForegroundRgbCodeError": 13.173647847449164,
+        "worseAggregateFrames": 12,
+        "worseChannelFrames": {
+          "r": 12,
+          "g": 13,
+          "b": 12
+        }
+      },
+      "textSsim": {
+        "mean": 0.9995849520833333,
+        "minimum": 0.997184,
+        "phaseMeans": {
+          "still": 0.9995719333333334,
+          "typing": 0.999581275,
+          "scrolling": 0.9996567083333333,
+          "window-movement": 0.9995298916666666
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      },
+      "encodedSha256": "e33ca4851400bbf4b283c87907768d08b10cc61372852c710cec5d05831702d3",
+      "normalizedRgbSha256": "c495bcc52d90e7f5a79ee65286d409cdb95c321354dcb6943c3ada5a4c682dba",
+      "nativeProperty": {
+        "requested": 36,
+        "nativePropertyVerified": true,
+        "scope": "Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."
+      }
+    },
+    {
+      "specification": "hevc:low-latency-compatible:12000:qp32",
+      "observedAnnexBMbps": 1.242474,
+      "encodeP95Ms": 5.611708,
+      "processResources": {
+        "wallSeconds": 9.2,
+        "userSeconds": 0.28,
+        "systemSeconds": 0.39,
+        "averageCpuPercentOneCore": 7.282608695652175,
+        "maximumResidentBytes": 49315840,
+        "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+      },
+      "foreground": {
+        "meanAbsoluteForegroundRgbCodeError": 13.173647847449164,
+        "worseAggregateFrames": 12,
+        "worseChannelFrames": {
+          "r": 12,
+          "g": 13,
+          "b": 12
+        }
+      },
+      "textSsim": {
+        "mean": 0.9995849520833333,
+        "minimum": 0.997184,
+        "phaseMeans": {
+          "still": 0.9995719333333334,
+          "typing": 0.999581275,
+          "scrolling": 0.9996567083333333,
+          "window-movement": 0.9995298916666666
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      },
+      "encodedSha256": "e33ca4851400bbf4b283c87907768d08b10cc61372852c710cec5d05831702d3",
+      "normalizedRgbSha256": "c495bcc52d90e7f5a79ee65286d409cdb95c321354dcb6943c3ada5a4c682dba",
+      "nativeProperty": {
+        "requested": 32,
+        "nativePropertyVerified": true,
+        "scope": "Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."
+      }
+    },
+    {
+      "specification": "hevc:low-latency-compatible:12000:qp34",
+      "observedAnnexBMbps": 1.242474,
+      "encodeP95Ms": 5.616625,
+      "processResources": {
+        "wallSeconds": 9.21,
+        "userSeconds": 0.29,
+        "systemSeconds": 0.42,
+        "averageCpuPercentOneCore": 7.70901194353963,
+        "maximumResidentBytes": 49348608,
+        "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+      },
+      "foreground": {
+        "meanAbsoluteForegroundRgbCodeError": 13.173647847449164,
+        "worseAggregateFrames": 12,
+        "worseChannelFrames": {
+          "r": 12,
+          "g": 13,
+          "b": 12
+        }
+      },
+      "textSsim": {
+        "mean": 0.9995849520833333,
+        "minimum": 0.997184,
+        "phaseMeans": {
+          "still": 0.9995719333333334,
+          "typing": 0.999581275,
+          "scrolling": 0.9996567083333333,
+          "window-movement": 0.9995298916666666
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      },
+      "encodedSha256": "e33ca4851400bbf4b283c87907768d08b10cc61372852c710cec5d05831702d3",
+      "normalizedRgbSha256": "c495bcc52d90e7f5a79ee65286d409cdb95c321354dcb6943c3ada5a4c682dba",
+      "nativeProperty": {
+        "requested": 34,
+        "nativePropertyVerified": true,
+        "scope": "Absent leaves the property untouched. Explicit limits require matching integer readback, not an actual per-frame QP observation. Native drops remain terminal and prevent full frame-count/quality qualification."
+      }
+    }
+  ],
+  "failedHdSpecification": "hevc:low-latency-compatible:12000:qp28",
+  "failedHdPrefix": {
+    "specification": "hevc:low-latency-compatible:12000:qp28",
+    "decodedPrefixFrames": 2,
+    "expectedWarmupFrames": 60,
+    "expectedObservedFrames": 480,
+    "observedPhaseNotReached": true,
+    "encodedSha256": "c6620bf2959bffa2f85e98d8c869c893760d83c667c9139de4d6c1e0416e5f1b",
+    "framedSha256": "1bc975d55383bece3d4a8473ae84b1e3b01db768930628ee582926fe58e483c5",
+    "scope": "Existing failed-stream prefix only, not a complete/available mode or repeated native attempt."
+  },
+  "priorSupervisorFailures": {
+    "initial": "Missing harness ffmpeg metadata; no compilation occurred.",
+    "contracts": "After successful build/Clippy/selected tests and one32-frame native stream, an availability postprocessor incorrectly required a full one-second bitrate window. Separate continuation decodes that retained stream without encoder/test replay.",
+    "matched-failure": "QP28 accepted typed readback but failed with native dropped-output flag2 during warmup. Three earlier independently decoded streams analyzed separately without native replay."
+  },
+  "independentlyAbsentOwnedGroups": [
+    41313,
+    41318,
+    42432,
+    42437,
+    42442,
+    42447,
+    42452,
+    42457,
+    42462,
+    42469,
+    42505,
+    42519,
+    42554,
+    42566,
+    42578,
+    42593,
+    42599,
+    44873,
+    44880,
+    44887,
+    44892,
+    44901,
+    44906,
+    44913,
+    44918,
+    44925,
+    44930,
+    44937,
+    44942,
+    44949,
+    44954,
+    44961,
+    44966,
+    44973,
+    44978,
+    44986,
+    44991,
+    44998,
+    45003,
+    45024,
+    45029,
+    45036,
+    45041,
+    45048,
+    45053,
+    46623,
+    46628,
+    46633,
+    46638,
+    46643,
+    46648,
+    46653,
+    46658,
+    46669,
+    46684,
+    46693,
+    46719,
+    46724,
+    46729,
+    46736,
+    46776,
+    46781,
+    46786,
+    46791,
+    46827,
+    46832,
+    46861,
+    46885,
+    48518,
+    50962,
+    50967,
+    51002,
+    51007,
+    51012,
+    51019,
+    51032,
+    51037,
+    51042,
+    51047
+  ],
+  "productionAdmission": false,
+  "consumingApplicationMediaPin": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "scope": "Component experiment only, one device/generated clip. Middle candidates reuse the earlier exact-source baseline; no statistical paired timing/sustained/physical/application/hardware-decoder quality/resource/billed-cost proof. QP32/34/36 show no payload/foreground improvement; QP28 HD startup failure remains unavailable. Integer readback does not observe actual per-frame QP. No fallback to another requested setting, default/target/rate/frame-bound relaxation or app-pin update."
+}

@@ -1,0 +1,7 @@
+{
+  "allocate_success": 8,
+  "create_permission_success": 10,
+  "channel_bind_success": 20,
+  "authentication_401_challenges": 8,
+  "private_database_open_success": true
+}

@@ -1,0 +1,17 @@
+timeout -k 5 30 git fetch origin fincode/desktop-streaming 
+git switch --detach 32569b3f6816353f85e5d7a453099dd1a565996b 
+timeout -k 5 600 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short 
+timeout -k 5 300 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --examples -j2 -q --message-format=short -- -D warnings 
+timeout -k 5 30 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short turn_stream_framing_preserves_coalesced_and_fragmented_packets -- --nocapture 
+timeout -k 5 30 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short turn_stream_datagrams_reject_invalid_lengths_and_framing -- --nocapture 
+timeout -k 5 360 python3 /workspace/voxl-turn-stream-validation-32569b3/fixture.py
+timeout -k 5 10 openssl req -x509 -newkey rsa:2048 -nodes -keyout /tmp/voxl-coturn-ayj7pkb9/ca.key -out /tmp/voxl-coturn-ayj7pkb9/ca.pem -days 1 -subj '/CN=Disposable fixture CA' -addext basicConstraints=critical,CA:TRUE -addext keyUsage=critical,keyCertSign,cRLSign
+timeout -k 5 10 openssl req -new -newkey rsa:2048 -nodes -keyout /tmp/voxl-coturn-ayj7pkb9/server.key -out /tmp/voxl-coturn-ayj7pkb9/server.csr -subj /CN=127.0.0.1
+timeout -k 5 10 openssl x509 -req -in /tmp/voxl-coturn-ayj7pkb9/server.csr -CA /tmp/voxl-coturn-ayj7pkb9/ca.pem -CAkey /tmp/voxl-coturn-ayj7pkb9/ca.key -CAcreateserial -out /tmp/voxl-coturn-ayj7pkb9/server.pem -days 1 -extfile /tmp/voxl-coturn-ayj7pkb9/extensions
+timeout -k 5 10 openssl x509 -in /tmp/voxl-coturn-ayj7pkb9/ca.pem -outform DER -out /tmp/voxl-coturn-ayj7pkb9/ca.der
+timeout -k 5 10 openssl verify -CAfile /tmp/voxl-coturn-ayj7pkb9/ca.pem -purpose sslserver -verify_ip 127.0.0.1 /tmp/voxl-coturn-ayj7pkb9/server.pem
+timeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media -- --ignored --nocapture
+timeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media -- --ignored --nocapture
+timeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_forced_relay_tls_validates_certificate_and_carries_media -- --ignored --nocapture
+timeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store -- --ignored --nocapture
+timeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc_direct_media_survives_an_unused_tcp_relay_failure -- --ignored --nocapture

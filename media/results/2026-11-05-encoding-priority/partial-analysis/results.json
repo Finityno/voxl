@@ -1,0 +1,72 @@
+{
+  "source": "53cf75a21adcd3cb4d322a2492a320a767cf0495",
+  "helperSha256": "5a39fa76fa5ad1b0093f904d1994e8084d84272822efae7055afa8249d260467",
+  "terminal": true,
+  "exitCode": 0,
+  "steps": [
+    {
+      "name": "analyze-three-completed-cases",
+      "command": [
+        "/usr/bin/lockf",
+        "-k",
+        "-t",
+        "45",
+        "/tmp/fincode-build.lock",
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/analyze-text-workload.py",
+        "--fixture",
+        "$FIXTURE",
+        "--baseline",
+        "run-1-h264-compatible-3000",
+        "--floor",
+        "uncompressed420",
+        "--decoded",
+        "uncompressed420=$LOW_LATENCY_PILOT/private/floor.rgb",
+        "--observed-frames",
+        "240",
+        "--capture-warmup-frames",
+        "30",
+        "--engine",
+        "numpy",
+        "--output",
+        "$PARTIAL_ANALYSIS/foreground.json",
+        "--decoded",
+        "run-1-h264-compatible-3000=$LOW_LATENCY_PILOT/private/run-1-h264-compatible-3000/thin.rgb",
+        "--decoded",
+        "run-1-h264-low-latency-compatible-3000=$LOW_LATENCY_PILOT/private/run-1-h264-low-latency-compatible-3000/thin.rgb",
+        "--decoded",
+        "run-1-hevc-compatible-1500=$LOW_LATENCY_PILOT/private/run-1-hevc-compatible-1500/thin.rgb"
+      ],
+      "deadlineSeconds": 350,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.753,
+      "pgid": 87427,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/analyze-three-completed-cases.log",
+      "logSha256": "fb5bfe1b31401bf4e8082e54eea72921048440ba35157abfddb3048744bed5eb",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "logs/analyze-three-completed-cases.log.gz"
+    }
+  ],
+  "cases": [],
+  "unexecutedCases": [],
+  "plan": {
+    "warmupSeconds": 1,
+    "observationSeconds": 8,
+    "independentRuns": 1,
+    "cases": []
+  },
+  "productionAdmission": false,
+  "unsupportedCurrentNativeProfiles": [
+    "av1"
+  ],
+  "limits": "Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission."
+}

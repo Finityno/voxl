@@ -1,0 +1,106 @@
+{
+  "tests": {
+    "webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media": {
+      "exit": 0
+    },
+    "webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media": {
+      "exit": 0
+    },
+    "webrtc_forced_relay_tls_validates_certificate_and_carries_media": {
+      "exit": 0
+    },
+    "webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store": {
+      "exit": 0
+    },
+    "webrtc_direct_media_survives_an_unused_tcp_relay_failure": {
+      "exit": 0
+    }
+  },
+  "groups": [
+    {
+      "name": "certificate-0",
+      "pgid": 49135,
+      "gone": true
+    },
+    {
+      "name": "certificate-1",
+      "pgid": 49137,
+      "gone": true
+    },
+    {
+      "name": "certificate-2",
+      "pgid": 49139,
+      "gone": true
+    },
+    {
+      "name": "certificate-3",
+      "pgid": 49141,
+      "gone": true
+    },
+    {
+      "name": "certificate-4",
+      "pgid": 49143,
+      "gone": true
+    },
+    {
+      "name": "coturn",
+      "pgid": 49145,
+      "gone": true
+    },
+    {
+      "name": "webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media",
+      "pgid": 49151,
+      "gone": true
+    },
+    {
+      "name": "webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media",
+      "pgid": 49168,
+      "gone": true
+    },
+    {
+      "name": "webrtc_forced_relay_tls_validates_certificate_and_carries_media",
+      "pgid": 49179,
+      "gone": true
+    },
+    {
+      "name": "webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store",
+      "pgid": 49190,
+      "gone": true
+    },
+    {
+      "name": "webrtc_direct_media_survives_an_unused_tcp_relay_failure",
+      "pgid": 49200,
+      "gone": true
+    }
+  ],
+  "fixture_started": true,
+  "webrtc_direct_media_survives_an_unused_tcp_relay_failure_exit": 0,
+  "webrtc_turn_tls_rejects_a_certificate_outside_the_trust_store_exit": 0,
+  "webrtc_forced_relay_tls_validates_certificate_and_carries_media_exit": 0,
+  "webrtc_forced_relay_tcp_uses_a_nominated_relay_and_carries_media_exit": 0,
+  "webrtc_forced_relay_udp_uses_a_nominated_relay_and_carries_media_exit": 0,
+  "coturn_exit": -15,
+  "certificate-4_exit": 0,
+  "certificate-3_exit": 0,
+  "certificate-2_exit": 0,
+  "certificate-1_exit": 0,
+  "certificate-0_exit": 0,
+  "private_database": {
+    "exists": true,
+    "size": 69632,
+    "tables": [
+      "turnusers_lt",
+      "turn_secret",
+      "allowed_peer_ip",
+      "denied_peer_ip",
+      "turn_origin_to_realm",
+      "turn_realm_option",
+      "oauth_key",
+      "admin_user"
+    ]
+  },
+  "private_state_removed": true,
+  "descendants_reaped": 0,
+  "fixture_ports_rebindable": true,
+  "supervisor_exit": 0
+}

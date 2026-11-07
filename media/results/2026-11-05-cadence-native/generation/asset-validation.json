@@ -1,0 +1,72 @@
+{
+  "source": "1f94f7618dc3e11abb15ad858112c8f4686a2320",
+  "default30ByteControls": {
+    "manifest.json": {
+      "originalSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+      "currentSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+      "byteIdentical": true
+    },
+    "reference.nv12": {
+      "originalSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+      "currentSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+      "byteIdentical": true
+    },
+    "reference-thin.rgb": {
+      "originalSha256": "7eff53332664f1013fdbc8579072fcad3863fc37bd18ba5dcde999796ec8f655",
+      "currentSha256": "7eff53332664f1013fdbc8579072fcad3863fc37bd18ba5dcde999796ec8f655",
+      "byteIdentical": true
+    }
+  },
+  "default30Calibration": {
+    "backgroundRgb": [
+      14,
+      15,
+      18
+    ],
+    "sourceInkPixels": 3856,
+    "evaluatedPixelsIncludingHalo": 9792,
+    "totalRegionPixels": 96320,
+    "contrastThresholdCodes": 8,
+    "haloPixels": 1,
+    "independentMatrixMaxCodeDifference": 0,
+    "matrixSamplesPerCheckedFrame": 163,
+    "checkedSourceFrames": [
+      0,
+      269
+    ],
+    "staticReferenceFramesVerified": 270
+  },
+  "source60Calibration": {
+    "backgroundRgb": [
+      14,
+      15,
+      18
+    ],
+    "sourceInkPixels": 3856,
+    "evaluatedPixelsIncludingHalo": 9792,
+    "totalRegionPixels": 96320,
+    "contrastThresholdCodes": 8,
+    "haloPixels": 1,
+    "independentMatrixMaxCodeDifference": 0,
+    "matrixSamplesPerCheckedFrame": 163,
+    "checkedSourceFrames": [
+      0,
+      539
+    ],
+    "staticReferenceFramesVerified": 540
+  },
+  "source60ManifestSha256": "f36304c68ea2c8095d23541080673d41c4545d21da66b9b0e3200bc3687fe2fb",
+  "source60Clock": {
+    "fps": 60,
+    "prefix": 60,
+    "cycle": 480,
+    "total": 540
+  },
+  "consecutiveMotionFrameHashes": [
+    "d6d2949dfe8519f83e822b98f45838e4e4cf54abdf5f73a2737571cd4d033647",
+    "1e3cfd07bcb32b081dbc960fad5801fab2619f639ad8a57a4646c508b9817564",
+    "4f5b1258b8124ea9c7eb1218cca4fe96c865d9b3723d4e3c2fd869bc757b5984",
+    "86d98f2d5edb92bf093d681167d31d43099a9867de24264158f029f0d37c6fef"
+  ],
+  "scope": "Fresh offscreen generated assets and independent source calibration only. No native encoder/decoder/capture/window/input or performance/profile admission. Source motion hashes show consecutive generated frames differ, not actual viewer presentation."
+}

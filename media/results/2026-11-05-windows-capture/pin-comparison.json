@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "name": "rtc",
+      "version": "0.21.1",
+      "oldSource": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "newSource": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b"
+    },
+    {
+      "name": "voxl-media",
+      "version": "0.1.0",
+      "oldSource": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "newSource": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b"
+    },
+    {
+      "name": "webrtc",
+      "version": "0.21.1",
+      "oldSource": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "newSource": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b"
+    }
+  ],
+  "packageCountUnchanged": 1321,
+  "selected": [
+    {
+      "name": "rtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+      "features": [
+        "crypto-aws-lc-rs"
+      ]
+    },
+    {
+      "name": "voxl-media",
+      "version": "0.1.0",
+      "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+      "features": [
+        "webrtc"
+      ]
+    },
+    {
+      "name": "webrtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+      "features": [
+        "crypto-aws-lc-rs",
+        "runtime-tokio"
+      ]
+    }
+  ],
+  "noOtherVersionsPackagesDependenciesChanged": true
+}

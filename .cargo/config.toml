@@ -1,0 +1,5 @@
+[target.aarch64-apple-darwin]
+# AES 0.8 defaults to software on ARM. Its opt-in detector selects ARMv8 crypto
+# at runtime and retains the constant-time fallback when unavailable. Embedders
+# must enable this in their own Cargo config; dependency configs do not propagate.
+rustflags = ["--cfg", "aes_armv8"]

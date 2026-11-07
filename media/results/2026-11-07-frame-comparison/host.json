@@ -1,0 +1,12 @@
+{
+  "scope": "read-only host metadata; no benchmark or codec capability claim",
+  "values": {
+    "machdep.cpu.brand_string": "Apple M5 Pro",
+    "hw.memsize": "25769803776",
+    "hw.ncpu": "18",
+    "hw.perflevel0.physicalcpu": "6",
+    "hw.perflevel1.physicalcpu": "12",
+    "kern.osproductversion": "27.2",
+    "kern.osversion": "26B5101f"
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "name": "run-1-hevc-compatible-1500-speed",
+  "specification": "hevc:compatible:1500:speed",
+  "independentRun": 1,
+  "oraclesComplete": true,
+  "encodingAndDecodeOraclesComplete": true,
+  "inputSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+  "encodedSha256": "8156f9ddd75da0db365bf08c203ce947b55f84f55d77310ff90658854acb069d",
+  "framedSha256": "56026371272a34456a670e24c3d24fe62a705367c84ff15994063cadfc410b28",
+  "normalizedRgbSha256": "bf15e6f77bebdb33966f11c6136bc12e02488e147e341d9844b3dab8a8343123",
+  "actualDecodedMetadata": {
+    "codec_name": "hevc",
+    "profile": "Main",
+    "width": 1920,
+    "height": 1080,
+    "pix_fmt": "yuvj420p",
+    "color_range": "pc",
+    "color_space": "bt709",
+    "color_transfer": "iec61966-2-1",
+    "color_primaries": "bt709",
+    "nb_read_frames": "270"
+  },
+  "hardwareSelection": "QueriedHardware",
+  "accessUnits": {
+    "totalFrames": 270,
+    "observedFrames": 240,
+    "keyframeIndices": [
+      0,
+      60,
+      120,
+      180,
+      240
+    ],
+    "totalAnnexBBytes": 1124846,
+    "observedAnnexBBytes": 1002146,
+    "meanAnnexBMbps": 1.002146,
+    "p95OneSecondAnnexBMbps": 1.875264,
+    "peakOneSecondAnnexBMbps": 1.875264,
+    "firstFrameAnnexBBytes": 48239
+  },
+  "encodeLatencyMs": {
+    "p50": 7.543542,
+    "p95": 10.541584,
+    "maximum": 11.204375,
+    "scope": "encode call to output callback received, excludes source read/fill"
+  },
+  "probeWallSeconds": 8.977,
+  "pacing": {
+    "nominalFirstToLastFrameSeconds": 8.966666666666667,
+    "wallMinusNominalSeconds": 0.010333333333333528,
+    "scope": "Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."
+  },
+  "processResources": {
+    "wallSeconds": 9.05,
+    "userSeconds": 0.13,
+    "systemSeconds": 0.21,
+    "averageCpuPercentOneCore": 3.756906077348066,
+    "maximumResidentBytes": 41697280,
+    "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+  },
+  "quality": {
+    "full": {
+      "frames": 240,
+      "channels": {
+        "Y": {
+          "mean": 0.9986718375,
+          "minimum": 0.997795,
+          "phaseMeans": {
+            "still": 0.9982529333333333,
+            "typing": 0.9984349,
+            "scrolling": 0.9991579166666666,
+            "window-movement": 0.9988416
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "U": {
+          "mean": 0.9987962583333334,
+          "minimum": 0.997788,
+          "phaseMeans": {
+            "still": 0.9984166499999999,
+            "typing": 0.9990056666666667,
+            "scrolling": 0.9992985666666667,
+            "window-movement": 0.99846415
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "V": {
+          "mean": 0.9987287833333334,
+          "minimum": 0.997544,
+          "phaseMeans": {
+            "still": 0.9982361833333333,
+            "typing": 0.9988782500000001,
+            "scrolling": 0.9991778666666666,
+            "window-movement": 0.9986228333333333
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "All": {
+          "mean": 0.9987020458333333,
+          "minimum": 0.997753,
+          "phaseMeans": {
+            "still": 0.9982774166666667,
+            "typing": 0.9986039000000001,
+            "scrolling": 0.9991846666666666,
+            "window-movement": 0.9987422
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        }
+      }
+    },
+    "text": {
+      "frames": 240,
+      "channels": {
+        "Y": {
+          "mean": 0.9988656916666667,
+          "minimum": 0.998054,
+          "phaseMeans": {
+            "still": 0.9985712,
+            "typing": 0.9986151,
+            "scrolling": 0.9993883166666666,
+            "window-movement": 0.9988881500000001
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "U": {
+          "mean": 0.9987277083333334,
+          "minimum": 0.997767,
+          "phaseMeans": {
+            "still": 0.9983987666666666,
+            "typing": 0.9989917666666667,
+            "scrolling": 0.9993244666666666,
+            "window-movement": 0.9981958333333334
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "V": {
+          "mean": 0.9987510749999999,
+          "minimum": 0.997545,
+          "phaseMeans": {
+            "still": 0.9982880000000001,
+            "typing": 0.9989759,
+            "scrolling": 0.9992829833333333,
+            "window-movement": 0.9984574166666668
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "All": {
+          "mean": 0.9988235916666667,
+          "minimum": 0.998162,
+          "phaseMeans": {
+            "still": 0.9984953333333333,
+            "typing": 0.99873795,
+            "scrolling": 0.9993601333333333,
+            "window-movement": 0.99870095
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        }
+      }
+    },
+    "thin": {
+      "frames": 240,
+      "channels": {
+        "Y": {
+          "mean": 0.9977082291666667,
+          "minimum": 0.996301,
+          "phaseMeans": {
+            "still": 0.9975978833333333,
+            "typing": 0.9976744166666667,
+            "scrolling": 0.9976316333333333,
+            "window-movement": 0.9979289833333334
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "U": {
+          "mean": 0.9974131958333333,
+          "minimum": 0.994237,
+          "phaseMeans": {
+            "still": 0.99584965,
+            "typing": 0.9973894,
+            "scrolling": 0.99807625,
+            "window-movement": 0.9983374833333334
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "V": {
+          "mean": 0.9975622666666666,
+          "minimum": 0.993977,
+          "phaseMeans": {
+            "still": 0.9957607833333333,
+            "typing": 0.9974875833333333,
+            "scrolling": 0.9983487833333334,
+            "window-movement": 0.9986519166666666
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        },
+        "All": {
+          "mean": 0.9976346625,
+          "minimum": 0.995848,
+          "phaseMeans": {
+            "still": 0.9970002166666667,
+            "typing": 0.9975956833333334,
+            "scrolling": 0.9978252333333334,
+            "window-movement": 0.9981175166666667
+          },
+          "phaseFrames": {
+            "still": 60,
+            "typing": 60,
+            "scrolling": 60,
+            "window-movement": 60
+          }
+        }
+      }
+    }
+  },
+  "rgbPath": "$PRIORITY_PILOT/private/run-1-hevc-compatible-1500-speed/thin.rgb",
+  "encodingPriority": {
+    "requested": "speed",
+    "nativePropertyVerified": true,
+    "scope": "Default leaves the property untouched; explicit values require matching CFBoolean readback. Setter acceptance alone is insufficient; quality/speed gains require separate measurements."
+  },
+  "foregroundAnalysis": {
+    "file": "foreground-run-1.json",
+    "sha256": "5cd7f3f0ba1ce45b28d700b004cf712391b015febc746f4d674573a15db12e05",
+    "meanAbsoluteForegroundRgbCodeError": 13.64704577432825,
+    "worseAggregateFrames": 20,
+    "worseAggregateChannelFrames": {
+      "r": 4,
+      "g": 174,
+      "b": 31
+    },
+    "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+  },
+  "normalizedRgbIntermediateRemovedAfterAnalysis": true
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "job": "baseline",
+    "step": "load",
+    "pgid": 84371,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "step": "toolchain",
+    "pgid": 84445,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "step": "diff",
+    "pgid": 84687,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "step": "media-test-build",
+    "pgid": 84766,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "step": "sparse-capacity-baseline",
+    "pgid": 84928,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "step": "media-tests-strict-clippy",
+    "pgid": 85281,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "load",
+    "pgid": 32765,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "toolchain",
+    "pgid": 32770,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "diff",
+    "pgid": 32775,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-test-build",
+    "pgid": 32780,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "normal-capacity-contracts",
+    "pgid": 32804,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "sparse-network",
+    "pgid": 32811,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "dense-network",
+    "pgid": 33096,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "flow-epoch-contract",
+    "pgid": 33544,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-lifetime-contracts",
+    "pgid": 33551,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-contracts",
+    "pgid": 33558,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-network",
+    "pgid": 33565,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "producer-debt-contracts",
+    "pgid": 33586,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "feedback-epoch-contract",
+    "pgid": 33655,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-tests-strict-clippy",
+    "pgid": 33882,
+    "independentlyAbsent": true
+  }
+]

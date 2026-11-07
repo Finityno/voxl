@@ -1,0 +1,46 @@
+{
+  "summary.json": {
+    "sha256": "71cf44c23569f38a675072fb281da05ac423adf9dc3494f3f2c3819b53c7d599",
+    "bytes": 2032
+  },
+  "app.json": {
+    "sha256": "db3a5b33ff2b1a58a6c8a6c5c44f101105328143a5beade1df405f481d475504",
+    "bytes": 15880
+  },
+  "native-av1.json": {
+    "sha256": "002c80458c02614fd1f1a11f06d6e040e5b8223bf1d16f43b7e4f100c653c10b",
+    "bytes": 122597
+  },
+  "native-regressions.json": {
+    "sha256": "bfe7388bd200d36dd9f4373835be5003ab5af08f9ac05894bcf8dde256873c39",
+    "bytes": 104549
+  },
+  "comparison.json": {
+    "sha256": "715368263547be3707d528b8222bded3941fd94ea46e08c3ce9bdfd8dbf79b0e",
+    "bytes": 1265
+  },
+  "README.md": {
+    "sha256": "808c57cb6234f6912faf501ca76c00fb510d2ec7f938939b2627af7ced27ca9d",
+    "bytes": 5001
+  },
+  "transport.json": {
+    "sha256": "8a29d93138c6bbdd348a61203dccf1ebe6caffc4ec2548dd3cc073f396fa57da",
+    "bytes": 19430
+  },
+  "pin.json": {
+    "sha256": "e11a53985eac401788810260cd0ac4bcaa4cdf92f4078eaf0bd6419fee03c9c6",
+    "bytes": 2783
+  },
+  "inventory.json": {
+    "sha256": "b8fa2456ca9288bfc8074cb8d8bbe016000cae553e4392f232a187e492aafa89",
+    "bytes": 13217
+  },
+  "generation.json": {
+    "sha256": "b486ba348d3bde5586ba14c7fed03d0a9c499bb17c8743501851a99daba87248",
+    "bytes": 19061
+  },
+  "initial.json": {
+    "sha256": "e68233edc433f2459a257152ac5cbbf108ade2e53e69fbb8f37647bec5916a46",
+    "bytes": 14431
+  }
+}

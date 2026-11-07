@@ -1,0 +1,15 @@
+{
+  "command": [
+    "rustup",
+    "target",
+    "add",
+    "--toolchain",
+    "stable-aarch64-apple-darwin",
+    "x86_64-pc-windows-msvc"
+  ],
+  "externalDeadlineSeconds": 180,
+  "exitCode": 0,
+  "log": "info: downloading component rust-std\n",
+  "sha256": "831ad8906cd548d1be0b512110752469e0a5b4f23e8ea459eb4bf438761bef31",
+  "scope": "Windows std added to the checkout-selected stable toolchain; no global toolchain/config change."
+}

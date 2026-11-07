@@ -1,0 +1,894 @@
+{
+  "importReview": {
+    "forkRuntime": "a355a959ddeb2411360a46834bf28772b9928c6f",
+    "applicationBefore": "826ec4b55f0842950896f96f0c02ee6ad7ac34ee",
+    "applicationAfter": "1413e43d1e24331eca01a85bc38f6816b7e6661d",
+    "archiveSha256": "4e2ca201de5ccc83aa3c08d49a2f08d7ed0aeeb2052fb1ccc517a8b77a6927ce",
+    "vcs": {
+      "git": {
+        "sha1": "2a732df55ca4bcf26b80914fa0f570cfaf74cfcb"
+      },
+      "path_in_vcs": ""
+    },
+    "verifiedFiles": [
+      {
+        "path": ".cargo_vcs_info.json",
+        "sha256": "85dc4448d87baa37116096878734be8f3e3214e4677e5c47a38d997509aa9339",
+        "bytes": 94
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "d84f9f6d959a8e291b4be01c3c12df22b67ca9f4e78eb23897754f5c4ef9221d",
+        "bytes": 3338
+      },
+      {
+        "path": "Cargo.toml.orig",
+        "sha256": "a77fedf77f6a0c16fca7ffed07501eafe8f7ba874663a9b26d55f81f7c02a25a",
+        "bytes": 9710
+      },
+      {
+        "path": "LICENSE-APACHE",
+        "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+        "bytes": 10847
+      },
+      {
+        "path": "LICENSE-MIT",
+        "sha256": "56cc6c08157f4faf70d351b3a7ceac143399d5359a78c180e06dcd0390784f4d",
+        "bytes": 1066
+      },
+      {
+        "path": "README.md",
+        "sha256": "c670c8c9538fd47581af21a48e6de5af1555a3d53d5c22b5eda52a1bef662f20",
+        "bytes": 30096
+      },
+      {
+        "path": "src/data_channel/init.rs",
+        "sha256": "77439fb3ff497fd58ba7fe68148898b7b1d7c01656578733e3ccbb4b036a19d7",
+        "bytes": 4409
+      },
+      {
+        "path": "src/data_channel/internal.rs",
+        "sha256": "1dfd8e5dc423350fb656251a7db27762817e470e5f0ed368a4a50f601e2f542d",
+        "bytes": 8432
+      },
+      {
+        "path": "src/data_channel/message.rs",
+        "sha256": "2be408a2ae383f63ea4ad89ada59ac3b77ce6a3debf421a36c2d868c8fdfef4e",
+        "bytes": 478
+      },
+      {
+        "path": "src/data_channel/mod.rs",
+        "sha256": "1d335fafc20e46dfa2bb1345ebdee5f98539dc2196259b4ed95a9fd46f8591cd",
+        "bytes": 17465
+      },
+      {
+        "path": "src/data_channel/parameters.rs",
+        "sha256": "81807ddad0cd1c1b681bec10f7a24173009f44536a7a6ed303f39f250f5c2a30",
+        "bytes": 1300
+      },
+      {
+        "path": "src/data_channel/registry.rs",
+        "sha256": "3673573a5ac924b8f384d95fd966d8a8a9e0dc4dcd52c8add08c8350483d4936",
+        "bytes": 9889
+      },
+      {
+        "path": "src/data_channel/state.rs",
+        "sha256": "20ca7447d30e8705546b3204e0598cb767850f080dddee57d7a9452fcaeb39e1",
+        "bytes": 4168
+      },
+      {
+        "path": "src/lib.rs",
+        "sha256": "2895c6aa29bb8c6521221a0c44cff0cbe05642c8bca0c105efc16cf54b5e34b9",
+        "bytes": 28021
+      },
+      {
+        "path": "src/media_stream/mod.rs",
+        "sha256": "498b772d940b1dcd717f14b9ceca4d7a3b903fbe455780d80d9ed07d8581217e",
+        "bytes": 18591
+      },
+      {
+        "path": "src/media_stream/track.rs",
+        "sha256": "f73f7458d8e81e8e48acf9fccb1b29d7e6daeee28bee17d5031704790bb701cd",
+        "bytes": 26240
+      },
+      {
+        "path": "src/media_stream/track_capabilities.rs",
+        "sha256": "544e8db79a3990069a27a15004b1a10b0e126d4986a0e35b265bd22f790917d1",
+        "bytes": 6737
+      },
+      {
+        "path": "src/media_stream/track_constraints.rs",
+        "sha256": "9eba9e5a67a70f6864b76f7287b634165331a545b1c996f95a067ade4bee87e1",
+        "bytes": 8054
+      },
+      {
+        "path": "src/media_stream/track_settings.rs",
+        "sha256": "136884e567d3b9e52f56c15a16f868a00c3a541727d1e6eb86ba5b7dc1866dee",
+        "bytes": 4657
+      },
+      {
+        "path": "src/media_stream/track_state.rs",
+        "sha256": "79a5f95a45821b478e6f4f0eef473ae5fb6d114e5a8deed0901c80b6e27f44b5",
+        "bytes": 2885
+      },
+      {
+        "path": "src/media_stream/track_supported_constraints.rs",
+        "sha256": "965c3a378a5558caf12f1a2bfdfb3ba005bd524ef9a7f3af5a6389d7919acf92",
+        "bytes": 2273
+      },
+      {
+        "path": "src/peer_connection/certificate/mod.rs",
+        "sha256": "2c213c258b030fbb7eae2a6ac5fe14f09bd2703586a7117d61d828b838fe2e66",
+        "bytes": 36848
+      },
+      {
+        "path": "src/peer_connection/configuration/bundle_policy.rs",
+        "sha256": "c2eba57643c59979d2f991dbcc8474f2f9a5dbf9c03e04eb74ac3c9bfce9a8af",
+        "bytes": 4801
+      },
+      {
+        "path": "src/peer_connection/configuration/ice_transport_policy.rs",
+        "sha256": "432d0fd13e4d0255e2138ddb0fc77a75db1a7c96dedfcae8a6cf2656bb4cb1fe",
+        "bytes": 5148
+      },
+      {
+        "path": "src/peer_connection/configuration/interceptor_registry.rs",
+        "sha256": "a6e37b15220d7b0a167df298add82f69549559b091d9b80e754419a9539d8dff",
+        "bytes": 38448
+      },
+      {
+        "path": "src/peer_connection/configuration/media_engine.rs",
+        "sha256": "57d8ae9a4e22e337744046e35ba9b700202dfe0654c3a72b54dab9912193a40d",
+        "bytes": 52918
+      },
+      {
+        "path": "src/peer_connection/configuration/mod.rs",
+        "sha256": "7d8db95cc9a3582ed758d05fd9b0257f8a4cfa944a76d5c3f9554db5c3862836",
+        "bytes": 28077
+      },
+      {
+        "path": "src/peer_connection/configuration/offer_answer_options.rs",
+        "sha256": "750607f5ba3f963a081752335c13bd52277869d7c39fcb29e10a81163add3952",
+        "bytes": 1883
+      },
+      {
+        "path": "src/peer_connection/configuration/rtcp_mux_policy.rs",
+        "sha256": "e9bff5db61f51485faf240ae189d6ba673de684bfde6c52ba3d4b8e668d0fe04",
+        "bytes": 4139
+      },
+      {
+        "path": "src/peer_connection/configuration/sdp_semantics.rs",
+        "sha256": "463c36f9c8fe2b232ba0cd33544243386930442e51f4738b987dede1ee1f07a8",
+        "bytes": 4910
+      },
+      {
+        "path": "src/peer_connection/configuration/setting_engine.rs",
+        "sha256": "2a1ba728a1f4503cfb3a432818c5c0f11caa655e20b2842a0529df4404da5bdc",
+        "bytes": 58443
+      },
+      {
+        "path": "src/peer_connection/event/data_channel_event.rs",
+        "sha256": "311e1186a3ab7d3976fe8df99f96bbf6bd658fd33c0cb24c44d7fb3b45f817e2",
+        "bytes": 4495
+      },
+      {
+        "path": "src/peer_connection/event/ice_error_event.rs",
+        "sha256": "656b9752510d52b8626bcc29c0ec378861978f532f4953beac6f040a5bbe897b",
+        "bytes": 2454
+      },
+      {
+        "path": "src/peer_connection/event/ice_event.rs",
+        "sha256": "84cdacdea49920416a4775f33540e119a82c72628035cf7d639c809f1ecc18a0",
+        "bytes": 2866
+      },
+      {
+        "path": "src/peer_connection/event/mod.rs",
+        "sha256": "6e173b784c2ad33842eb4bd6d79ed3d930966d8627502a24a91f6b20f188bbc3",
+        "bytes": 22478
+      },
+      {
+        "path": "src/peer_connection/event/track_event.rs",
+        "sha256": "ea9892c5f05fef6b2c7981994cce149e2f30ab8038e1b34f5e012214133629d7",
+        "bytes": 7040
+      },
+      {
+        "path": "src/peer_connection/handler/datachannel.rs",
+        "sha256": "0d8f5fef9bbca0ac1a4fac99d64417dd02c407dfc046a62b3f0db0e5e66f94eb",
+        "bytes": 46593
+      },
+      {
+        "path": "src/peer_connection/handler/demuxer.rs",
+        "sha256": "0902a87f691b3e0038de5638e9958af331930bca17181429578c22199354fda1",
+        "bytes": 5555
+      },
+      {
+        "path": "src/peer_connection/handler/dtls.rs",
+        "sha256": "0c0d77230dd2bab2d394ac4b521905df84f23fa85aa53c7627af9ce89a87c4d1",
+        "bytes": 24721
+      },
+      {
+        "path": "src/peer_connection/handler/endpoint.rs",
+        "sha256": "7904b1b805783adc3621f5cd262ae1eb22c8e608b471f2321fd06c155f3098ac",
+        "bytes": 28193
+      },
+      {
+        "path": "src/peer_connection/handler/ice.rs",
+        "sha256": "7fad3e00f5466f0a776d78a37486dd6c0a4fdb5a189ff8451048158aae44d0ac",
+        "bytes": 9891
+      },
+      {
+        "path": "src/peer_connection/handler/interceptor.rs",
+        "sha256": "32ce8c419ec43fbb7dce505b4f3ff137c0c10904b79b5e4b5616c53c6865df4a",
+        "bytes": 61661
+      },
+      {
+        "path": "src/peer_connection/handler/mod.rs",
+        "sha256": "775254220914b7617d1077297983198160c7e512ffcdf200965174c88c30b180",
+        "bytes": 33484
+      },
+      {
+        "path": "src/peer_connection/handler/sctp.rs",
+        "sha256": "205171a77383b387f50a9000b28ebc8da0e5cb63b30b4eda43b4f519ce9beec9",
+        "bytes": 86256
+      },
+      {
+        "path": "src/peer_connection/handler/srtp.rs",
+        "sha256": "bf20824544f689caeef5390873e7536361fa8fbda69b5c3dfc46556e863abce4",
+        "bytes": 7383
+      },
+      {
+        "path": "src/peer_connection/internal.rs",
+        "sha256": "61f63dbc0f08785eb7d1637616b4ce2325c28b7ec790f1fec550814b5c4fbb62",
+        "bytes": 70798
+      },
+      {
+        "path": "src/peer_connection/message/internal.rs",
+        "sha256": "d4fc4fd779c6219fd205ab5620979dcdee2a4c584d6daf5c52e9f8dd50e6e944",
+        "bytes": 3553
+      },
+      {
+        "path": "src/peer_connection/message/mod.rs",
+        "sha256": "616e78ffdd1f834696a7cdc8c94e97e1992c9382806f8d3c0a1b90f06b208506",
+        "bytes": 19502
+      },
+      {
+        "path": "src/peer_connection/mod.rs",
+        "sha256": "a34f30bed8a9ea549649d973ad70a55c49618245d788ee5892f6d46972f8f733",
+        "bytes": 130922
+      },
+      {
+        "path": "src/peer_connection/sdp/mod.rs",
+        "sha256": "332dc793e4a42e068d185984f2deafda52aaab45e81947e89ca000b351b71ad9",
+        "bytes": 57772
+      },
+      {
+        "path": "src/peer_connection/sdp/sdp_test.rs",
+        "sha256": "67b2575de6937b975bc34830a1446ee294ed4b352d52f813c02439ec326efa62",
+        "bytes": 51147
+      },
+      {
+        "path": "src/peer_connection/sdp/sdp_type.rs",
+        "sha256": "88acf3f1545c019da45ee1ced23fb35c686135e275b1aba962c65b3f9ccf43e9",
+        "bytes": 8192
+      },
+      {
+        "path": "src/peer_connection/sdp/session_description.rs",
+        "sha256": "6709ce3acf6b927be84d2740d2ca8123316bf2990283d236c82523f610740eaa",
+        "bytes": 22586
+      },
+      {
+        "path": "src/peer_connection/state/ice_connection_state.rs",
+        "sha256": "37537120a19d881f4922c6bd6cb8392fcfc60166249c9bc3b240dab64e7d1020",
+        "bytes": 11818
+      },
+      {
+        "path": "src/peer_connection/state/ice_gathering_state.rs",
+        "sha256": "f3f971373b2df84eef16a89446415400eb0f2e71080c2e43fa4173a3f7d42149",
+        "bytes": 7782
+      },
+      {
+        "path": "src/peer_connection/state/mod.rs",
+        "sha256": "577d53087ef4019f2accce156e39972e3194387fe78a4168d597cbb974f45ed7",
+        "bytes": 7238
+      },
+      {
+        "path": "src/peer_connection/state/peer_connection_state.rs",
+        "sha256": "d49822f69d7431f3116f040eaa3e44eb1c24b1a0f335a36007a26a4ae9332d31",
+        "bytes": 11303
+      },
+      {
+        "path": "src/peer_connection/state/signaling_state.rs",
+        "sha256": "d916ec250da69b4dbd64540afaf32939be4461246de6b6a6e5116f6d9e2cbb4e",
+        "bytes": 21083
+      },
+      {
+        "path": "src/peer_connection/transport/dtls/fingerprint.rs",
+        "sha256": "733cf56864126e0b3cf47c93a260819f7e9cdf714c2feee7438dc656705bc489",
+        "bytes": 4610
+      },
+      {
+        "path": "src/peer_connection/transport/dtls/mod.rs",
+        "sha256": "b57bc2d78c0e0d3f4c23febcd2a38ede50f72dfe99f9ddc71ae847e856881540",
+        "bytes": 21811
+      },
+      {
+        "path": "src/peer_connection/transport/dtls/parameters.rs",
+        "sha256": "d50c51faa762dc9c600b26980abe31c0d1925d9b8869a282362dc70c53f2e544",
+        "bytes": 461
+      },
+      {
+        "path": "src/peer_connection/transport/dtls/role.rs",
+        "sha256": "f39b3ab3385ea4769cb24eb43570c32f6c03187489d2f80b9100ad8db8c759e3",
+        "bytes": 8600
+      },
+      {
+        "path": "src/peer_connection/transport/dtls/state.rs",
+        "sha256": "055aa80d9e8dad08ceaa78606d205a1476508558168ae4c0916680ba78851ce5",
+        "bytes": 8108
+      },
+      {
+        "path": "src/peer_connection/transport/ice/candidate.rs",
+        "sha256": "322fc2ac588e6b2fafa07783323078bd4e9a545583a96211aa667ecf05fd0758",
+        "bytes": 11910
+      },
+      {
+        "path": "src/peer_connection/transport/ice/candidate_pair.rs",
+        "sha256": "d793b6af0e6f08e32c60e19b76f00506fde91abac828a16848582f0900fff4d9",
+        "bytes": 1038
+      },
+      {
+        "path": "src/peer_connection/transport/ice/candidate_type.rs",
+        "sha256": "4e7edc92b2891dc8419a94711ad4b9a99f14da2f8ad5e7b71873e300af8d8a9b",
+        "bytes": 9389
+      },
+      {
+        "path": "src/peer_connection/transport/ice/component.rs",
+        "sha256": "e7c664d9cb8e06708b60fcf9b307fa43b3bea20cdea33858de149089b38239e3",
+        "bytes": 2281
+      },
+      {
+        "path": "src/peer_connection/transport/ice/mod.rs",
+        "sha256": "44c15cfd46837ac68827deef7ca983c5e7acc598c33774385cb35528b7eaceb1",
+        "bytes": 12270
+      },
+      {
+        "path": "src/peer_connection/transport/ice/parameters.rs",
+        "sha256": "73f861cca90a150c2c81511e426a662d0945a22659953a693e594f28f05022ec",
+        "bytes": 694
+      },
+      {
+        "path": "src/peer_connection/transport/ice/protocol.rs",
+        "sha256": "90fe0d32e982111c443adfa1edfa3b142905696ffca119cb4485cd65928db97b",
+        "bytes": 2549
+      },
+      {
+        "path": "src/peer_connection/transport/ice/role.rs",
+        "sha256": "ef3c151a9a8037a69d6bdb207bc4ce0cc7059059bb0f0bca17e6fc802ea432b4",
+        "bytes": 2710
+      },
+      {
+        "path": "src/peer_connection/transport/ice/server.rs",
+        "sha256": "2c8c5e2cbe53a98be0083e62998177f644cc7372d8ddbe8f49f450c968503f0e",
+        "bytes": 5576
+      },
+      {
+        "path": "src/peer_connection/transport/ice/state.rs",
+        "sha256": "ae851cae4c8787492390c5a6ccc88ec1fa7739bc1e093d9a979da5e3cabd80c3",
+        "bytes": 7961
+      },
+      {
+        "path": "src/peer_connection/transport/mod.rs",
+        "sha256": "0e82c0239897f625aeed721f946bd4cd14ae7d22b2a29581679bfb517f8238cd",
+        "bytes": 17205
+      },
+      {
+        "path": "src/peer_connection/transport/sctp/capabilities.rs",
+        "sha256": "32d56a5328ae9525028b05194de72389c6215def15ba658ad33c36a37933c76f",
+        "bytes": 265
+      },
+      {
+        "path": "src/peer_connection/transport/sctp/mod.rs",
+        "sha256": "8e56d78d04d6d720b5768d790ca56673653a2cda7c8d0e72685f637913254dab",
+        "bytes": 17023
+      },
+      {
+        "path": "src/peer_connection/transport/sctp/state.rs",
+        "sha256": "defa9774aa800d46c3845d587da8428e0cbea4662fb0538ecd3ab17a003d9dc1",
+        "bytes": 3776
+      },
+      {
+        "path": "src/rtp_transceiver/direction.rs",
+        "sha256": "56026d8dd1ece35d8eb9f1a66e74ee38ebd2632932735b08f566b3baa154c50e",
+        "bytes": 8371
+      },
+      {
+        "path": "src/rtp_transceiver/fmtp/generic/generic_test.rs",
+        "sha256": "be808bf0ea86c68068ed3d386d273afed2e94c3b2a0be753e04a76e537e547b2",
+        "bytes": 4476
+      },
+      {
+        "path": "src/rtp_transceiver/fmtp/generic/mod.rs",
+        "sha256": "3f1a0895c6812d5eb0b67768874d62d13fd85b58d2da1e5ef6313b1c233dd9af",
+        "bytes": 1581
+      },
+      {
+        "path": "src/rtp_transceiver/fmtp/h264/h264_test.rs",
+        "sha256": "0f39ed96a17ade1521a7fee3abe5bd7bbfd06c0c3c942fff6b246903f8fb6f64",
+        "bytes": 4921
+      },
+      {
+        "path": "src/rtp_transceiver/fmtp/h264/mod.rs",
+        "sha256": "39e54fd70ecaffb0ac6fa8e894608e7f80a765f2ac6d4abe72067e0599b09723",
+        "bytes": 2879
+      },
+      {
+        "path": "src/rtp_transceiver/fmtp/mod.rs",
+        "sha256": "27109af5e522031d86b14554decaaa48eff580c52b735c7a29c935fc484c7bf0",
+        "bytes": 1604
+      },
+      {
+        "path": "src/rtp_transceiver/internal.rs",
+        "sha256": "750958ab8ebb75a0fb4d65e2ef10902d6f3c60d1a1527a005f36c4a5cb6b04a8",
+        "bytes": 15880
+      },
+      {
+        "path": "src/rtp_transceiver/mod.rs",
+        "sha256": "43b8e3aeb371a0c7918365cae5a99a951e6d58e73479a0a05a961384f2c50207",
+        "bytes": 18215
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_receiver/internal.rs",
+        "sha256": "528d33a67549e02bd426ebe64aa528e68f78f9fefb9f985c0a2619c30a2f14d4",
+        "bytes": 25158
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_receiver/mod.rs",
+        "sha256": "a1f807804ec27123594ad88b07933dfd7683302b351d9fbb6e133b0fe2b370e5",
+        "bytes": 15875
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_receiver/rtp_contributing_source.rs",
+        "sha256": "ad41756b1db563f4f40f89ce90185f42d731139d8cb3a5391fd41e9ba98fd711",
+        "bytes": 2558
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_receiver/rtp_receiver_test.rs",
+        "sha256": "61d5a7231152d891edaf447de510582f4ef61b09b9536c37582ef1d4caf140da",
+        "bytes": 7691
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/internal.rs",
+        "sha256": "505a4d0aa29344d0b60e66d4118b032a967405fb692f630256592f1db82ee4d7",
+        "bytes": 14285
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/mod.rs",
+        "sha256": "1c7a2681100ebb726be462a6755d721ea52d65a92a7b1614f9b244630adb6221",
+        "bytes": 18567
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtcp_parameters.rs",
+        "sha256": "f812e4cbcbf28756ac5766250c60f6fac5d45cb4fe8008e4c9b9dcede0462069",
+        "bytes": 1629
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_capabilities.rs",
+        "sha256": "977455b23b4b46f0c11646b1e71aa725695b6fc377da0221c5450dc55d3e687a",
+        "bytes": 664
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_codec.rs",
+        "sha256": "634cc2736196e5db1a9b46de3f49003c35a368294ec9e1b997b274fe8be6cb4a",
+        "bytes": 12895
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_codec_parameters.rs",
+        "sha256": "250dd50c7d2a1dd315ad89a4723c973c4cf3232f412bff13dabaddfc7fbb5cc1",
+        "bytes": 616
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_coding_parameters.rs",
+        "sha256": "3768017146cc9132bfbd27ef3087f4a773a327bc0d62899e54caf879b30fa000",
+        "bytes": 3721
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_encoding_parameters.rs",
+        "sha256": "296334b5d4085a162fcd95794e8ee38407a5aa108521f23f09018ff00a592494",
+        "bytes": 1031
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_header_extension_capability.rs",
+        "sha256": "3e4cc9bab9151e776242c706e2a3e2264e65ef4bad7c263787b80ef32e7b411e",
+        "bytes": 367
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_header_extension_parameters.rs",
+        "sha256": "53ab5be931e5e4da0cf7d4ab7188a14535a5911d551c13b46cc8a2efaff6f6e3",
+        "bytes": 620
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_parameters.rs",
+        "sha256": "af3db15c1cd11a988cfbbd083e3b9c4a71e52d1c49af78aba6e979f832d08c08",
+        "bytes": 766
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_receiver_parameters.rs",
+        "sha256": "5c3e10c126d81eaedf375d6dc469dba3a33fdeab7572bcf5097a626ff2fe87eb",
+        "bytes": 274
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_send_parameters.rs",
+        "sha256": "eb9b0724101a7c1910175f7d857f3933aed92a937e3033ac9748f2e867ce8edf",
+        "bytes": 592
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/rtp_sender_test.rs",
+        "sha256": "7acc3fc0a93feb00959c677788762aef2abf6ad7085fcd8ae5c986f2030a3cbc",
+        "bytes": 23759
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_sender/set_parameter_options.rs",
+        "sha256": "31fb175f9c18296a64d5d9b60ce19eafd1b3bc9a8adfadbd7e0f08bf27875dbd",
+        "bytes": 310
+      },
+      {
+        "path": "src/rtp_transceiver/rtp_transceiver_test.rs",
+        "sha256": "f79c88adfa56c2e428891780cc119145e711e22024f519ffcd76519a68282811",
+        "bytes": 11273
+      },
+      {
+        "path": "src/statistics/accumulator/certificate.rs",
+        "sha256": "01f4a4e93147c48be8700f650e78b07afc6a7a15f70ba428c639113aae55aa1a",
+        "bytes": 4871
+      },
+      {
+        "path": "src/statistics/accumulator/codec.rs",
+        "sha256": "f04fb276829d85a1d0e72a1637d59f2e4419620062dc69a2e4cdfe4c79056111",
+        "bytes": 9971
+      },
+      {
+        "path": "src/statistics/accumulator/data_channel.rs",
+        "sha256": "5e010d6552f354de107fae3dd61c6cc3c96caba3ed72afa2917a11b08a5807ac",
+        "bytes": 6979
+      },
+      {
+        "path": "src/statistics/accumulator/ice_candidate.rs",
+        "sha256": "392c506ebb1a4a9e5bb44040bc9e54a72f22c987f678386abff3f8b059a2b87b",
+        "bytes": 12094
+      },
+      {
+        "path": "src/statistics/accumulator/ice_candidate_pair.rs",
+        "sha256": "4befdcb76343f683b8c3d14525456cbe6a9109189bbf948b0256fd2b2d1748e9",
+        "bytes": 12693
+      },
+      {
+        "path": "src/statistics/accumulator/media/app_provided.rs",
+        "sha256": "6aa4d8c5356164165869fce871c7ade0496376e81ce483d4816ea8d3f623e7e2",
+        "bytes": 5248
+      },
+      {
+        "path": "src/statistics/accumulator/media/audio_playout.rs",
+        "sha256": "00674f53c3a069ea2826f3001dddce124ee37ff71ca5f14d002b96e0a091ec66",
+        "bytes": 1834
+      },
+      {
+        "path": "src/statistics/accumulator/media/media_source.rs",
+        "sha256": "a93416b681ae04b9b024c32af9f7d7e79693f5f71a8cf0280d33bfa48d0093cd",
+        "bytes": 3114
+      },
+      {
+        "path": "src/statistics/accumulator/media/mod.rs",
+        "sha256": "38321dc20da4509dff1fd018d44905b3cf945b6403feb9556489d02d2ded084f",
+        "bytes": 88
+      },
+      {
+        "path": "src/statistics/accumulator/mod.rs",
+        "sha256": "6ff3785fd80e422b30269a4932caa05464e7c97e03376d998bf9df8e2b1884a9",
+        "bytes": 32378
+      },
+      {
+        "path": "src/statistics/accumulator/peer_connection.rs",
+        "sha256": "849850f08801a8f3083a7610489432cded49e25974b4b5ac3d42b2b8427a7523",
+        "bytes": 4150
+      },
+      {
+        "path": "src/statistics/accumulator/rtp_stream/inbound.rs",
+        "sha256": "6cb3efc5eeac0fd40bdb0ea399ae37640a4c52f83fc4a6e758bd23fad188099c",
+        "bytes": 24125
+      },
+      {
+        "path": "src/statistics/accumulator/rtp_stream/mod.rs",
+        "sha256": "822e8431c72c7b6538eea49f80e2e1c2f6fee053ff6671342c85c3d243409b2a",
+        "bytes": 109
+      },
+      {
+        "path": "src/statistics/accumulator/rtp_stream/outbound.rs",
+        "sha256": "4e6ff85a1da58399d095e044397a6e19da1ca5e47ec28f30a6a4912e03e36605",
+        "bytes": 19960
+      },
+      {
+        "path": "src/statistics/accumulator/transport.rs",
+        "sha256": "6567c0265cf9090a5d6dc43557e599ea09e39916c1e7b82d4cfb1fd156d6382d",
+        "bytes": 13403
+      },
+      {
+        "path": "src/statistics/mod.rs",
+        "sha256": "432608ffc482e427067bdcb0cbd76889f3826ea2f4ab9e7aa13ec013ebe60474",
+        "bytes": 2588
+      },
+      {
+        "path": "src/statistics/report.rs",
+        "sha256": "69fcbbe9d39f3935ad578e1b92f776e38c4b98d99d39698cdec3210719e2f1f7",
+        "bytes": 10404
+      },
+      {
+        "path": "src/statistics/statistics_test.rs",
+        "sha256": "9d50da7f3ccef045cc1c8fdb8b25224d73fa9d9ddd379750f981ea9d58aab7b4",
+        "bytes": 47086
+      },
+      {
+        "path": "src/statistics/stats/certificate.rs",
+        "sha256": "a52cc4474c56a91c786d5340a0ec91df09bd8eb39a3403ef09991705bfcd5f9e",
+        "bytes": 1527
+      },
+      {
+        "path": "src/statistics/stats/codec.rs",
+        "sha256": "059a3337c72d74c9f5d224f1ad0c0352631dda70370c846831ef2ef6eac32bd9",
+        "bytes": 1715
+      },
+      {
+        "path": "src/statistics/stats/data_channel.rs",
+        "sha256": "d3f42a3ac16c0b1b974f3f9dcd9f2eb94bea1a19631311258af8f71049fecde2",
+        "bytes": 2035
+      },
+      {
+        "path": "src/statistics/stats/ice_candidate.rs",
+        "sha256": "d10fc20c0cb3d8ad109b5d445e61c57551bba0bb9f4de07e3809589608ee4892",
+        "bytes": 2758
+      },
+      {
+        "path": "src/statistics/stats/ice_candidate_pair.rs",
+        "sha256": "41b0bc30039f24b683b35f97006b669c6beca8b10a44dc04a943767bfc53fc4e",
+        "bytes": 5025
+      },
+      {
+        "path": "src/statistics/stats/media/audio_playout.rs",
+        "sha256": "de7af8a4c5808ec6f9c03178bf2c6480774e39c854ca1c694ab48124ef410290",
+        "bytes": 1618
+      },
+      {
+        "path": "src/statistics/stats/media/audio_source.rs",
+        "sha256": "1b09fee3694f7f337ffe1e412b31a9492e753c012ebe72a75db7b8b3bb05abcd",
+        "bytes": 1590
+      },
+      {
+        "path": "src/statistics/stats/media/media_source.rs",
+        "sha256": "2210f4f59ffc16fe2a6c766215b8f4ee14f46c3a6ecda2c9191da8d427de4199",
+        "bytes": 1193
+      },
+      {
+        "path": "src/statistics/stats/media/mod.rs",
+        "sha256": "0653a221e5a56a14f4ca4ecb6bcaf978435d8c3accc23858de71eef041a29dc3",
+        "bytes": 516
+      },
+      {
+        "path": "src/statistics/stats/media/video_source.rs",
+        "sha256": "f46ea5ddd37d2ccf02ce9a76c0a3afc6e38a05e8aeb5606709ecdf957a4bd8bb",
+        "bytes": 1120
+      },
+      {
+        "path": "src/statistics/stats/mod.rs",
+        "sha256": "02efd138e3221604fcb38c23ced55b1ad616157b75d014c2793790800b9084b0",
+        "bytes": 5403
+      },
+      {
+        "path": "src/statistics/stats/peer_connection.rs",
+        "sha256": "e73a4c10ed79d33816ed53471363a34c7d2ca97142a9083455ec0f9b017fd932",
+        "bytes": 1081
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/mod.rs",
+        "sha256": "a4234e214deaa6b7c2b22d52de614a8ecc37600ba817bd3dc28f82b366c18085",
+        "bytes": 2003
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/received/inbound.rs",
+        "sha256": "20e21ff984b469d98d5df0b73e51dc2c564b05eec0e1185bf6af6c27ca414ab9",
+        "bytes": 6386
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/received/mod.rs",
+        "sha256": "1d59190ed2d4fb28eed9673f5ee33bec6d3f7aacc64f5ab834a733e7c9e316d7",
+        "bytes": 2332
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/received/remote_inbound.rs",
+        "sha256": "11e61cc17ca31d72ee5191697dcc1686ebd4b9f67e816eee400ba49f5cd6cf12",
+        "bytes": 1903
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/sent/mod.rs",
+        "sha256": "0980101ec891ecd9ec1e5ed2c01e723b7d6a0561960c1b5062490d1faba44dab",
+        "bytes": 1404
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/sent/outbound.rs",
+        "sha256": "bbd0f01c471e409c4650243699efe6a86e2bb4ed02d14f2be74e52206f1b2b44",
+        "bytes": 4576
+      },
+      {
+        "path": "src/statistics/stats/rtp_stream/sent/remote_outbound.rs",
+        "sha256": "23ec84f6794f33aeb20af5d71a03f9816dae79b2d93d153433a689e848f51d2d",
+        "bytes": 1898
+      },
+      {
+        "path": "src/statistics/stats/transport.rs",
+        "sha256": "7832b08d52ee134f06ca2d2b6c304eb9f2f88b3d54ab0675c8b0f6318bc71b5a",
+        "bytes": 3331
+      }
+    ],
+    "functionalPatch": [
+      {
+        "path": "src/peer_connection/mod.rs",
+        "importSha256": "e0d059f30c4543e34d191124ec753e3cee34badc75dec3a34a6612a10a0f1646",
+        "maintainedSha256": "a34f30bed8a9ea549649d973ad70a55c49618245d788ee5892f6d46972f8f733",
+        "diff": "--- verified import\n+++ maintained core\n@@ -1884,13 +1884,13 @@\n         self.configuration.ice_transport_policy = configuration.ice_transport_policy;\n \n         // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11)\n-        if !configuration.ice_servers.is_empty() {\n-            // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\n-            for server in &configuration.ice_servers {\n-                server.validate()?;\n-            }\n-            self.configuration.ice_servers = configuration.ice_servers\n-        }\n+        // An empty replacement removes discovery servers. Retaining the old\n+        // list would restart gathering with retired TURN credentials/endpoints.\n+        // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\n+        for server in &configuration.ice_servers {\n+            server.validate()?;\n+        }\n+        self.configuration.ice_servers = configuration.ice_servers;\n \n         Ok(())\n     }\n"
+      }
+    ],
+    "productionDependenciesAndFeaturesUnchanged": true,
+    "importRecordSha256": "cbee04014f3e993ae296a50fbfd6495fce6472f5b20b825165b4a2b798fa8eb1",
+    "numericCommentReferenceFiles": 12,
+    "documentationWhitespaceFiles": 10,
+    "rootLockPackageCount": 1321,
+    "changedPackageIdentitiesOnly": [
+      {
+        "name": "rtc",
+        "version": "0.21.1",
+        "beforeSource": "registry+https://github.com/rust-lang/crates.io-index",
+        "afterSource": "git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f",
+        "otherFieldsIdentical": true
+      },
+      {
+        "name": "voxl-media",
+        "version": "0.1.0",
+        "beforeSource": "git+https://github.com/Finityno/voxl?rev=f7bc0059588727dc08637552d5d1866492f685e0#f7bc0059588727dc08637552d5d1866492f685e0",
+        "afterSource": "git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f",
+        "otherFieldsIdentical": true
+      },
+      {
+        "name": "webrtc",
+        "version": "0.21.1",
+        "beforeSource": "git+https://github.com/Finityno/voxl?rev=f7bc0059588727dc08637552d5d1866492f685e0#f7bc0059588727dc08637552d5d1866492f685e0",
+        "afterSource": "git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f",
+        "otherFieldsIdentical": true
+      }
+    ],
+    "applicationSourcesUnchanged": [
+      {
+        "path": "crates/environments/tests/native_desktop_phone.rs",
+        "sha256": "f2fe68d3ec63d2310924876dd533a033e79b64a3db5a9d1c7a1bfba821ef5557",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/environments/tests/support/relay.rs",
+        "sha256": "cdb427f9c21ef0bdd68806f6e6c46f33d6188da1cda4d80a66e8037e3deec3a4",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/desktop_media/src/macos/mod.rs",
+        "sha256": "9c94865c95f6fbd50717aa7c4e1776016d4d51cb33e27c66492238502200d184",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/desktop_media/src/macos/recovery.rs",
+        "sha256": "b2eb9e1a45c2afd1d478412bee7319e917c0893b3e8202112f8429d64d420993",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/environment_host/src/desktop.rs",
+        "sha256": "7115bcfc94b6451b17f20b117bfa43a7d8f8d122338ce15329e0147ba9925df6",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/environment_host/src/desktop_relay.rs",
+        "sha256": "b4f50e06549fea5bba5f464b666ba0c9ed6c4796170b4b18ed674476c612dfd6",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/environment_host/src/connect_hosting.rs",
+        "sha256": "d1f09d4d09af584668b94d8fec3290515a47d887b0b9538e500d4a6c07eebaef",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/connect_relay/src/desktop_turn.rs",
+        "sha256": "96fb6926c4b4aa053654df4c6bb891d713cb2a12e086de8917bc14f26983ff3b",
+        "byteIdentical": true
+      },
+      {
+        "path": "crates/connect_relay/src/store/desktop_turn.rs",
+        "sha256": "4cfab1633ddc4ab1a5276d9fd1ceef5126f62571834330e82a230ae9f6c166cb",
+        "byteIdentical": true
+      }
+    ],
+    "regressionByteIdentical": {
+      "baseline": "0c4f027c76a4da6685d71fa910058652c6116d3a",
+      "fixed": "a355a959ddeb2411360a46834bf28772b9928c6f",
+      "path": "media/src/webrtc/tests/live_restart.rs",
+      "sha256": "13fa9265089dc2f1f81287d0ee16c355da6974c9d78ba4b260a242131aa0ca53"
+    },
+    "sdkSourceTreeByteIdentical": true,
+    "sdkSourceTreeListingSha256": "e5badc0c79da33ce74150c9e4054b4655f413e257813a1087f71760fa8de1edf",
+    "limits": "Source/import/graph comparison, not execution or a general protocol/security audit. Functional tests and compiled provider features are separate evidence."
+  },
+  "texts": [
+    {
+      "name": "import-review.json",
+      "text": "{\n  \"forkRuntime\": \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n  \"applicationBefore\": \"826ec4b55f0842950896f96f0c02ee6ad7ac34ee\",\n  \"applicationAfter\": \"1413e43d1e24331eca01a85bc38f6816b7e6661d\",\n  \"archiveSha256\": \"4e2ca201de5ccc83aa3c08d49a2f08d7ed0aeeb2052fb1ccc517a8b77a6927ce\",\n  \"vcs\": {\n    \"git\": {\n      \"sha1\": \"2a732df55ca4bcf26b80914fa0f570cfaf74cfcb\"\n    },\n    \"path_in_vcs\": \"\"\n  },\n  \"verifiedFiles\": [\n    {\n      \"path\": \".cargo_vcs_info.json\",\n      \"sha256\": \"85dc4448d87baa37116096878734be8f3e3214e4677e5c47a38d997509aa9339\",\n      \"bytes\": 94\n    },\n    {\n      \"path\": \"Cargo.toml\",\n      \"sha256\": \"d84f9f6d959a8e291b4be01c3c12df22b67ca9f4e78eb23897754f5c4ef9221d\",\n      \"bytes\": 3338\n    },\n    {\n      \"path\": \"Cargo.toml.orig\",\n      \"sha256\": \"a77fedf77f6a0c16fca7ffed07501eafe8f7ba874663a9b26d55f81f7c02a25a\",\n      \"bytes\": 9710\n    },\n    {\n      \"path\": \"LICENSE-APACHE\",\n      \"sha256\": \"a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2\",\n      \"bytes\": 10847\n    },\n    {\n      \"path\": \"LICENSE-MIT\",\n      \"sha256\": \"56cc6c08157f4faf70d351b3a7ceac143399d5359a78c180e06dcd0390784f4d\",\n      \"bytes\": 1066\n    },\n    {\n      \"path\": \"README.md\",\n      \"sha256\": \"c670c8c9538fd47581af21a48e6de5af1555a3d53d5c22b5eda52a1bef662f20\",\n      \"bytes\": 30096\n    },\n    {\n      \"path\": \"src/data_channel/init.rs\",\n      \"sha256\": \"77439fb3ff497fd58ba7fe68148898b7b1d7c01656578733e3ccbb4b036a19d7\",\n      \"bytes\": 4409\n    },\n    {\n      \"path\": \"src/data_channel/internal.rs\",\n      \"sha256\": \"1dfd8e5dc423350fb656251a7db27762817e470e5f0ed368a4a50f601e2f542d\",\n      \"bytes\": 8432\n    },\n    {\n      \"path\": \"src/data_channel/message.rs\",\n      \"sha256\": \"2be408a2ae383f63ea4ad89ada59ac3b77ce6a3debf421a36c2d868c8fdfef4e\",\n      \"bytes\": 478\n    },\n    {\n      \"path\": \"src/data_channel/mod.rs\",\n      \"sha256\": \"1d335fafc20e46dfa2bb1345ebdee5f98539dc2196259b4ed95a9fd46f8591cd\",\n      \"bytes\": 17465\n    },\n    {\n      \"path\": \"src/data_channel/parameters.rs\",\n      \"sha256\": \"81807ddad0cd1c1b681bec10f7a24173009f44536a7a6ed303f39f250f5c2a30\",\n      \"bytes\": 1300\n    },\n    {\n      \"path\": \"src/data_channel/registry.rs\",\n      \"sha256\": \"3673573a5ac924b8f384d95fd966d8a8a9e0dc4dcd52c8add08c8350483d4936\",\n      \"bytes\": 9889\n    },\n    {\n      \"path\": \"src/data_channel/state.rs\",\n      \"sha256\": \"20ca7447d30e8705546b3204e0598cb767850f080dddee57d7a9452fcaeb39e1\",\n      \"bytes\": 4168\n    },\n    {\n      \"path\": \"src/lib.rs\",\n      \"sha256\": \"2895c6aa29bb8c6521221a0c44cff0cbe05642c8bca0c105efc16cf54b5e34b9\",\n      \"bytes\": 28021\n    },\n    {\n      \"path\": \"src/media_stream/mod.rs\",\n      \"sha256\": \"498b772d940b1dcd717f14b9ceca4d7a3b903fbe455780d80d9ed07d8581217e\",\n      \"bytes\": 18591\n    },\n    {\n      \"path\": \"src/media_stream/track.rs\",\n      \"sha256\": \"f73f7458d8e81e8e48acf9fccb1b29d7e6daeee28bee17d5031704790bb701cd\",\n      \"bytes\": 26240\n    },\n    {\n      \"path\": \"src/media_stream/track_capabilities.rs\",\n      \"sha256\": \"544e8db79a3990069a27a15004b1a10b0e126d4986a0e35b265bd22f790917d1\",\n      \"bytes\": 6737\n    },\n    {\n      \"path\": \"src/media_stream/track_constraints.rs\",\n      \"sha256\": \"9eba9e5a67a70f6864b76f7287b634165331a545b1c996f95a067ade4bee87e1\",\n      \"bytes\": 8054\n    },\n    {\n      \"path\": \"src/media_stream/track_settings.rs\",\n      \"sha256\": \"136884e567d3b9e52f56c15a16f868a00c3a541727d1e6eb86ba5b7dc1866dee\",\n      \"bytes\": 4657\n    },\n    {\n      \"path\": \"src/media_stream/track_state.rs\",\n      \"sha256\": \"79a5f95a45821b478e6f4f0eef473ae5fb6d114e5a8deed0901c80b6e27f44b5\",\n      \"bytes\": 2885\n    },\n    {\n      \"path\": \"src/media_stream/track_supported_constraints.rs\",\n      \"sha256\": \"965c3a378a5558caf12f1a2bfdfb3ba005bd524ef9a7f3af5a6389d7919acf92\",\n      \"bytes\": 2273\n    },\n    {\n      \"path\": \"src/peer_connection/certificate/mod.rs\",\n      \"sha256\": \"2c213c258b030fbb7eae2a6ac5fe14f09bd2703586a7117d61d828b838fe2e66\",\n      \"bytes\": 36848\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/bundle_policy.rs\",\n      \"sha256\": \"c2eba57643c59979d2f991dbcc8474f2f9a5dbf9c03e04eb74ac3c9bfce9a8af\",\n      \"bytes\": 4801\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/ice_transport_policy.rs\",\n      \"sha256\": \"432d0fd13e4d0255e2138ddb0fc77a75db1a7c96dedfcae8a6cf2656bb4cb1fe\",\n      \"bytes\": 5148\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/interceptor_registry.rs\",\n      \"sha256\": \"a6e37b15220d7b0a167df298add82f69549559b091d9b80e754419a9539d8dff\",\n      \"bytes\": 38448\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/media_engine.rs\",\n      \"sha256\": \"57d8ae9a4e22e337744046e35ba9b700202dfe0654c3a72b54dab9912193a40d\",\n      \"bytes\": 52918\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/mod.rs\",\n      \"sha256\": \"7d8db95cc9a3582ed758d05fd9b0257f8a4cfa944a76d5c3f9554db5c3862836\",\n      \"bytes\": 28077\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/offer_answer_options.rs\",\n      \"sha256\": \"750607f5ba3f963a081752335c13bd52277869d7c39fcb29e10a81163add3952\",\n      \"bytes\": 1883\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/rtcp_mux_policy.rs\",\n      \"sha256\": \"e9bff5db61f51485faf240ae189d6ba673de684bfde6c52ba3d4b8e668d0fe04\",\n      \"bytes\": 4139\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/sdp_semantics.rs\",\n      \"sha256\": \"463c36f9c8fe2b232ba0cd33544243386930442e51f4738b987dede1ee1f07a8\",\n      \"bytes\": 4910\n    },\n    {\n      \"path\": \"src/peer_connection/configuration/setting_engine.rs\",\n      \"sha256\": \"2a1ba728a1f4503cfb3a432818c5c0f11caa655e20b2842a0529df4404da5bdc\",\n      \"bytes\": 58443\n    },\n    {\n      \"path\": \"src/peer_connection/event/data_channel_event.rs\",\n      \"sha256\": \"311e1186a3ab7d3976fe8df99f96bbf6bd658fd33c0cb24c44d7fb3b45f817e2\",\n      \"bytes\": 4495\n    },\n    {\n      \"path\": \"src/peer_connection/event/ice_error_event.rs\",\n      \"sha256\": \"656b9752510d52b8626bcc29c0ec378861978f532f4953beac6f040a5bbe897b\",\n      \"bytes\": 2454\n    },\n    {\n      \"path\": \"src/peer_connection/event/ice_event.rs\",\n      \"sha256\": \"84cdacdea49920416a4775f33540e119a82c72628035cf7d639c809f1ecc18a0\",\n      \"bytes\": 2866\n    },\n    {\n      \"path\": \"src/peer_connection/event/mod.rs\",\n      \"sha256\": \"6e173b784c2ad33842eb4bd6d79ed3d930966d8627502a24a91f6b20f188bbc3\",\n      \"bytes\": 22478\n    },\n    {\n      \"path\": \"src/peer_connection/event/track_event.rs\",\n      \"sha256\": \"ea9892c5f05fef6b2c7981994cce149e2f30ab8038e1b34f5e012214133629d7\",\n      \"bytes\": 7040\n    },\n    {\n      \"path\": \"src/peer_connection/handler/datachannel.rs\",\n      \"sha256\": \"0d8f5fef9bbca0ac1a4fac99d64417dd02c407dfc046a62b3f0db0e5e66f94eb\",\n      \"bytes\": 46593\n    },\n    {\n      \"path\": \"src/peer_connection/handler/demuxer.rs\",\n      \"sha256\": \"0902a87f691b3e0038de5638e9958af331930bca17181429578c22199354fda1\",\n      \"bytes\": 5555\n    },\n    {\n      \"path\": \"src/peer_connection/handler/dtls.rs\",\n      \"sha256\": \"0c0d77230dd2bab2d394ac4b521905df84f23fa85aa53c7627af9ce89a87c4d1\",\n      \"bytes\": 24721\n    },\n    {\n      \"path\": \"src/peer_connection/handler/endpoint.rs\",\n      \"sha256\": \"7904b1b805783adc3621f5cd262ae1eb22c8e608b471f2321fd06c155f3098ac\",\n      \"bytes\": 28193\n    },\n    {\n      \"path\": \"src/peer_connection/handler/ice.rs\",\n      \"sha256\": \"7fad3e00f5466f0a776d78a37486dd6c0a4fdb5a189ff8451048158aae44d0ac\",\n      \"bytes\": 9891\n    },\n    {\n      \"path\": \"src/peer_connection/handler/interceptor.rs\",\n      \"sha256\": \"32ce8c419ec43fbb7dce505b4f3ff137c0c10904b79b5e4b5616c53c6865df4a\",\n      \"bytes\": 61661\n    },\n    {\n      \"path\": \"src/peer_connection/handler/mod.rs\",\n      \"sha256\": \"775254220914b7617d1077297983198160c7e512ffcdf200965174c88c30b180\",\n      \"bytes\": 33484\n    },\n    {\n      \"path\": \"src/peer_connection/handler/sctp.rs\",\n      \"sha256\": \"205171a77383b387f50a9000b28ebc8da0e5cb63b30b4eda43b4f519ce9beec9\",\n      \"bytes\": 86256\n    },\n    {\n      \"path\": \"src/peer_connection/handler/srtp.rs\",\n      \"sha256\": \"bf20824544f689caeef5390873e7536361fa8fbda69b5c3dfc46556e863abce4\",\n      \"bytes\": 7383\n    },\n    {\n      \"path\": \"src/peer_connection/internal.rs\",\n      \"sha256\": \"61f63dbc0f08785eb7d1637616b4ce2325c28b7ec790f1fec550814b5c4fbb62\",\n      \"bytes\": 70798\n    },\n    {\n      \"path\": \"src/peer_connection/message/internal.rs\",\n      \"sha256\": \"d4fc4fd779c6219fd205ab5620979dcdee2a4c584d6daf5c52e9f8dd50e6e944\",\n      \"bytes\": 3553\n    },\n    {\n      \"path\": \"src/peer_connection/message/mod.rs\",\n      \"sha256\": \"616e78ffdd1f834696a7cdc8c94e97e1992c9382806f8d3c0a1b90f06b208506\",\n      \"bytes\": 19502\n    },\n    {\n      \"path\": \"src/peer_connection/mod.rs\",\n      \"sha256\": \"a34f30bed8a9ea549649d973ad70a55c49618245d788ee5892f6d46972f8f733\",\n      \"bytes\": 130922\n    },\n    {\n      \"path\": \"src/peer_connection/sdp/mod.rs\",\n      \"sha256\": \"332dc793e4a42e068d185984f2deafda52aaab45e81947e89ca000b351b71ad9\",\n      \"bytes\": 57772\n    },\n    {\n      \"path\": \"src/peer_connection/sdp/sdp_test.rs\",\n      \"sha256\": \"67b2575de6937b975bc34830a1446ee294ed4b352d52f813c02439ec326efa62\",\n      \"bytes\": 51147\n    },\n    {\n      \"path\": \"src/peer_connection/sdp/sdp_type.rs\",\n      \"sha256\": \"88acf3f1545c019da45ee1ced23fb35c686135e275b1aba962c65b3f9ccf43e9\",\n      \"bytes\": 8192\n    },\n    {\n      \"path\": \"src/peer_connection/sdp/session_description.rs\",\n      \"sha256\": \"6709ce3acf6b927be84d2740d2ca8123316bf2990283d236c82523f610740eaa\",\n      \"bytes\": 22586\n    },\n    {\n      \"path\": \"src/peer_connection/state/ice_connection_state.rs\",\n      \"sha256\": \"37537120a19d881f4922c6bd6cb8392fcfc60166249c9bc3b240dab64e7d1020\",\n      \"bytes\": 11818\n    },\n    {\n      \"path\": \"src/peer_connection/state/ice_gathering_state.rs\",\n      \"sha256\": \"f3f971373b2df84eef16a89446415400eb0f2e71080c2e43fa4173a3f7d42149\",\n      \"bytes\": 7782\n    },\n    {\n      \"path\": \"src/peer_connection/state/mod.rs\",\n      \"sha256\": \"577d53087ef4019f2accce156e39972e3194387fe78a4168d597cbb974f45ed7\",\n      \"bytes\": 7238\n    },\n    {\n      \"path\": \"src/peer_connection/state/peer_connection_state.rs\",\n      \"sha256\": \"d49822f69d7431f3116f040eaa3e44eb1c24b1a0f335a36007a26a4ae9332d31\",\n      \"bytes\": 11303\n    },\n    {\n      \"path\": \"src/peer_connection/state/signaling_state.rs\",\n      \"sha256\": \"d916ec250da69b4dbd64540afaf32939be4461246de6b6a6e5116f6d9e2cbb4e\",\n      \"bytes\": 21083\n    },\n    {\n      \"path\": \"src/peer_connection/transport/dtls/fingerprint.rs\",\n      \"sha256\": \"733cf56864126e0b3cf47c93a260819f7e9cdf714c2feee7438dc656705bc489\",\n      \"bytes\": 4610\n    },\n    {\n      \"path\": \"src/peer_connection/transport/dtls/mod.rs\",\n      \"sha256\": \"b57bc2d78c0e0d3f4c23febcd2a38ede50f72dfe99f9ddc71ae847e856881540\",\n      \"bytes\": 21811\n    },\n    {\n      \"path\": \"src/peer_connection/transport/dtls/parameters.rs\",\n      \"sha256\": \"d50c51faa762dc9c600b26980abe31c0d1925d9b8869a282362dc70c53f2e544\",\n      \"bytes\": 461\n    },\n    {\n      \"path\": \"src/peer_connection/transport/dtls/role.rs\",\n      \"sha256\": \"f39b3ab3385ea4769cb24eb43570c32f6c03187489d2f80b9100ad8db8c759e3\",\n      \"bytes\": 8600\n    },\n    {\n      \"path\": \"src/peer_connection/transport/dtls/state.rs\",\n      \"sha256\": \"055aa80d9e8dad08ceaa78606d205a1476508558168ae4c0916680ba78851ce5\",\n      \"bytes\": 8108\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/candidate.rs\",\n      \"sha256\": \"322fc2ac588e6b2fafa07783323078bd4e9a545583a96211aa667ecf05fd0758\",\n      \"bytes\": 11910\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/candidate_pair.rs\",\n      \"sha256\": \"d793b6af0e6f08e32c60e19b76f00506fde91abac828a16848582f0900fff4d9\",\n      \"bytes\": 1038\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/candidate_type.rs\",\n      \"sha256\": \"4e7edc92b2891dc8419a94711ad4b9a99f14da2f8ad5e7b71873e300af8d8a9b\",\n      \"bytes\": 9389\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/component.rs\",\n      \"sha256\": \"e7c664d9cb8e06708b60fcf9b307fa43b3bea20cdea33858de149089b38239e3\",\n      \"bytes\": 2281\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/mod.rs\",\n      \"sha256\": \"44c15cfd46837ac68827deef7ca983c5e7acc598c33774385cb35528b7eaceb1\",\n      \"bytes\": 12270\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/parameters.rs\",\n      \"sha256\": \"73f861cca90a150c2c81511e426a662d0945a22659953a693e594f28f05022ec\",\n      \"bytes\": 694\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/protocol.rs\",\n      \"sha256\": \"90fe0d32e982111c443adfa1edfa3b142905696ffca119cb4485cd65928db97b\",\n      \"bytes\": 2549\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/role.rs\",\n      \"sha256\": \"ef3c151a9a8037a69d6bdb207bc4ce0cc7059059bb0f0bca17e6fc802ea432b4\",\n      \"bytes\": 2710\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/server.rs\",\n      \"sha256\": \"2c8c5e2cbe53a98be0083e62998177f644cc7372d8ddbe8f49f450c968503f0e\",\n      \"bytes\": 5576\n    },\n    {\n      \"path\": \"src/peer_connection/transport/ice/state.rs\",\n      \"sha256\": \"ae851cae4c8787492390c5a6ccc88ec1fa7739bc1e093d9a979da5e3cabd80c3\",\n      \"bytes\": 7961\n    },\n    {\n      \"path\": \"src/peer_connection/transport/mod.rs\",\n      \"sha256\": \"0e82c0239897f625aeed721f946bd4cd14ae7d22b2a29581679bfb517f8238cd\",\n      \"bytes\": 17205\n    },\n    {\n      \"path\": \"src/peer_connection/transport/sctp/capabilities.rs\",\n      \"sha256\": \"32d56a5328ae9525028b05194de72389c6215def15ba658ad33c36a37933c76f\",\n      \"bytes\": 265\n    },\n    {\n      \"path\": \"src/peer_connection/transport/sctp/mod.rs\",\n      \"sha256\": \"8e56d78d04d6d720b5768d790ca56673653a2cda7c8d0e72685f637913254dab\",\n      \"bytes\": 17023\n    },\n    {\n      \"path\": \"src/peer_connection/transport/sctp/state.rs\",\n      \"sha256\": \"defa9774aa800d46c3845d587da8428e0cbea4662fb0538ecd3ab17a003d9dc1\",\n      \"bytes\": 3776\n    },\n    {\n      \"path\": \"src/rtp_transceiver/direction.rs\",\n      \"sha256\": \"56026d8dd1ece35d8eb9f1a66e74ee38ebd2632932735b08f566b3baa154c50e\",\n      \"bytes\": 8371\n    },\n    {\n      \"path\": \"src/rtp_transceiver/fmtp/generic/generic_test.rs\",\n      \"sha256\": \"be808bf0ea86c68068ed3d386d273afed2e94c3b2a0be753e04a76e537e547b2\",\n      \"bytes\": 4476\n    },\n    {\n      \"path\": \"src/rtp_transceiver/fmtp/generic/mod.rs\",\n      \"sha256\": \"3f1a0895c6812d5eb0b67768874d62d13fd85b58d2da1e5ef6313b1c233dd9af\",\n      \"bytes\": 1581\n    },\n    {\n      \"path\": \"src/rtp_transceiver/fmtp/h264/h264_test.rs\",\n      \"sha256\": \"0f39ed96a17ade1521a7fee3abe5bd7bbfd06c0c3c942fff6b246903f8fb6f64\",\n      \"bytes\": 4921\n    },\n    {\n      \"path\": \"src/rtp_transceiver/fmtp/h264/mod.rs\",\n      \"sha256\": \"39e54fd70ecaffb0ac6fa8e894608e7f80a765f2ac6d4abe72067e0599b09723\",\n      \"bytes\": 2879\n    },\n    {\n      \"path\": \"src/rtp_transceiver/fmtp/mod.rs\",\n      \"sha256\": \"27109af5e522031d86b14554decaaa48eff580c52b735c7a29c935fc484c7bf0\",\n      \"bytes\": 1604\n    },\n    {\n      \"path\": \"src/rtp_transceiver/internal.rs\",\n      \"sha256\": \"750958ab8ebb75a0fb4d65e2ef10902d6f3c60d1a1527a005f36c4a5cb6b04a8\",\n      \"bytes\": 15880\n    },\n    {\n      \"path\": \"src/rtp_transceiver/mod.rs\",\n      \"sha256\": \"43b8e3aeb371a0c7918365cae5a99a951e6d58e73479a0a05a961384f2c50207\",\n      \"bytes\": 18215\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_receiver/internal.rs\",\n      \"sha256\": \"528d33a67549e02bd426ebe64aa528e68f78f9fefb9f985c0a2619c30a2f14d4\",\n      \"bytes\": 25158\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_receiver/mod.rs\",\n      \"sha256\": \"a1f807804ec27123594ad88b07933dfd7683302b351d9fbb6e133b0fe2b370e5\",\n      \"bytes\": 15875\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_receiver/rtp_contributing_source.rs\",\n      \"sha256\": \"ad41756b1db563f4f40f89ce90185f42d731139d8cb3a5391fd41e9ba98fd711\",\n      \"bytes\": 2558\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_receiver/rtp_receiver_test.rs\",\n      \"sha256\": \"61d5a7231152d891edaf447de510582f4ef61b09b9536c37582ef1d4caf140da\",\n      \"bytes\": 7691\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/internal.rs\",\n      \"sha256\": \"505a4d0aa29344d0b60e66d4118b032a967405fb692f630256592f1db82ee4d7\",\n      \"bytes\": 14285\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/mod.rs\",\n      \"sha256\": \"1c7a2681100ebb726be462a6755d721ea52d65a92a7b1614f9b244630adb6221\",\n      \"bytes\": 18567\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtcp_parameters.rs\",\n      \"sha256\": \"f812e4cbcbf28756ac5766250c60f6fac5d45cb4fe8008e4c9b9dcede0462069\",\n      \"bytes\": 1629\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_capabilities.rs\",\n      \"sha256\": \"977455b23b4b46f0c11646b1e71aa725695b6fc377da0221c5450dc55d3e687a\",\n      \"bytes\": 664\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_codec.rs\",\n      \"sha256\": \"634cc2736196e5db1a9b46de3f49003c35a368294ec9e1b997b274fe8be6cb4a\",\n      \"bytes\": 12895\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_codec_parameters.rs\",\n      \"sha256\": \"250dd50c7d2a1dd315ad89a4723c973c4cf3232f412bff13dabaddfc7fbb5cc1\",\n      \"bytes\": 616\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_coding_parameters.rs\",\n      \"sha256\": \"3768017146cc9132bfbd27ef3087f4a773a327bc0d62899e54caf879b30fa000\",\n      \"bytes\": 3721\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_encoding_parameters.rs\",\n      \"sha256\": \"296334b5d4085a162fcd95794e8ee38407a5aa108521f23f09018ff00a592494\",\n      \"bytes\": 1031\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_header_extension_capability.rs\",\n      \"sha256\": \"3e4cc9bab9151e776242c706e2a3e2264e65ef4bad7c263787b80ef32e7b411e\",\n      \"bytes\": 367\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_header_extension_parameters.rs\",\n      \"sha256\": \"53ab5be931e5e4da0cf7d4ab7188a14535a5911d551c13b46cc8a2efaff6f6e3\",\n      \"bytes\": 620\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_parameters.rs\",\n      \"sha256\": \"af3db15c1cd11a988cfbbd083e3b9c4a71e52d1c49af78aba6e979f832d08c08\",\n      \"bytes\": 766\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_receiver_parameters.rs\",\n      \"sha256\": \"5c3e10c126d81eaedf375d6dc469dba3a33fdeab7572bcf5097a626ff2fe87eb\",\n      \"bytes\": 274\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_send_parameters.rs\",\n      \"sha256\": \"eb9b0724101a7c1910175f7d857f3933aed92a937e3033ac9748f2e867ce8edf\",\n      \"bytes\": 592\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/rtp_sender_test.rs\",\n      \"sha256\": \"7acc3fc0a93feb00959c677788762aef2abf6ad7085fcd8ae5c986f2030a3cbc\",\n      \"bytes\": 23759\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_sender/set_parameter_options.rs\",\n      \"sha256\": \"31fb175f9c18296a64d5d9b60ce19eafd1b3bc9a8adfadbd7e0f08bf27875dbd\",\n      \"bytes\": 310\n    },\n    {\n      \"path\": \"src/rtp_transceiver/rtp_transceiver_test.rs\",\n      \"sha256\": \"f79c88adfa56c2e428891780cc119145e711e22024f519ffcd76519a68282811\",\n      \"bytes\": 11273\n    },\n    {\n      \"path\": \"src/statistics/accumulator/certificate.rs\",\n      \"sha256\": \"01f4a4e93147c48be8700f650e78b07afc6a7a15f70ba428c639113aae55aa1a\",\n      \"bytes\": 4871\n    },\n    {\n      \"path\": \"src/statistics/accumulator/codec.rs\",\n      \"sha256\": \"f04fb276829d85a1d0e72a1637d59f2e4419620062dc69a2e4cdfe4c79056111\",\n      \"bytes\": 9971\n    },\n    {\n      \"path\": \"src/statistics/accumulator/data_channel.rs\",\n      \"sha256\": \"5e010d6552f354de107fae3dd61c6cc3c96caba3ed72afa2917a11b08a5807ac\",\n      \"bytes\": 6979\n    },\n    {\n      \"path\": \"src/statistics/accumulator/ice_candidate.rs\",\n      \"sha256\": \"392c506ebb1a4a9e5bb44040bc9e54a72f22c987f678386abff3f8b059a2b87b\",\n      \"bytes\": 12094\n    },\n    {\n      \"path\": \"src/statistics/accumulator/ice_candidate_pair.rs\",\n      \"sha256\": \"4befdcb76343f683b8c3d14525456cbe6a9109189bbf948b0256fd2b2d1748e9\",\n      \"bytes\": 12693\n    },\n    {\n      \"path\": \"src/statistics/accumulator/media/app_provided.rs\",\n      \"sha256\": \"6aa4d8c5356164165869fce871c7ade0496376e81ce483d4816ea8d3f623e7e2\",\n      \"bytes\": 5248\n    },\n    {\n      \"path\": \"src/statistics/accumulator/media/audio_playout.rs\",\n      \"sha256\": \"00674f53c3a069ea2826f3001dddce124ee37ff71ca5f14d002b96e0a091ec66\",\n      \"bytes\": 1834\n    },\n    {\n      \"path\": \"src/statistics/accumulator/media/media_source.rs\",\n      \"sha256\": \"a93416b681ae04b9b024c32af9f7d7e79693f5f71a8cf0280d33bfa48d0093cd\",\n      \"bytes\": 3114\n    },\n    {\n      \"path\": \"src/statistics/accumulator/media/mod.rs\",\n      \"sha256\": \"38321dc20da4509dff1fd018d44905b3cf945b6403feb9556489d02d2ded084f\",\n      \"bytes\": 88\n    },\n    {\n      \"path\": \"src/statistics/accumulator/mod.rs\",\n      \"sha256\": \"6ff3785fd80e422b30269a4932caa05464e7c97e03376d998bf9df8e2b1884a9\",\n      \"bytes\": 32378\n    },\n    {\n      \"path\": \"src/statistics/accumulator/peer_connection.rs\",\n      \"sha256\": \"849850f08801a8f3083a7610489432cded49e25974b4b5ac3d42b2b8427a7523\",\n      \"bytes\": 4150\n    },\n    {\n      \"path\": \"src/statistics/accumulator/rtp_stream/inbound.rs\",\n      \"sha256\": \"6cb3efc5eeac0fd40bdb0ea399ae37640a4c52f83fc4a6e758bd23fad188099c\",\n      \"bytes\": 24125\n    },\n    {\n      \"path\": \"src/statistics/accumulator/rtp_stream/mod.rs\",\n      \"sha256\": \"822e8431c72c7b6538eea49f80e2e1c2f6fee053ff6671342c85c3d243409b2a\",\n      \"bytes\": 109\n    },\n    {\n      \"path\": \"src/statistics/accumulator/rtp_stream/outbound.rs\",\n      \"sha256\": \"4e6ff85a1da58399d095e044397a6e19da1ca5e47ec28f30a6a4912e03e36605\",\n      \"bytes\": 19960\n    },\n    {\n      \"path\": \"src/statistics/accumulator/transport.rs\",\n      \"sha256\": \"6567c0265cf9090a5d6dc43557e599ea09e39916c1e7b82d4cfb1fd156d6382d\",\n      \"bytes\": 13403\n    },\n    {\n      \"path\": \"src/statistics/mod.rs\",\n      \"sha256\": \"432608ffc482e427067bdcb0cbd76889f3826ea2f4ab9e7aa13ec013ebe60474\",\n      \"bytes\": 2588\n    },\n    {\n      \"path\": \"src/statistics/report.rs\",\n      \"sha256\": \"69fcbbe9d39f3935ad578e1b92f776e38c4b98d99d39698cdec3210719e2f1f7\",\n      \"bytes\": 10404\n    },\n    {\n      \"path\": \"src/statistics/statistics_test.rs\",\n      \"sha256\": \"9d50da7f3ccef045cc1c8fdb8b25224d73fa9d9ddd379750f981ea9d58aab7b4\",\n      \"bytes\": 47086\n    },\n    {\n      \"path\": \"src/statistics/stats/certificate.rs\",\n      \"sha256\": \"a52cc4474c56a91c786d5340a0ec91df09bd8eb39a3403ef09991705bfcd5f9e\",\n      \"bytes\": 1527\n    },\n    {\n      \"path\": \"src/statistics/stats/codec.rs\",\n      \"sha256\": \"059a3337c72d74c9f5d224f1ad0c0352631dda70370c846831ef2ef6eac32bd9\",\n      \"bytes\": 1715\n    },\n    {\n      \"path\": \"src/statistics/stats/data_channel.rs\",\n      \"sha256\": \"d3f42a3ac16c0b1b974f3f9dcd9f2eb94bea1a19631311258af8f71049fecde2\",\n      \"bytes\": 2035\n    },\n    {\n      \"path\": \"src/statistics/stats/ice_candidate.rs\",\n      \"sha256\": \"d10fc20c0cb3d8ad109b5d445e61c57551bba0bb9f4de07e3809589608ee4892\",\n      \"bytes\": 2758\n    },\n    {\n      \"path\": \"src/statistics/stats/ice_candidate_pair.rs\",\n      \"sha256\": \"41b0bc30039f24b683b35f97006b669c6beca8b10a44dc04a943767bfc53fc4e\",\n      \"bytes\": 5025\n    },\n    {\n      \"path\": \"src/statistics/stats/media/audio_playout.rs\",\n      \"sha256\": \"de7af8a4c5808ec6f9c03178bf2c6480774e39c854ca1c694ab48124ef410290\",\n      \"bytes\": 1618\n    },\n    {\n      \"path\": \"src/statistics/stats/media/audio_source.rs\",\n      \"sha256\": \"1b09fee3694f7f337ffe1e412b31a9492e753c012ebe72a75db7b8b3bb05abcd\",\n      \"bytes\": 1590\n    },\n    {\n      \"path\": \"src/statistics/stats/media/media_source.rs\",\n      \"sha256\": \"2210f4f59ffc16fe2a6c766215b8f4ee14f46c3a6ecda2c9191da8d427de4199\",\n      \"bytes\": 1193\n    },\n    {\n      \"path\": \"src/statistics/stats/media/mod.rs\",\n      \"sha256\": \"0653a221e5a56a14f4ca4ecb6bcaf978435d8c3accc23858de71eef041a29dc3\",\n      \"bytes\": 516\n    },\n    {\n      \"path\": \"src/statistics/stats/media/video_source.rs\",\n      \"sha256\": \"f46ea5ddd37d2ccf02ce9a76c0a3afc6e38a05e8aeb5606709ecdf957a4bd8bb\",\n      \"bytes\": 1120\n    },\n    {\n      \"path\": \"src/statistics/stats/mod.rs\",\n      \"sha256\": \"02efd138e3221604fcb38c23ced55b1ad616157b75d014c2793790800b9084b0\",\n      \"bytes\": 5403\n    },\n    {\n      \"path\": \"src/statistics/stats/peer_connection.rs\",\n      \"sha256\": \"e73a4c10ed79d33816ed53471363a34c7d2ca97142a9083455ec0f9b017fd932\",\n      \"bytes\": 1081\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/mod.rs\",\n      \"sha256\": \"a4234e214deaa6b7c2b22d52de614a8ecc37600ba817bd3dc28f82b366c18085\",\n      \"bytes\": 2003\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/received/inbound.rs\",\n      \"sha256\": \"20e21ff984b469d98d5df0b73e51dc2c564b05eec0e1185bf6af6c27ca414ab9\",\n      \"bytes\": 6386\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/received/mod.rs\",\n      \"sha256\": \"1d59190ed2d4fb28eed9673f5ee33bec6d3f7aacc64f5ab834a733e7c9e316d7\",\n      \"bytes\": 2332\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/received/remote_inbound.rs\",\n      \"sha256\": \"11e61cc17ca31d72ee5191697dcc1686ebd4b9f67e816eee400ba49f5cd6cf12\",\n      \"bytes\": 1903\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/sent/mod.rs\",\n      \"sha256\": \"0980101ec891ecd9ec1e5ed2c01e723b7d6a0561960c1b5062490d1faba44dab\",\n      \"bytes\": 1404\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/sent/outbound.rs\",\n      \"sha256\": \"bbd0f01c471e409c4650243699efe6a86e2bb4ed02d14f2be74e52206f1b2b44\",\n      \"bytes\": 4576\n    },\n    {\n      \"path\": \"src/statistics/stats/rtp_stream/sent/remote_outbound.rs\",\n      \"sha256\": \"23ec84f6794f33aeb20af5d71a03f9816dae79b2d93d153433a689e848f51d2d\",\n      \"bytes\": 1898\n    },\n    {\n      \"path\": \"src/statistics/stats/transport.rs\",\n      \"sha256\": \"7832b08d52ee134f06ca2d2b6c304eb9f2f88b3d54ab0675c8b0f6318bc71b5a\",\n      \"bytes\": 3331\n    }\n  ],\n  \"functionalPatch\": [\n    {\n      \"path\": \"src/peer_connection/mod.rs\",\n      \"importSha256\": \"e0d059f30c4543e34d191124ec753e3cee34badc75dec3a34a6612a10a0f1646\",\n      \"maintainedSha256\": \"a34f30bed8a9ea549649d973ad70a55c49618245d788ee5892f6d46972f8f733\",\n      \"diff\": \"--- verified import\\n+++ maintained core\\n@@ -1884,13 +1884,13 @@\\n         self.configuration.ice_transport_policy = configuration.ice_transport_policy;\\n \\n         // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11)\\n-        if !configuration.ice_servers.is_empty() {\\n-            // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\\n-            for server in &configuration.ice_servers {\\n-                server.validate()?;\\n-            }\\n-            self.configuration.ice_servers = configuration.ice_servers\\n-        }\\n+        // An empty replacement removes discovery servers. Retaining the old\\n+        // list would restart gathering with retired TURN credentials/endpoints.\\n+        // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\\n+        for server in &configuration.ice_servers {\\n+            server.validate()?;\\n+        }\\n+        self.configuration.ice_servers = configuration.ice_servers;\\n \\n         Ok(())\\n     }\\n\"\n    }\n  ],\n  \"productionDependenciesAndFeaturesUnchanged\": true,\n  \"importRecordSha256\": \"cbee04014f3e993ae296a50fbfd6495fce6472f5b20b825165b4a2b798fa8eb1\",\n  \"numericCommentReferenceFiles\": 12,\n  \"documentationWhitespaceFiles\": 10,\n  \"rootLockPackageCount\": 1321,\n  \"changedPackageIdentitiesOnly\": [\n    {\n      \"name\": \"rtc\",\n      \"version\": \"0.21.1\",\n      \"beforeSource\": \"registry+https://github.com/rust-lang/crates.io-index\",\n      \"afterSource\": \"git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f\",\n      \"otherFieldsIdentical\": true\n    },\n    {\n      \"name\": \"voxl-media\",\n      \"version\": \"0.1.0\",\n      \"beforeSource\": \"git+https://github.com/Finityno/voxl?rev=f7bc0059588727dc08637552d5d1866492f685e0#f7bc0059588727dc08637552d5d1866492f685e0\",\n      \"afterSource\": \"git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f\",\n      \"otherFieldsIdentical\": true\n    },\n    {\n      \"name\": \"webrtc\",\n      \"version\": \"0.21.1\",\n      \"beforeSource\": \"git+https://github.com/Finityno/voxl?rev=f7bc0059588727dc08637552d5d1866492f685e0#f7bc0059588727dc08637552d5d1866492f685e0\",\n      \"afterSource\": \"git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#a355a959ddeb2411360a46834bf28772b9928c6f\",\n      \"otherFieldsIdentical\": true\n    }\n  ],\n  \"applicationSourcesUnchanged\": [\n    {\n      \"path\": \"crates/environments/tests/native_desktop_phone.rs\",\n      \"sha256\": \"f2fe68d3ec63d2310924876dd533a033e79b64a3db5a9d1c7a1bfba821ef5557\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/environments/tests/support/relay.rs\",\n      \"sha256\": \"cdb427f9c21ef0bdd68806f6e6c46f33d6188da1cda4d80a66e8037e3deec3a4\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/desktop_media/src/macos/mod.rs\",\n      \"sha256\": \"9c94865c95f6fbd50717aa7c4e1776016d4d51cb33e27c66492238502200d184\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/desktop_media/src/macos/recovery.rs\",\n      \"sha256\": \"b2eb9e1a45c2afd1d478412bee7319e917c0893b3e8202112f8429d64d420993\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/environment_host/src/desktop.rs\",\n      \"sha256\": \"7115bcfc94b6451b17f20b117bfa43a7d8f8d122338ce15329e0147ba9925df6\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/environment_host/src/desktop_relay.rs\",\n      \"sha256\": \"b4f50e06549fea5bba5f464b666ba0c9ed6c4796170b4b18ed674476c612dfd6\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/environment_host/src/connect_hosting.rs\",\n      \"sha256\": \"d1f09d4d09af584668b94d8fec3290515a47d887b0b9538e500d4a6c07eebaef\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/connect_relay/src/desktop_turn.rs\",\n      \"sha256\": \"96fb6926c4b4aa053654df4c6bb891d713cb2a12e086de8917bc14f26983ff3b\",\n      \"byteIdentical\": true\n    },\n    {\n      \"path\": \"crates/connect_relay/src/store/desktop_turn.rs\",\n      \"sha256\": \"4cfab1633ddc4ab1a5276d9fd1ceef5126f62571834330e82a230ae9f6c166cb\",\n      \"byteIdentical\": true\n    }\n  ],\n  \"regressionByteIdentical\": {\n    \"baseline\": \"0c4f027c76a4da6685d71fa910058652c6116d3a\",\n    \"fixed\": \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n    \"path\": \"media/src/webrtc/tests/live_restart.rs\",\n    \"sha256\": \"13fa9265089dc2f1f81287d0ee16c355da6974c9d78ba4b260a242131aa0ca53\"\n  },\n  \"sdkSourceTreeByteIdentical\": true,\n  \"sdkSourceTreeListingSha256\": \"e5badc0c79da33ce74150c9e4054b4655f413e257813a1087f71760fa8de1edf\",\n  \"limits\": \"Source/import/graph comparison, not execution or a general protocol/security audit. Functional tests and compiled provider features are separate evidence.\"\n}\n",
+      "sha256": "94dfa2db4d55e19f64302dfd7e0b12e0dc90f1f8b4f570758ad2804d4d7a6780"
+    },
+    {
+      "name": "verify-import.py",
+      "text": "import pathlib,json,tarfile,hashlib,re,tomllib,subprocess,difflib\nP=pathlib.Path;FORK=P('/Users/sondre/Documents/GitHub/voxl-fincode-streaming');APP=P('/Users/sondre/Documents/GitHub/fincode-desktop-access');CORE=FORK/'media/vendor/rtc';ARCHIVE=P('/Users/sondre/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/rtc-0.21.1.crate')\ndef sha(raw):return hashlib.sha256(raw).hexdigest()\ndef blob(repo,rev,path):return subprocess.check_output(['git','show',rev+':'+path],cwd=repo,timeout=15)\nrecord=json.loads((CORE/'IMPORT.json').read_text());assert sha(ARCHIVE.read_bytes())==record['archiveSha256']\ncleanup={x['path']:x for x in record['importWhitespaceCleanup']};checks=[];functional=[]\nbefore_block='''        if !configuration.ice_servers.is_empty() {\n            // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\n            for server in &configuration.ice_servers {\n                server.validate()?;\n            }\n            self.configuration.ice_servers = configuration.ice_servers\n        }\n'''\nafter_block='''        // An empty replacement removes discovery servers. Retaining the old\n        // list would restart gathering with retired TURN credentials/endpoints.\n        // https://www.w3.org/TR/webrtc/#set-the-configuration (step 11.3)\n        for server in &configuration.ice_servers {\n            server.validate()?;\n        }\n        self.configuration.ice_servers = configuration.ice_servers;\n'''\nwith tarfile.open(ARCHIVE)as tar:\n for entry in record['files']:\n  name=entry['path'];raw=tar.extractfile('rtc-0.21.1/'+name).read();assert sha(raw)==entry['originalSha256'];expected=raw\n  if name.startswith('src/'):\n   lines=raw.decode().splitlines(keepends=True)\n   for i,line in enumerate(lines):\n    if re.search(r'#\\d',line):assert line.lstrip().startswith('//');lines[i]=re.sub(r'#(?=\\d)','',line)\n   expected=''.join(lines).encode()\n  elif name=='Cargo.toml':\n   text=raw.decode();start=text.index('[[example]]');end=text.index('[dependencies.',start);text=text[:start]+text[end:];expected=text[:text.index('[dev-dependencies.')].encode()\n  if name in cleanup:\n   assert sha(expected)==cleanup[name]['priorImportSha256']\n   if name=='Cargo.toml':expected=expected.rstrip()+b'\\n'\n   else:\n    lines=expected.decode().splitlines(keepends=True)\n    for i,line in enumerate(lines):\n     trimmed=line.rstrip('\\r\\n').rstrip(' \\t')+'\\n'\n     if line!=trimmed:assert line.lstrip().startswith('//');lines[i]=trimmed\n    expected=''.join(lines).encode()\n  assert sha(expected)==entry['importSha256'],name\n  actual=(CORE/name).read_bytes()\n  if name=='src/peer_connection/mod.rs':\n   original=expected.decode();assert original.count(before_block)==1\n   expected=original.replace(before_block,after_block).encode();functional.append({'path':name,'importSha256':entry['importSha256'],'maintainedSha256':sha(expected),'diff':''.join(difflib.unified_diff(original.splitlines(True),expected.decode().splitlines(True),fromfile='verified import',tofile='maintained core'))})\n  assert actual==expected,name\n  checks.append({'path':name,'sha256':sha(actual),'bytes':len(actual)})\n assert len(checks)==143 and len(functional)==1\n original=tomllib.loads(tar.extractfile('rtc-0.21.1/Cargo.toml').read().decode());maintained=tomllib.loads((CORE/'Cargo.toml').read_text())\n for key in ['features','dependencies','target']:assert original.get(key)==maintained.get(key)\n\nbefore='826ec4b55f0842950896f96f0c02ee6ad7ac34ee';after='1413e43d1e24331eca01a85bc38f6816b7e6661d';old='f7bc0059588727dc08637552d5d1866492f685e0';new='a355a959ddeb2411360a46834bf28772b9928c6f'\nassert blob(APP,before,'Cargo.toml').replace(old.encode(),new.encode())==blob(APP,after,'Cargo.toml')\na=tomllib.loads(blob(APP,before,'Cargo.lock').decode());b=tomllib.loads(blob(APP,after,'Cargo.lock').decode());assert len(a['package'])==len(b['package']);changes=[]\nfor x,y in zip(a['package'],b['package']):\n if x!=y:\n  assert x['name']==y['name']and x['name']in ['rtc','voxl-media','webrtc'];assert {k:v for k,v in x.items()if k not in ['source','checksum']}=={k:v for k,v in y.items()if k not in ['source','checksum']};assert y['source']=='git+https://github.com/Finityno/voxl?rev='+new+'#'+new;assert 'checksum'not in y\n  changes.append({'name':x['name'],'version':x['version'],'beforeSource':x['source'],'afterSource':y['source'],'otherFieldsIdentical':True})\nassert {x['name']for x in changes}=={'rtc','voxl-media','webrtc'}\nunchanged=[]\nfor path in ['crates/environments/tests/native_desktop_phone.rs','crates/environments/tests/support/relay.rs','crates/desktop_media/src/macos/mod.rs','crates/desktop_media/src/macos/recovery.rs','crates/environment_host/src/desktop.rs','crates/environment_host/src/desktop_relay.rs','crates/environment_host/src/connect_hosting.rs','crates/connect_relay/src/desktop_turn.rs','crates/connect_relay/src/store/desktop_turn.rs']:\n x=blob(APP,before,path);assert x==blob(APP,after,path);unchanged.append({'path':path,'sha256':sha(x),'byteIdentical':True})\ntest='media/src/webrtc/tests/live_restart.rs';x=blob(FORK,'0c4f027c76a4da6685d71fa910058652c6116d3a',test);assert x==blob(FORK,new,test)\nsdk_before=subprocess.check_output(['git','ls-tree','-r',old,'--','media/vendor/webrtc/src'],cwd=FORK,timeout=15);sdk_after=subprocess.check_output(['git','ls-tree','-r',new,'--','media/vendor/webrtc/src'],cwd=FORK,timeout=15);assert sdk_before==sdk_after\noutput={'forkRuntime':new,'applicationBefore':before,'applicationAfter':after,'archiveSha256':record['archiveSha256'],'vcs':record['registryVcs'],'verifiedFiles':checks,'functionalPatch':functional,'productionDependenciesAndFeaturesUnchanged':True,'importRecordSha256':sha((CORE/'IMPORT.json').read_bytes()),'numericCommentReferenceFiles':len(record['commentReferenceSanitization']),'documentationWhitespaceFiles':len(cleanup),'rootLockPackageCount':len(a['package']),'changedPackageIdentitiesOnly':changes,'applicationSourcesUnchanged':unchanged,'regressionByteIdentical':{'baseline':'0c4f027c76a4da6685d71fa910058652c6116d3a','fixed':new,'path':test,'sha256':sha(x)},'sdkSourceTreeByteIdentical':True,'sdkSourceTreeListingSha256':sha(sdk_before),'limits':'Source/import/graph comparison, not execution or a general protocol/security audit. Functional tests and compiled provider features are separate evidence.'}\nP('/tmp/desktop-clear-ice-import-review.json').write_text(json.dumps(output,indent=2)+'\\n');print(json.dumps({'verifiedFiles':len(checks),'functionalFiles':len(functional),'changedSourceIDs':len(changes),'allVersionsFeaturesAndOtherLockEntriesUnchanged':True}))\n",
+      "sha256": "f6bff4b750aa45d51b0aad20ee731a69a28f9fa960f92a0cbf21f05172c22954"
+    },
+    {
+      "name": "export-evidence.py",
+      "text": "import pathlib,json,hashlib,os,re\nP=pathlib.Path;FORK=P('/Users/sondre/Documents/GitHub/voxl-fincode-streaming');APP=P('/Users/sondre/Documents/GitHub/fincode-desktop-access');PHONE=P('/Users/sondre/Documents/GitHub/FincodeApplication-desktop-access')\nDEST=[FORK/'media/results/2026-11-05-clear-ice',APP/'docs/desktop-streaming-results/2026-11-05/clear-ice',PHONE/'Tools/desktop-video/results/2026-11-05-clear-ice']\ndef sha(raw):return hashlib.sha256(raw).hexdigest()\ndef gone(group):\n try:os.killpg(group,0);return False\n except ProcessLookupError:return True\ndef item(root,name,actual=None):\n original=(root/name).read_bytes();raw=(root/(actual or name)).read_bytes()\n return {'name':name,'text':raw.decode(),'sha256':sha(raw),'originalPrivateSha256':sha(original),'fixtureTokenRedacted':original!=raw}\ndef write(name,data):\n raw=(json.dumps(data,indent=2)+'\\n').encode();assert not re.search(rb'TEST_RUNNER_FINCODE_DESKTOP_AUTH_PROBE_TOKEN=[0-9a-f]{64}',raw)\n for dest in DEST:dest.mkdir(exist_ok=True);(dest/name).write_bytes(raw)\n print(name,len(raw),len(data.get('texts',[])),len(data.get('postRunGroups',[])))\nfor label,folder in [('compile-failure','voxl-clear-ice-before'),('before','voxl-clear-ice-baseline'),('after','voxl-clear-ice-after')]:\n root=P('/tmp')/folder;r=json.loads((root/'results.json').read_text());q=json.loads((root/'queue.json').read_text());assert r['terminal']and q['terminal'];assert r['exitCode']==q['exitCode']==(0 if label=='after'else 101)\n assert sha((root/'run.py').read_bytes())==r['helperSha256']\n for s in r['steps']+q['steps']:\n  if 'logSha256'in s:assert sha((root/(s['name']+'.log')).read_bytes())==s['logSha256']\n groups={s['pgid']for d in [r,q]for s in d['steps']if'pgid'in s};groups.update(s['pgid']for s in r['turns']);assert all(gone(g)for g in groups)\n names=['run.py','turn-fixture.py','results.json','queue.json','queue.log','toolchain.log']\n if label=='compile-failure':\n  assert all(not s['name'].startswith('live_')for s in r['steps']);records=[json.loads(x)for x in(root/'build.log').read_text().splitlines()if x.startswith('{')];diagnostics=[x for x in records if x.get('reason')=='compiler-message'];assert any(x.get('message',{}).get('code',{}).get('code')=='E0308'for x in diagnostics if x.get('message',{}).get('code'))\n  (root/'compiler-diagnostics.json').write_text(json.dumps(diagnostics,indent=2)+'\\n');names+=['compiler-diagnostics.json'];counts={'passed':0,'failed':0,'executed':0,'buildExit':101,'clippyExecuted':False}\n else:\n  names+=['clippy.log','build-selection.json']+[s['name']+'.log'for s in r['steps']if s['name']not in ['load','toolchain','build','clippy']]\n  case=(root/'live_restart_clears_old_turn_servers_and_keeps_direct_media.log').read_text();assert ('cleared_ice_servers=0 stale_turn_datagram=false stale_allocate=false'if label=='after'else'cleared_ice_servers=1 stale_turn_datagram=true stale_allocate=true')in case\n  counts={'passed':4 if label=='after'else 0,'failed':0 if label=='after'else 1,'executed':4 if label=='after'else 1,'buildExit':0,'clippyExecuted':True}\n  if label=='after':\n   tests=[s for s in r['steps']if s['name'].startswith(('live_','webrtc_'))];assert len(tests)==4\n   for s in tests:assert s['exitCode']==0 and '1 passed; 0 failed; 0 ignored;'in(root/(s['name']+'.log')).read_text()\n   assert len(r['turns'])==1;server=r['turns'][0];assert server['successfulAllocations']==4 and server['exit']==0 and server['groupGone']and server['allOwnedUDPPortsRebound']\n for config in root.glob('private-turn-*/server.conf'):raise AssertionError('private config remains: '+str(config))\n write(label+'.json',{'source':r['source'],'counts':counts,'texts':[item(root,n)for n in names],'postRunGroups':[{'pgid':g,'goneAtExport':True}for g in sorted(groups)],'privateBuildLog':{'sha256':sha((root/'build.log').read_bytes()),'bytes':(root/'build.log').stat().st_size},'limits':'Selected native Mac library tests only. The retired UDP endpoint is an owned unanswered socket; the observed old Allocate is the initial unauthenticated request, not an authenticated credential replay or a server allocation. Only the separate forced-relay test starts actual coturn. Synthetic NALs have no decoder/quality/physical handover/resource qualification. Compile failure executes zero tests.'})\n\nroot=P('/tmp/fincode-native-clear-ice-1413e43');r=json.loads((root/'results.json').read_text());q=json.loads((root/'queue.json').read_text());assert r['terminal']and q['terminal']and r['exitCode']==q['exitCode']==1\nassert sha((root/'run.py').read_bytes())==r['helperSha256']\nfor step in r['steps']+q['steps']:\n if 'logSha256'in step:assert sha((root/(step['name']+'.log')).read_bytes())==step['logSha256']\nassert not any(step['name']in ['phone-tests','backend','owned-turn-ready']for step in r['steps'])\ngroups=sorted({step['pgid']for data in [r,q]for step in data['steps']if'pgid'in step});assert all(gone(g)for g in groups)\nnames=['run.py','results.json','queue.json','queue.log','native-clippy.log','workspace-deps.log','phone-build.log','shutdown.log','shutdown-confirmation.json','provider-audit.json']\nwrite('provider-guard-failure.json',{'sources':r['sources'],'texts':[item(root,name)for name in names],'postRunGroups':[{'pgid':g,'goneAtExport':True}for g in groups],'privateBuildLog':{'sha256':sha((root/'native-build.log').read_bytes()),'bytes':(root/'native-build.log').stat().st_size},'limits':'Native/phone builds, strict native-target Clippy and dependency guard pass. The helper rejects a pre-existing standalone ring artifact before starting the native scenario. Zero Swift/Rust executions and no TURN server. Provider-specific checks and the unchanged-source rerun are separate. This attempt remains failed.'})\n\nroot=P('/tmp/fincode-native-clear-ice-1413e43-final');r=json.loads((root/'results.json').read_text());q=json.loads((root/'queue.json').read_text());assert r['terminal']and q['terminal']and r['exitCode']==q['exitCode']==0;assert sha((root/'run.py').read_bytes())==r['helperSha256']\nfor s in r['steps']+q['steps']:\n if 'logSha256'in s:assert sha((root/(s['name']+'.log')).read_bytes())==s['logSha256']\ngroups=sorted({s['pgid']for d in [r,q]for s in d['steps']if'pgid'in s});assert all(gone(g)for g in groups)\nsummary=json.loads((root/'summary.log').read_text());assert summary['passedTests']==1 and summary['failedTests']==summary['skippedTests']==0;assert '1 passed; 0 failed; 0 ignored;'in(root/'backend.log').read_text()\nreport=json.loads((root/'observations.json').read_text());issuer=json.loads((root/'issuer-observations.json').read_text());server=json.loads((root/'turn-summary.json').read_text());crypto=json.loads((root/'crypto-selection.json').read_text())\nassert report['realHttpTurnIssuer']and report['httpIssuerStatuses']==[200]and report['httpIssuerNoStore']and report['httpIssuerAccountQuotaMatched']and not report['osInputPosted']\nassert issuer=={'statuses':[200,403],'successfulIssuances':1,'capturedFreshGrantDeniedAfterRevocation':True,'fixtureIssuerCalls':0,'productionHostingStopped':True};assert crypto['compiledCryptoRingArtifacts']==0 and crypto['rustlsRingProvider']is False and crypto['standaloneRingArtifacts']==1\nassert server['successfulAllocations']==1 and server['groupGone']and server['allOwnedUDPPortsRebound']\nfor path in ['private/config.json','private/issuer.secret','private/turn/server.conf']:assert not(root/path).exists()\ndiagnostics=[x for x in(root/'phone-build.log').read_text().splitlines()if re.search(r'(?i)(?:^|\\s)(?:warning:|error:)',x)];assert not diagnostics\nraw=(root/'private/turn/server-private.log').read_bytes();events=[];ids={}\nfor i,line in enumerate(raw.decode().splitlines(),1):\n m=re.search(r'session ([0-9]+)',line);sid=None\n if m:\n  value=m.group(1)\n  if value not in ids:ids[value]=len(ids)+1\n  sid=ids[value]\n life=re.search(r'lifetime\\s*[=:]\\s*(\\d+)',line)\n kind='lifetime'if life else'refresh_success'if'REFRESH processed, success'in line else'closed'if'closed ('in line else'shutdown'if any(x in line.lower()for x in ['shutting','terminat','shutdown'])else None\n if kind:events.append({'line':i,'sessionOrdinal':sid,'kind':kind,**({'lifetime':int(life.group(1))}if life else{})})\nassert len(ids)==1;shutdown=min(x['line']for x in events if x['kind']=='shutdown');zero=min(x['line']for x in events if x['kind']=='lifetime'and x['lifetime']==0);success=min(x['line']for x in events if x['kind']=='refresh_success'and x['line']>zero);closed=min(x['line']for x in events if x['kind']=='closed'and x['line']>success);assert zero<success<closed<shutdown\nallocation={'privateLogSha256':sha(raw),'versionFromRunLog':re.search(rb'Coturn Version Coturn-([0-9.]+)',raw).group(1).decode(),'sessionCount':1,'clientDeallocationsBeforeServerShutdown':1,'events':events,'limits':'Client release ordering only, no release latency or maximum lifetime guarantee.'};(root/'allocation-events.json').write_text(json.dumps(allocation,indent=2)+'\\n')\nnames=['run.py','turn-fixture.py','results.json','queue.json','build-selection.json','crypto-selection.json','summary.log','backend.log','native-clippy.log','workspace-deps.log','phone-build.log','phone-tests.log','shutdown.log','shutdown-confirmation.json','observations.json','issuer-observations.json','turn-summary.json','allocation-events.json']\nwrite('native-http.json',{'sources':r['sources'],'texts':[item(root,n,'phone-tests.redacted.log'if n=='phone-tests.log'else None)for n in names],'postRunGroups':[{'pgid':g,'goneAtExport':True}for g in groups],'phoneBuildDiagnostics':diagnostics,'observation':report,'issuer':issuer,'server':server,'allocationEvents':allocation,'privateNativeBuildLog':{'sha256':sha((root/'native-build.log').read_bytes()),'bytes':(root/'native-build.log').stat().st_size},'limits':'Same owned Simulator/native Mac production-issuer and direct-to-TURN scenario with media/SDK/core pin change. Revalidates integration but does not inject empty-list removal in the phone application; that behavior is covered by the separate exact-source socket/library regression. Receiver policy switch/callback injection, no physical loss or OS input. Single timings are not percentiles or resource/quality/bandwidth qualification.'})\naudit=P('/tmp/fincode-clear-ice-provider-audit');ad=json.loads((audit/'results.json').read_text());audit_groups=[]\nfor step in ad['steps']:\n assert step['exitCode']==0 and gone(step['pgid']) and sha((audit/(step['name']+'.log')).read_bytes())==step['logSha256'];audit_groups.append({'pgid':step['pgid'],'goneAtExport':True})\nextra_texts=[item(P('/tmp/fincode-native-http-grace-826ec4b'),'provider-audit.json'),item(P('/tmp/fincode-native-clear-ice-1413e43'),'provider-audit.json'),item(P('/tmp/voxl-clear-ice-after'),'media-provider-selection.json')]+[item(audit,n)for n in ['results.json','native-test-parent.log','media-only.log']]\nreview=P('/tmp/desktop-clear-ice-import-review.json').read_bytes();verify=P('/tmp/verify-desktop-rtc-import.py').read_bytes();export=P(__file__).read_bytes()\nwrite('comparison.json',{'importReview':json.loads(review),'texts':[{'name':name,'text':raw.decode(),'sha256':sha(raw)}for name,raw in [('import-review.json',review),('verify-import.py',verify),('export-evidence.py',export)]]+extra_texts,'postRunGroups':audit_groups,'providerLimit':'Standalone ring is already compiled in the native target via existing JWT/Noise paths; rustls/RTC/SDK provider features remain AWS-LC only. The second inverse-tree label does not prove isolation; the separate isolated media build contains no compiled ring artifact.','limits':'143-file checksum/source and dependency graph audit plus byte-identical regression. Not a general protocol/security audit or a substitute for native/deployed/physical validation. Comment/whitespace import normalization is explicitly recorded; no formatter ran.'})\n",
+      "sha256": "04c8bc8229068a1222fc9d9078af99bb8425458603d72eef5eb4bf56730f8e55"
+    },
+    {
+      "name": "provider-audit.json",
+      "text": "{\n  \"privateBuildLogSha256\": \"f847168580bf88f5ed2ada3c2bd111df5c9ce5a248bc159e5f3164183a9b2a04\",\n  \"selectedCompiledArtifacts\": [\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#rustls@0.23.42\",\n      \"features\": [\n        \"aws-lc-rs\",\n        \"aws_lc_rs\",\n        \"log\",\n        \"logging\",\n        \"std\",\n        \"tls12\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#ring@0.17.14\",\n      \"features\": [\n        \"alloc\",\n        \"default\",\n        \"dev_urandom_fallback\",\n        \"std\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#rtc@0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"git+https://github.com/Finityno/voxl?rev=f7bc0059588727dc08637552d5d1866492f685e0#webrtc@0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\",\n        \"runtime-tokio\"\n      ],\n      \"fresh\": false\n    }\n  ],\n  \"scope\": \"Actual root native integration test build. Standalone ring presence is distinct from enabling rustls or RTC crypto-ring features.\"\n}\n",
+      "sha256": "64a1734b5f5e069363bd3c57c2cbf82835bcc183815e663dedb670002375588e",
+      "originalPrivateSha256": "64a1734b5f5e069363bd3c57c2cbf82835bcc183815e663dedb670002375588e",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "provider-audit.json",
+      "text": "{\n  \"privateBuildLogSha256\": \"b017170625318caab5a3dfabf63e20fe6586d1562eff864c62856c66e28dcaa5\",\n  \"selectedCompiledArtifacts\": [\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#rustls@0.23.42\",\n      \"features\": [\n        \"aws-lc-rs\",\n        \"aws_lc_rs\",\n        \"log\",\n        \"logging\",\n        \"std\",\n        \"tls12\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#ring@0.17.14\",\n      \"features\": [\n        \"alloc\",\n        \"default\",\n        \"dev_urandom_fallback\",\n        \"std\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#rtc@0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\"\n      ],\n      \"fresh\": false\n    },\n    {\n      \"package_id\": \"git+https://github.com/Finityno/voxl?rev=a355a959ddeb2411360a46834bf28772b9928c6f#webrtc@0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\",\n        \"runtime-tokio\"\n      ],\n      \"fresh\": false\n    }\n  ],\n  \"scope\": \"Actual root native integration test build. Standalone ring presence is distinct from enabling rustls or RTC crypto-ring features.\"\n}\n",
+      "sha256": "7c3d104f3a2b999c58defaa4abaaa0fc711845bb4f7c9f5f86c9ec93fe7b636d",
+      "originalPrivateSha256": "7c3d104f3a2b999c58defaa4abaaa0fc711845bb4f7c9f5f86c9ec93fe7b636d",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "media-provider-selection.json",
+      "text": "{\n  \"privateBuildLogSha256\": \"155ef3f08a8822c78e4a011aa59724476c89035ae501d37e85d3741a48b0fc42\",\n  \"selectedCompiledArtifacts\": [\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#aws-lc-rs@1.19.0\",\n      \"features\": [\n        \"aws-lc-sys\",\n        \"prebuilt-nasm\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"registry+https://github.com/rust-lang/crates.io-index#rustls@0.23.46\",\n      \"features\": [\n        \"aws-lc-rs\",\n        \"aws_lc_rs\",\n        \"std\",\n        \"tls12\"\n      ],\n      \"fresh\": true\n    },\n    {\n      \"package_id\": \"path+file:///Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/vendor/rtc#0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\"\n      ],\n      \"fresh\": false\n    },\n    {\n      \"package_id\": \"path+file:///Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/vendor/webrtc#0.21.1\",\n      \"features\": [\n        \"crypto-aws-lc-rs\",\n        \"runtime-tokio\"\n      ],\n      \"fresh\": false\n    }\n  ],\n  \"compiledRingArtifacts\": 0,\n  \"scope\": \"Isolated voxl-media library test build, distinct from the full Fincode native fixture target.\"\n}\n",
+      "sha256": "db0ed41ca5d60fe4d217a66cade5e78b2440b5f859cbe6d4fb0ace5b58725838",
+      "originalPrivateSha256": "db0ed41ca5d60fe4d217a66cade5e78b2440b5f859cbe6d4fb0ace5b58725838",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "results.json",
+      "text": "{\n  \"source\": \"1413e43d1e24331eca01a85bc38f6816b7e6661d\",\n  \"steps\": [\n    {\n      \"name\": \"native-test-parent\",\n      \"command\": [\n        \"cargo\",\n        \"tree\",\n        \"--locked\",\n        \"--target\",\n        \"aarch64-apple-darwin\",\n        \"-p\",\n        \"environments\",\n        \"-i\",\n        \"ring\",\n        \"--edges\",\n        \"normal,build,dev\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 0.558,\n      \"pgid\": 66394,\n      \"groupGone\": true,\n      \"logSha256\": \"4589620c39380d4e36f785e09a9d523692d01ff5f4ab41671252656eacb1151b\"\n    },\n    {\n      \"name\": \"media-only\",\n      \"command\": [\n        \"cargo\",\n        \"tree\",\n        \"--locked\",\n        \"--target\",\n        \"aarch64-apple-darwin\",\n        \"-p\",\n        \"voxl-media\",\n        \"-i\",\n        \"ring\",\n        \"--edges\",\n        \"normal,build,dev\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"exitCode\": 0,\n      \"seconds\": 0.543,\n      \"pgid\": 66407,\n      \"groupGone\": true,\n      \"logSha256\": \"eba281bafee778faa9198160982fcaa5b5384c008f83fd255f43df4e6ae34fcc\"\n    }\n  ],\n  \"limits\": \"Target-filtered dependency paths, not runtime profile or provider execution. Actual compiler-artifact feature selections are separate.\",\n  \"inverseSelectionLimit\": \"The second command label media-only is not proof of an isolated graph: its inverse output expands workspace parents. It is retained without an absence claim. The isolated media compiler-artifact selection provides that separate scope.\"\n}\n",
+      "sha256": "b236d02214c0354cccfea0cfa81d0f517121e223ffced0b20130ba3438567c1e",
+      "originalPrivateSha256": "b236d02214c0354cccfea0cfa81d0f517121e223ffced0b20130ba3438567c1e",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "native-test-parent.log",
+      "text": "ring v0.17.14\n\u251c\u2500\u2500 jsonwebtoken v9.3.1\n\u2502   \u251c\u2500\u2500 clerk_auth v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/clerk_auth)\n\u2502   \u2502   \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments)\n\u2502   \u2502       \u2514\u2500\u2500 codex_acp v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/codex_acp)\n\u2502   \u2502           \u2514\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host)\n\u2502   \u2502               [dev-dependencies]\n\u2502   \u2502               \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502   \u2502       [dev-dependencies]\n\u2502   \u2502       \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502   \u2514\u2500\u2500 connect_relay v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_relay)\n\u2502       [dev-dependencies]\n\u2502       \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2514\u2500\u2500 snow v0.10.0\n    \u2514\u2500\u2500 connect_protocol v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_protocol)\n        \u251c\u2500\u2500 connect v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect)\n        \u2502   \u251c\u2500\u2500 desktop_media v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/desktop_media)\n        \u2502   \u2502   \u2514\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n        \u2502   \u251c\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n        \u2502   \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n        \u251c\u2500\u2500 connect_relay v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_relay) (*)\n        \u251c\u2500\u2500 desktop_media v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/desktop_media) (*)\n        \u251c\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n        \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n        [dev-dependencies]\n        \u2514\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n",
+      "sha256": "4589620c39380d4e36f785e09a9d523692d01ff5f4ab41671252656eacb1151b",
+      "originalPrivateSha256": "4589620c39380d4e36f785e09a9d523692d01ff5f4ab41671252656eacb1151b",
+      "fixtureTokenRedacted": false
+    },
+    {
+      "name": "media-only.log",
+      "text": "ring v0.17.14\n\u251c\u2500\u2500 jsonwebtoken v9.3.1\n\u2502   \u251c\u2500\u2500 clerk_auth v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/clerk_auth)\n\u2502   \u2502   \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_runtime v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_runtime)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel)\n\u2502   \u2502   \u2502   \u2502   \u2502       \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502       [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2502       \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502       \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n\u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_runtime v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_runtime) (*)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests)\n\u2502   \u2502   \u2502   \u2502       \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502       [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502       \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502       \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 codex_acp v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/codex_acp)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_runtime v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_runtime) (*)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n\u2502   \u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_runtime v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_runtime) (*)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 terminal v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/terminal)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n\u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n\u2502   \u2502   \u2502   [dev-dependencies]\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502   \u2514\u2500\u2500 connect_relay v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_relay)\n\u2502       [dev-dependencies]\n\u2502       \u251c\u2500\u2500 connect v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect)\n\u2502       \u2502   \u251c\u2500\u2500 desktop_media v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/desktop_media)\n\u2502       \u2502   \u2502   \u2514\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n\u2502       \u2502   \u251c\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n\u2502       \u2502   \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502       \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n\u2502       \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2502       \u2502   [dev-dependencies]\n\u2502       \u2502   \u2514\u2500\u2500 connect v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect) (*)\n\u2502       \u251c\u2500\u2500 connect_relay v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_relay) (*)\n\u2502       \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n\u2502       \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n\u2514\u2500\u2500 snow v0.10.0\n    \u2514\u2500\u2500 connect_protocol v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_protocol)\n        \u251c\u2500\u2500 connect v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect) (*)\n        \u251c\u2500\u2500 connect_relay v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/connect_relay) (*)\n        \u251c\u2500\u2500 desktop_media v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/desktop_media) (*)\n        \u251c\u2500\u2500 environment_host v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environment_host) (*)\n        \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n        \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n        \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n        \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n        [dev-dependencies]\n        \u251c\u2500\u2500 environments v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/environments) (*)\n        \u2514\u2500\u2500 ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/ui)\n            \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u251c\u2500\u2500 browser v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/browser)\n            \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n            \u251c\u2500\u2500 customize v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/customize)\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   [dev-dependencies]\n            \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u251c\u2500\u2500 diff v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/diff)\n            \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u251c\u2500\u2500 editor v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/editor)\n            \u2502   \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   [dev-dependencies]\n            \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u2502   \u251c\u2500\u2500 file_tree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_tree)\n            \u2502   \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   [dev-dependencies]\n            \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u251c\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests) (*)\n            \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            \u2502   [dev-dependencies]\n            \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u251c\u2500\u2500 editor v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/editor) (*)\n            \u251c\u2500\u2500 file_picker v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_picker)\n            \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            \u251c\u2500\u2500 file_tree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_tree) (*)\n            \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u251c\u2500\u2500 git_worktree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/git_worktree)\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u251c\u2500\u2500 title_bar v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/title_bar)\n            \u2502   \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u2502   \u251c\u2500\u2500 customize v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/customize) (*)\n            \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   \u251c\u2500\u2500 notifications v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/notifications)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 auto_update v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/auto_update)\n            \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   \u2502   \u2502   \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u2502   \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 file_tree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_tree) (*)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   \u2502   \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u2502   \u2502   \u2502   \u2514\u2500\u2500 workspace v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 chat_stress v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat_stress)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 customize v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/customize) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 editor v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/editor) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 file_tree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_tree) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests) (*)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 scheduled_tasks_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/scheduled_tasks_ui)\n            \u2502   \u2502   \u2502       \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u2502   \u2502       \u251c\u2500\u2500 terminal v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/terminal) (*)\n            \u2502   \u2502   \u2502       \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            \u2502   \u2502   \u2502       [dev-dependencies]\n            \u2502   \u2502   \u2502       \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u2502   \u2502   \u2502   [dev-dependencies]\n            \u2502   \u2502   \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u2502   \u2502   \u251c\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests) (*)\n            \u2502   \u2502   \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u2502   \u2502   \u2514\u2500\u2500 workspace v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace) (*)\n            \u2502   \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            \u251c\u2500\u2500 markdown v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/markdown)\n            \u2502   \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u251c\u2500\u2500 file_tree v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/file_tree) (*)\n            \u2502   \u251c\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   \u251c\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests) (*)\n            \u2502   \u2514\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u2502   [dev-dependencies]\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u251c\u2500\u2500 notch v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/notch)\n            \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u251c\u2500\u2500 notifications v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/notifications) (*)\n            \u251c\u2500\u2500 pull_requests v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/pull_requests) (*)\n            \u251c\u2500\u2500 scheduled_tasks_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/scheduled_tasks_ui) (*)\n            \u251c\u2500\u2500 settings_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/settings_ui) (*)\n            \u251c\u2500\u2500 slash_command v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/slash_command)\n            \u2502   \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u251c\u2500\u2500 studio_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/studio_ui)\n            \u2502   \u2514\u2500\u2500 fincode v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/fincode)\n            \u2502   [dev-dependencies]\n            \u2502   \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n            \u251c\u2500\u2500 terminal v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/terminal) (*)\n            \u251c\u2500\u2500 title_bar v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/title_bar) (*)\n            \u251c\u2500\u2500 workspace v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace) (*)\n            \u2514\u2500\u2500 workspace_panel v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/workspace_panel) (*)\n            [dev-dependencies]\n            \u251c\u2500\u2500 agent_ui v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/agent_ui) (*)\n            \u251c\u2500\u2500 chat v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/chat) (*)\n            \u2514\u2500\u2500 gpui_benchmarks v0.1.0 (/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation/crates/gpui_benchmarks)\n",
+      "sha256": "eba281bafee778faa9198160982fcaa5b5384c008f83fd255f43df4e6ae34fcc",
+      "originalPrivateSha256": "eba281bafee778faa9198160982fcaa5b5384c008f83fd255f43df4e6ae34fcc",
+      "fixtureTokenRedacted": false
+    }
+  ],
+  "postRunGroups": [
+    {
+      "pgid": 66394,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 66407,
+      "goneAtExport": true
+    }
+  ],
+  "providerLimit": "Standalone ring is already compiled in the native target via existing JWT/Noise paths; rustls/RTC/SDK provider features remain AWS-LC only. The second inverse-tree label does not prove isolation; the separate isolated media build contains no compiled ring artifact.",
+  "limits": "143-file checksum/source and dependency graph audit plus byte-identical regression. Not a general protocol/security audit or a substitute for native/deployed/physical validation. Comment/whitespace import normalization is explicitly recorded; no formatter ran."
+}

@@ -1,0 +1,24 @@
+{
+  "transportSource": "b66d27db1a159a0e546dd7a3780972f18052f64c",
+  "encodedSource": "7677d66abe68be42572b838c5460fd8583bc5f34",
+  "files": {
+    "README.md": {
+      "bytes": 6579,
+      "sha256": "09cdb41c6cf8aa305761a48a317e21fbd62b2047c72f8a6ceded0c249d943872"
+    },
+    "cloud-artifact-pack.json": {
+      "bytes": 111886,
+      "sha256": "ab9b2d2fd63587d8ef5b0cfaf8fc6cd2f1182ebcc27df1930167c68228f50924"
+    },
+    "host.json": {
+      "bytes": 562,
+      "sha256": "e38ad32f3c3bc69759690c6174e39aa6ef5cba578684ec045dd30ae2f2d75805"
+    },
+    "native-summary.json": {
+      "bytes": 14277,
+      "sha256": "70f2a41d5640623b5be3675669ff57e1b88fb84adddbcc4abafbb3ca1cdb8a29"
+    }
+  },
+  "includedTextHashesVerified": 30,
+  "scope": "Text evidence only, no source page, SDP, credentials or binary/stream/reference payloads. Remote-only successful Cargo artifact JSON hashes recorded without independently transferring its content."
+}

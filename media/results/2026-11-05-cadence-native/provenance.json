@@ -1,0 +1,406 @@
+{
+  "exports": {
+    "generation/results.json": {
+      "originalPrivateSha256": "acf2685fc895827aad231b2f4de51250bebd7c7f57f43483a8f312031163458e",
+      "normalizedUncompressedSha256": "c57572eb9ba934b63c9fd2d40be32f6a36339893fdc0329665125d52d764685a",
+      "normalizedUncompressedBytes": 7059
+    },
+    "generation/load.log.gz": {
+      "originalPrivateSha256": "1b5c46e96940feb52f8e079b5f53fd0143a8705fb67aba8e7f1ca54d11d375c3",
+      "normalizedUncompressedSha256": "1b5c46e96940feb52f8e079b5f53fd0143a8705fb67aba8e7f1ca54d11d375c3",
+      "normalizedUncompressedBytes": 64
+    },
+    "generation/swift-version.log.gz": {
+      "originalPrivateSha256": "df9a79afbb2eb356f8381fbc0edb8c69c7500b8f5b18ae594be7ced187275e13",
+      "normalizedUncompressedSha256": "df9a79afbb2eb356f8381fbc0edb8c69c7500b8f5b18ae594be7ced187275e13",
+      "normalizedUncompressedBytes": 128
+    },
+    "generation/swift-build.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "generation/generate-default30.log.gz": {
+      "originalPrivateSha256": "3baf2f2210105120803626f76f882499332187dbc95ddf82963d900831e6ce86",
+      "normalizedUncompressedSha256": "fc640fbbc37b0211b20dedd4607717ac7bb35d6b76c542d6a6ecd7bdeb6eb5c3",
+      "normalizedUncompressedBytes": 97
+    },
+    "generation/generate-source60.log.gz": {
+      "originalPrivateSha256": "998904d311a640d0f262cfa641841d0d17f7272fedf4ac69175930dcf2687bb5",
+      "normalizedUncompressedSha256": "c64d72e5050067a9b0d1aa7b3c9c969ff3cdaf16d60f081a3a5660bc05179b8c",
+      "normalizedUncompressedBytes": 96
+    },
+    "generation/validate-assets.log.gz": {
+      "originalPrivateSha256": "920b67873a8195f4994c23006ca61d040dcc25269aafe3362dfedcd806ae6b4a",
+      "normalizedUncompressedSha256": "920b67873a8195f4994c23006ca61d040dcc25269aafe3362dfedcd806ae6b4a",
+      "normalizedUncompressedBytes": 2146
+    },
+    "generation/refuse-fps120.log.gz": {
+      "originalPrivateSha256": "e97a1f1a3933e1b63247da96f5da8b6f8f3952368981ef410ededd88e8416cc6",
+      "normalizedUncompressedSha256": "e97a1f1a3933e1b63247da96f5da8b6f8f3952368981ef410ededd88e8416cc6",
+      "normalizedUncompressedBytes": 67
+    },
+    "generation/refuse-missing-height.log.gz": {
+      "originalPrivateSha256": "6cbc76836437556778d97c60e15e3ba501502f596a3d6dc5871a2207f66ff234",
+      "normalizedUncompressedSha256": "6cbc76836437556778d97c60e15e3ba501502f596a3d6dc5871a2207f66ff234",
+      "normalizedUncompressedBytes": 101
+    },
+    "generation/asset-validation.json": {
+      "originalPrivateSha256": "5e798c52fa395f24f97d2230fa7e9fd3c8c3cb3fdef81f6bcf05bad67e36d021",
+      "normalizedUncompressedSha256": "5e798c52fa395f24f97d2230fa7e9fd3c8c3cb3fdef81f6bcf05bad67e36d021",
+      "normalizedUncompressedBytes": 2464
+    },
+    "generation/generator.json": {
+      "originalPrivateSha256": "b8ddd549429af99ae0ddc23ebe886e352255abee8279ee4940bca405d2d6df0f",
+      "normalizedUncompressedSha256": "b8ddd549429af99ae0ddc23ebe886e352255abee8279ee4940bca405d2d6df0f",
+      "normalizedUncompressedBytes": 244
+    },
+    "pilot12/results.json": {
+      "originalPrivateSha256": "df6b6b812dd5148de4ebdb20fa17d7293497438bf6ac4cbb4bce9f458ffb469e",
+      "normalizedUncompressedSha256": "cb184ba7055531dda73e402bbc7c67d86fd6f603b4f72995f31a6bbc131d336f",
+      "normalizedUncompressedBytes": 77497
+    },
+    "pilot12/load.log.gz": {
+      "originalPrivateSha256": "4bf84868f9b4954b9e4042fc3896d1a76c870302d7dd38260ef5d1ed126e038b",
+      "normalizedUncompressedSha256": "4bf84868f9b4954b9e4042fc3896d1a76c870302d7dd38260ef5d1ed126e038b",
+      "normalizedUncompressedBytes": 64
+    },
+    "pilot12/os.log.gz": {
+      "originalPrivateSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedBytes": 66
+    },
+    "pilot12/cpu.log.gz": {
+      "originalPrivateSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedBytes": 13
+    },
+    "pilot12/model.log.gz": {
+      "originalPrivateSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedBytes": 8
+    },
+    "pilot12/toolchain.log.gz": {
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedBytes": 36
+    },
+    "pilot12/ffmpeg-version.log.gz": {
+      "originalPrivateSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedBytes": 822
+    },
+    "pilot12/ffprobe-version.log.gz": {
+      "originalPrivateSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedBytes": 797
+    },
+    "pilot12/build.log.gz": {
+      "originalPrivateSha256": "679cb478365d520946c9da10ccdfcd739728c49701634f25f0f1aa0590729b63",
+      "normalizedUncompressedSha256": "e1b3e5ff874245d7ec044dfb164974dd45bce60455065249a2f0ac7f52aabdd8",
+      "normalizedUncompressedBytes": 4384
+    },
+    "pilot12/clippy.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "pilot12/source-floor.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "pilot12/run-1-h264-compatible-3000.log.gz": {
+      "originalPrivateSha256": "3c74fedbda5d47ced5cde31dbde85a361b6217040f23642819a31f661e019ccd",
+      "normalizedUncompressedSha256": "3c74fedbda5d47ced5cde31dbde85a361b6217040f23642819a31f661e019ccd",
+      "normalizedUncompressedBytes": 7718
+    },
+    "pilot12/run-1-h264-compatible-3000-decode.log.gz": {
+      "originalPrivateSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedBytes": 466
+    },
+    "pilot12/run-1-h264-compatible-3000-quality.log.gz": {
+      "originalPrivateSha256": "1940b6ab9f681e73ac588148257d6617bb55827faa267d45554581d5e181e422",
+      "normalizedUncompressedSha256": "1940b6ab9f681e73ac588148257d6617bb55827faa267d45554581d5e181e422",
+      "normalizedUncompressedBytes": 97094
+    },
+    "pilot12/run-1-h264-compatible-3000-rgb.log.gz": {
+      "originalPrivateSha256": "5a46d5c19b5578652c356f206dd5a6d20421e0f86451991e3d83f8047520b039",
+      "normalizedUncompressedSha256": "5a46d5c19b5578652c356f206dd5a6d20421e0f86451991e3d83f8047520b039",
+      "normalizedUncompressedBytes": 26748
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000.log.gz": {
+      "originalPrivateSha256": "a654c2c82c87a6beb87d2aa270b8a993c9fff25c2a6007e36251d8c8d7002be1",
+      "normalizedUncompressedSha256": "a654c2c82c87a6beb87d2aa270b8a993c9fff25c2a6007e36251d8c8d7002be1",
+      "normalizedUncompressedBytes": 7630
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-quality.log.gz": {
+      "originalPrivateSha256": "b734e2979fbf0f5cd3f1f6a098e6285c2cd7d71ee139fccec599dcc270be0601",
+      "normalizedUncompressedSha256": "b734e2979fbf0f5cd3f1f6a098e6285c2cd7d71ee139fccec599dcc270be0601",
+      "normalizedUncompressedBytes": 96762
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-rgb.log.gz": {
+      "originalPrivateSha256": "74983bbbf56e3fabeafd6154c286b0f20f58542db3352c102b7260e68dde98e2",
+      "normalizedUncompressedSha256": "74983bbbf56e3fabeafd6154c286b0f20f58542db3352c102b7260e68dde98e2",
+      "normalizedUncompressedBytes": 26748
+    },
+    "pilot12/foreground-run-1.log.gz": {
+      "originalPrivateSha256": "fdb1972337a47224ff1ba06562ee82c3813cfe0179f669e4608ee94a7de8b311",
+      "normalizedUncompressedSha256": "6a513a31912da13e567c531af9766b80a9405cce332974788bdc1a88925e090f",
+      "normalizedUncompressedBytes": 103
+    },
+    "pilot12/fixture.json": {
+      "originalPrivateSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedBytes": 2609
+    },
+    "pilot12/compiler-artifact.json": {
+      "originalPrivateSha256": "919beb07da16699272670c95042e5177f61a4a9362f9f098856969ca675d6818",
+      "normalizedUncompressedSha256": "00f140ceb635c8c45779c10972fc57103bcd44fe05f4bba4cb7e12cc3fa66021",
+      "normalizedUncompressedBytes": 1082
+    },
+    "pilot12/foreground.json.gz": {
+      "originalPrivateSha256": "7260a48187abda8bf8c0ff686426608f583a7640a42320043f67fd0f8ccbb4c7",
+      "normalizedUncompressedSha256": "7260a48187abda8bf8c0ff686426608f583a7640a42320043f67fd0f8ccbb4c7",
+      "normalizedUncompressedBytes": 504124
+    },
+    "pilot12/run-1-h264-compatible-3000-full.ssim.gz": {
+      "originalPrivateSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedBytes": 30612
+    },
+    "pilot12/run-1-h264-compatible-3000-text.ssim.gz": {
+      "originalPrivateSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedBytes": 30612
+    },
+    "pilot12/run-1-h264-compatible-3000-thin.ssim.gz": {
+      "originalPrivateSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedBytes": 30612
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-full.ssim.gz": {
+      "originalPrivateSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedBytes": 30612
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-text.ssim.gz": {
+      "originalPrivateSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedBytes": 30612
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-thin.ssim.gz": {
+      "originalPrivateSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/results.json": {
+      "originalPrivateSha256": "43f0eaadf394a7d1c8c68ed95a887986261e8a3affd467cc6072ca3a5c25e45b",
+      "normalizedUncompressedSha256": "bc1aae6fcd190b944b4ddc1eeab84a27029ac7ae99b61987735044af64f2392b",
+      "normalizedUncompressedBytes": 111423
+    },
+    "budgets/load.log.gz": {
+      "originalPrivateSha256": "6997ac9d03250e944bde6254d969a4e8e7b2a2322fd345dd347d3d480d7e9460",
+      "normalizedUncompressedSha256": "6997ac9d03250e944bde6254d969a4e8e7b2a2322fd345dd347d3d480d7e9460",
+      "normalizedUncompressedBytes": 64
+    },
+    "budgets/os.log.gz": {
+      "originalPrivateSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedBytes": 66
+    },
+    "budgets/cpu.log.gz": {
+      "originalPrivateSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedBytes": 13
+    },
+    "budgets/model.log.gz": {
+      "originalPrivateSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedBytes": 8
+    },
+    "budgets/toolchain.log.gz": {
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedBytes": 36
+    },
+    "budgets/ffmpeg-version.log.gz": {
+      "originalPrivateSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedBytes": 822
+    },
+    "budgets/ffprobe-version.log.gz": {
+      "originalPrivateSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedBytes": 797
+    },
+    "budgets/build.log.gz": {
+      "originalPrivateSha256": "a7838bc3e871fc012282145d960b555504599b33ecf0b2de56af77b365fa8591",
+      "normalizedUncompressedSha256": "d05e77f00edf39af1dbaa9d0f1e8e6ece4b23026d5ea439680e344b288c904aa",
+      "normalizedUncompressedBytes": 4378
+    },
+    "budgets/clippy.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "budgets/source-floor.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "budgets/run-1-h264-compatible-3000.log.gz": {
+      "originalPrivateSha256": "888400fe3e7b06dfd8200a9eb24fbbc0de67de27b0fc52478b2ce37b92414c35",
+      "normalizedUncompressedSha256": "888400fe3e7b06dfd8200a9eb24fbbc0de67de27b0fc52478b2ce37b92414c35",
+      "normalizedUncompressedBytes": 7521
+    },
+    "budgets/run-1-h264-compatible-3000-decode.log.gz": {
+      "originalPrivateSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedBytes": 466
+    },
+    "budgets/run-1-h264-compatible-3000-quality.log.gz": {
+      "originalPrivateSha256": "5088b53a61fe31ed58854b2f1bfacb518dcf29873b61521e60c814c9cb4c608e",
+      "normalizedUncompressedSha256": "5088b53a61fe31ed58854b2f1bfacb518dcf29873b61521e60c814c9cb4c608e",
+      "normalizedUncompressedBytes": 96684
+    },
+    "budgets/run-1-h264-compatible-3000-rgb.log.gz": {
+      "originalPrivateSha256": "2427c136e644d7f9dcc7eb4f38c6fc1af37cd68bfba3d0b63949d437af55d4e5",
+      "normalizedUncompressedSha256": "2427c136e644d7f9dcc7eb4f38c6fc1af37cd68bfba3d0b63949d437af55d4e5",
+      "normalizedUncompressedBytes": 26748
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000.log.gz": {
+      "originalPrivateSha256": "f815d31539e02a3636e70512e1296e936531dc5889dbebaafd1df470abc42edd",
+      "normalizedUncompressedSha256": "f815d31539e02a3636e70512e1296e936531dc5889dbebaafd1df470abc42edd",
+      "normalizedUncompressedBytes": 7516
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-quality.log.gz": {
+      "originalPrivateSha256": "a0cbf5840f8daa5418b22940f13c26e8a7337936b9f19b5e31c528de44736a5b",
+      "normalizedUncompressedSha256": "a0cbf5840f8daa5418b22940f13c26e8a7337936b9f19b5e31c528de44736a5b",
+      "normalizedUncompressedBytes": 96348
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-rgb.log.gz": {
+      "originalPrivateSha256": "c91094ca67266c6eeaf39c149e526b7cb8cea53784e1c9848f005a1a85804e11",
+      "normalizedUncompressedSha256": "c91094ca67266c6eeaf39c149e526b7cb8cea53784e1c9848f005a1a85804e11",
+      "normalizedUncompressedBytes": 26748
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000.log.gz": {
+      "originalPrivateSha256": "5f26616fc52332bbef4219feb2403b050b7344571c656ecdcbf02e344871cf12",
+      "normalizedUncompressedSha256": "5f26616fc52332bbef4219feb2403b050b7344571c656ecdcbf02e344871cf12",
+      "normalizedUncompressedBytes": 7573
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-quality.log.gz": {
+      "originalPrivateSha256": "7fb68c501550934c8fa594d78a5cc7cc3998697b23aaaa14922d2c60e2b3c51e",
+      "normalizedUncompressedSha256": "7fb68c501550934c8fa594d78a5cc7cc3998697b23aaaa14922d2c60e2b3c51e",
+      "normalizedUncompressedBytes": 97022
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-rgb.log.gz": {
+      "originalPrivateSha256": "3898c78f7a4e588bd93955105ef6864701b6dc0e10c87ff3ce7b61c4cbfc58c4",
+      "normalizedUncompressedSha256": "3898c78f7a4e588bd93955105ef6864701b6dc0e10c87ff3ce7b61c4cbfc58c4",
+      "normalizedUncompressedBytes": 26748
+    },
+    "budgets/foreground-run-1.log.gz": {
+      "originalPrivateSha256": "ce3648631537607fef383f1ea2504e8119f97bdf03bb64be4f593c6b1c421bc7",
+      "normalizedUncompressedSha256": "bda43168b084540c14c7c101b21894d939142c438c5c6d01242a2c761b73dbe6",
+      "normalizedUncompressedBytes": 103
+    },
+    "budgets/fixture.json": {
+      "originalPrivateSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedBytes": 2609
+    },
+    "budgets/compiler-artifact.json": {
+      "originalPrivateSha256": "60f9672d344968395908caf6230a262958a8493c70af86a1a179eb70b39bb140",
+      "normalizedUncompressedSha256": "fd482e0b748dc1768c6689261c36b4c7c79eecb34c0565d1384984d6f3f2a47b",
+      "normalizedUncompressedBytes": 1081
+    },
+    "budgets/foreground.json.gz": {
+      "originalPrivateSha256": "670c3a45896326809ae1a3708cbfc9c74301eaab5e5c975fb1e61a6d543a4c14",
+      "normalizedUncompressedSha256": "670c3a45896326809ae1a3708cbfc9c74301eaab5e5c975fb1e61a6d543a4c14",
+      "normalizedUncompressedBytes": 671401
+    },
+    "budgets/run-1-h264-compatible-3000-full.ssim.gz": {
+      "originalPrivateSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-h264-compatible-3000-text.ssim.gz": {
+      "originalPrivateSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-h264-compatible-3000-thin.ssim.gz": {
+      "originalPrivateSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-full.ssim.gz": {
+      "originalPrivateSha256": "32947754cb7471cf144385ca4104c865df0729cb7b5066f97cacb9b3b22cf073",
+      "normalizedUncompressedSha256": "32947754cb7471cf144385ca4104c865df0729cb7b5066f97cacb9b3b22cf073",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-text.ssim.gz": {
+      "originalPrivateSha256": "be85800454f2125c9ba9a8ed34309937417edbe19434f4b6e294cca01a497169",
+      "normalizedUncompressedSha256": "be85800454f2125c9ba9a8ed34309937417edbe19434f4b6e294cca01a497169",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-thin.ssim.gz": {
+      "originalPrivateSha256": "d4056c9591f02c47cb698f7036fdf28fb6f5ef4eb5d5b71d1f5e65f7bb164b17",
+      "normalizedUncompressedSha256": "d4056c9591f02c47cb698f7036fdf28fb6f5ef4eb5d5b71d1f5e65f7bb164b17",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-full.ssim.gz": {
+      "originalPrivateSha256": "c9b607367614079221cf8d07eeee73310f25966dc9d5f1b52086acde99e3b159",
+      "normalizedUncompressedSha256": "c9b607367614079221cf8d07eeee73310f25966dc9d5f1b52086acde99e3b159",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-text.ssim.gz": {
+      "originalPrivateSha256": "0d41437e1199f685b35ab25b2d49a74f000231f6873265ae3677f1542276bade",
+      "normalizedUncompressedSha256": "0d41437e1199f685b35ab25b2d49a74f000231f6873265ae3677f1542276bade",
+      "normalizedUncompressedBytes": 30612
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-thin.ssim.gz": {
+      "originalPrivateSha256": "8201de4d39823e375660c90d68f7b5b74827a48c7d2470881538c610f9cd6077",
+      "normalizedUncompressedSha256": "8201de4d39823e375660c90d68f7b5b74827a48c7d2470881538c610f9cd6077",
+      "normalizedUncompressedBytes": 30612
+    },
+    "generation-driver-snapshot.py": {
+      "originalPrivateSha256": "8a337425c1c18a9ed1058b1e7d652d7667a9074dd5f43a771a673c1da3295ef7",
+      "normalizedUncompressedSha256": "ef9cae4a1829f5402ce7780aa5f5f17a3287e226d24360fd8f578c8ab1171644",
+      "normalizedUncompressedBytes": 3397
+    },
+    "asset-validator-snapshot.py": {
+      "originalPrivateSha256": "b1b7560dc1dd7f60ffb0d00f2ac33fd133bfee1e701d66582289bdd777b11d64",
+      "normalizedUncompressedSha256": "1151a828c7a49273e54a35712731237af75a1ac5ad6592f34255a9ba86e99278",
+      "normalizedUncompressedBytes": 2064
+    },
+    "exporter-snapshot.py": {
+      "originalPrivateSha256": "8859962ab33ef96d1a8822cc837cdf45f606a7def8e2b916dd0c1df48bf911bd",
+      "normalizedUncompressedSha256": "146eb5f1c74d1534841639cdd2698f01b221460cffaaa6d7e99447325f0d2ed2",
+      "normalizedUncompressedBytes": 4478
+    },
+    "refused-coordinator-plan.json": {
+      "originalPrivateSha256": "8540de2eb36a3b68b769d5ca52e51131eaddf4421bae7b307a9435db81112ac2",
+      "normalizedUncompressedSha256": "8540de2eb36a3b68b769d5ca52e51131eaddf4421bae7b307a9435db81112ac2",
+      "normalizedUncompressedBytes": 448
+    }
+  },
+  "exporterOriginalSha256": "8859962ab33ef96d1a8822cc837cdf45f606a7def8e2b916dd0c1df48bf911bd",
+  "scope": "Recorded logs/numeric JSON only. No native replay by export."
+}

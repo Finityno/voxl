@@ -1,0 +1,78 @@
+{
+  "encoderSource": "2a316411ce07b1c326e0e3e47a80e4ee3a91915a",
+  "analysisSource": "cfb756373d0b23842c57e6e81b3da4a793aaa613",
+  "finalGeneratorSource": "a45117e30483e609a337f38b4783b1d7e9fb0839",
+  "embeddedTextHashesVerified": 118,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 10012,
+      "sha256": "057db82809b7944c44c41a7b336a40917edb772c839f748f288d09130739f256"
+    },
+    {
+      "path": "bt709-canvas-control.json",
+      "bytes": 10417,
+      "sha256": "a79fa977d456e5df958f3a554a3ce2c9b704151aabd650a66249fc6fa1c8dc71"
+    },
+    {
+      "path": "coding-browser-summary.json",
+      "bytes": 5392,
+      "sha256": "632483d1c11913ee448dde29bb726a8fc609a40b8c5924ecbf8f08694ec33cbe"
+    },
+    {
+      "path": "fixture-reproduction.json",
+      "bytes": 14835,
+      "sha256": "8f65f88258c0350e137c8aee45fc0697255d15d9e1cb816c613f045cbeb3550c"
+    },
+    {
+      "path": "flat-controls-browser-summary.json",
+      "bytes": 26448,
+      "sha256": "13c34fa4d2e75700ed2e6aca6191f18989f59441b990a7178eca35a278a90d4b"
+    },
+    {
+      "path": "foreground-analysis.json",
+      "bytes": 355294,
+      "sha256": "e6ac8c5688f005b9867b073e1bbc18dcd033dc78e5686a4c62d8bd10fc4a47cb"
+    },
+    {
+      "path": "initial-generator-compile.json",
+      "bytes": 26283,
+      "sha256": "5d4fbbb240dc43c6b85a3f451266930bb63328888dd54e65a2e6a331c6b669fc"
+    },
+    {
+      "path": "initial-parser-clippy.json",
+      "bytes": 22834,
+      "sha256": "47b32373865d6727ddb2111a171d87f8d8c038719adbc85ae0980d4e91785fbc"
+    },
+    {
+      "path": "minimum-geometry-regression.json",
+      "bytes": 28587,
+      "sha256": "f969643068c525a9220ae870c78c09bb903be716d1fc28b5c2f69266cbf90c47"
+    },
+    {
+      "path": "native-codecs.json",
+      "bytes": 409269,
+      "sha256": "9d7f18b2e7d1871b3c90f333ac7e55f8272c5c38f3436b12a9b379975bd53b84"
+    },
+    {
+      "path": "source-comparison.json",
+      "bytes": 3746,
+      "sha256": "1a0754afb931619886553535e37dd40738c6713fc9b912228948e1852fa1378a"
+    },
+    {
+      "path": "srgb-before-after.json",
+      "bytes": 17728,
+      "sha256": "50b113d99fb6597427249348639d535bd5541fca032d8e7e0c4acba2c2ad8dbc"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 4263,
+      "sha256": "14608cffc983294a8df517b795e86dd859b7cf75bb9e5359c905172617ab5893"
+    },
+    {
+      "path": "transfer-control-picture-comparison.json",
+      "bytes": 617,
+      "sha256": "c70a92f27f9913d0b26160fb36a5daaa3b2c9bbbace30290e447f87e0d738537"
+    }
+  ]
+}

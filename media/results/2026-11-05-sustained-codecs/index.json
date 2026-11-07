@@ -1,0 +1,70 @@
+{
+  "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+  "scope": "No user screen, decoded images, font, encoded stream, credentials, SDP or private application source is published. Commands use path placeholders. Raw numeric rows remain reviewable.",
+  "files": {
+    "README.md": {
+      "sha256": "eb191e3174c5050eb991649c11087a6a5d0195e58cc47756b2c4b1a994a89b32",
+      "bytes": 8195
+    },
+    "export-integrity.json": {
+      "sha256": "07c552279092f08a2e42fe5de2d319ebcd909e9a0c0d4abc438b7b399edd1adc",
+      "bytes": 2260
+    },
+    "exporter.py": {
+      "sha256": "c77459aeb64a0cc890d1c70f0efd72af1e720aa2d32abdab3d8bf47e8f309783",
+      "bytes": 7237
+    },
+    "run-1-h264-compatible-3000-foreground.csv": {
+      "sha256": "2c9c689265f1251d529bc4851ca06064622cccdecebfd58532fd81051768aabe",
+      "bytes": 329226
+    },
+    "run-1-h264-compatible-3000-full.ssim": {
+      "sha256": "3ccd794f182ce4c31e36c349b2a79a8588f77871591d34a70eef84ae1860ceb5",
+      "bytes": 583893
+    },
+    "run-1-h264-compatible-3000-samples.csv": {
+      "sha256": "002a30259ed6707d0751a5c0c69703dd96990bd84618497bf9c2766e2002683f",
+      "bytes": 266170
+    },
+    "run-1-h264-compatible-3000-text.ssim": {
+      "sha256": "69863a68c20fad1716a5badd6eb58227084471f0da52899fc356adfa4719abca",
+      "bytes": 583893
+    },
+    "run-1-h264-compatible-3000-thin.ssim": {
+      "sha256": "3a7482dc9bbc162621f36cafac840aa09f7616f96cb2faf1eeb63275019ca64f",
+      "bytes": 583893
+    },
+    "run-1-hevc-compatible-1500-foreground.csv": {
+      "sha256": "130112271420e27c61ab3964470639bc17d59b71fb5c64328a14a202e1a912d0",
+      "bytes": 329226
+    },
+    "run-1-hevc-compatible-1500-full.ssim": {
+      "sha256": "0a0d7639f908ab17921aea0834757c7e320773b582586860656ba9e92958ed9d",
+      "bytes": 583893
+    },
+    "run-1-hevc-compatible-1500-samples.csv": {
+      "sha256": "4bbe597e57a3ef0c69e95fef8dae8bc1ba64d2905ffd6b0297f85da89a2da7a2",
+      "bytes": 264548
+    },
+    "run-1-hevc-compatible-1500-text.ssim": {
+      "sha256": "41c285839a6c4ba29e3636db26cee4a71f2dec6fb618402260ef356805d08701",
+      "bytes": 583893
+    },
+    "run-1-hevc-compatible-1500-thin.ssim": {
+      "sha256": "608bfb1d468fb96a5637abe68d1a6a71cf6349884be89d19ac55ab5c98c71a68",
+      "bytes": 583893
+    },
+    "summary.json": {
+      "sha256": "94433d5e5c8c37191f61fe05161310002ab484ca363e43b5c324a7d4ecf9e06e",
+      "bytes": 29495
+    },
+    "uncompressed420-foreground.csv": {
+      "sha256": "e205d56f7d66682257082c1256adb079c5924b231f1b146c147f13397a7a3110",
+      "bytes": 329226
+    },
+    "validation.json": {
+      "sha256": "a16542c35b37576e93cae7c013f6938630ff3cdbc514f7efc52257853f29a375",
+      "bytes": 166544
+    }
+  }
+}

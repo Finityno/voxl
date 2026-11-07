@@ -7,6 +7,15 @@ display, a Mac's screen or a Windows desktop as H.264 over a WebSocket to a smal
 client that decodes with WebCodecs, with input, clipboard, audio, microphone, file and
 folder transfer and dynamic resolution.
 
+## Fincode media integration
+
+The independent [media package](media/README.md) provides the native codecs and
+WebRTC transport used by this fork's Fincode integration. Its
+[live ICE restart evidence](media/results/2026-11-05-live-ice-restart/README.md)
+records same-peer credential rotation over UDP, TCP and verified TLS, including
+remaining application and physical-device qualification. The benchmark tables
+below describe the standalone WebSocket server.
+
 ## Quick start
 
 ```sh

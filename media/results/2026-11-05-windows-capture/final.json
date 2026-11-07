@@ -1,0 +1,50 @@
+{
+  "origin": "/tmp/fincode-windows-capture-final",
+  "files": [
+    {
+      "name": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "load.log",
+      "sha256": "a4326f6a6651db2024e2b1efb6d029da6860968e11eb86f8be6cfa4c8d9b11ce",
+      "text": "14:53  up 20 days,  1:41, 1 user, load averages: 2.07 1.67 1.50\n"
+    },
+    {
+      "name": "queue.json",
+      "sha256": "ae6bfa5f9758f4571fe5ae93119094b20be4672c44ab3e18821941e71f2216e8",
+      "text": "{\n  \"source\": \"c976515bc3b71789c472a614ae20f301ab5a334b\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/usr/local/bin/python3\",\n        \"/tmp/fincode-windows-capture-final/run.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 0,\n      \"seconds\": 1.202,\n      \"pgid\": 19409,\n      \"groupGone\": true,\n      \"logSha256\": \"3fcd797ab3d7e16ea203fdcfcfb31aa07ba2d36ed8c66b8872de75943250b65a\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"233c3546b737e812e3eb44ccabe77c1e9f5b87f960ee1c5fc1514d7c755ac015\",\n  \"scope\": \"Windows-target default-feature media library/examples compile and strict Clippy from Mac for WGC/NV12 additions; no tests executed. No Windows linking, encoding, GPU, performance, capture, OS input or app provider evidence.\"\n}\n"
+    },
+    {
+      "name": "queue.log",
+      "sha256": "3fcd797ab3d7e16ea203fdcfcfb31aa07ba2d36ed8c66b8872de75943250b65a",
+      "text": "load 0\ntoolchain 0\nwindows-check 0\nwindows-clippy 0\ndiff 0\n"
+    },
+    {
+      "name": "results.json",
+      "sha256": "ae0737b1f817c012f06ac22fb15f440741eeb9343c645904dae89c68e2232338",
+      "text": "{\n  \"source\": \"c976515bc3b71789c472a614ae20f301ab5a334b\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.025,\n      \"pgid\": 19413,\n      \"groupGone\": true,\n      \"logSha256\": \"a4326f6a6651db2024e2b1efb6d029da6860968e11eb86f8be6cfa4c8d9b11ce\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"seconds\": 0.04,\n      \"pgid\": 19419,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"windows-check\",\n      \"command\": [\n        \"cargo\",\n        \"check\",\n        \"--locked\",\n        \"--offline\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--target\",\n        \"x86_64-pc-windows-msvc\",\n        \"--lib\",\n        \"--examples\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 0.435,\n      \"pgid\": 19424,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"windows-clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--offline\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--target\",\n        \"x86_64-pc-windows-msvc\",\n        \"--lib\",\n        \"--examples\",\n        \"--tests\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 0.506,\n      \"pgid\": 19441,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"diff\",\n      \"command\": [\n        \"git\",\n        \"diff\",\n        \"--check\",\n        \"19906e2c0909e67a2ac4e3ddd1458d4a8e7aaf3a\",\n        \"c976515bc3b71789c472a614ae20f301ab5a334b\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"exitCode\": 0,\n      \"seconds\": 0.031,\n      \"pgid\": 19459,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"233c3546b737e812e3eb44ccabe77c1e9f5b87f960ee1c5fc1514d7c755ac015\",\n  \"scope\": \"Windows-target default-feature media library/examples compile and strict Clippy from Mac for WGC/NV12 additions; no tests executed. No Windows linking, encoding, GPU, performance, capture, OS input or app provider evidence.\"\n}\n"
+    },
+    {
+      "name": "run.py",
+      "sha256": "233c3546b737e812e3eb44ccabe77c1e9f5b87f960ee1c5fc1514d7c755ac015",
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/voxl-desktop-native-validation');OUT=P(__file__).parent;SHA='c976515bc3b71789c472a614ae20f301ab5a334b';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','FINCODE_COMMIT_SHA':SHA,'GIT_OPTIONAL_LOCKS':'0','CI':'true'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\nfor k in ['CARGO_HOME','RUSTUP_TOOLCHAIN']:assert k not in ENV\n\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'root':str(ROOT),'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'scope':'Windows-target default-feature media library/examples compile and strict Clippy from Mac for WGC/NV12 additions; no tests executed. No Windows linking, encoding, GPU, performance, capture, OS input or app provider evidence.'},indent=2)+'\\n')\ndef stop():\n global child\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):\n   os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef run(name,command,deadline):\n global child\n clean();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  timed=False\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':exitcode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'timedOut':timed,'sourceCleanBefore':True,'sourceCleanAfter':True});save();print(name,exitcode,flush=True);assert gone(child.pid);child=None;assert exitcode==0\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  run('toolchain',['cargo','--version'],30)\n  run('windows-check',['cargo','check','--locked','--offline','--manifest-path','media/Cargo.toml','--target','x86_64-pc-windows-msvc','--lib','--examples','-j2','-q','--message-format=short'],600)\n  run('windows-clippy',['cargo','clippy','--locked','--offline','--manifest-path','media/Cargo.toml','--target','x86_64-pc-windows-msvc','--lib','--examples','--tests','-j2','-q','--message-format=short','--','-D','warnings'],600)\n  run('diff',['git','diff','--check','19906e2c0909e67a2ac4e3ddd1458d4a8e7aaf3a',SHA],15)\n code=0\nexcept BaseException as e:\n print(type(e).__name__,str(e),flush=True)\nfinally:\n stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    {
+      "name": "toolchain.log",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    },
+    {
+      "name": "windows-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "windows-clippy.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  ]
+}

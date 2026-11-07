@@ -1,0 +1,82 @@
+{
+  "result": {
+    "command": [
+      "cargo",
+      "metadata",
+      "--locked",
+      "--format-version",
+      "1",
+      "--filter-platform",
+      "aarch64-apple-darwin"
+    ],
+    "exitCode": 0,
+    "deadlineSeconds": 120,
+    "pgid": 55739,
+    "groupGone": true,
+    "seconds": 2.533,
+    "sourceReview": {
+      "oldPin": "a355a959ddeb2411360a46834bf28772b9928c6f",
+      "newPin": "636e04d62998883ccd8a6cf824e812a18b56dac8",
+      "lockOnlySourceIds": true,
+      "packageCount": 1321,
+      "manifestDefaultsAndFeaturesUnchanged": true
+    }
+  },
+  "selectedPackages": [
+    {
+      "name": "rtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+      "features": [
+        "crypto-aws-lc-rs"
+      ]
+    },
+    {
+      "name": "rustls",
+      "version": "0.23.42",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "features": [
+        "aws-lc-rs",
+        "aws_lc_rs",
+        "log",
+        "logging",
+        "std",
+        "tls12"
+      ]
+    },
+    {
+      "name": "voxl-media",
+      "version": "0.1.0",
+      "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+      "features": [
+        "webrtc"
+      ]
+    },
+    {
+      "name": "webrtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+      "features": [
+        "crypto-aws-lc-rs",
+        "runtime-tokio"
+      ]
+    }
+  ],
+  "rawMetadataSha256": "b685c448a1d6542aa8f51592bfd32334a98e6cdd308c5a70a0b5e3d6af471915",
+  "rawMetadataBytes": 5506920,
+  "independentlyAbsentGroups": [
+    55739
+  ],
+  "texts": {
+    "results.json": {
+      "text": "{\n  \"command\": [\n    \"cargo\",\n    \"metadata\",\n    \"--locked\",\n    \"--format-version\",\n    \"1\",\n    \"--filter-platform\",\n    \"aarch64-apple-darwin\"\n  ],\n  \"exitCode\": 0,\n  \"deadlineSeconds\": 120,\n  \"pgid\": 55739,\n  \"groupGone\": true,\n  \"seconds\": 2.533,\n  \"sourceReview\": {\n    \"oldPin\": \"a355a959ddeb2411360a46834bf28772b9928c6f\",\n    \"newPin\": \"636e04d62998883ccd8a6cf824e812a18b56dac8\",\n    \"lockOnlySourceIds\": true,\n    \"packageCount\": 1321,\n    \"manifestDefaultsAndFeaturesUnchanged\": true\n  }\n}\n",
+      "sha256": "a09c8a45ca8f2157b07ee8f443eebc3176fc2c70685eef94cf85597c5ad6920d",
+      "bytes": 501
+    },
+    "metadata.stderr.log": {
+      "text": "    Updating git repository `https://github.com/Finityno/voxl`\n",
+      "sha256": "09522f7632da04eb4b042d7e704da4e98f47e3311ad360e8e0c2287568e2409b",
+      "bytes": 63
+    }
+  }
+}

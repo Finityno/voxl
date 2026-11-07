@@ -1,0 +1,104 @@
+{
+  "base": "cc7a9f0082b19328999d253219055e534ae3d0ff",
+  "runtime": "0b365da584c7a24db01e41beb45f4da75651651c",
+  "addedPackages": [
+    [
+      "windows-strings",
+      "0.4.2",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-core",
+      "0.61.2",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-future",
+      "0.2.1",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-threading",
+      "0.1.0",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-link",
+      "0.1.3",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows",
+      "0.61.3",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-result",
+      "0.3.4",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-interface",
+      "0.59.3",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-implement",
+      "0.60.2",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-collections",
+      "0.2.0",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ],
+    [
+      "windows-numerics",
+      "0.2.0",
+      "registry+https://github.com/rust-lang/crates.io-index"
+    ]
+  ],
+  "removedPackages": [],
+  "modifiedExistingPackages": [
+    {
+      "name": "voxl-media",
+      "version": "0.1.0",
+      "oldDependencies": [
+        "async-trait",
+        "bytes",
+        "log",
+        "objc2-core-media",
+        "rand",
+        "rtc",
+        "tokio",
+        "tokio-rustls",
+        "webpki-roots",
+        "webrtc"
+      ],
+      "newDependencies": [
+        "async-trait",
+        "bytes",
+        "log",
+        "objc2-core-media",
+        "rand",
+        "rtc",
+        "tokio",
+        "tokio-rustls",
+        "webpki-roots",
+        "webrtc",
+        "windows",
+        "windows-core"
+      ]
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.61.2",
+      "oldDependencies": [
+        "windows-link"
+      ],
+      "newDependencies": [
+        "windows-link 0.2.1"
+      ]
+    }
+  ]
+}

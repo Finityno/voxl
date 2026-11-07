@@ -1,0 +1,25 @@
+{
+  "source": "6ddaad619557971c7e26db484ba76b64d830de83",
+  "baselineSource": "c787b17ec40daffc90ba69b2497f8704f30f96f1",
+  "scope": "Synthetic encrypted UDP sparse and active normal-RTP capacity. Native image quality, resources and physical networks remain separate.",
+  "counts": {
+    "baseline/sparse-capacity-baseline": 1,
+    "current/normal-capacity-contracts": 5,
+    "current/sparse-network": 2,
+    "current/dense-network": 1,
+    "current/flow-epoch-contract": 1,
+    "current/probe-lifetime-contracts": 6,
+    "current/probe-contracts": 7,
+    "current/probe-network": 10,
+    "current/producer-debt-contracts": 6,
+    "current/feedback-epoch-contract": 1
+  },
+  "selectedRustPassed": 39,
+  "baselineCharacterizationPassed": 1,
+  "strictClippy": true,
+  "newDependenciesOrFeatures": false,
+  "productionAdmission": false,
+  "archive": "/Users/sondre/Documents/Fincode Desktop Lab Evidence/2026-11-07/sparse-capacity",
+  "archiveOriginals": 26,
+  "ownedGroups": 20
+}

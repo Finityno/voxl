@@ -1,0 +1,256 @@
+{
+  "verifiedAt": "2026-11-05T11:42:21.878816+00:00",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 8615,
+      "sha256": "f01815e96b9c0878d0cf0b7c0904c24fda4088c6138e6e470ff1f66b6011d09f"
+    },
+    {
+      "file": "after.json",
+      "bytes": 28449,
+      "sha256": "5efefa57f34e38ddad2eec4bb2a6a7d69ed8cfa8f8159c9a49286f1c72290d53"
+    },
+    {
+      "file": "before.json",
+      "bytes": 24048,
+      "sha256": "42d31d27a881f7a37dcd224b28ec8ef2789828e8bd5bf54bf2731c17b65cd555"
+    },
+    {
+      "file": "comparison.json",
+      "bytes": 122994,
+      "sha256": "b18a49e1d4507c341ddf2fedf889a13f0218815538565ebc29e979733e3c8902"
+    },
+    {
+      "file": "compile-failure.json",
+      "bytes": 24834,
+      "sha256": "4b6f1b692e3846bf7c3fece421d076e6b52218b85ecec5c16c09dcd5584d17b9"
+    },
+    {
+      "file": "native-http.json",
+      "bytes": 103001,
+      "sha256": "e480851a67edebf14fd01bf5fdcae6a6b80371d94dbda71eceb1c1fdd32f744c"
+    },
+    {
+      "file": "provider-guard-failure.json",
+      "bytes": 55155,
+      "sha256": "2fb23e1c3d7af48aa0a53dfc00f6660a12ff9ba1eb60466ff2437981257be078"
+    }
+  ],
+  "embeddedTextHashes": 65,
+  "postRunGroups": [
+    {
+      "pgid": 57973,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57982,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57987,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57993,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 57998,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58003,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58054,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58082,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58091,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58096,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58100,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 58103,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55318,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55324,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55329,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55336,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55342,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55347,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55373,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 55392,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 66394,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 66407,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 51987,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 51993,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 51998,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 52004,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 52009,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 52014,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67810,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67820,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67829,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67838,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67847,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67859,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67872,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 67881,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68091,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68200,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68205,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68220,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68599,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 68609,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 61441,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 61455,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 61464,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 61475,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 61484,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 62371,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 63020,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 63042,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 63248,
+      "goneAtExport": true
+    },
+    {
+      "pgid": 63368,
+      "goneAtExport": true
+    }
+  ],
+  "ownedSimulator": {
+    "udid": "4A894872-174F-4DE8-8147-93D22AAB1058",
+    "state": "Shutdown"
+  },
+  "scope": "Four selected passing fork tests and one passing native Swift/Rust pair; initial compiler failure, runtime baseline failure and provider-oracle failure retained. Import/dependency inspections and hash/group counts are not extra tests."
+}

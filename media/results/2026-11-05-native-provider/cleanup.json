@@ -1,0 +1,408 @@
+{
+  "checkedAtUTC": "2026-11-05T15:07:55.072953+00:00",
+  "allRunnersTerminal": true,
+  "textExports": 144,
+  "processGroups": [
+    {
+      "pgid": 27960,
+      "absent": true
+    },
+    {
+      "pgid": 27964,
+      "absent": true
+    },
+    {
+      "pgid": 27969,
+      "absent": true
+    },
+    {
+      "pgid": 27974,
+      "absent": true
+    },
+    {
+      "pgid": 28026,
+      "absent": true
+    },
+    {
+      "pgid": 28041,
+      "absent": true
+    },
+    {
+      "pgid": 28245,
+      "absent": true
+    },
+    {
+      "pgid": 29392,
+      "absent": true
+    },
+    {
+      "pgid": 29397,
+      "absent": true
+    },
+    {
+      "pgid": 29402,
+      "absent": true
+    },
+    {
+      "pgid": 29407,
+      "absent": true
+    },
+    {
+      "pgid": 29423,
+      "absent": true
+    },
+    {
+      "pgid": 29441,
+      "absent": true
+    },
+    {
+      "pgid": 32670,
+      "absent": true
+    },
+    {
+      "pgid": 32674,
+      "absent": true
+    },
+    {
+      "pgid": 32679,
+      "absent": true
+    },
+    {
+      "pgid": 32686,
+      "absent": true
+    },
+    {
+      "pgid": 32706,
+      "absent": true
+    },
+    {
+      "pgid": 32724,
+      "absent": true
+    },
+    {
+      "pgid": 37562,
+      "absent": true
+    },
+    {
+      "pgid": 37566,
+      "absent": true
+    },
+    {
+      "pgid": 37571,
+      "absent": true
+    },
+    {
+      "pgid": 37576,
+      "absent": true
+    },
+    {
+      "pgid": 38068,
+      "absent": true
+    },
+    {
+      "pgid": 38236,
+      "absent": true
+    },
+    {
+      "pgid": 38333,
+      "absent": true
+    },
+    {
+      "pgid": 38342,
+      "absent": true
+    },
+    {
+      "pgid": 38351,
+      "absent": true
+    },
+    {
+      "pgid": 38360,
+      "absent": true
+    },
+    {
+      "pgid": 39767,
+      "absent": true
+    },
+    {
+      "pgid": 39771,
+      "absent": true
+    },
+    {
+      "pgid": 39776,
+      "absent": true
+    },
+    {
+      "pgid": 39781,
+      "absent": true
+    },
+    {
+      "pgid": 39831,
+      "absent": true
+    },
+    {
+      "pgid": 39859,
+      "absent": true
+    },
+    {
+      "pgid": 39877,
+      "absent": true
+    },
+    {
+      "pgid": 39888,
+      "absent": true
+    },
+    {
+      "pgid": 39898,
+      "absent": true
+    },
+    {
+      "pgid": 39916,
+      "absent": true
+    },
+    {
+      "pgid": 39929,
+      "absent": true
+    },
+    {
+      "pgid": 40144,
+      "absent": true
+    },
+    {
+      "pgid": 42999,
+      "absent": true
+    },
+    {
+      "pgid": 43003,
+      "absent": true
+    },
+    {
+      "pgid": 43008,
+      "absent": true
+    },
+    {
+      "pgid": 43013,
+      "absent": true
+    },
+    {
+      "pgid": 43027,
+      "absent": true
+    },
+    {
+      "pgid": 43164,
+      "absent": true
+    },
+    {
+      "pgid": 44736,
+      "absent": true
+    },
+    {
+      "pgid": 44740,
+      "absent": true
+    },
+    {
+      "pgid": 44745,
+      "absent": true
+    },
+    {
+      "pgid": 44750,
+      "absent": true
+    },
+    {
+      "pgid": 44826,
+      "absent": true
+    },
+    {
+      "pgid": 44866,
+      "absent": true
+    },
+    {
+      "pgid": 44882,
+      "absent": true
+    },
+    {
+      "pgid": 44904,
+      "absent": true
+    },
+    {
+      "pgid": 44913,
+      "absent": true
+    },
+    {
+      "pgid": 44922,
+      "absent": true
+    },
+    {
+      "pgid": 44938,
+      "absent": true
+    },
+    {
+      "pgid": 45141,
+      "absent": true
+    },
+    {
+      "pgid": 45148,
+      "absent": true
+    },
+    {
+      "pgid": 45168,
+      "absent": true
+    },
+    {
+      "pgid": 46198,
+      "absent": true
+    },
+    {
+      "pgid": 46204,
+      "absent": true
+    },
+    {
+      "pgid": 46213,
+      "absent": true
+    },
+    {
+      "pgid": 46222,
+      "absent": true
+    },
+    {
+      "pgid": 46438,
+      "absent": true
+    },
+    {
+      "pgid": 46716,
+      "absent": true
+    },
+    {
+      "pgid": 50142,
+      "absent": true
+    },
+    {
+      "pgid": 50148,
+      "absent": true
+    },
+    {
+      "pgid": 50157,
+      "absent": true
+    },
+    {
+      "pgid": 50166,
+      "absent": true
+    },
+    {
+      "pgid": 50183,
+      "absent": true
+    },
+    {
+      "pgid": 50304,
+      "absent": true
+    },
+    {
+      "pgid": 50994,
+      "absent": true
+    },
+    {
+      "pgid": 51004,
+      "absent": true
+    },
+    {
+      "pgid": 51013,
+      "absent": true
+    },
+    {
+      "pgid": 51022,
+      "absent": true
+    },
+    {
+      "pgid": 51240,
+      "absent": true
+    },
+    {
+      "pgid": 52524,
+      "absent": true
+    },
+    {
+      "pgid": 52571,
+      "absent": true
+    },
+    {
+      "pgid": 52580,
+      "absent": true
+    },
+    {
+      "pgid": 52741,
+      "absent": true
+    },
+    {
+      "pgid": 52750,
+      "absent": true
+    },
+    {
+      "pgid": 52752,
+      "absent": true
+    },
+    {
+      "pgid": 52757,
+      "absent": true
+    },
+    {
+      "pgid": 53864,
+      "absent": true
+    },
+    {
+      "pgid": 53873,
+      "absent": true
+    },
+    {
+      "pgid": 55531,
+      "absent": true
+    },
+    {
+      "pgid": 55535,
+      "absent": true
+    },
+    {
+      "pgid": 55540,
+      "absent": true
+    },
+    {
+      "pgid": 55545,
+      "absent": true
+    },
+    {
+      "pgid": 55564,
+      "absent": true
+    },
+    {
+      "pgid": 55575,
+      "absent": true
+    },
+    {
+      "pgid": 55589,
+      "absent": true
+    },
+    {
+      "pgid": 55792,
+      "absent": true
+    },
+    {
+      "pgid": 55801,
+      "absent": true
+    },
+    {
+      "pgid": 55821,
+      "absent": true
+    }
+  ],
+  "fixtureHttpPort": 56017,
+  "fixtureHttpPortRebound": true,
+  "fixtureTokenConfigDeleted": true,
+  "ownedSimulator": {
+    "udid": "4A894872-174F-4DE8-8147-93D22AAB1058",
+    "name": "Fincode-Desktop-Access",
+    "state": "Shutdown"
+  },
+  "shutdownCommandExit": 149,
+  "shutdownNote": "simctl shutdown returned 149 because the owned Simulator was already Shutdown; both original confirmation and independent inventory verify Shutdown. This command is not represented as exit 0.",
+  "nativeWindowsExecuted": false,
+  "rawScreenOrEncodedMediaExported": false,
+  "xcresultPrivate": true
+}

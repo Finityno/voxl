@@ -1,0 +1,44 @@
+{
+  "testSource": "c184233d7f8a0980f3bb6785bf9938e61a32d25c",
+  "priorRuntime": "2ae3179905ebbf1a343b66fb3db596dadc79d6d6",
+  "comparisons": [
+    {
+      "path": "media/src/webrtc/stream_turn.rs",
+      "priorBlob": "dc09b704a306ded2bb3394ec03cc92b6d8d61fea",
+      "testBlob": "dc09b704a306ded2bb3394ec03cc92b6d8d61fea",
+      "same": true
+    },
+    {
+      "path": "media/src/webrtc/relay_interfaces.rs",
+      "priorBlob": "7e6c19e2d6a37de07ae71d4ea32deef371ff0b14",
+      "testBlob": "7e6c19e2d6a37de07ae71d4ea32deef371ff0b14",
+      "same": true
+    },
+    {
+      "path": "media/vendor/webrtc/src/peer_connection/driver.rs",
+      "priorBlob": "f83071d139098fd52b26f72e8c05442c39e4fbfc",
+      "testBlob": "f83071d139098fd52b26f72e8c05442c39e4fbfc",
+      "same": true
+    },
+    {
+      "path": "media/vendor/webrtc/src/peer_connection/mod.rs",
+      "priorBlob": "145758455ecea3dbda5ea6f466a83c438e48f67a",
+      "testBlob": "145758455ecea3dbda5ea6f466a83c438e48f67a",
+      "same": true
+    },
+    {
+      "path": "media/vendor/webrtc/src/peer_connection/transport/turn_relayer.rs",
+      "priorBlob": "ed8773a0b83664433320c1c9ee632c6f383b5cf4",
+      "testBlob": "ed8773a0b83664433320c1c9ee632c6f383b5cf4",
+      "same": true
+    },
+    {
+      "path": "media/src/webrtc.rs",
+      "symbol": "impl VideoCloseHandle",
+      "priorSha256": "4697325b3f572cecaf42d4a348bbfa2535c7f4cdc9b9c6d41eeca698fd7d81b1",
+      "testSha256": "4697325b3f572cecaf42d4a348bbfa2535c7f4cdc9b9c6d41eeca698fd7d81b1",
+      "same": true
+    }
+  ],
+  "scope": "Exact code comparisons, not an application/native rerun. Constructor/profile support and other code outside these comparisons may differ."
+}

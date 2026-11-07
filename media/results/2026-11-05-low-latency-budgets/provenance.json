@@ -1,0 +1,63 @@
+{
+  "originalArtifacts": {
+    "availability/results.json": {
+      "originalSha256": "0bbdac6a57f7a90d621c488dae8fbde9a337614c6febe0adc9ff7d3cac2080ed"
+    },
+    "availability/availability.json": {
+      "originalSha256": "9b99458a414ce64b3f2cf15b1af412d6c74dd7f12f836902d2431d9efd9093e0"
+    },
+    "matched-3m/fixture.json": {
+      "originalSha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707"
+    },
+    "matched-3m/run-1-h264-compatible-3000.json": {
+      "originalSha256": "1b9d8a0ea41feddcd0d09453d4ed8e6dc9fa54cf52a503011731c1debe2fd2b8"
+    },
+    "matched-3m/run-1-hevc-compatible-1500.json": {
+      "originalSha256": "a99a967cb3636fc1980501fd8f4d468f31b7642eb367c29f86a87187159fce55"
+    },
+    "matched-3m/floor.json": {
+      "originalSha256": "e797f2f8884e6c9ea8987b4b214fc3b47c8a5d0408527a93951a5f27a505b2d2"
+    },
+    "matched-3m/results.json": {
+      "originalSha256": "e5788c174b89c68d5c4bafcf7d1f7ecf87ceab62c96edc46d30467149e4ddce3"
+    },
+    "matched-3m/compiler-artifact.json": {
+      "originalSha256": "8db0b2f4bf7572c8c4f10044391a4a70e5652b9a481a58b179e498be11272785"
+    },
+    "matched-3m/foreground-run-1.json": {
+      "originalSha256": "471d8bc49ebad8c531f9603152ac9842f0fbf1ef4b97aba87e989d46fe0b14ef"
+    },
+    "matched-3m/run-1-hevc-low-latency-compatible-3000.json": {
+      "originalSha256": "c8e94bf640b348f9cac943e9cc604ef26cc92a6e0f6a3fc1dd3e4f70cb407ed3"
+    },
+    "matched-3m/run-1-h264-low-latency-compatible-6000.json": {
+      "originalSha256": "281daf695130784562e456760bbb5634b7608dd51274fae63841af5ca30aee7e"
+    },
+    "matched-6m-12m/fixture.json": {
+      "originalSha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707"
+    },
+    "matched-6m-12m/run-1-h264-compatible-3000.json": {
+      "originalSha256": "8d1423a4f878a68b8d8220d574c4083ce027abb139c415899666e683d930b026"
+    },
+    "matched-6m-12m/floor.json": {
+      "originalSha256": "e797f2f8884e6c9ea8987b4b214fc3b47c8a5d0408527a93951a5f27a505b2d2"
+    },
+    "matched-6m-12m/run-1-hevc-low-latency-compatible-6000.json": {
+      "originalSha256": "fd2a5a23e00a25cd5500dbe0e0516e29768fe4bfeb96146172e79cb102b5aeb6"
+    },
+    "matched-6m-12m/results.json": {
+      "originalSha256": "15b50152d60c93b50dbd6f704710d505c72b83330283ccf48f8353756ff92bee"
+    },
+    "matched-6m-12m/compiler-artifact.json": {
+      "originalSha256": "eb67d560f30e492f3ec2fce4cf9f4b5fb48d639a353dfa1f6b0f831669da5b68"
+    },
+    "matched-6m-12m/foreground-run-1.json": {
+      "originalSha256": "8fe084a24c10998dcd07ef031405969a3328738ad6c6f7cd21e254a686439c19"
+    },
+    "matched-6m-12m/run-1-hevc-low-latency-compatible-12000.json": {
+      "originalSha256": "948fda4e490c232bf67caf9684dcc1aa671a4078a6c45c38689f23f9ef114b61"
+    }
+  },
+  "executedExporterSha256": "e89412ef9234ebe33f3b24420be0979bb7826e7a4a4635ec1bec875afe43d947",
+  "normalization": "Only owned paths. Original hashes distinct from normalized files. Numeric rows unchanged; full sums/p95s/SSIM/foreground comparisons recomputed. No binary/bitstream/font/screen/decoded image/credential/private app source."
+}

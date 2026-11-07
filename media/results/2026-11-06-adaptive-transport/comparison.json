@@ -1,0 +1,194 @@
+{
+  "runtimeSource": "0ec781781ba5b3063264f4f6d11dddf3f71c6bc1",
+  "clippySource": "66bd7b014e9e43d39455ef21d70d524a2af92083",
+  "adaptiveTestsPassed": 13,
+  "legacyTestsPassed": 2,
+  "strictClippyPassed": true,
+  "coreSourceUnchangedAtClippySource": true,
+  "groups": [
+    {
+      "job": "initial-build",
+      "name": "load",
+      "pgid": 58697,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "toolchain",
+      "pgid": 58702,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "diff",
+      "pgid": 58709,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-build",
+      "name": "test-build",
+      "pgid": 58714,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "load",
+      "pgid": 65524,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "toolchain",
+      "pgid": 65529,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "diff",
+      "pgid": 65534,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "test-build",
+      "pgid": 65539,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "adaptive-contracts",
+      "pgid": 65919,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "first-runtime",
+      "name": "strict-clippy",
+      "pgid": 65929,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "smaller-burst",
+      "name": "load",
+      "pgid": 71546,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "smaller-burst",
+      "name": "toolchain",
+      "pgid": 71551,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "smaller-burst",
+      "name": "diff",
+      "pgid": 71556,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "smaller-burst",
+      "name": "test-build",
+      "pgid": 71561,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "smaller-burst",
+      "name": "adaptive-contracts",
+      "pgid": 71945,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "load",
+      "pgid": 74900,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "toolchain",
+      "pgid": 74905,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "diff",
+      "pgid": 74910,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "test-build",
+      "pgid": 74915,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "adaptive-contracts",
+      "pgid": 75298,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "legacy-h264",
+      "pgid": 75306,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "legacy-hevc",
+      "pgid": 75313,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "runtime-confirm",
+      "name": "strict-clippy",
+      "pgid": 75329,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "clippy-confirm",
+      "name": "load",
+      "pgid": 78278,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "clippy-confirm",
+      "name": "toolchain",
+      "pgid": 78283,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "clippy-confirm",
+      "name": "diff",
+      "pgid": 78288,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "clippy-confirm",
+      "name": "unchanged-core",
+      "pgid": 78293,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "clippy-confirm",
+      "name": "strict-clippy",
+      "pgid": 78300,
+      "independentlyAbsent": true
+    }
+  ],
+  "originalFileCount": 44,
+  "receipts": [
+    "receipts/initial-build.json.gz",
+    "receipts/first-runtime.json.gz",
+    "receipts/smaller-burst.json.gz",
+    "receipts/runtime-confirm.json.gz",
+    "receipts/clippy-confirm.json.gz"
+  ],
+  "history": {
+    "initial-build": "exit101: omitted new enum fields and deprecated atomic method; zero tests executed. Fixed with a portable compare-exchange loop and complete pattern.",
+    "first-runtime": "10 targeted tests pass; strict library/examples Clippy exits101 on large pacing state enum.",
+    "smaller-burst": "11 pass,1 fail: retransmission test assumed immediate release after the burst budget shrank. Test now advances the real computed deadline; no rate/safety gate is relaxed. Clippy did not run.",
+    "runtime-confirm": "13 adaptive tests and2 legacy loopbacks pass; strict Clippy exits101 because unpaced replay example omitted new BitrateTarget variant.",
+    "clippy-confirm": "Strict library/tests/examples Clippy passes after explicit unreachable-mode error handling in replay. Core source/manifests/lock are verified byte-identical to runtime-confirm; runtime is not re-attributed."
+  },
+  "scope": "Component precursor to application integration:7 pure contracts,3 actual native encoder tests (hardware H264/HEVC,CPU H264),3 real UDP scenarios (two synthetic-NAL media scenarios plus cancelled send),2 legacy H264/HEVC transport tests. No actual native-codec-to-decoder coupling with adaptive transport, injected congestion/loss/capacity variation, controlled live ICE restart, app/default admission, measured CPU/RSS/power/quality/bandwidth savings or physical endpoint/network claim. Previous app media pin remains unchanged."
+}

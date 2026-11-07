@@ -1,0 +1,11 @@
+{
+  "source_sha": "10fd258ff4fcceaca235fd30a89dbad6e9f07db7",
+  "files": {
+    "commands.log": "timeout -k 5 30 git fetch origin fincode/desktop-streaming \ngit switch --detach 10fd258ff4fcceaca235fd30a89dbad6e9f07db7 \ntimeout -k 5 900 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short \ntimeout -k 5 45 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short trickle_ -- --nocapture \ntimeout -k 5 600 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --examples -j2 -q --message-format=short -- -D warnings \n",
+    "exits.tsv": "fetch\t0\nswitch\t0\nbuild\t0\ntrickle-tests\t0\nclippy\t0\n",
+    "build.log": "",
+    "trickle-tests.log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.23s\n\n",
+    "clippy.log": "",
+    "final-source.log": "10fd258ff4fcceaca235fd30a89dbad6e9f07db7\n"
+  }
+}

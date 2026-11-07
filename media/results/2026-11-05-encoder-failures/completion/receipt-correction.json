@@ -1,0 +1,36 @@
+{
+  "source": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "initialSupervisorExitCode": 1,
+  "reason": "Postprocessing started at byte 0 instead of skipping the six-byte VXFR version/codec header. Native build/Clippy, seven selected tests, default decoded controls and the native dropped-output result are valid and retained.",
+  "originalArtifacts": {
+    "results.json": "fe16125bf71904e0a7d35b292013479940e2a6e49e860cdf31e28722786f0e91",
+    "run.py": "2235cc1976f9185a90450685d8cfe6358d7858987c47d24ce04dbe633cd6bb62",
+    "default-controls.json": "c17dc96bcb767758c28c2232e42860e88fbe206b674e75e047b41ef2d703c799",
+    "compiler-artifact.json": "d6218f261cdcf54b71768bf89113740a670bdd969cea50114c304cfa1e5540ac",
+    "previous-artifact.json": "fedb1afeeddcc5befec6e2d6e4957a63ff5a3b4cab6a789e53e06bd2973eada8"
+  },
+  "allOriginalGroupsIndependentlyAbsent": [
+    97703,
+    97708,
+    97713,
+    97746,
+    97778,
+    97797,
+    97809,
+    97822,
+    97829,
+    97835,
+    97853,
+    97859,
+    97883,
+    97889,
+    97918,
+    97932,
+    97958,
+    97968,
+    97999,
+    98005
+  ],
+  "noBuildTestOrEncoderRerun": true,
+  "scope": "Correct analysis of existing failure evidence; no missing result converted into pass."
+}

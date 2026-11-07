@@ -1,0 +1,154 @@
+{
+  "result": {
+    "terminal": true,
+    "exitCode": 0,
+    "steps": [
+      {
+        "name": "version",
+        "command": [
+          "/opt/homebrew/bin/ffmpeg",
+          "-version"
+        ],
+        "exitCode": 0,
+        "seconds": 0.045,
+        "deadlineSeconds": 10,
+        "pgid": 33370,
+        "groupGone": true,
+        "logSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb"
+      },
+      {
+        "name": "generate",
+        "command": [
+          "/opt/homebrew/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-v",
+          "info",
+          "-f",
+          "lavfi",
+          "-i",
+          "testsrc2=size=320x180:rate=10",
+          "-frames:v",
+          "20",
+          "-an",
+          "-c:v",
+          "libsvtav1",
+          "-threads",
+          "2",
+          "-preset",
+          "12",
+          "-crf",
+          "40",
+          "-g",
+          "10",
+          "-svtav1-params",
+          "lp=2:pred-struct=1:lookahead=0:enable-overlays=0",
+          "-pix_fmt",
+          "yuv420p",
+          "-f",
+          "ivf",
+          "/tmp/fincode-av1-fixture/main.ivf"
+        ],
+        "exitCode": 0,
+        "seconds": 0.078,
+        "deadlineSeconds": 90,
+        "pgid": 33371,
+        "groupGone": true,
+        "logSha256": "fd47c2651ecae4212aae5d8d3afe0a89791cf397ae1ebec93d5a43b3162a025c"
+      },
+      {
+        "name": "decode",
+        "command": [
+          "/opt/homebrew/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-v",
+          "info",
+          "-threads",
+          "2",
+          "-i",
+          "/tmp/fincode-av1-fixture/main.ivf",
+          "-threads",
+          "2",
+          "-f",
+          "framemd5",
+          "/tmp/fincode-av1-fixture/decoded.md5"
+        ],
+        "exitCode": 0,
+        "seconds": 0.044,
+        "deadlineSeconds": 45,
+        "pgid": 33372,
+        "groupGone": true,
+        "logSha256": "b1a9a020dee89b5b7d4cdf02a8e7b8b4be2197a3c34d68a11be3a08e7526b820"
+      }
+    ],
+    "helperSha256": "a082787646fe8907157c637b146973d0482abeadace5dfd2e35f01238d13d2f2",
+    "scope": "Generate and independently decode 20 synthetic 320x180 SVT-AV1 low-delay frames. No desktop capture, codec comparison or application CPU fallback admission."
+  },
+  "texts": {
+    "decoded.md5": {
+      "sha256": "80337c53c3c906cfd475d09902c086aa58e9e9b34010f138d0c7efd8e6ca65d9",
+      "bytes": 1814,
+      "text": "#format: frame checksums\n#version: 2\n#hash: MD5\n#software: Lavf63.1.101\n#tb 0: 1/10\n#media_type 0: video\n#codec_id 0: rawvideo\n#dimensions 0: 320x180\n#sar 0: 1/1\n#stream#, dts,        pts, duration,     size, hash\n0,          0,          0,        1,    86400, 9f034e9eafb97e3e3df7cd5404a0164e\n0,          1,          1,        1,    86400, 314bc2d07b8e04bb3743de0cbaad9d59\n0,          2,          2,        1,    86400, dce33b8534e054b2dd705ca3fe435a45\n0,          3,          3,        1,    86400, 06b13a73b19aa61fca26d098d14301d6\n0,          4,          4,        1,    86400, ebf29dfc4ed454e26399c71286c84343\n0,          5,          5,        1,    86400, 6063d2027a3bb79429f32a8bfe365c08\n0,          6,          6,        1,    86400, efeacfe6cdd78e865014522c6087d252\n0,          7,          7,        1,    86400, 1351b7f57d16207de2a82ba781c2ac25\n0,          8,          8,        1,    86400, df5825a4546f71b311c5843c315c1ae4\n0,          9,          9,        1,    86400, bf39b420239c81b35a21987856cc4868\n0,         10,         10,        1,    86400, 076833856d962dda4df4a3bed4444ac7\n0,         11,         11,        1,    86400, 57e807634715d6e0cf1bae6783fc1734\n0,         12,         12,        1,    86400, b52bb333832b527c9afbd838b57cc4f4\n0,         13,         13,        1,    86400, 506654b3c522de8334c523fdc046545f\n0,         14,         14,        1,    86400, 51c793d5d8ed7ed6c3680046244cc1dd\n0,         15,         15,        1,    86400, 412084478f713639256d3fe44bed2d59\n0,         16,         16,        1,    86400, ddf88262403904c68f5ca6421e8fe1cd\n0,         17,         17,        1,    86400, 2e77ac15b7e1a2a711eba04138e941e9\n0,         18,         18,        1,    86400, be3fd6e0bdc3648ecfd675805a5527b1\n0,         19,         19,        1,    86400, acef08051dbbaf1b769de147f425e2f7\n"
+    },
+    "generate.py": {
+      "sha256": "a082787646fe8907157c637b146973d0482abeadace5dfd2e35f01238d13d2f2",
+      "bytes": 2426,
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;OUT=P(__file__).parent;steps=[];child=None;inner='--inside-lock'in sys.argv;code=1;terminal=False\nos.umask(0o077)\ndef sha(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef stop():\n if child and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=3)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=3)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef save():\n (OUT/('results.json'if inner else'queue.json')).write_text(json.dumps({'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':sha(__file__),'scope':'Generate and independently decode 20 synthetic 320x180 SVT-AV1 low-delay frames. No desktop capture, codec comparison or application CPU fallback admission.'},indent=2)+'\\n')\ndef run(name,cmd,deadline):\n global child\n start=time.monotonic();log=OUT/(name+'.log')\n with log.open('w')as f:\n  child=subprocess.Popen(cmd,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  try:r=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:stop();r=124\n  stop()\n steps.append({'name':name,'command':cmd,'exitCode':r,'seconds':round(time.monotonic()-start,3),'deadlineSeconds':deadline,'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':sha(log)});save();assert gone(child.pid)and r==0;child=None\ntry:\n if not inner:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],180)\n else:\n  run('version',['/opt/homebrew/bin/ffmpeg','-version'],10)\n  run('generate',['/opt/homebrew/bin/ffmpeg','-nostdin','-hide_banner','-v','info','-f','lavfi','-i','testsrc2=size=320x180:rate=10','-frames:v','20','-an','-c:v','libsvtav1','-threads','2','-preset','12','-crf','40','-g','10','-svtav1-params','lp=2:pred-struct=1:lookahead=0:enable-overlays=0','-pix_fmt','yuv420p','-f','ivf',str(OUT/'main.ivf')],90)\n  run('decode',['/opt/homebrew/bin/ffmpeg','-nostdin','-hide_banner','-v','info','-threads','2','-i',str(OUT/'main.ivf'),'-threads','2','-f','framemd5',str(OUT/'decoded.md5')],45)\n code=0\nfinally:stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    "keyframes.log": {
+      "sha256": "31b4623d3cde22483899626a15146c0d84930c138b9e36377822038d2fe9326a",
+      "bytes": 2045,
+      "text": "{\n    \"frames\": [\n        {\n            \"key_frame\": 1,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 1,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        },\n        {\n            \"key_frame\": 0,\n            \"width\": 320,\n            \"height\": 180\n        }\n    ]\n}\n"
+    },
+    "version.log": {
+      "sha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "bytes": 822,
+      "text": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n\nExiting with exit code 0\n"
+    },
+    "results.json": {
+      "sha256": "5c2060d8564b673b4018406b04178bddfc89e4116f2831502f9a147dd98ccdd3",
+      "bytes": 2106,
+      "text": "{\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"version\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffmpeg\",\n        \"-version\"\n      ],\n      \"exitCode\": 0,\n      \"seconds\": 0.045,\n      \"deadlineSeconds\": 10,\n      \"pgid\": 33370,\n      \"groupGone\": true,\n      \"logSha256\": \"5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb\"\n    },\n    {\n      \"name\": \"generate\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffmpeg\",\n        \"-nostdin\",\n        \"-hide_banner\",\n        \"-v\",\n        \"info\",\n        \"-f\",\n        \"lavfi\",\n        \"-i\",\n        \"testsrc2=size=320x180:rate=10\",\n        \"-frames:v\",\n        \"20\",\n        \"-an\",\n        \"-c:v\",\n        \"libsvtav1\",\n        \"-threads\",\n        \"2\",\n        \"-preset\",\n        \"12\",\n        \"-crf\",\n        \"40\",\n        \"-g\",\n        \"10\",\n        \"-svtav1-params\",\n        \"lp=2:pred-struct=1:lookahead=0:enable-overlays=0\",\n        \"-pix_fmt\",\n        \"yuv420p\",\n        \"-f\",\n        \"ivf\",\n        \"/tmp/fincode-av1-fixture/main.ivf\"\n      ],\n      \"exitCode\": 0,\n      \"seconds\": 0.078,\n      \"deadlineSeconds\": 90,\n      \"pgid\": 33371,\n      \"groupGone\": true,\n      \"logSha256\": \"fd47c2651ecae4212aae5d8d3afe0a89791cf397ae1ebec93d5a43b3162a025c\"\n    },\n    {\n      \"name\": \"decode\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffmpeg\",\n        \"-nostdin\",\n        \"-hide_banner\",\n        \"-v\",\n        \"info\",\n        \"-threads\",\n        \"2\",\n        \"-i\",\n        \"/tmp/fincode-av1-fixture/main.ivf\",\n        \"-threads\",\n        \"2\",\n        \"-f\",\n        \"framemd5\",\n        \"/tmp/fincode-av1-fixture/decoded.md5\"\n      ],\n      \"exitCode\": 0,\n      \"seconds\": 0.044,\n      \"deadlineSeconds\": 45,\n      \"pgid\": 33372,\n      \"groupGone\": true,\n      \"logSha256\": \"b1a9a020dee89b5b7d4cdf02a8e7b8b4be2197a3c34d68a11be3a08e7526b820\"\n    }\n  ],\n  \"helperSha256\": \"a082787646fe8907157c637b146973d0482abeadace5dfd2e35f01238d13d2f2\",\n  \"scope\": \"Generate and independently decode 20 synthetic 320x180 SVT-AV1 low-delay frames. No desktop capture, codec comparison or application CPU fallback admission.\"\n}\n"
+    },
+    "queue.json": {
+      "sha256": "7bfee448896c42e876cecfe2ddad01e3b714f250730a550ec81f6875e2e4257d",
+      "bytes": 887,
+      "text": "{\n  \"terminal\": true,\n  \"exitCode\": 0,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"/tmp/fincode-av1-fixture/generate.py\",\n        \"--inside-lock\"\n      ],\n      \"exitCode\": 0,\n      \"seconds\": 0.204,\n      \"deadlineSeconds\": 180,\n      \"pgid\": 33368,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"a082787646fe8907157c637b146973d0482abeadace5dfd2e35f01238d13d2f2\",\n  \"scope\": \"Generate and independently decode 20 synthetic 320x180 SVT-AV1 low-delay frames. No desktop capture, codec comparison or application CPU fallback admission.\"\n}\n"
+    },
+    "decode.log": {
+      "sha256": "3820ceb207bdca3e53e13fb563e32c60d1dac97088c655946dfa4da4ddf430f9",
+      "bytes": 921,
+      "text": "Input number 0, ivf, from '/tmp/fincode-av1-fixture/main.ivf':\n  Duration: 00:00:02.00, start: 0.000000, bitrate: 177 kb/s\n  Stream number 0:0: Video: av1 (libdav1d) (Main) (AV01 / 0x31305641), yuv420p(tv), 320x180 [SAR 1:1 DAR 16:9], 10 tbr, 10 tbn\nStream mapping:\n  Stream number 0:0 -> number 0:0 (av1 (libdav1d) -> rawvideo (native))\nOutput number 0, framemd5, to '/tmp/fincode-av1-fixture/decoded.md5':\n  Metadata:\n    encoder         : Lavf63.1.101\n  Stream number 0:0: Video: rawvideo (I420 / 0x30323449), yuv420p(tv, progressive), 320x180 [SAR 1:1 DAR 16:9], q=2-31, 6912 kb/s, 10 fps, 10 tbn\n    Metadata:\n      encoder         : Lavc63.1.101 rawvideo\n[outnumber 0/framemd5 @ 0x760ec6c300] video:1688KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown\nframe=   20 fps=0.0 q=-0.0 Lsize=       2KiB time=00:00:02.00 bitrate=   7.3kbits/s speed= 595x elapsed=0:00:00.00    \n",
+      "rawSha256": "b1a9a020dee89b5b7d4cdf02a8e7b8b4be2197a3c34d68a11be3a08e7526b820",
+      "rawBytes": 879,
+      "exportTransform": "Numeric diagnostic labels use number instead of hash to avoid GitHub issue cross-references."
+    },
+    "keyframes-results.json": {
+      "sha256": "53f423477875188e333188c0bdb0bfd0f5b944a03f0e14e578c7edc572dddb18",
+      "bytes": 439,
+      "text": "{\n  \"command\": [\n    \"/opt/homebrew/bin/ffprobe\",\n    \"-v\",\n    \"error\",\n    \"-threads\",\n    \"2\",\n    \"-select_streams\",\n    \"v\",\n    \"-show_entries\",\n    \"frame=key_frame,width,height\",\n    \"-of\",\n    \"json\",\n    \"/tmp/fincode-av1-fixture/main.ivf\"\n  ],\n  \"exitCode\": 0,\n  \"deadlineSeconds\": 15,\n  \"seconds\": 0.083,\n  \"pgid\": 60524,\n  \"groupGone\": true,\n  \"logSha256\": \"31b4623d3cde22483899626a15146c0d84930c138b9e36377822038d2fe9326a\"\n}\n"
+    },
+    "queue.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "generate.log": {
+      "sha256": "fc8878d5600a889f093e7260b2df9e68703b544eb1202bda8d516251bfe124c4",
+      "bytes": 2401,
+      "text": "Input number 0, lavfi, from 'testsrc2=size=320x180:rate=10':\n  Duration: N/A, start: 0.000000, bitrate: N/A\n  Stream number 0:0: Video: wrapped_avframe, yuv420p, 320x180 [SAR 1:1 DAR 16:9], 10 fps, 10 tbr, 10 tbn\nStream mapping:\n  Stream number 0:0 -> number 0:0 (wrapped_avframe (native) -> av1 (libsvtav1))\nSvt[info]: -------------------------------------------\nSvt[info]: SVT [version]:\tSVT-AV1 Encoder Lib v4.2.0\nSvt[info]: SVT [build]  :\tApple LLVM 21.0.0 (clang-2100.0.123.102)\t 64 bit\nSvt[info]: LIB Build date: Jul 13 2026 18:06:33\nSvt[info]: -------------------------------------------\nSvt[warn]: Preset M12 is mapped to M11.\nSvt[warn]: Screen-content detection and tools are disabled for RA mode coding at M9 and above; forcing NSC path\nSvt[warn]: Non-RTC M10+ are meant for automation tooling usage. Visual artifacts may occur otherwise.\nSvt[warn]: TPL is disabled in low delay applications.\nSvt[info]: Level of Parallelism: 2\nSvt[info]: Number of PPCS 1\nSvt[info]: [asm level on system : up to neon_i8mm]\nSvt[info]: [asm level selected : up to neon_i8mm]\nSvt[info]: -------------------------------------------\nSvt[info]: SVT [config]: main profile\ttier (auto)\tlevel (auto)\nSvt[info]: SVT [config]: width / height / fps numerator / fps denominator \t\t: 320 / 184 / 10 / 1\nSvt[info]: SVT [config]: bit-depth / color format \t\t\t\t\t: 8 / YUV420\nSvt[info]: SVT [config]: preset / tune / pred struct \t\t\t\t\t: 11 / PSNR / low delay\nSvt[info]: SVT [config]: gop size / mini-gop size / key-frame type \t\t\t: 10 / 4 / key frame\nSvt[info]: SVT [config]: BRC mode / CQP Assignment \t\t\t\t\t: CQP / 40.00 \nSvt[info]: SVT [config]: AQ mode / Variance Boost \t\t\t\t\t: 2 / 0\nSvt[info]: SVT [config]: sharpness / luminance-based QP bias \t\t\t\t: 0 / 0\nSvt[info]: SVT [config]: QP scale compress strength \t\t\t\t\t: 0\nSvt[info]: -------------------------------------------\nOutput number 0, ivf, to '/tmp/fincode-av1-fixture/main.ivf':\n  Metadata:\n    encoder         : Lavf63.1.101\n  Stream number 0:0: Video: av1 (AV01 / 0x31305641), yuv420p(tv, progressive), 320x180 [SAR 1:1 DAR 16:9], q=2-31, 10 fps, 10 tbn\n    Metadata:\n      encoder         : Lavc63.1.101 libsvtav1\n[outnumber 0/ivf @ 0x793501c480] video:43KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.616473%\nframe=   20 fps=0.0 q=38.0 Lsize=      43KiB time=00:00:01.90 bitrate= 186.9kbits/s speed=92.7x elapsed=0:00:00.02    \n",
+      "rawSha256": "fd47c2651ecae4212aae5d8d3afe0a89791cf397ae1ebec93d5a43b3162a025c",
+      "rawBytes": 2359,
+      "exportTransform": "Numeric diagnostic labels use number instead of hash to avoid GitHub issue cross-references."
+    }
+  },
+  "independentlyAbsentGroups": [
+    33368,
+    33370,
+    33371,
+    33372,
+    60524
+  ],
+  "independentlyReboundHTTPPorts": []
+}

@@ -1,0 +1,243 @@
+{
+  "source": "1f94f7618dc3e11abb15ad858112c8f4686a2320",
+  "fps": 60,
+  "warmupSeconds": 1,
+  "observedSeconds": 8,
+  "cases": [
+    {
+      "batch": "pilot12",
+      "specification": "h264:compatible:3000",
+      "observedAnnexBMbps": 1.545525,
+      "encodeP95Ms": 9.772209,
+      "probeCpuPercentOneCore": 4.112554112554112,
+      "probePeakRssMiB": 39.75,
+      "foreground": {
+        "file": "foreground-run-1.json",
+        "sha256": "7260a48187abda8bf8c0ff686426608f583a7640a42320043f67fd0f8ccbb4c7",
+        "meanAbsoluteForegroundRgbCodeError": 13.873429982525417,
+        "worseAggregateFrames": 0,
+        "worseAggregateChannelFrames": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+      },
+      "textSsim": {
+        "mean": 0.9992012124999999,
+        "minimum": 0.997894,
+        "phaseMeans": {
+          "still": 0.9983631916666666,
+          "typing": 0.9991980083333334,
+          "scrolling": 0.9998834750000001,
+          "window-movement": 0.999360175
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      }
+    },
+    {
+      "batch": "pilot12",
+      "specification": "hevc:low-latency-compatible:12000",
+      "observedAnnexBMbps": 1.242474,
+      "encodeP95Ms": 5.58075,
+      "probeCpuPercentOneCore": 7.036247334754797,
+      "probePeakRssMiB": 47.1875,
+      "foreground": {
+        "file": "foreground-run-1.json",
+        "sha256": "7260a48187abda8bf8c0ff686426608f583a7640a42320043f67fd0f8ccbb4c7",
+        "meanAbsoluteForegroundRgbCodeError": 13.173647847449164,
+        "worseAggregateFrames": 12,
+        "worseAggregateChannelFrames": {
+          "r": 12,
+          "g": 13,
+          "b": 12
+        },
+        "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+      },
+      "textSsim": {
+        "mean": 0.9995849520833333,
+        "minimum": 0.997184,
+        "phaseMeans": {
+          "still": 0.9995719333333334,
+          "typing": 0.999581275,
+          "scrolling": 0.9996567083333333,
+          "window-movement": 0.9995298916666666
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      }
+    },
+    {
+      "batch": "budgets",
+      "specification": "h264:compatible:3000",
+      "observedAnnexBMbps": 1.545525,
+      "encodeP95Ms": 11.63525,
+      "probeCpuPercentOneCore": 5.555555555555555,
+      "probePeakRssMiB": 40.046875,
+      "foreground": {
+        "file": "foreground-run-1.json",
+        "sha256": "670c3a45896326809ae1a3708cbfc9c74301eaab5e5c975fb1e61a6d543a4c14",
+        "meanAbsoluteForegroundRgbCodeError": 13.873429982525417,
+        "worseAggregateFrames": 0,
+        "worseAggregateChannelFrames": {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+      },
+      "textSsim": {
+        "mean": 0.9992012124999999,
+        "minimum": 0.997894,
+        "phaseMeans": {
+          "still": 0.9983631916666666,
+          "typing": 0.9991980083333334,
+          "scrolling": 0.9998834750000001,
+          "window-movement": 0.999360175
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      }
+    },
+    {
+      "batch": "budgets",
+      "specification": "hevc:low-latency-compatible:18000",
+      "observedAnnexBMbps": 1.232612,
+      "encodeP95Ms": 5.598,
+      "probeCpuPercentOneCore": 6.731813246471226,
+      "probePeakRssMiB": 47.0625,
+      "foreground": {
+        "file": "foreground-run-1.json",
+        "sha256": "670c3a45896326809ae1a3708cbfc9c74301eaab5e5c975fb1e61a6d543a4c14",
+        "meanAbsoluteForegroundRgbCodeError": 13.151256694807554,
+        "worseAggregateFrames": 7,
+        "worseAggregateChannelFrames": {
+          "r": 2,
+          "g": 10,
+          "b": 6
+        },
+        "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+      },
+      "textSsim": {
+        "mean": 0.99964889375,
+        "minimum": 0.998456,
+        "phaseMeans": {
+          "still": 0.9996465583333333,
+          "typing": 0.9996586500000001,
+          "scrolling": 0.9997024583333334,
+          "window-movement": 0.9995879083333333
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      }
+    },
+    {
+      "batch": "budgets",
+      "specification": "hevc:low-latency-compatible:20000",
+      "observedAnnexBMbps": 1.222995,
+      "encodeP95Ms": 5.563083,
+      "probeCpuPercentOneCore": 6.093579978237216,
+      "probePeakRssMiB": 47.109375,
+      "foreground": {
+        "file": "foreground-run-1.json",
+        "sha256": "670c3a45896326809ae1a3708cbfc9c74301eaab5e5c975fb1e61a6d543a4c14",
+        "meanAbsoluteForegroundRgbCodeError": 13.147807308687364,
+        "worseAggregateFrames": 3,
+        "worseAggregateChannelFrames": {
+          "r": 0,
+          "g": 10,
+          "b": 3
+        },
+        "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+      },
+      "textSsim": {
+        "mean": 0.9996493458333333,
+        "minimum": 0.998673,
+        "phaseMeans": {
+          "still": 0.9996461083333333,
+          "typing": 0.9996588249999999,
+          "scrolling": 0.9997039166666667,
+          "window-movement": 0.9995885333333334
+        },
+        "phaseFrames": {
+          "still": 120,
+          "typing": 120,
+          "scrolling": 120,
+          "window-movement": 120
+        }
+      }
+    }
+  ],
+  "independentlyAbsentOwnedGroups": [
+    84059,
+    84064,
+    84074,
+    84086,
+    84102,
+    84517,
+    84524,
+    84532,
+    89034,
+    89039,
+    89044,
+    89049,
+    89054,
+    89059,
+    89064,
+    89069,
+    89092,
+    89113,
+    89118,
+    90288,
+    90294,
+    90303,
+    90315,
+    91365,
+    91373,
+    91380,
+    91387,
+    94549,
+    94554,
+    94559,
+    94564,
+    94569,
+    94574,
+    94579,
+    94584,
+    94595,
+    95301,
+    95308,
+    95752,
+    95757,
+    95762,
+    95767,
+    96151,
+    96156,
+    96164,
+    96178,
+    97252,
+    97264,
+    97290,
+    97299
+  ],
+  "productionAdmission": false,
+  "scope": "Offscreen source calibration and two short native 1080p60 batches on one device and fixed generated8s clip. Five fresh streams decode540 frames each. Two H264 baselines are separate batch controls, not a five-session statistical study. No native receiver/capture/input/wire/physical endpoint/application CPU-memory-power or profile qualification. Expected generator refusals retain actual nonzero exits; the corrected out-of-bound coordinator plan started no output/build/native operation. No target/guard/default relaxation. Normalized snapshots were not executed.",
+  "normalization": "Owned paths use CHECKOUT/EXPORT_CHECKOUT, per-batch RESULTS, ORIGINAL_FIXTURE and USER placeholders; original versus normalized hashes remain distinct. No font/image/bitstream or private app source."
+}

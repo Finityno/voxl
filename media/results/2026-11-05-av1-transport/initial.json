@@ -1,0 +1,179 @@
+{
+  "result": {
+    "source": "147c0eb494302d094ff2a47ba0a1984b33b4e378",
+    "root": "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation",
+    "terminal": true,
+    "exitCode": 1,
+    "steps": [
+      {
+        "name": "load",
+        "command": [
+          "/usr/bin/uptime"
+        ],
+        "deadlineSeconds": 10,
+        "exitCode": 0,
+        "seconds": 0.026,
+        "pgid": 38139,
+        "groupGone": true,
+        "logSha256": "62065542843de1b8fe934040db5d734f9f1cc866203bc61cb8e945ba78507254",
+        "timedOut": false,
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "toolchain",
+        "command": [
+          "cargo",
+          "--version"
+        ],
+        "deadlineSeconds": 30,
+        "exitCode": 0,
+        "seconds": 0.062,
+        "pgid": 38144,
+        "groupGone": true,
+        "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+        "timedOut": false,
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "check",
+        "command": [
+          "cargo",
+          "check",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--lib",
+          "--examples"
+        ],
+        "deadlineSeconds": 900,
+        "exitCode": 0,
+        "seconds": 1.186,
+        "pgid": 38149,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timedOut": false,
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "test-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--lib",
+          "--no-run"
+        ],
+        "deadlineSeconds": 900,
+        "exitCode": 0,
+        "seconds": 2.531,
+        "pgid": 38162,
+        "groupGone": true,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timedOut": false,
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      },
+      {
+        "name": "av1-tests",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "media/Cargo.toml",
+          "--features",
+          "webrtc",
+          "-j2",
+          "-q",
+          "--message-format=short",
+          "--lib",
+          "av1_",
+          "--",
+          "--nocapture"
+        ],
+        "deadlineSeconds": 60,
+        "exitCode": 101,
+        "seconds": 1.153,
+        "pgid": 38192,
+        "groupGone": true,
+        "logSha256": "ac4a2fba43bd281eb80670542e4a2a9b0d4624347f93aff7c6a4f7ecb387cc64",
+        "timedOut": false,
+        "sourceCleanBefore": true,
+        "sourceCleanAfter": true
+      }
+    ],
+    "helperSha256": "72918ca6f1aac35a3b95894e6a3ed67159c3a68be128a9885e64fdb691308675",
+    "scope": "Native Mac AV1 framing/profile/actual UDP-DTLS-SRTP transport and H264/HEVC writer regressions. No browser/GPU decoding, screen capture, application AV1 admission or performance qualification."
+  },
+  "texts": {
+    "run.py": {
+      "sha256": "72918ca6f1aac35a3b95894e6a3ed67159c3a68be128a9885e64fdb691308675",
+      "bytes": 3839,
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/voxl-desktop-native-validation');OUT=P(__file__).parent;SHA='147c0eb494302d094ff2a47ba0a1984b33b4e378';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','FINCODE_COMMIT_SHA':SHA,'GIT_OPTIONAL_LOCKS':'0','CI':'true'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\nfor k in ['CARGO_HOME','RUSTUP_TOOLCHAIN']:assert k not in ENV\n\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'root':str(ROOT),'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'scope':'Native Mac AV1 framing/profile/actual UDP-DTLS-SRTP transport and H264/HEVC writer regressions. No browser/GPU decoding, screen capture, application AV1 admission or performance qualification.'},indent=2)+'\\n')\ndef stop():\n global child\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):\n   os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef run(name,command,deadline):\n global child\n clean();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  timed=False\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':exitcode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'timedOut':timed,'sourceCleanBefore':True,'sourceCleanAfter':True});save();print(name,exitcode,flush=True);assert gone(child.pid);child=None;assert exitcode==0\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  run('toolchain',['cargo','--version'],30)\n  common=['--locked','--manifest-path','media/Cargo.toml','--features','webrtc','-j2','-q','--message-format=short']\n  run('check',['cargo','check']+common+['--lib','--examples'],900)\n  run('test-build',['cargo','test']+common+['--lib','--no-run'],900)\n  run('av1-tests',['cargo','test']+common+['--lib','av1_','--','--nocapture'],60)\n  run('h264-regression',['cargo','test']+common+['--lib','webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback','--','--nocapture'],45)\n  run('hevc-regression',['cargo','test']+common+['--lib','webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock','--','--nocapture'],45)\n  run('clippy',['cargo','clippy']+common+['--lib','--examples','--tests','--','-D','warnings'],600)\n  run('diff',['git','diff','--check','a2d41dfeafa0efb0bfd8c21a96db19fbd2c6d436',SHA],15)\n code=0\nexcept BaseException as e:\n print(type(e).__name__,str(e),flush=True)\nfinally:\n stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    "test-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "results.json": {
+      "sha256": "231078d6bc28f4ac423cf472e3180fec1f2b990266abfb4d07be7f16850c076e",
+      "bytes": 3137,
+      "text": "{\n  \"source\": \"147c0eb494302d094ff2a47ba0a1984b33b4e378\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 1,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.026,\n      \"pgid\": 38139,\n      \"groupGone\": true,\n      \"logSha256\": \"62065542843de1b8fe934040db5d734f9f1cc866203bc61cb8e945ba78507254\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"seconds\": 0.062,\n      \"pgid\": 38144,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"check\",\n      \"command\": [\n        \"cargo\",\n        \"check\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--lib\",\n        \"--examples\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 1.186,\n      \"pgid\": 38149,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"test-build\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--lib\",\n        \"--no-run\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 2.531,\n      \"pgid\": 38162,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"av1-tests\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--lib\",\n        \"av1_\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 60,\n      \"exitCode\": 101,\n      \"seconds\": 1.153,\n      \"pgid\": 38192,\n      \"groupGone\": true,\n      \"logSha256\": \"ac4a2fba43bd281eb80670542e4a2a9b0d4624347f93aff7c6a4f7ecb387cc64\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"72918ca6f1aac35a3b95894e6a3ed67159c3a68be128a9885e64fdb691308675\",\n  \"scope\": \"Native Mac AV1 framing/profile/actual UDP-DTLS-SRTP transport and H264/HEVC writer regressions. No browser/GPU decoding, screen capture, application AV1 admission or performance qualification.\"\n}\n"
+    },
+    "av1-tests.log": {
+      "sha256": "ac4a2fba43bd281eb80670542e4a2a9b0d4624347f93aff7c6a4f7ecb387cc64",
+      "bytes": 705,
+      "text": "\nrunning 6 tests\n....\nthread 'webrtc::tests::av1::av1_webrtc_rejects_an_answer_below_the_actual_encoded_level' (205659452) panicked at src/webrtc/tests/av1.rs:64:130:\ncalled `Result::unwrap()` on an `Err` value: Io(IoError(Custom { kind: Other, error: \"no event handler found\" }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n 4/6\nwebrtc::tests::av1::av1_webrtc_rejects_an_answer_below_the_actual_encoded_level --- FAILED\n.\nfailures:\n\nfailures:\n    webrtc::tests::av1::av1_webrtc_rejects_an_answer_below_the_actual_encoded_level\n\ntest result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 67 filtered out; finished in 0.50s\n\nerror: test failed, to rerun pass `--lib`\n"
+    },
+    "queue.json": {
+      "sha256": "43846aa2286371a746365f528f688c4f9d00709382d2b2252f415df005271edb",
+      "bytes": 1150,
+      "text": "{\n  \"source\": \"147c0eb494302d094ff2a47ba0a1984b33b4e378\",\n  \"root\": \"/Users/sondre/Documents/GitHub/voxl-desktop-native-validation\",\n  \"terminal\": true,\n  \"exitCode\": 1,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"/tmp/fincode-av1-transport-147c0eb/run.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 1,\n      \"seconds\": 5.133,\n      \"pgid\": 38135,\n      \"groupGone\": true,\n      \"logSha256\": \"5b04c35f2dad9bfa2e586ba3e824bad9b13239680d7d635438b29cb31df7de28\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"72918ca6f1aac35a3b95894e6a3ed67159c3a68be128a9885e64fdb691308675\",\n  \"scope\": \"Native Mac AV1 framing/profile/actual UDP-DTLS-SRTP transport and H264/HEVC writer regressions. No browser/GPU decoding, screen capture, application AV1 admission or performance qualification.\"\n}\n"
+    },
+    "queue.log": {
+      "sha256": "5b04c35f2dad9bfa2e586ba3e824bad9b13239680d7d635438b29cb31df7de28",
+      "bytes": 70,
+      "text": "load 0\ntoolchain 0\ncheck 0\ntest-build 0\nav1-tests 101\nAssertionError \n"
+    },
+    "check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "text": ""
+    },
+    "load.log": {
+      "sha256": "62065542843de1b8fe934040db5d734f9f1cc866203bc61cb8e945ba78507254",
+      "bytes": 66,
+      "text": "13:43  up 20 days, 30 mins, 1 user, load averages: 1.80 1.62 1.68\n"
+    },
+    "toolchain.log": {
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "bytes": 36,
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    }
+  },
+  "independentlyAbsentGroups": [
+    38135,
+    38139,
+    38144,
+    38149,
+    38162,
+    38192
+  ],
+  "independentlyReboundHTTPPorts": []
+}

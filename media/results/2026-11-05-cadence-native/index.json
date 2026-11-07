@@ -1,0 +1,340 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 3815,
+      "sha256": "48bbd860410635a0f473f62bde1c703b84d9e28666e98a26e9e0fd98848d1c41"
+    },
+    "asset-validator-snapshot.py": {
+      "bytes": 2064,
+      "sha256": "1151a828c7a49273e54a35712731237af75a1ac5ad6592f34255a9ba86e99278"
+    },
+    "budgets/build.log.gz": {
+      "bytes": 736,
+      "sha256": "1942b6c31e14fac413559a37ba0957e7ae4c8f4dbb907e791ce132f261ef9854"
+    },
+    "budgets/clippy.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "budgets/compiler-artifact.json": {
+      "bytes": 1081,
+      "sha256": "fd482e0b748dc1768c6689261c36b4c7c79eecb34c0565d1384984d6f3f2a47b"
+    },
+    "budgets/cpu.log.gz": {
+      "bytes": 33,
+      "sha256": "f8a0c9d4ea83c02178e33bec8169b95e95d18a03c6ea3e403d53d13806ececf3"
+    },
+    "budgets/ffmpeg-version.log.gz": {
+      "bytes": 371,
+      "sha256": "0fafb0ab589e22d5c964df86557134fb582b556d172447a7626bf536d045a9c9"
+    },
+    "budgets/ffprobe-version.log.gz": {
+      "bytes": 359,
+      "sha256": "5a6cab5c96434e7f2dc09f52f7101831a2a7db923cc04af1c4252ecd4d6ce620"
+    },
+    "budgets/fixture.json": {
+      "bytes": 2609,
+      "sha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c"
+    },
+    "budgets/foreground-run-1.log.gz": {
+      "bytes": 119,
+      "sha256": "cd70b30d7e3d7a2f9b527b4bc62cd6e59b383f6126efd0c3ae5ff345dbed9a15"
+    },
+    "budgets/foreground.json.gz": {
+      "bytes": 23572,
+      "sha256": "e683f83df89147c67f00c018f999b799be79ae3985ff86671bc3a31f46adc656"
+    },
+    "budgets/load.log.gz": {
+      "bytes": 82,
+      "sha256": "2c5578d011e131ef1ab09913fd75c637c3e2014d065604ee2e4f2e5b634a8454"
+    },
+    "budgets/model.log.gz": {
+      "bytes": 28,
+      "sha256": "8fa4e4c44f7ae1eeaef867797b97ca7bd757b817d769ca0d1115c66411a8ffe4"
+    },
+    "budgets/os.log.gz": {
+      "bytes": 71,
+      "sha256": "e9a0a8e43517ca7bd18f2e3e0c42e5dbb93b863fc7af1e384259c923181817ae"
+    },
+    "budgets/results.json": {
+      "bytes": 111423,
+      "sha256": "bc1aae6fcd190b944b4ddc1eeab84a27029ac7ae99b61987735044af64f2392b"
+    },
+    "budgets/run-1-h264-compatible-3000-decode.log.gz": {
+      "bytes": 229,
+      "sha256": "3300cc9153292a8241f0a3a3735a287cb6f08b7b05210d1f73496ce1c1a44d3d"
+    },
+    "budgets/run-1-h264-compatible-3000-full.ssim.gz": {
+      "bytes": 5472,
+      "sha256": "276e181c45db1f9325aee6105679fab1b9d408229d9d69fb8fa62d3dceb28e1e"
+    },
+    "budgets/run-1-h264-compatible-3000-quality.log.gz": {
+      "bytes": 2552,
+      "sha256": "ac0aa34526781e040316b64b2e4c4e2575939a503eb5661b97d92dfa043addfa"
+    },
+    "budgets/run-1-h264-compatible-3000-rgb.log.gz": {
+      "bytes": 1280,
+      "sha256": "ba78287d51fba3c45959f0e5aae313d0c9398da3d6e88688c5d5b24496b9930b"
+    },
+    "budgets/run-1-h264-compatible-3000-text.ssim.gz": {
+      "bytes": 5515,
+      "sha256": "77038d5bc57d0cd8e783e3aea32759552c1de1e649737c7ced0602681163326f"
+    },
+    "budgets/run-1-h264-compatible-3000-thin.ssim.gz": {
+      "bytes": 1945,
+      "sha256": "8bf7c83fcc2915c348a0e2e3ce2c58776b0b230378c2423a41582d2730a8fc85"
+    },
+    "budgets/run-1-h264-compatible-3000.log.gz": {
+      "bytes": 2961,
+      "sha256": "66029596b703b8aefc5d4a849ea6e5009ad495f7af03d35e32919997828d58e6"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-decode.log.gz": {
+      "bytes": 216,
+      "sha256": "c8fc6899e59216a6709de9db57052169e3338859be1005c83d5ec92b54ddd686"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-full.ssim.gz": {
+      "bytes": 5910,
+      "sha256": "be165558e2a8e5ea9a093f6f40275ce850ea28ea683138a73b66c9ea6b869207"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-quality.log.gz": {
+      "bytes": 2588,
+      "sha256": "397f544ab89ec87602c6ad64ac9ed9773742d0b6100e0ca5eb18cbea9ea42c8f"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-rgb.log.gz": {
+      "bytes": 1279,
+      "sha256": "37c0423b2b031a1a3b6dec3a31c7c1fa38b578ece9ba92cd91d5c37e6431160f"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-text.ssim.gz": {
+      "bytes": 5449,
+      "sha256": "255fcce31d29197899b7076844b7be152fd5e5598f0b71bb1ea90ad9d3f45b83"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000-thin.ssim.gz": {
+      "bytes": 2741,
+      "sha256": "277be697eef2e2569d888ddaa30486a327e76d7ab92ec50b8366986942067ade"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-18000.log.gz": {
+      "bytes": 2861,
+      "sha256": "5de48af8aaeba660b5f5cae9c2463d5c9956ad59d6a8050a08e71b490db09854"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-decode.log.gz": {
+      "bytes": 216,
+      "sha256": "c8fc6899e59216a6709de9db57052169e3338859be1005c83d5ec92b54ddd686"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-full.ssim.gz": {
+      "bytes": 5840,
+      "sha256": "2e7105339af2bf209df8325560967e67855c40963c30e7a9b41d12d48d8d90b9"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-quality.log.gz": {
+      "bytes": 2564,
+      "sha256": "542ccb420c81564ceb220cd699017e461ebd95b3a399a9ddff12f1f6bf85aabe"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-rgb.log.gz": {
+      "bytes": 1280,
+      "sha256": "c037c5264724433ef2d1792e4211220050059436b2354e1a1a7a0cd733f3db0a"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-text.ssim.gz": {
+      "bytes": 5505,
+      "sha256": "b9005e23c0fd38ff0a391fdc6e2aeffeb1fd133dd71bf5f592bb74d3903490ae"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000-thin.ssim.gz": {
+      "bytes": 2838,
+      "sha256": "6dc96e03cb9381a6c59d55c4fd2ad19764a54eaed1c4f6f7d77e46fbc7cec05e"
+    },
+    "budgets/run-1-hevc-low-latency-compatible-20000.log.gz": {
+      "bytes": 2845,
+      "sha256": "76d3782d4ee16691c7b55bfcfa6fbbda7561fd51d495a063f7ac558509fcb479"
+    },
+    "budgets/source-floor.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "budgets/toolchain.log.gz": {
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    "exporter-snapshot.py": {
+      "bytes": 4478,
+      "sha256": "146eb5f1c74d1534841639cdd2698f01b221460cffaaa6d7e99447325f0d2ed2"
+    },
+    "generation/asset-validation.json": {
+      "bytes": 2464,
+      "sha256": "5e798c52fa395f24f97d2230fa7e9fd3c8c3cb3fdef81f6bcf05bad67e36d021"
+    },
+    "generation/generate-default30.log.gz": {
+      "bytes": 110,
+      "sha256": "8565fdd927fa7322bb73d5f196dc58c268fd29576f2ea49c6554e7a8ee13b89a"
+    },
+    "generation/generate-source60.log.gz": {
+      "bytes": 109,
+      "sha256": "db239befdfb0a1abb9c2a17f3fe7d9d7961f93bce38ceb916eaf2c65462c13c9"
+    },
+    "generation/generator.json": {
+      "bytes": 244,
+      "sha256": "b8ddd549429af99ae0ddc23ebe886e352255abee8279ee4940bca405d2d6df0f"
+    },
+    "generation/load.log.gz": {
+      "bytes": 82,
+      "sha256": "3e5652323fb14265c988f31e9196f844441e4c5c7c3aa72e50d72126951637e9"
+    },
+    "generation/refuse-fps120.log.gz": {
+      "bytes": 81,
+      "sha256": "c3b1e722ec475c4f8c2d70fef2b6a329464bf55305a8d62e084c5b16dfa2f91d"
+    },
+    "generation/refuse-missing-height.log.gz": {
+      "bytes": 108,
+      "sha256": "b9ee7122241cbcfcb55b92223e3c465cb2baa3f1978df93af0b3329294381315"
+    },
+    "generation/results.json": {
+      "bytes": 7059,
+      "sha256": "c57572eb9ba934b63c9fd2d40be32f6a36339893fdc0329665125d52d764685a"
+    },
+    "generation/swift-build.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "generation/swift-version.log.gz": {
+      "bytes": 125,
+      "sha256": "4746e3d6e6b69f10a8f57a90f4e7ed83c82f9473dc31862a8df0c5ddc318a82b"
+    },
+    "generation/validate-assets.log.gz": {
+      "bytes": 950,
+      "sha256": "207240d59b9c05f470020d6a755d9d87c2bf5be0fe2e51170d06f2657ffc4c12"
+    },
+    "generation-driver-snapshot.py": {
+      "bytes": 3397,
+      "sha256": "ef9cae4a1829f5402ce7780aa5f5f17a3287e226d24360fd8f578c8ab1171644"
+    },
+    "pilot12/build.log.gz": {
+      "bytes": 737,
+      "sha256": "ac3823f70b3020f13d2c87dc0f3673580ea00efd5fb9848474b0ad59e85aaeb9"
+    },
+    "pilot12/clippy.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "pilot12/compiler-artifact.json": {
+      "bytes": 1082,
+      "sha256": "00f140ceb635c8c45779c10972fc57103bcd44fe05f4bba4cb7e12cc3fa66021"
+    },
+    "pilot12/cpu.log.gz": {
+      "bytes": 33,
+      "sha256": "f8a0c9d4ea83c02178e33bec8169b95e95d18a03c6ea3e403d53d13806ececf3"
+    },
+    "pilot12/ffmpeg-version.log.gz": {
+      "bytes": 371,
+      "sha256": "0fafb0ab589e22d5c964df86557134fb582b556d172447a7626bf536d045a9c9"
+    },
+    "pilot12/ffprobe-version.log.gz": {
+      "bytes": 359,
+      "sha256": "5a6cab5c96434e7f2dc09f52f7101831a2a7db923cc04af1c4252ecd4d6ce620"
+    },
+    "pilot12/fixture.json": {
+      "bytes": 2609,
+      "sha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c"
+    },
+    "pilot12/foreground-run-1.log.gz": {
+      "bytes": 119,
+      "sha256": "a45ef3a4bfcc414a06f166f9257f714dffdb8052e0f565530c76f0f7e6fbe4db"
+    },
+    "pilot12/foreground.json.gz": {
+      "bytes": 17486,
+      "sha256": "a22997b3615d0c928761658558614ca8600ead084ef472e7d6cf32441dc2ecb1"
+    },
+    "pilot12/load.log.gz": {
+      "bytes": 82,
+      "sha256": "abe3f276bf06053700098aa79ac6159561fe5d0866af52c412681576b882f124"
+    },
+    "pilot12/model.log.gz": {
+      "bytes": 28,
+      "sha256": "8fa4e4c44f7ae1eeaef867797b97ca7bd757b817d769ca0d1115c66411a8ffe4"
+    },
+    "pilot12/os.log.gz": {
+      "bytes": 71,
+      "sha256": "e9a0a8e43517ca7bd18f2e3e0c42e5dbb93b863fc7af1e384259c923181817ae"
+    },
+    "pilot12/results.json": {
+      "bytes": 77497,
+      "sha256": "cb184ba7055531dda73e402bbc7c67d86fd6f603b4f72995f31a6bbc131d336f"
+    },
+    "pilot12/run-1-h264-compatible-3000-decode.log.gz": {
+      "bytes": 229,
+      "sha256": "3300cc9153292a8241f0a3a3735a287cb6f08b7b05210d1f73496ce1c1a44d3d"
+    },
+    "pilot12/run-1-h264-compatible-3000-full.ssim.gz": {
+      "bytes": 5472,
+      "sha256": "276e181c45db1f9325aee6105679fab1b9d408229d9d69fb8fa62d3dceb28e1e"
+    },
+    "pilot12/run-1-h264-compatible-3000-quality.log.gz": {
+      "bytes": 2572,
+      "sha256": "20302a9d55c45d243c69f6a71fb6370b86015c685f57dde6105e7106dc5d34d4"
+    },
+    "pilot12/run-1-h264-compatible-3000-rgb.log.gz": {
+      "bytes": 1280,
+      "sha256": "6e02ab5b6a05e0b21a298cb89a9beea948565bdb56510414066bb22743fd2cd6"
+    },
+    "pilot12/run-1-h264-compatible-3000-text.ssim.gz": {
+      "bytes": 5515,
+      "sha256": "77038d5bc57d0cd8e783e3aea32759552c1de1e649737c7ced0602681163326f"
+    },
+    "pilot12/run-1-h264-compatible-3000-thin.ssim.gz": {
+      "bytes": 1945,
+      "sha256": "8bf7c83fcc2915c348a0e2e3ce2c58776b0b230378c2423a41582d2730a8fc85"
+    },
+    "pilot12/run-1-h264-compatible-3000.log.gz": {
+      "bytes": 2902,
+      "sha256": "7da3cfc2c589aeaf33c0f1e3550c32a7aa317e4077449c05b8c1960a4b6ecd8a"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-decode.log.gz": {
+      "bytes": 216,
+      "sha256": "c8fc6899e59216a6709de9db57052169e3338859be1005c83d5ec92b54ddd686"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-full.ssim.gz": {
+      "bytes": 6038,
+      "sha256": "3cc13ca5e1eb32f6035137f89e5e1dbad04a39b90c0fdf42883f6721c88df003"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-quality.log.gz": {
+      "bytes": 2554,
+      "sha256": "1491bccace0426e12bdc1e229b7611a3bf3b023b297828ddda0bd94c06b5a43e"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-rgb.log.gz": {
+      "bytes": 1280,
+      "sha256": "62d819451495c47836f126f97e0813fc82b09537bf32d0089626ab277c02c63f"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-text.ssim.gz": {
+      "bytes": 5641,
+      "sha256": "5334378f4471ad3b84483f1c0963c38c78f539fe5a42ca826a07def01a774fca"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000-thin.ssim.gz": {
+      "bytes": 3006,
+      "sha256": "91ea6628a66e6889ce07c1be17f7fa6555766978a9ad07604daa32eb71c4051c"
+    },
+    "pilot12/run-1-hevc-low-latency-compatible-12000.log.gz": {
+      "bytes": 2858,
+      "sha256": "407892c9a8ecc38c7870783a23d937d61c73c504c0139789750e0c74f56e7f04"
+    },
+    "pilot12/source-floor.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "pilot12/toolchain.log.gz": {
+      "bytes": 56,
+      "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+    },
+    "provenance.json": {
+      "bytes": 24323,
+      "sha256": "e9e25a8d0c32fb75c41d3914b27acd486483845cce11fe02180d407e39c544dd"
+    },
+    "refused-coordinator-plan.json": {
+      "bytes": 448,
+      "sha256": "8540de2eb36a3b68b769d5ca52e51131eaddf4421bae7b307a9435db81112ac2"
+    },
+    "summary.json": {
+      "bytes": 7567,
+      "sha256": "a470dec39bab7a54c2d0279edf072c5a14cce3ada6d6ed95db440754bead4af8"
+    },
+    "verify.py": {
+      "bytes": 6044,
+      "sha256": "8cf1282f397021d409340221288f972f80f14f16c399f0b09b0c0617aa281fc9"
+    }
+  }
+}

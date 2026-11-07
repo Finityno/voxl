@@ -1,0 +1,182 @@
+[
+  {
+    "job": "initial",
+    "step": "load",
+    "pgid": 495,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "toolchain",
+    "pgid": 504,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "diff",
+    "pgid": 513,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "media-test-build",
+    "pgid": 519,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "flow-epoch-contract",
+    "pgid": 569,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "probe-lifetime-contracts",
+    "pgid": 584,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "probe-contracts",
+    "pgid": 592,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "probe-network",
+    "pgid": 607,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "producer-debt-contracts",
+    "pgid": 796,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "feedback-epoch-contract",
+    "pgid": 818,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial",
+    "step": "media-tests-strict-clippy",
+    "pgid": 834,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "load",
+    "pgid": 4066,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "toolchain",
+    "pgid": 4071,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "diff",
+    "pgid": 4087,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "media-test-build",
+    "pgid": 4158,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "flow-epoch-contract",
+    "pgid": 4459,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "probe-lifetime-contracts",
+    "pgid": 4468,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "probe-contracts",
+    "pgid": 4475,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-byte-hook",
+    "step": "probe-network",
+    "pgid": 4482,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "load",
+    "pgid": 11062,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "toolchain",
+    "pgid": 11067,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "diff",
+    "pgid": 11072,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-test-build",
+    "pgid": 11077,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "flow-epoch-contract",
+    "pgid": 11095,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-lifetime-contracts",
+    "pgid": 11102,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-contracts",
+    "pgid": 11109,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "probe-network",
+    "pgid": 11116,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "producer-debt-contracts",
+    "pgid": 12543,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "feedback-epoch-contract",
+    "pgid": 12550,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "step": "media-tests-strict-clippy",
+    "pgid": 12557,
+    "independentlyAbsent": true
+  }
+]
