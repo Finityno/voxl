@@ -1,0 +1,302 @@
+[
+  {
+    "job": "baseline",
+    "name": "load",
+    "pgid": 72391,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "name": "toolchain",
+    "pgid": 72396,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "name": "diff",
+    "pgid": 72401,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "name": "media-test-build",
+    "pgid": 72406,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "name": "quiet-resume-baseline",
+    "pgid": 72436,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "baseline",
+    "name": "media-tests-strict-clippy",
+    "pgid": 73211,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-docs",
+    "name": "load",
+    "pgid": 84345,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-docs",
+    "name": "toolchain",
+    "pgid": 84350,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-docs",
+    "name": "diff",
+    "pgid": 84355,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-docs",
+    "name": "media-test-build",
+    "pgid": 84360,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-bindings",
+    "name": "load",
+    "pgid": 87656,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-bindings",
+    "name": "toolchain",
+    "pgid": 87661,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-bindings",
+    "name": "diff",
+    "pgid": 87666,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "failed-bindings",
+    "name": "media-test-build",
+    "pgid": 87671,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "load",
+    "pgid": 90374,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "toolchain",
+    "pgid": 90379,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "diff",
+    "pgid": 90385,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "media-test-build",
+    "pgid": 90391,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "flow-epoch-contract",
+    "pgid": 90422,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "probe-lifetime-contracts",
+    "pgid": 90431,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "probe-contracts",
+    "pgid": 90438,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "probe-network",
+    "pgid": 90445,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "producer-debt-contracts",
+    "pgid": 90457,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "feedback-epoch-contract",
+    "pgid": 90464,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "quiet-resume-baseline",
+    "pgid": 90471,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "initial-probe",
+    "name": "media-tests-strict-clippy",
+    "pgid": 90839,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "load",
+    "pgid": 95156,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "toolchain",
+    "pgid": 95162,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "diff",
+    "pgid": 95167,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "media-test-build",
+    "pgid": 95173,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "flow-epoch-contract",
+    "pgid": 95256,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "probe-lifetime-contracts",
+    "pgid": 95278,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "probe-contracts",
+    "pgid": 95285,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "probe-network",
+    "pgid": 95301,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "producer-debt-contracts",
+    "pgid": 96716,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "feedback-epoch-contract",
+    "pgid": 96723,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "quiet-resume-baseline",
+    "pgid": 96730,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "debt-fault-probe",
+    "name": "media-tests-strict-clippy",
+    "pgid": 96793,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "load",
+    "pgid": 439,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "toolchain",
+    "pgid": 445,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "diff",
+    "pgid": 450,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "media-test-build",
+    "pgid": 455,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "flow-epoch-contract",
+    "pgid": 480,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "probe-lifetime-contracts",
+    "pgid": 488,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "probe-contracts",
+    "pgid": 495,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "probe-network",
+    "pgid": 510,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "producer-debt-contracts",
+    "pgid": 528,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "feedback-epoch-contract",
+    "pgid": 544,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "quiet-resume-baseline",
+    "pgid": 554,
+    "independentlyAbsent": true
+  },
+  {
+    "job": "current",
+    "name": "media-tests-strict-clippy",
+    "pgid": 747,
+    "independentlyAbsent": true
+  }
+]

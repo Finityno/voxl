@@ -1,0 +1,130 @@
+{
+  "encoderSourceRevision": "8a4a52bf66ec46da5a2bb323c6b56f92e0bd1b9b",
+  "inventorySourceRevision": "8ea15b1496231eaed74062c8fba856f90b31f25f",
+  "groups": [
+    {
+      "phase": "encoder",
+      "name": "load",
+      "pgid": 71382,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "source-floor",
+      "pgid": 71389,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-h264-compatible-3000",
+      "pgid": 71409,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-h264-compatible-3000-decode",
+      "pgid": 76272,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-h264-compatible-3000-quality",
+      "pgid": 76277,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-h264-compatible-3000-rgb",
+      "pgid": 77003,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-hevc-compatible-8000-quality",
+      "pgid": 77013,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-hevc-compatible-8000-quality-decode",
+      "pgid": 82549,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-hevc-compatible-8000-quality-quality",
+      "pgid": 82565,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "run-1-hevc-compatible-8000-quality-rgb",
+      "pgid": 83701,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "encoder",
+      "name": "foreground-run-1",
+      "pgid": 83717,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "load",
+      "pgid": 82924,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "host",
+      "pgid": 82929,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "swift",
+      "pgid": 82934,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "build",
+      "pgid": 82941,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "native-inventory",
+      "pgid": 83654,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "inventory-shape",
+      "pgid": 83659,
+      "independentlyAbsent": true
+    },
+    {
+      "phase": "inventory",
+      "name": "diff-check",
+      "pgid": 83664,
+      "independentlyAbsent": true
+    }
+  ],
+  "privateEvidenceDirectory": "owner-local:2026-11-06/sustained-hevc-quality",
+  "privateFilesRetained": 43,
+  "privateManifestSha256": "96ce97ea84d006714556c17749a2ab91d73b8edad5c88c246696c2639c1c2686",
+  "inventoryBinaryPostRunSha256": "4bc776f20f7cdf543be60d2efd5a9d1a7f318617734042cea10a8e17959e5c7a",
+  "normalization": "Published paths normalized; original commands, logs, numeric rows, bitstreams and qualifier scripts remain in the owner-only archive. No rendered pixels, font or bitstreams published.",
+  "encoderBinaryReuse": "Initial release build and strict Clippy at unchanged encoder source were reused, with executable hash checked before/after. No repeated build or Clippy in sustained run.",
+  "files": {
+    "README.md": "97e67f9a033e41b3dfbb5fc0060cf9650dd482603f59b9e908705b036dbd2388",
+    "compiler-artifact.json": "cfe16d582398129efb5b9d15bb8273c84bca321567466ee82a237b25889cdf14",
+    "inventory-qualification.json": "373cca73dca814bf876bd105cfe8cc581f4924ebff6288814d3b77a910cbbbfa",
+    "inventory.json": "5fa6401a07a283bab5b7ea23a55a3e4af01ee82b7c53282f31c960191e1ed6e6",
+    "observations.json.gz": "6c686a183a0f68406ef7a3a843d58081b10631018837b6f748034f2e532f79be",
+    "results.json.gz": "2d9aa6a3e68f271ed02254408509c70c0df43e422258307fbee7d00befcca1d5",
+    "summary.json": "fa28453188e03d4d1e91bdbf280f3251d3f5e93d7c9392c61e1269a19cf7d405",
+    "verify.py": "4b84370386c3f4a1ea508e4848f4311e817a41f40736b99ce9b3cb4c1fa4e7b5"
+  }
+}

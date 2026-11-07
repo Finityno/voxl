@@ -1,0 +1,16 @@
+{
+  "source": "c184233d7f8a0980f3bb6785bf9938e61a32d25c",
+  "command": [
+    "bash",
+    "-lc",
+    ". ~/.fincode-cloud-env.sh; export CI=true CARGO_BUILD_WARNINGS=deny CARGO_TARGET_DIR=/workspace/voxl-desktop-validation/media/target; exec timeout -k 5 100 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --tests -j2 -q --message-format=short -- -D warnings"
+  ],
+  "deadlineSeconds": 100,
+  "exitCode": 101,
+  "seconds": 0.7872277940005006,
+  "sourceCleanBefore": true,
+  "sourceCleanAfter": true,
+  "stdout": "",
+  "stderr": "src/webrtc/stream_turn/tests.rs:249:21: error: this loop could be written as a `while let` loop: help: try: `while let VideoIceSignal::Candidate {candidate,mid} = signals.next_signal().await.unwrap() { .. }`\nsrc/webrtc/tests/relay_fallback.rs:152:19: error: this `if` statement can be collapsed\nsrc/webrtc/tests/relay_fallback.rs:193:9: error: this loop could be written as a `while let` loop: help: try: `while let VideoIceSignal::Candidate {candidate,..} = signals.next_signal().await.unwrap() { .. }`\nsrc/webrtc/tests/relay_fallback.rs:214:15: error: this `if` statement can be collapsed\nsrc/webrtc/tests/relay_fallback.rs:413:13: error: this loop could be written as a `while let` loop: help: try: `while let VideoIceSignal::Candidate {candidate,mid} = outgoing.next_signal().await.unwrap() { .. }`\nsrc/webrtc/tests.rs:183:17: error: this loop could be written as a `while let` loop: help: try: `while let VideoIceSignal::Candidate {candidate,mid} = incoming.next_signal().await.unwrap() { .. }`\nerror: could not compile `voxl-media` (lib test) due to 6 previous errors\n",
+  "scope": "Strict lint of the changed test target; zero test executions and no native/performance evidence."
+}

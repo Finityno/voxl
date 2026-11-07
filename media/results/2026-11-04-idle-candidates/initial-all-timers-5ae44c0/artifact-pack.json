@@ -1,0 +1,12 @@
+{
+  "source_sha": "5ae44c034182266e9ddbb4b3b548c7830d6e636d",
+  "parent_sha": "75d553d44a2b90bb9478513cd3ddc6512aab57a3",
+  "files": {
+    "commands.log": "timeout -k 5 30 git fetch origin +refs/heads/fincode/desktop-streaming:refs/remotes/origin/fincode/desktop-streaming \ngit switch --detach 5ae44c034182266e9ddbb4b3b548c7830d6e636d \ntimeout -k 5 900 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib --no-run -j2 -q --message-format=short \ntimeout -k 5 20 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short late_trickle_candidates_wake_parked_drivers_without_timer_assistance -- --nocapture \ntimeout -k 5 600 cargo clippy --locked --manifest-path media/Cargo.toml --features webrtc --lib --examples -j2 -q --message-format=short -- -D warnings \n",
+    "exits.tsv": "fetch\t0\nswitch\t0\nbuild\t0\nidle-test\t101\nclippy\t0\n",
+    "build.log": "",
+    "idle-test.log": "\nrunning 1 test\n\nthread 'webrtc::tests::idle_candidates::late_trickle_candidates_wake_parked_drivers_without_timer_assistance' (64711) panicked at src/webrtc/tests/idle_candidates.rs:87:21:\nlate candidates must wake idle drivers without a timer expiring: Elapsed(())\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nwebrtc::tests::idle_candidates::late_trickle_candidates_wake_parked_drivers_without_timer_assistance --- FAILED\n\nfailures:\n\nfailures:\n    webrtc::tests::idle_candidates::late_trickle_candidates_wake_parked_drivers_without_timer_assistance\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 31 filtered out; finished in 0.28s\n\nerror: test failed, to rerun pass `--lib`\n",
+    "clippy.log": "",
+    "final-source.log": "5ae44c034182266e9ddbb4b3b548c7830d6e636d\n"
+  }
+}

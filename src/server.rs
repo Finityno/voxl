@@ -13,6 +13,7 @@ use std::path::Path;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+#[cfg(test)]
 use tokio::sync::mpsc;
 
 #[derive(Clone)]
@@ -211,23 +212,26 @@ async fn ws_handler(ws: WebSocketUpgrade, State(s): State<AppState>) -> Response
 async fn handle_socket(socket: WebSocket, s: AppState) {
     use futures_util::{SinkExt, StreamExt};
     let (mut sink, mut stream) = socket.split();
-    let (tx, mut rx) = mpsc::unbounded_channel::<Out>();
-    let client = s.hub.add_client(tx);
+    let (client, mut rx) = s.hub.add_realtime_client();
     log::info!("client {} connected", client.id);
     client.send(Out::Text(s.hub.hello()));
     if let Some(c) = s.hub.cursor.lock().clone() {
         client.send(Out::Bin(c));
     }
+    let writer_client = client.clone();
     let writer = tokio::spawn(async move {
         let dbg = std::env::var("VOXL_DEBUG_MARKER").is_ok();
         while let Some(m) = rx.recv().await {
             let t = Instant::now();
+            let crate::hub::QueuedOut { message: m, permit } = m;
             let big = matches!(&m, Out::Bin(b) if b.len() > 2000);
             let msg = match m {
                 Out::Bin(b) => Message::Binary(b),
                 Out::Text(t) => Message::Text(t.into()),
             };
-            if sink.send(msg).await.is_err() {
+            let sent = tokio::time::timeout(Duration::from_secs(2), sink.send(msg)).await;
+            drop(permit);
+            if !matches!(sent, Ok(Ok(()))) {
                 break;
             }
             if dbg && big {
@@ -238,6 +242,7 @@ async fn handle_socket(socket: WebSocket, s: AppState) {
                 );
             }
         }
+        writer_client.close();
     });
     let pinger = {
         let c = client.clone();
@@ -252,7 +257,12 @@ async fn handle_socket(socket: WebSocket, s: AppState) {
         })
     };
     let mut rtts: std::collections::VecDeque<u32> = Default::default();
-    while let Some(Ok(msg)) = stream.next().await {
+    loop {
+        let incoming = tokio::select! {
+            _ = client.closed() => break,
+            message = stream.next() => message,
+        };
+        let Some(Ok(msg)) = incoming else { break; };
         match msg {
             Message::Text(t) => handle_text(&s, &client, t.as_str(), &mut rtts),
             // Every binary message from a viewer acts on the desktop (clipboard images,
@@ -283,6 +293,7 @@ async fn handle_socket(socket: WebSocket, s: AppState) {
     }
     pinger.abort();
     writer.abort();
+    client.close();
     if let Some(tx) = s.hub.input.lock().as_ref() {
         let _ = tx.send(InputEvent::ReleaseAll);
     }

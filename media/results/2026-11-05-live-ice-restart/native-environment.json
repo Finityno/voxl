@@ -1,0 +1,5 @@
+{
+  "text": "{\n  \"source\": \"af6478e446c0c05a98645ff54df088f826947945\",\n  \"scope\": \"post-run read-only host/toolchain inspection\",\n  \"results\": [\n    {\n      \"command\": [\n        \"uname\",\n        \"-sm\"\n      ],\n      \"exitCode\": 0,\n      \"stdout\": \"Darwin arm64\\n\",\n      \"stderr\": \"\"\n    },\n    {\n      \"command\": [\n        \"sw_vers\"\n      ],\n      \"exitCode\": 0,\n      \"stdout\": \"ProductName:\\t\\tmacOS\\nProductVersion:\\t\\t27.2\\nBuildVersion:\\t\\t26B5101f\\n\",\n      \"stderr\": \"\"\n    },\n    {\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"exitCode\": 0,\n      \"stdout\": \"cargo 1.99.0 (5f94df478 2026-08-27)\\n\",\n      \"stderr\": \"\"\n    },\n    {\n      \"command\": [\n        \"rustc\",\n        \"--version\"\n      ],\n      \"exitCode\": 0,\n      \"stdout\": \"rustc 1.99.0 (b940084d7 2026-09-28)\\n\",\n      \"stderr\": \"\"\n    }\n  ]\n}\n",
+  "sha256": "278466fc800a984d976338b68adf50adf7da97ac4877551363ebb4d6f4614d29",
+  "originalSha256": "278466fc800a984d976338b68adf50adf7da97ac4877551363ebb4d6f4614d29"
+}

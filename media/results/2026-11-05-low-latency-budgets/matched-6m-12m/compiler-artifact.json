@@ -1,0 +1,39 @@
+{
+  "source": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file://$CHECKOUT/media#voxl-media@0.1.0",
+    "manifest_path": "$CHECKOUT/media/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "codec_probe",
+      "src_path": "$CHECKOUT/media/examples/codec_probe.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [
+      "default"
+    ],
+    "filenames": [
+      "$CHECKOUT/media/target/release/examples/codec_probe"
+    ],
+    "executable": "$CHECKOUT/media/target/release/examples/codec_probe",
+    "fresh": true
+  },
+  "executableSha256": "0fa987fc7c1759c46d7b15425004a1b9e35a8e2c13ead400f1b826fce249c7aa",
+  "privateBuildLogSha256": "5f2990b9c2849bb1b1abbca9792dd293fe467c27f492d47cc7de1c4c203274d1"
+}

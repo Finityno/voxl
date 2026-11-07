@@ -1,0 +1,203 @@
+{
+  "source": "2dd18efdfe6f4cd98966045a6fbb2ba14503c936",
+  "helperSha256": "e3cccf2f161fab2e6f052405f12f661af7b8b6471fbdcd8452a6efc529e94ef2",
+  "terminal": true,
+  "exitCode": 0,
+  "steps": [
+    {
+      "name": "parsers",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/test-run-matched-codecs.py",
+        "-v"
+      ],
+      "deadlineSeconds": 30,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.114,
+      "pgid": 59338,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/parsers.log",
+      "logSha256": "4f64caaf51a1962bdec760bb1d08f32be7b7eccb88bb0fd3c3887eff091e719d",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "parsers.log.gz"
+    },
+    {
+      "name": "foreground",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/test-analyze-text-workload.py",
+        "-v"
+      ],
+      "deadlineSeconds": 30,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.114,
+      "pgid": 59343,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/foreground.log",
+      "logSha256": "27f6c4505c4421541ba508242fc7a972fab39434e616fb7046d58efe5abaf1d2",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "foreground.log.gz"
+    },
+    {
+      "name": "reject-fps",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/run-matched-codecs.py",
+        "--revision",
+        "2dd18efdfe6f4cd98966045a6fbb2ba14503c936",
+        "--output",
+        "$RESULTS/private/reject-fps",
+        "--fps",
+        "120"
+      ],
+      "deadlineSeconds": 10,
+      "exitCode": 2,
+      "childExitCode": 2,
+      "seconds": 0.068,
+      "pgid": 59348,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/reject-fps.log",
+      "logSha256": "02da92c694b2cd7bcd1661d253306b72b72778642c24059bc4e3cedf06ddab7f",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "reject-fps.log.gz"
+    },
+    {
+      "name": "reject-observed",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/run-matched-codecs.py",
+        "--revision",
+        "2dd18efdfe6f4cd98966045a6fbb2ba14503c936",
+        "--output",
+        "$RESULTS/private/reject-observed",
+        "--fps",
+        "60",
+        "--observation-seconds",
+        "301"
+      ],
+      "deadlineSeconds": 10,
+      "exitCode": 1,
+      "childExitCode": 1,
+      "seconds": 0.062,
+      "pgid": 59353,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/reject-observed.log",
+      "logSha256": "aef640266dd555ecd75ebb9f5a4b83104508cb1e78927ba15c89a378e3abdc56",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "reject-observed.log.gz"
+    },
+    {
+      "name": "reject-warmup",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-B",
+        "media/tools/run-matched-codecs.py",
+        "--revision",
+        "2dd18efdfe6f4cd98966045a6fbb2ba14503c936",
+        "--output",
+        "$RESULTS/private/reject-warmup",
+        "--fps",
+        "60",
+        "--warmup-seconds",
+        "31"
+      ],
+      "deadlineSeconds": 10,
+      "exitCode": 1,
+      "childExitCode": 1,
+      "seconds": 0.068,
+      "pgid": 59358,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/reject-warmup.log",
+      "logSha256": "aef640266dd555ecd75ebb9f5a4b83104508cb1e78927ba15c89a378e3abdc56",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "reject-warmup.log.gz"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "git",
+        "diff",
+        "--check",
+        "5e2b60b20ce0b4d012bff5499c52e5fbbb5fd08f",
+        "2dd18efdfe6f4cd98966045a6fbb2ba14503c936"
+      ],
+      "deadlineSeconds": 10,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.035,
+      "pgid": 59363,
+      "groupGone": true,
+      "timedOut": false,
+      "cleanupSignals": [],
+      "privateLog": "private/diff.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "publishedLog": "diff.log.gz"
+    }
+  ],
+  "cases": [],
+  "unexecutedCases": [],
+  "plan": {
+    "fps": 30,
+    "warmupSeconds": 0,
+    "observationSeconds": 1,
+    "independentRuns": 1,
+    "cases": []
+  },
+  "productionAdmission": false,
+  "unsupportedCurrentNativeProfiles": [
+    "av1"
+  ],
+  "limits": "Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission.",
+  "scope": "Pure evidence-clock/phase/mapping contracts and three invalid-plan refusals only. No native encoder, generator, screen, input or performance qualification. Does not take the measurement lock.",
+  "selectedTests": {
+    "parsers": {
+      "passed": 7,
+      "skipped": 0
+    },
+    "foreground": {
+      "passed": 6,
+      "skipped": 0
+    }
+  }
+}

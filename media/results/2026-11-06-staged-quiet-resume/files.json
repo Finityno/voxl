@@ -1,0 +1,32 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 3810,
+    "sha256": "fcd12aae0cdabbb534d53563134bef132180836e266654af4edbe9c76ce1569e"
+  },
+  {
+    "path": "artifacts.json",
+    "bytes": 3418,
+    "sha256": "ee5d062b4589ba09a0d22d4656ba72fcf81dbd4b062de232924ee9d2b420a024"
+  },
+  {
+    "path": "cleanup.json",
+    "bytes": 1709,
+    "sha256": "52ae7836d3b3242e195be6fee7e90ed41f51674231f9e8df3238d89455007ca8"
+  },
+  {
+    "path": "evidence.json",
+    "bytes": 2630,
+    "sha256": "fc3783ce1de884cc06771a2d3395560a15611ca9825aa83fbb4ba84fc9487f62"
+  },
+  {
+    "path": "receipts.json",
+    "bytes": 14790,
+    "sha256": "9919e4cb9bcc25be3b9bf4c1e4d01726791ced0cf8a85af4cb63c57c1a89b93b"
+  },
+  {
+    "path": "verify.py",
+    "bytes": 5331,
+    "sha256": "10b55e6ea3b6483254dae81631f22da6f21635c8394e1533a082bfa58d86ee5e"
+  }
+]

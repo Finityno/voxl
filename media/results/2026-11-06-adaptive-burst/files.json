@@ -1,0 +1,147 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 2362,
+    "sha256": "6bc51fb55a5c0c359e6c76b49a904c54f2d3adbd857a50fbad6fa98737e3e85a"
+  },
+  {
+    "path": "comparison.json",
+    "bytes": 3625,
+    "sha256": "e0284755b4c36b6424cc80d37d4f7afebee84bb83213659ed923e3da114c00d9"
+  },
+  {
+    "path": "helpers/bounded-runner.py",
+    "bytes": 32539,
+    "sha256": "5d773f3c57ebe859164e679a1b2263ced08fec1085b19c247eca89b8d69bb620"
+  },
+  {
+    "path": "helpers/burst-confirm.py",
+    "bytes": 2142,
+    "sha256": "d2edaeb36a8352ed3cb26b0a17e2c898b8fc12184c18cf4b4e8a946ef0b4c3bf"
+  },
+  {
+    "path": "helpers/initial-burst.py",
+    "bytes": 2142,
+    "sha256": "aa00e7eb825cf319a8695d084f6e83bb091ea1192e9c206903e8ca78fc220662"
+  },
+  {
+    "path": "helpers/typed-readback.py",
+    "bytes": 2161,
+    "sha256": "46552836ac630bd94f33b741c7800cec46d57312cb616b72ba819b946275a33c"
+  },
+  {
+    "path": "logs/burst-confirm-adaptive-contracts.log.gz",
+    "bytes": 112,
+    "sha256": "1cf71bdd2a8eefd5d23f99da2fa7dc71acd0f2c1a01315f691bb6ab3b3de9c6b"
+  },
+  {
+    "path": "logs/burst-confirm-diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/burst-confirm-legacy-h264.log.gz",
+    "bytes": 109,
+    "sha256": "1fa8b972a32dcb81d6c6e2cdc06592e414c376b5053853bf787f1259b562eedf"
+  },
+  {
+    "path": "logs/burst-confirm-legacy-hevc.log.gz",
+    "bytes": 109,
+    "sha256": "1fa8b972a32dcb81d6c6e2cdc06592e414c376b5053853bf787f1259b562eedf"
+  },
+  {
+    "path": "logs/burst-confirm-load.log.gz",
+    "bytes": 80,
+    "sha256": "70af7a3becd6a7b9d63c32bb58c8015fe0e3e4ee11ae016090f9c57f77f996e0"
+  },
+  {
+    "path": "logs/burst-confirm-strict-clippy.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/burst-confirm-test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/burst-confirm-toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "logs/initial-burst-adaptive-contracts.log.gz",
+    "bytes": 463,
+    "sha256": "66a20ca4c23788507dae2f0b987ea92cd6443cb716e2acc1388b55844cb8b035"
+  },
+  {
+    "path": "logs/initial-burst-diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/initial-burst-load.log.gz",
+    "bytes": 81,
+    "sha256": "3e5b8c9471ff64c21247fcb4d1619d0cfc94be53682ebab39ccf8844ec1c2a33"
+  },
+  {
+    "path": "logs/initial-burst-test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/initial-burst-toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "logs/typed-readback-adaptive-contracts.log.gz",
+    "bytes": 536,
+    "sha256": "150f12547ee6df96ef3b7d100f62966a82c86ff42e45f4080ab2b1d2b019f052"
+  },
+  {
+    "path": "logs/typed-readback-diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/typed-readback-load.log.gz",
+    "bytes": 81,
+    "sha256": "f1edac18ff34bf8f389b23469a2d2a8c76df3226c852057e33c939087c7290fe"
+  },
+  {
+    "path": "logs/typed-readback-test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "logs/typed-readback-toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "platform.json",
+    "bytes": 337,
+    "sha256": "4f132642e9b7121dc8390f1e4be0ee49faafb893c875ba4a15e86443d2c29267"
+  },
+  {
+    "path": "receipts/burst-confirm.json.gz",
+    "bytes": 1620,
+    "sha256": "2a856abeeedba8fff54ae9892749c0b967925e4ac2ccd621890f08bfbf62f75c"
+  },
+  {
+    "path": "receipts/initial-burst.json.gz",
+    "bytes": 1367,
+    "sha256": "630e3066996461d86fff77968b86fd511247f3c1a5c858ae9c07d466cf83d93f"
+  },
+  {
+    "path": "receipts/typed-readback.json.gz",
+    "bytes": 1370,
+    "sha256": "84077012a984c9af1fc0745b895a1545f313c28ef4b257185fa864a06ac8b52e"
+  },
+  {
+    "path": "verify.py",
+    "bytes": 1710,
+    "sha256": "a605a3b3cb4483cb9e7300099e39925571bc121f3e1121b62efa9234b9e5025a"
+  }
+]

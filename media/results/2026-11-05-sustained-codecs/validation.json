@@ -1,0 +1,4266 @@
+{
+  "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+  "scope": "Only examples/tools/docs change; runtime/manifest/vendor/config inputs are unchanged. Initial and corrected contracts plus short and sustained comparisons are separate runs.",
+  "runs": {
+    "initial-contract-failure": {
+      "source": "1bf86f639039cc627d4de26db377ecc57bc7d9d2",
+      "scope": "Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification",
+      "terminal": true,
+      "exitCode": 1,
+      "steps": [
+        {
+          "name": "load",
+          "command": [
+            "uptime"
+          ],
+          "deadlineSeconds": 10,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.028,
+          "pgid": 64622,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "1b431310ce18cb0245ae937b88be76136762916f8ee06d16de2cd0a1db0fe1c0"
+        },
+        {
+          "name": "toolchain",
+          "command": [
+            "cargo",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.047,
+          "pgid": 64627,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+        },
+        {
+          "name": "build",
+          "command": [
+            "cargo",
+            "build",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=json"
+          ],
+          "deadlineSeconds": 600,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.167,
+          "pgid": 64632,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781"
+        },
+        {
+          "name": "clippy",
+          "command": [
+            "cargo",
+            "clippy",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--lib",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=short",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.233,
+          "pgid": 64642,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "test-build",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--no-run",
+            "--message-format=short"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.165,
+          "pgid": 64653,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "cycle-tests",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "input_cycle_",
+            "--",
+            "--nocapture"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.166,
+          "pgid": 64666,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "fff0282d231fa708bf57e4a10c4201df329816f4fe8dad8ef04238075882c525"
+        },
+        {
+          "name": "metric-tests",
+          "command": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-B",
+            "media/tools/test-analyze-text-workload.py",
+            "-v"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.103,
+          "pgid": 64677,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "b20fd34f2506d0c71e86cde3ac8a75966b6a5643affde4088a55a8bc8bad942f"
+        },
+        {
+          "name": "evidence-tests",
+          "command": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-B",
+            "media/tools/test-run-matched-codecs.py",
+            "-v"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 1,
+          "childExitCode": 1,
+          "seconds": 0.102,
+          "pgid": 64682,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "82820f11a416e7d66dce585f2c65fcde8966d484be769e4b0f35c1de64c32043"
+        }
+      ],
+      "helperSha256": "092c8bf178a87aaee8480e52d59a27dbd64cb49c4e2be2ec4b08d04507a5d6dd"
+    },
+    "native-contracts": {
+      "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+      "scope": "Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification",
+      "terminal": true,
+      "exitCode": 0,
+      "steps": [
+        {
+          "name": "load",
+          "command": [
+            "uptime"
+          ],
+          "deadlineSeconds": 10,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.032,
+          "pgid": 66906,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "5aeaa362888ab0064e8812fb80e5ee99a3846a617d784f9a49f2cc4ec61525b4"
+        },
+        {
+          "name": "toolchain",
+          "command": [
+            "cargo",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.045,
+          "pgid": 66911,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+        },
+        {
+          "name": "build",
+          "command": [
+            "cargo",
+            "build",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=json"
+          ],
+          "deadlineSeconds": 600,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.17,
+          "pgid": 66916,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781"
+        },
+        {
+          "name": "clippy",
+          "command": [
+            "cargo",
+            "clippy",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--lib",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=short",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.222,
+          "pgid": 66931,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "test-build",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--no-run",
+            "--message-format=short"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.168,
+          "pgid": 66946,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "cycle-tests",
+          "command": [
+            "cargo",
+            "test",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "input_cycle_",
+            "--",
+            "--nocapture"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.165,
+          "pgid": 66961,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "fff0282d231fa708bf57e4a10c4201df329816f4fe8dad8ef04238075882c525"
+        },
+        {
+          "name": "metric-tests",
+          "command": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-B",
+            "media/tools/test-analyze-text-workload.py",
+            "-v"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.115,
+          "pgid": 66976,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "1d4713070a7ff341d4d9d7fdba012d0e952f922279051a3abd1e239f85c9f167"
+        },
+        {
+          "name": "evidence-tests",
+          "command": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-B",
+            "media/tools/test-run-matched-codecs.py",
+            "-v"
+          ],
+          "deadlineSeconds": 30,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.11,
+          "pgid": 66984,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "d6c4a0d5659ea0e1c68e20670b5e286ef494605ac38697ae4c3225cff2712910"
+        },
+        {
+          "name": "native-320",
+          "command": [
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "$CONTRACTS/320.h264",
+            "h264",
+            "$CONTRACTS/320.vxfr",
+            "--warmup-frames=2",
+            "--frames=4",
+            "--fps=30",
+            "--width=320",
+            "--height=180",
+            "--input-nv12=$CONTRACTS/source-320.nv12",
+            "--input-cycle-prefix=1",
+            "--force-keyframe-period=1",
+            "--pixel-range=full",
+            "--color-tags=srgb"
+          ],
+          "deadlineSeconds": 20,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.578,
+          "pgid": 66993,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "b2bc4b27117a70109b6e5b79e3194515c2578fd57421a759154a315f825c1014"
+        },
+        {
+          "name": "decode-320",
+          "command": [
+            "/opt/homebrew/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-i",
+            "$CONTRACTS/320.h264",
+            "-pix_fmt",
+            "nv12",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "$CONTRACTS/320.decoded.nv12"
+          ],
+          "deadlineSeconds": 20,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.071,
+          "pgid": 67007,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "native-322",
+          "command": [
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "$CONTRACTS/322.h264",
+            "h264",
+            "$CONTRACTS/322.vxfr",
+            "--warmup-frames=2",
+            "--frames=4",
+            "--fps=30",
+            "--width=322",
+            "--height=180",
+            "--input-nv12=$CONTRACTS/source-322.nv12",
+            "--input-cycle-prefix=1",
+            "--force-keyframe-period=1",
+            "--pixel-range=full",
+            "--color-tags=srgb"
+          ],
+          "deadlineSeconds": 20,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.282,
+          "pgid": 67012,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "d10cc15e2eda05591a7f3bb0b8cd9271e0fb60287f2f5abeafee8dbf07386278"
+        },
+        {
+          "name": "decode-322",
+          "command": [
+            "/opt/homebrew/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-i",
+            "$CONTRACTS/322.h264",
+            "-pix_fmt",
+            "nv12",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "$CONTRACTS/322.decoded.nv12"
+          ],
+          "deadlineSeconds": 20,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.046,
+          "pgid": 67024,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "reject-no-input",
+          "command": [
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "$CONTRACTS/no-input.h264",
+            "h264",
+            "--width=322",
+            "--height=180",
+            "--input-cycle-prefix=1"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 1,
+          "childExitCode": 1,
+          "seconds": 0.028,
+          "pgid": 67029,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "9bfc40f6feb4a799656dfc8764719b10f77c454c6e434e789149f4043898b39e"
+        },
+        {
+          "name": "reject-prefix-only",
+          "command": [
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "$CONTRACTS/prefix-only.h264",
+            "h264",
+            "--width=322",
+            "--height=180",
+            "--input-nv12=$CONTRACTS/source-322.nv12",
+            "--input-cycle-prefix=3"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 1,
+          "childExitCode": 1,
+          "seconds": 0.028,
+          "pgid": 67034,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "248169211e6194922a6802483d7c98d7e92eaff51af36fae230cc4e2453749e9"
+        },
+        {
+          "name": "reject-partial",
+          "command": [
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "$CONTRACTS/partial.h264",
+            "h264",
+            "--width=322",
+            "--height=180",
+            "--input-nv12=$CONTRACTS/partial.nv12",
+            "--input-cycle-prefix=1"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 1,
+          "childExitCode": 1,
+          "seconds": 0.027,
+          "pgid": 67039,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "620c3258be8d558f6db16569f38d032c8f4a487952535c57dab695b6d438697e"
+        },
+        {
+          "name": "diff",
+          "command": [
+            "git",
+            "diff",
+            "--check",
+            "eca830a98e3fd2c5b8866ea307c22004c53bab31",
+            "f1f08a424d7e405543f4088c522c19f5c49b22bc"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.033,
+          "pgid": 67044,
+          "groupGone": true,
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true,
+          "timedOut": false,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "helperSha256": "d1e7190bffac679a725e5e399a44f655b0a7974a217ff53d34fe51c035f1684e"
+    },
+    "short-comparison": {
+      "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+      "helperSha256": "a3ed4f22376c7d40bccfe47721c82c65180a477fc3258278628a9ec444a2426b",
+      "terminal": true,
+      "exitCode": 0,
+      "steps": [
+        {
+          "name": "load",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "uptime"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.027,
+          "pgid": 68079,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/load.log",
+          "logSha256": "ffdbf165fffa36d46ee0893fb38a811589e33e3035e3ebde177d347c8b50f0cc",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "os",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sw_vers"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.036,
+          "pgid": 68084,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/os.log",
+          "logSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "cpu",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sysctl",
+            "-n",
+            "machdep.cpu.brand_string"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.024,
+          "pgid": 68089,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/cpu.log",
+          "logSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "model",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sysctl",
+            "-n",
+            "hw.model"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.028,
+          "pgid": 68094,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/model.log",
+          "logSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "toolchain",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.044,
+          "pgid": 68099,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/toolchain.log",
+          "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "ffmpeg-version",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.065,
+          "pgid": 68104,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/ffmpeg-version.log",
+          "logSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "ffprobe-version",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.071,
+          "pgid": 68109,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/ffprobe-version.log",
+          "logSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "build",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "build",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=json"
+          ],
+          "deadlineSeconds": 650,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.172,
+          "pgid": 68114,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/build.log",
+          "logSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "clippy",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "clippy",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--lib",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=short",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "deadlineSeconds": 350,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.22,
+          "pgid": 68125,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/clippy.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "source-floor",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$DIAGNOSTIC/private/observation-reference.nv12",
+            "-vf",
+            "trim=end_frame=240,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "240",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$DIAGNOSTIC/private/floor.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.272,
+          "pgid": 68139,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/source-floor.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/bin/time",
+            "-lp",
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/encoded.h264",
+            "h264",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/frames.vxfr",
+            "--warmup-frames=30",
+            "--frames=240",
+            "--width=1920",
+            "--height=1080",
+            "--fps=30",
+            "--pixel-range=full",
+            "--color-tags=srgb",
+            "--input-nv12=/private$FIXTURE/reference.nv12",
+            "--input-cycle-prefix=30",
+            "--tuning=compatible",
+            "--bitrate-kbps=3000",
+            "--force-keyframe-period=60"
+          ],
+          "deadlineSeconds": 79,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 9.203,
+          "pgid": 68147,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000.log",
+          "logSha256": "1f8a2bf4fa9927581fccf090dc0c63aa1ae4fbdfa4a8c001eeeee1937faf1da6",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-decode",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-v",
+            "error",
+            "-threads",
+            "2",
+            "-count_frames",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=codec_name,profile,pix_fmt,width,height,nb_read_frames,color_range,color_space,color_transfer,color_primaries",
+            "-of",
+            "json",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/encoded.h264"
+          ],
+          "deadlineSeconds": 90,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.164,
+          "pgid": 68178,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-decode.log",
+          "logSha256": "d110e5fa39412d9472706a87750b6f2a64137cb3c29971ee8fcffb22a093e84a",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-quality",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_complex_threads",
+            "1",
+            "-i",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/encoded.h264",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$DIAGNOSTIC/private/observation-reference.nv12",
+            "-filter_complex",
+            "[0:v]trim=start_frame=30:end_frame=270,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame=240,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/full.ssim[full];[a1]crop=1720:924:180:48[ar1];[b1]crop=1720:924:180:48[br1];[ar1][br1]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/text.ssim[text];[a2]crop=1720:56:180:990[ar2];[b2]crop=1720:56:180:990[br2];[ar2][br2]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/thin.ssim[thin]",
+            "-map",
+            "[full]",
+            "-map",
+            "[text]",
+            "-map",
+            "[thin]",
+            "-f",
+            "null",
+            "-"
+          ],
+          "deadlineSeconds": 240,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.616,
+          "pgid": 68183,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-quality.log",
+          "logSha256": "abd5f554d6f653af330e96b35e3d2d3f909bee1ff6e1021f99ec699856433e09",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-rgb",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-i",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/encoded.h264",
+            "-vf",
+            "trim=start_frame=30:end_frame=270,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "240",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/thin.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.226,
+          "pgid": 68188,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-rgb.log",
+          "logSha256": "4e6be45e22bd02c267d5a343954d5c82cf7ff9bacbff04a184db7a65bb77c224",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/bin/time",
+            "-lp",
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "hevc",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/frames.vxfr",
+            "--warmup-frames=30",
+            "--frames=240",
+            "--width=1920",
+            "--height=1080",
+            "--fps=30",
+            "--pixel-range=full",
+            "--color-tags=srgb",
+            "--input-nv12=/private$FIXTURE/reference.nv12",
+            "--input-cycle-prefix=30",
+            "--tuning=compatible",
+            "--bitrate-kbps=1500",
+            "--force-keyframe-period=60"
+          ],
+          "deadlineSeconds": 79,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 9.138,
+          "pgid": 68193,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500.log",
+          "logSha256": "f25b2cdbaeb6b2f1b95813840f7478daa7028084c2b5384699ffaabb83990be4",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-decode",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-v",
+            "error",
+            "-threads",
+            "2",
+            "-count_frames",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=codec_name,profile,pix_fmt,width,height,nb_read_frames,color_range,color_space,color_transfer,color_primaries",
+            "-of",
+            "json",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/encoded.hevc"
+          ],
+          "deadlineSeconds": 90,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.274,
+          "pgid": 68229,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-decode.log",
+          "logSha256": "9ad7afe618265ad0559a3794e3e1d99f7f3b958471fef99abacaae8825dfecad",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-quality",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_complex_threads",
+            "1",
+            "-i",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$DIAGNOSTIC/private/observation-reference.nv12",
+            "-filter_complex",
+            "[0:v]trim=start_frame=30:end_frame=270,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame=240,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/full.ssim[full];[a1]crop=1720:924:180:48[ar1];[b1]crop=1720:924:180:48[br1];[ar1][br1]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/text.ssim[text];[a2]crop=1720:56:180:990[ar2];[b2]crop=1720:56:180:990[br2];[ar2][br2]ssim=shortest=1:repeatlast=0:stats_file=/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/thin.ssim[thin]",
+            "-map",
+            "[full]",
+            "-map",
+            "[text]",
+            "-map",
+            "[thin]",
+            "-f",
+            "null",
+            "-"
+          ],
+          "deadlineSeconds": 240,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.632,
+          "pgid": 68234,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-quality.log",
+          "logSha256": "1e5223c0b83bacc53c8cc36cbc6d1f8095b2aea1b6e45a7510ba46a4c0333a36",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-rgb",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-i",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "-vf",
+            "trim=start_frame=30:end_frame=270,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "240",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/thin.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.279,
+          "pgid": 68240,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-rgb.log",
+          "logSha256": "85becab251b6f46f117b01f941d2ad6358d08587db6abbbc7c2594605a5e4211",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "foreground-run-1",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/local/bin/python3",
+            "-B",
+            "media/tools/analyze-text-workload.py",
+            "--fixture",
+            "/private$FIXTURE",
+            "--baseline",
+            "run-1-h264-compatible-3000",
+            "--floor",
+            "uncompressed420",
+            "--decoded",
+            "uncompressed420=/private$DIAGNOSTIC/private/floor.rgb",
+            "--observed-frames",
+            "240",
+            "--capture-warmup-frames",
+            "30",
+            "--engine",
+            "numpy",
+            "--output",
+            "/private$DIAGNOSTIC/foreground-run-1.json",
+            "--decoded",
+            "run-1-h264-compatible-3000=/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/thin.rgb",
+            "--decoded",
+            "run-1-hevc-compatible-1500=/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/thin.rgb"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.633,
+          "pgid": 68245,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/foreground-run-1.log",
+          "logSha256": "dac9ce6b457fa0524f71288554be74297972e299d332ae274663681b3d5a5ec5",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        }
+      ],
+      "cases": [
+        {
+          "name": "run-1-h264-compatible-3000",
+          "specification": "h264:compatible:3000",
+          "independentRun": 1,
+          "oraclesComplete": true,
+          "encodingAndDecodeOraclesComplete": true,
+          "inputSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+          "encodedSha256": "d7c8381d2db986b25640a90a64d3b568f9e467824b88790c2081511230cbe9e8",
+          "framedSha256": "a23438107e1c39992e4c69810a4ae6fad85f5d5d8b3573b52e4edf9d7db348e8",
+          "normalizedRgbSha256": "0ba6de861f4d17752bedd10fe5b4c7c044033a415308cbe4c90e7cf05716ac5e",
+          "actualDecodedMetadata": {
+            "codec_name": "h264",
+            "profile": "Constrained Baseline",
+            "width": 1920,
+            "height": 1080,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc",
+            "color_space": "bt709",
+            "color_transfer": "iec61966-2-1",
+            "color_primaries": "bt709",
+            "nb_read_frames": "270"
+          },
+          "hardwareSelection": "QueriedHardware",
+          "accessUnits": {
+            "totalFrames": 270,
+            "observedFrames": 240,
+            "keyframeIndices": [
+              0,
+              60,
+              120,
+              180,
+              240
+            ],
+            "totalAnnexBBytes": 1386361,
+            "observedAnnexBBytes": 1248875,
+            "meanAnnexBMbps": 1.248875,
+            "p95OneSecondAnnexBMbps": 2.492352,
+            "peakOneSecondAnnexBMbps": 2.492352,
+            "firstFrameAnnexBBytes": 46229
+          },
+          "encodeLatencyMs": {
+            "p50": 7.283833,
+            "p95": 11.389208,
+            "maximum": 12.136249999999999,
+            "scope": "encode call to output callback received, excludes source read/fill"
+          },
+          "probeWallSeconds": 8.982,
+          "pacing": {
+            "nominalFirstToLastFrameSeconds": 8.966666666666667,
+            "wallMinusNominalSeconds": 0.015333333333332533,
+            "scope": "Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."
+          },
+          "processResources": {
+            "wallSeconds": 9.11,
+            "userSeconds": 0.14,
+            "systemSeconds": 0.23,
+            "averageCpuPercentOneCore": 4.061470911086718,
+            "maximumResidentBytes": 41664512,
+            "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+          },
+          "quality": {
+            "full": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9997043083333333,
+                  "minimum": 0.998877,
+                  "phaseMeans": {
+                    "still": 0.9993075333333333,
+                    "typing": 0.9997134166666667,
+                    "scrolling": 0.9999322333333333,
+                    "window-movement": 0.99986405
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9983127166666667,
+                  "minimum": 0.996226,
+                  "phaseMeans": {
+                    "still": 0.9970281166666666,
+                    "typing": 0.9983969833333333,
+                    "scrolling": 0.9993954833333334,
+                    "window-movement": 0.9984302833333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9979584541666667,
+                  "minimum": 0.995111,
+                  "phaseMeans": {
+                    "still": 0.9960107666666667,
+                    "typing": 0.9979092333333334,
+                    "scrolling": 0.9993646833333333,
+                    "window-movement": 0.9985491333333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.9991814416666667,
+                  "minimum": 0.997808,
+                  "phaseMeans": {
+                    "still": 0.9983784166666666,
+                    "typing": 0.9991933,
+                    "scrolling": 0.9997481333333333,
+                    "window-movement": 0.9994059166666667
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            },
+            "text": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9997187083333333,
+                  "minimum": 0.999191,
+                  "phaseMeans": {
+                    "still": 0.9993760666666667,
+                    "typing": 0.9996949500000001,
+                    "scrolling": 0.9999489500000001,
+                    "window-movement": 0.9998548666666667
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9984217624999999,
+                  "minimum": 0.996301,
+                  "phaseMeans": {
+                    "still": 0.99716795,
+                    "typing": 0.9985231,
+                    "scrolling": 0.9996437,
+                    "window-movement": 0.9983523000000001
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9980041875,
+                  "minimum": 0.995073,
+                  "phaseMeans": {
+                    "still": 0.9959859833333333,
+                    "typing": 0.9979052,
+                    "scrolling": 0.9996233833333333,
+                    "window-movement": 0.9985021833333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.9992167999999999,
+                  "minimum": 0.998023,
+                  "phaseMeans": {
+                    "still": 0.9984430999999999,
+                    "typing": 0.9992013,
+                    "scrolling": 0.9998438000000001,
+                    "window-movement": 0.9993789999999999
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            },
+            "thin": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9990115958333334,
+                  "minimum": 0.997067,
+                  "phaseMeans": {
+                    "still": 0.9979176,
+                    "typing": 0.9990982833333334,
+                    "scrolling": 0.9995043666666666,
+                    "window-movement": 0.9995261333333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9942983958333333,
+                  "minimum": 0.98882,
+                  "phaseMeans": {
+                    "still": 0.9902806500000001,
+                    "typing": 0.9943178166666666,
+                    "scrolling": 0.9962360166666666,
+                    "window-movement": 0.9963590999999999
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9953767416666667,
+                  "minimum": 0.989726,
+                  "phaseMeans": {
+                    "still": 0.9915683000000001,
+                    "typing": 0.9955135333333334,
+                    "scrolling": 0.9971421166666666,
+                    "window-movement": 0.9972830166666667
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.9976202916666667,
+                  "minimum": 0.994469,
+                  "phaseMeans": {
+                    "still": 0.99558675,
+                    "typing": 0.9977040166666666,
+                    "scrolling": 0.9985658833333333,
+                    "window-movement": 0.9986245166666666
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            }
+          },
+          "rgbPath": "/private$DIAGNOSTIC/private/run-1-h264-compatible-3000/thin.rgb",
+          "foregroundAnalysis": {
+            "file": "foreground-run-1.json",
+            "sha256": "8fd3be6a776edc7176dd1caff54721ffb45ca3f54ddca5fdbde0e707a7eca7e0",
+            "meanAbsoluteForegroundRgbCodeError": 13.849085846722948,
+            "worseAggregateFrames": 0,
+            "worseAggregateChannelFrames": {
+              "r": 0,
+              "g": 0,
+              "b": 0
+            },
+            "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+          },
+          "normalizedRgbIntermediateRemovedAfterAnalysis": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500",
+          "specification": "hevc:compatible:1500",
+          "independentRun": 1,
+          "oraclesComplete": true,
+          "encodingAndDecodeOraclesComplete": true,
+          "inputSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+          "encodedSha256": "3f8fb496e8779643096565aeecbbf0844b635eeb504f92c311f309be4dbe83e9",
+          "framedSha256": "6207f08ffe7fb51dfeaaa5ec49a8befe4800a3f196f1210e2ef33e6ccde00e88",
+          "normalizedRgbSha256": "fa18023c205a6caa34118c842223275adee8e0beaf3b45d7de4cadba8e96df1a",
+          "actualDecodedMetadata": {
+            "codec_name": "hevc",
+            "profile": "Main",
+            "width": 1920,
+            "height": 1080,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc",
+            "color_space": "bt709",
+            "color_transfer": "iec61966-2-1",
+            "color_primaries": "bt709",
+            "nb_read_frames": "270"
+          },
+          "hardwareSelection": "QueriedHardware",
+          "accessUnits": {
+            "totalFrames": 270,
+            "observedFrames": 240,
+            "keyframeIndices": [
+              0,
+              60,
+              120,
+              180,
+              240
+            ],
+            "totalAnnexBBytes": 862307,
+            "observedAnnexBBytes": 772445,
+            "meanAnnexBMbps": 0.772445,
+            "p95OneSecondAnnexBMbps": 1.5652,
+            "peakOneSecondAnnexBMbps": 1.5652,
+            "firstFrameAnnexBBytes": 44185
+          },
+          "encodeLatencyMs": {
+            "p50": 10.854166,
+            "p95": 14.992334,
+            "maximum": 15.422,
+            "scope": "encode call to output callback received, excludes source read/fill"
+          },
+          "probeWallSeconds": 8.986,
+          "pacing": {
+            "nominalFirstToLastFrameSeconds": 8.966666666666667,
+            "wallMinusNominalSeconds": 0.01933333333333387,
+            "scope": "Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."
+          },
+          "processResources": {
+            "wallSeconds": 9.07,
+            "userSeconds": 0.14,
+            "systemSeconds": 0.22,
+            "averageCpuPercentOneCore": 3.969128996692392,
+            "maximumResidentBytes": 41615360,
+            "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+          },
+          "quality": {
+            "full": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9996645375,
+                  "minimum": 0.999035,
+                  "phaseMeans": {
+                    "still": 0.9994279833333334,
+                    "typing": 0.9996731333333333,
+                    "scrolling": 0.9997857,
+                    "window-movement": 0.9997713333333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9986667041666667,
+                  "minimum": 0.997443,
+                  "phaseMeans": {
+                    "still": 0.9982459666666668,
+                    "typing": 0.9989855,
+                    "scrolling": 0.9991261333333333,
+                    "window-movement": 0.9983092166666666
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9986327541666667,
+                  "minimum": 0.997124,
+                  "phaseMeans": {
+                    "still": 0.99806735,
+                    "typing": 0.9989624500000001,
+                    "scrolling": 0.9990214333333333,
+                    "window-movement": 0.9984797833333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.99932625,
+                  "minimum": 0.998459,
+                  "phaseMeans": {
+                    "still": 0.9990041000000001,
+                    "typing": 0.9994400999999999,
+                    "scrolling": 0.9995484166666666,
+                    "window-movement": 0.9993123833333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            },
+            "text": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9998223583333333,
+                  "minimum": 0.999504,
+                  "phaseMeans": {
+                    "still": 0.9996834,
+                    "typing": 0.9998548166666666,
+                    "scrolling": 0.9998842166666667,
+                    "window-movement": 0.9998670000000001
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9986091458333333,
+                  "minimum": 0.997494,
+                  "phaseMeans": {
+                    "still": 0.9982638833333334,
+                    "typing": 0.9990000499999999,
+                    "scrolling": 0.9991235166666667,
+                    "window-movement": 0.9980491333333333
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9986897916666667,
+                  "minimum": 0.997289,
+                  "phaseMeans": {
+                    "still": 0.9981968499999999,
+                    "typing": 0.9990737500000001,
+                    "scrolling": 0.9991249,
+                    "window-movement": 0.9983636666666666
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.9994314083333333,
+                  "minimum": 0.9988,
+                  "phaseMeans": {
+                    "still": 0.9991992,
+                    "typing": 0.9995821333333333,
+                    "scrolling": 0.9996308333333334,
+                    "window-movement": 0.9993134666666666
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            },
+            "thin": {
+              "frames": 240,
+              "channels": {
+                "Y": {
+                  "mean": 0.9992990458333334,
+                  "minimum": 0.998457,
+                  "phaseMeans": {
+                    "still": 0.9987495833333334,
+                    "typing": 0.9993987833333333,
+                    "scrolling": 0.9995779166666666,
+                    "window-movement": 0.9994698999999999
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "U": {
+                  "mean": 0.9970714541666666,
+                  "minimum": 0.99336,
+                  "phaseMeans": {
+                    "still": 0.9953865333333333,
+                    "typing": 0.99723625,
+                    "scrolling": 0.9977598666666666,
+                    "window-movement": 0.9979031666666667
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "V": {
+                  "mean": 0.9969343708333334,
+                  "minimum": 0.992126,
+                  "phaseMeans": {
+                    "still": 0.99488925,
+                    "typing": 0.9974502333333334,
+                    "scrolling": 0.9977473,
+                    "window-movement": 0.9976507
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                },
+                "All": {
+                  "mean": 0.99853375,
+                  "minimum": 0.996553,
+                  "phaseMeans": {
+                    "still": 0.9975458333333334,
+                    "typing": 0.9987133833333334,
+                    "scrolling": 0.9989700166666666,
+                    "window-movement": 0.9989057666666666
+                  },
+                  "phaseFrames": {
+                    "still": 60,
+                    "typing": 60,
+                    "scrolling": 60,
+                    "window-movement": 60
+                  }
+                }
+              }
+            }
+          },
+          "rgbPath": "/private$DIAGNOSTIC/private/run-1-hevc-compatible-1500/thin.rgb",
+          "foregroundAnalysis": {
+            "file": "foreground-run-1.json",
+            "sha256": "8fd3be6a776edc7176dd1caff54721ffb45ca3f54ddca5fdbde0e707a7eca7e0",
+            "meanAbsoluteForegroundRgbCodeError": 13.356075679693173,
+            "worseAggregateFrames": 0,
+            "worseAggregateChannelFrames": {
+              "r": 0,
+              "g": 0,
+              "b": 0
+            },
+            "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+          },
+          "normalizedRgbIntermediateRemovedAfterAnalysis": true
+        }
+      ],
+      "unexecutedCases": [],
+      "plan": {
+        "warmupSeconds": 1,
+        "observationSeconds": 8,
+        "independentRuns": 1,
+        "cases": [
+          "h264:compatible:3000",
+          "hevc:compatible:1500"
+        ]
+      },
+      "productionAdmission": false,
+      "unsupportedCurrentNativeProfiles": [
+        "av1"
+      ],
+      "limits": "Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission."
+    },
+    "sustained-comparison": {
+      "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+      "helperSha256": "a3ed4f22376c7d40bccfe47721c82c65180a477fc3258278628a9ec444a2426b",
+      "terminal": true,
+      "exitCode": 0,
+      "steps": [
+        {
+          "name": "load",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "uptime"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.028,
+          "pgid": 69649,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/load.log",
+          "logSha256": "158ed56ce806912938bcc67ac56997f27bdd07b6eddfb61bf4a0f230f65f5990",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "os",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sw_vers"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.033,
+          "pgid": 69655,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/os.log",
+          "logSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "cpu",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sysctl",
+            "-n",
+            "machdep.cpu.brand_string"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.026,
+          "pgid": 69660,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/cpu.log",
+          "logSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "model",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "sysctl",
+            "-n",
+            "hw.model"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.027,
+          "pgid": 69665,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/model.log",
+          "logSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "toolchain",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "--version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.046,
+          "pgid": 69670,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/toolchain.log",
+          "logSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "ffmpeg-version",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.046,
+          "pgid": 69675,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/ffmpeg-version.log",
+          "logSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "ffprobe-version",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-version"
+          ],
+          "deadlineSeconds": 15,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.046,
+          "pgid": 69680,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/ffprobe-version.log",
+          "logSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "build",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "build",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--release",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=json"
+          ],
+          "deadlineSeconds": 650,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.161,
+          "pgid": 69685,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/build.log",
+          "logSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "clippy",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "cargo",
+            "clippy",
+            "--locked",
+            "--manifest-path",
+            "media/Cargo.toml",
+            "--lib",
+            "--example",
+            "codec_probe",
+            "-j2",
+            "-q",
+            "--message-format=short",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "deadlineSeconds": 350,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 0.235,
+          "pgid": 69696,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/clippy.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "source-floor",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$SUSTAINED/private/observation-reference.nv12",
+            "-vf",
+            "trim=end_frame=9000,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "9000",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$SUSTAINED/private/floor.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 4.352,
+          "pgid": 69708,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/source-floor.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/bin/time",
+            "-lp",
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/encoded.h264",
+            "h264",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/frames.vxfr",
+            "--warmup-frames=900",
+            "--frames=9000",
+            "--width=1920",
+            "--height=1080",
+            "--fps=30",
+            "--pixel-range=full",
+            "--color-tags=srgb",
+            "--input-nv12=/private$FIXTURE/reference.nv12",
+            "--input-cycle-prefix=30",
+            "--tuning=compatible",
+            "--bitrate-kbps=3000",
+            "--force-keyframe-period=60"
+          ],
+          "deadlineSeconds": 400,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 330.211,
+          "pgid": 69713,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000.log",
+          "logSha256": "535847b19805e991e0b2105754bab653931d087b09845223c9f0730df1506023",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-decode",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-v",
+            "error",
+            "-threads",
+            "2",
+            "-count_frames",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=codec_name,profile,pix_fmt,width,height,nb_read_frames,color_range,color_space,color_transfer,color_primaries",
+            "-of",
+            "json",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/encoded.h264"
+          ],
+          "deadlineSeconds": 90,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 2.559,
+          "pgid": 79847,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-decode.log",
+          "logSha256": "64b88b826e968089cdbcf4b223a72610412d92037d10fed21a9f6bd977589f20",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-quality",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_complex_threads",
+            "1",
+            "-i",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/encoded.h264",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$SUSTAINED/private/observation-reference.nv12",
+            "-filter_complex",
+            "[0:v]trim=start_frame=900:end_frame=9900,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame=9000,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-h264-compatible-3000/full.ssim[full];[a1]crop=1720:924:180:48[ar1];[b1]crop=1720:924:180:48[br1];[ar1][br1]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-h264-compatible-3000/text.ssim[text];[a2]crop=1720:56:180:990[ar2];[b2]crop=1720:56:180:990[br2];[ar2][br2]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-h264-compatible-3000/thin.ssim[thin]",
+            "-map",
+            "[full]",
+            "-map",
+            "[text]",
+            "-map",
+            "[thin]",
+            "-f",
+            "null",
+            "-"
+          ],
+          "deadlineSeconds": 240,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 20.156,
+          "pgid": 79868,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-quality.log",
+          "logSha256": "2f39e330fc61e2694dd22d80a8bc98b970a24e66bdc4bd491da4b16e13c9f2fa",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-h264-compatible-3000-rgb",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-i",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/encoded.h264",
+            "-vf",
+            "trim=start_frame=900:end_frame=9900,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "9000",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$SUSTAINED/private/run-1-h264-compatible-3000/thin.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 4.552,
+          "pgid": 79893,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-h264-compatible-3000-rgb.log",
+          "logSha256": "904ba1f2316ab2fd0e01030c2685ea1cf93f31d25380c9d45b9f9416906f3fb6",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500",
+          "command": [
+            "/usr/bin/lockf",
+            "-k",
+            "-t",
+            "45",
+            "/tmp/fincode-build.lock",
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/bin/time",
+            "-lp",
+            "$CHECKOUT/media/target/release/examples/codec_probe",
+            "hardware",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "hevc",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/frames.vxfr",
+            "--warmup-frames=900",
+            "--frames=9000",
+            "--width=1920",
+            "--height=1080",
+            "--fps=30",
+            "--pixel-range=full",
+            "--color-tags=srgb",
+            "--input-nv12=/private$FIXTURE/reference.nv12",
+            "--input-cycle-prefix=30",
+            "--tuning=compatible",
+            "--bitrate-kbps=1500",
+            "--force-keyframe-period=60"
+          ],
+          "deadlineSeconds": 400,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 330.152,
+          "pgid": 79903,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500.log",
+          "logSha256": "d269b64300bb747eb51bdf5f66c83076f6088b579722f0f072b2f5c64512c84a",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-decode",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffprobe",
+            "-v",
+            "error",
+            "-threads",
+            "2",
+            "-count_frames",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=codec_name,profile,pix_fmt,width,height,nb_read_frames,color_range,color_space,color_transfer,color_primaries",
+            "-of",
+            "json",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/encoded.hevc"
+          ],
+          "deadlineSeconds": 90,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 6.34,
+          "pgid": 82568,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-decode.log",
+          "logSha256": "d9233818eae85dcc1d8be166440dd162cd006e630fce75a06456468f4435ad6c",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-quality",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_complex_threads",
+            "1",
+            "-i",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "-stream_loop",
+            "-1",
+            "-f",
+            "rawvideo",
+            "-pixel_format",
+            "nv12",
+            "-video_size",
+            "1920x1080",
+            "-framerate",
+            "30",
+            "-color_range",
+            "pc",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-i",
+            "/private$SUSTAINED/private/observation-reference.nv12",
+            "-filter_complex",
+            "[0:v]trim=start_frame=900:end_frame=9900,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[a0][a1][a2];[1:v]trim=end_frame=9000,settb=1/30,setpts=N,scale=out_range=pc:flags=accurate_rnd+bitexact,format=yuv420p,split=3[b0][b1][b2];[a0][b0]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-hevc-compatible-1500/full.ssim[full];[a1]crop=1720:924:180:48[ar1];[b1]crop=1720:924:180:48[br1];[ar1][br1]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-hevc-compatible-1500/text.ssim[text];[a2]crop=1720:56:180:990[ar2];[b2]crop=1720:56:180:990[br2];[ar2][br2]ssim=shortest=1:repeatlast=0:stats_file=/private$SUSTAINED/private/run-1-hevc-compatible-1500/thin.ssim[thin]",
+            "-map",
+            "[full]",
+            "-map",
+            "[text]",
+            "-map",
+            "[thin]",
+            "-f",
+            "null",
+            "-"
+          ],
+          "deadlineSeconds": 240,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 20.556,
+          "pgid": 82578,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-quality.log",
+          "logSha256": "a4cb67c905d54f3596f2cc87aea12a0bb1bfbafb042926e63f2d6b15012afb21",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500-rgb",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/opt/homebrew/Cellar/ffmpeg/9.0.1/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-threads",
+            "2",
+            "-filter_threads",
+            "1",
+            "-i",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/encoded.hevc",
+            "-vf",
+            "trim=start_frame=900:end_frame=9900,settb=1/30,setpts=N,crop=1720:56:180:990,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24",
+            "-frames:v",
+            "9000",
+            "-fps_mode",
+            "passthrough",
+            "-f",
+            "rawvideo",
+            "/private$SUSTAINED/private/run-1-hevc-compatible-1500/thin.rgb"
+          ],
+          "deadlineSeconds": 180,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 6.62,
+          "pgid": 82630,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/run-1-hevc-compatible-1500-rgb.log",
+          "logSha256": "03c819fdd69e1929870a9c86b33b81be3a47643ffb1c8acf7460a39d5ce67618",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        },
+        {
+          "name": "foreground-run-1",
+          "command": [
+            "/usr/bin/nice",
+            "-n",
+            "19",
+            "/usr/local/bin/python3",
+            "-B",
+            "media/tools/analyze-text-workload.py",
+            "--fixture",
+            "/private$FIXTURE",
+            "--baseline",
+            "run-1-h264-compatible-3000",
+            "--floor",
+            "uncompressed420",
+            "--decoded",
+            "uncompressed420=/private$SUSTAINED/private/floor.rgb",
+            "--observed-frames",
+            "9000",
+            "--capture-warmup-frames",
+            "900",
+            "--engine",
+            "numpy",
+            "--output",
+            "/private$SUSTAINED/foreground-run-1.json",
+            "--decoded",
+            "run-1-h264-compatible-3000=/private$SUSTAINED/private/run-1-h264-compatible-3000/thin.rgb",
+            "--decoded",
+            "run-1-hevc-compatible-1500=/private$SUSTAINED/private/run-1-hevc-compatible-1500/thin.rgb"
+          ],
+          "deadlineSeconds": 300,
+          "exitCode": 0,
+          "childExitCode": 0,
+          "seconds": 6.397,
+          "pgid": 82636,
+          "groupGone": true,
+          "timedOut": false,
+          "cleanupSignals": [],
+          "privateLog": "private/foreground-run-1.log",
+          "logSha256": "61274bd65136eab5225dfbf9ceca1b113fbab50c1703c2bf447e23c38bf33aaf",
+          "sourceCleanBefore": true,
+          "sourceCleanAfter": true
+        }
+      ],
+      "cases": [
+        {
+          "name": "run-1-h264-compatible-3000",
+          "specification": "h264:compatible:3000",
+          "independentRun": 1,
+          "oraclesComplete": true,
+          "encodingAndDecodeOraclesComplete": true,
+          "inputSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+          "encodedSha256": "433a4e98411f1176ed4ac28614be4dcd3c27eb7b5cf56c063d5d07ed3db60640",
+          "framedSha256": "08ece1040b31fdb8755c58f31c91fd729c04d7ab7c8307b3b24b95aaad65f7f3",
+          "normalizedRgbSha256": "83f096afe3232c912edf0c155bbf33d09b8fbadf67edbd6d006141ae8fdfe01d",
+          "actualDecodedMetadata": {
+            "codec_name": "h264",
+            "profile": "Constrained Baseline",
+            "width": 1920,
+            "height": 1080,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc",
+            "color_space": "bt709",
+            "color_transfer": "iec61966-2-1",
+            "color_primaries": "bt709",
+            "nb_read_frames": "9900"
+          },
+          "hardwareSelection": "QueriedHardware",
+          "accessUnits": {
+            "totalFrames": 9900,
+            "observedFrames": 9000,
+            "keyframeIndices": [
+              0,
+              60,
+              120,
+              180,
+              240,
+              300,
+              360,
+              420,
+              480,
+              540,
+              600,
+              660,
+              720,
+              780,
+              840,
+              900,
+              960,
+              1020,
+              1080,
+              1140,
+              1200,
+              1260,
+              1320,
+              1380,
+              1440,
+              1500,
+              1560,
+              1620,
+              1680,
+              1740,
+              1800,
+              1860,
+              1920,
+              1980,
+              2040,
+              2100,
+              2160,
+              2220,
+              2280,
+              2340,
+              2400,
+              2460,
+              2520,
+              2580,
+              2640,
+              2700,
+              2760,
+              2820,
+              2880,
+              2940,
+              3000,
+              3060,
+              3120,
+              3180,
+              3240,
+              3300,
+              3360,
+              3420,
+              3480,
+              3540,
+              3600,
+              3660,
+              3720,
+              3780,
+              3840,
+              3900,
+              3960,
+              4020,
+              4080,
+              4140,
+              4200,
+              4260,
+              4320,
+              4380,
+              4440,
+              4500,
+              4560,
+              4620,
+              4680,
+              4740,
+              4800,
+              4860,
+              4920,
+              4980,
+              5040,
+              5100,
+              5160,
+              5220,
+              5280,
+              5340,
+              5400,
+              5460,
+              5520,
+              5580,
+              5640,
+              5700,
+              5760,
+              5820,
+              5880,
+              5940,
+              6000,
+              6060,
+              6120,
+              6180,
+              6240,
+              6300,
+              6360,
+              6420,
+              6480,
+              6540,
+              6600,
+              6660,
+              6720,
+              6780,
+              6840,
+              6900,
+              6960,
+              7020,
+              7080,
+              7140,
+              7200,
+              7260,
+              7320,
+              7380,
+              7440,
+              7500,
+              7560,
+              7620,
+              7680,
+              7740,
+              7800,
+              7860,
+              7920,
+              7980,
+              8040,
+              8100,
+              8160,
+              8220,
+              8280,
+              8340,
+              8400,
+              8460,
+              8520,
+              8580,
+              8640,
+              8700,
+              8760,
+              8820,
+              8880,
+              8940,
+              9000,
+              9060,
+              9120,
+              9180,
+              9240,
+              9300,
+              9360,
+              9420,
+              9480,
+              9540,
+              9600,
+              9660,
+              9720,
+              9780,
+              9840
+            ],
+            "totalAnnexBBytes": 40782279,
+            "observedAnnexBBytes": 38878986,
+            "meanAnnexBMbps": 1.03677296,
+            "p95OneSecondAnnexBMbps": 2.489184,
+            "peakOneSecondAnnexBMbps": 2.489184,
+            "firstFrameAnnexBBytes": 46229
+          },
+          "encodeLatencyMs": {
+            "p50": 8.073500000000001,
+            "p95": 12.379708999999998,
+            "maximum": 13.367542,
+            "scope": "encode call to output callback received, excludes source read/fill"
+          },
+          "probeWallSeconds": 329.989,
+          "pacing": {
+            "nominalFirstToLastFrameSeconds": 329.96666666666664,
+            "wallMinusNominalSeconds": 0.02233333333333576,
+            "scope": "Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."
+          },
+          "processResources": {
+            "wallSeconds": 330.13,
+            "userSeconds": 4.48,
+            "systemSeconds": 7.47,
+            "averageCpuPercentOneCore": 3.619786144852028,
+            "maximumResidentBytes": 42450944,
+            "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+          },
+          "quality": {
+            "full": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.999858338,
+                  "minimum": 0.999803,
+                  "phaseMeans": {
+                    "still": 0.9998342728070176,
+                    "typing": 0.9998205833333332,
+                    "scrolling": 0.9999342833333332,
+                    "window-movement": 0.9998458833333334
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9989302901111112,
+                  "minimum": 0.998281,
+                  "phaseMeans": {
+                    "still": 0.9989422412280702,
+                    "typing": 0.9988802,
+                    "scrolling": 0.9993860166666667,
+                    "window-movement": 0.9985137333333333
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.9988208007777778,
+                  "minimum": 0.998338,
+                  "phaseMeans": {
+                    "still": 0.9987389820175439,
+                    "typing": 0.9986801666666667,
+                    "scrolling": 0.9993456666666667,
+                    "window-movement": 0.9985244000000001
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9995307322222222,
+                  "minimum": 0.999327,
+                  "phaseMeans": {
+                    "still": 0.9995030657894737,
+                    "typing": 0.9994737833333333,
+                    "scrolling": 0.9997448166666667,
+                    "window-movement": 0.99940355
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            },
+            "text": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.9998501835555557,
+                  "minimum": 0.999791,
+                  "phaseMeans": {
+                    "still": 0.9998174307017543,
+                    "typing": 0.9998016666666666,
+                    "scrolling": 0.9999514333333334,
+                    "window-movement": 0.9998324
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9990179464444443,
+                  "minimum": 0.998156,
+                  "phaseMeans": {
+                    "still": 0.9990281030701754,
+                    "typing": 0.9989504166666666,
+                    "scrolling": 0.9996317833333332,
+                    "window-movement": 0.9984630333333334
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.998874517,
+                  "minimum": 0.998221,
+                  "phaseMeans": {
+                    "still": 0.9987420798245614,
+                    "typing": 0.9986870833333333,
+                    "scrolling": 0.9996029,
+                    "window-movement": 0.99847465
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9995487345555555,
+                  "minimum": 0.999276,
+                  "phaseMeans": {
+                    "still": 0.9995061916666668,
+                    "typing": 0.9994739833333334,
+                    "scrolling": 0.9998401166666666,
+                    "window-movement": 0.9993778166666668
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            },
+            "thin": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.9995120241111112,
+                  "minimum": 0.999496,
+                  "phaseMeans": {
+                    "still": 0.999534872368421,
+                    "typing": 0.9994999333333333,
+                    "scrolling": 0.9995003333333334,
+                    "window-movement": 0.9995126666666666
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9962546828888889,
+                  "minimum": 0.996212,
+                  "phaseMeans": {
+                    "still": 0.9962859701754386,
+                    "typing": 0.9962188833333333,
+                    "scrolling": 0.9962319166666666,
+                    "window-movement": 0.9962820833333332
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.9971833185555555,
+                  "minimum": 0.99709,
+                  "phaseMeans": {
+                    "still": 0.9973274013157896,
+                    "typing": 0.9970900333333333,
+                    "scrolling": 0.9970975166666666,
+                    "window-movement": 0.99721695
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9985809364444445,
+                  "minimum": 0.998548,
+                  "phaseMeans": {
+                    "still": 0.9986257451754385,
+                    "typing": 0.9985509499999998,
+                    "scrolling": 0.9985552,
+                    "window-movement": 0.99859145
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            }
+          },
+          "rgbPath": "/private$SUSTAINED/private/run-1-h264-compatible-3000/thin.rgb",
+          "foregroundAnalysis": {
+            "file": "foreground-run-1.json",
+            "sha256": "12aec5a33a197914ec6a2e4415839e154b720c423a1ab58908ffa7a80f6dc74a",
+            "meanAbsoluteForegroundRgbCodeError": 13.648889951736868,
+            "worseAggregateFrames": 0,
+            "worseAggregateChannelFrames": {
+              "r": 0,
+              "g": 0,
+              "b": 0
+            },
+            "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+          },
+          "normalizedRgbIntermediateRemovedAfterAnalysis": true
+        },
+        {
+          "name": "run-1-hevc-compatible-1500",
+          "specification": "hevc:compatible:1500",
+          "independentRun": 1,
+          "oraclesComplete": true,
+          "encodingAndDecodeOraclesComplete": true,
+          "inputSha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6",
+          "encodedSha256": "2feb230aeedc2c314b4908e0ce8867ad92a6edb3070cad9c7fa9b05dc0f4ede9",
+          "framedSha256": "31e3803c8a887cfcfb7559eff40b8f29553b58fd9eb6652d2c8d0bc5ef6a7578",
+          "normalizedRgbSha256": "f8f4154370a91d753f9819c82e2c42e61c51770be8a231fa6c2d2f63e546c910",
+          "actualDecodedMetadata": {
+            "codec_name": "hevc",
+            "profile": "Main",
+            "width": 1920,
+            "height": 1080,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc",
+            "color_space": "bt709",
+            "color_transfer": "iec61966-2-1",
+            "color_primaries": "bt709",
+            "nb_read_frames": "9900"
+          },
+          "hardwareSelection": "QueriedHardware",
+          "accessUnits": {
+            "totalFrames": 9900,
+            "observedFrames": 9000,
+            "keyframeIndices": [
+              0,
+              60,
+              120,
+              180,
+              240,
+              300,
+              360,
+              420,
+              480,
+              540,
+              600,
+              660,
+              720,
+              780,
+              840,
+              900,
+              960,
+              1020,
+              1080,
+              1140,
+              1200,
+              1260,
+              1320,
+              1380,
+              1440,
+              1500,
+              1560,
+              1620,
+              1680,
+              1740,
+              1800,
+              1860,
+              1920,
+              1980,
+              2040,
+              2100,
+              2160,
+              2220,
+              2280,
+              2340,
+              2400,
+              2460,
+              2520,
+              2580,
+              2640,
+              2700,
+              2760,
+              2820,
+              2880,
+              2940,
+              3000,
+              3060,
+              3120,
+              3180,
+              3240,
+              3300,
+              3360,
+              3420,
+              3480,
+              3540,
+              3600,
+              3660,
+              3720,
+              3780,
+              3840,
+              3900,
+              3960,
+              4020,
+              4080,
+              4140,
+              4200,
+              4260,
+              4320,
+              4380,
+              4440,
+              4500,
+              4560,
+              4620,
+              4680,
+              4740,
+              4800,
+              4860,
+              4920,
+              4980,
+              5040,
+              5100,
+              5160,
+              5220,
+              5280,
+              5340,
+              5400,
+              5460,
+              5520,
+              5580,
+              5640,
+              5700,
+              5760,
+              5820,
+              5880,
+              5940,
+              6000,
+              6060,
+              6120,
+              6180,
+              6240,
+              6300,
+              6360,
+              6420,
+              6480,
+              6540,
+              6600,
+              6660,
+              6720,
+              6780,
+              6840,
+              6900,
+              6960,
+              7020,
+              7080,
+              7140,
+              7200,
+              7260,
+              7320,
+              7380,
+              7440,
+              7500,
+              7560,
+              7620,
+              7680,
+              7740,
+              7800,
+              7860,
+              7920,
+              7980,
+              8040,
+              8100,
+              8160,
+              8220,
+              8280,
+              8340,
+              8400,
+              8460,
+              8520,
+              8580,
+              8640,
+              8700,
+              8760,
+              8820,
+              8880,
+              8940,
+              9000,
+              9060,
+              9120,
+              9180,
+              9240,
+              9300,
+              9360,
+              9420,
+              9480,
+              9540,
+              9600,
+              9660,
+              9720,
+              9780,
+              9840
+            ],
+            "totalAnnexBBytes": 27731235,
+            "observedAnnexBBytes": 26045878,
+            "meanAnnexBMbps": 0.6945567466666667,
+            "p95OneSecondAnnexBMbps": 1.623088,
+            "peakOneSecondAnnexBMbps": 1.623088,
+            "firstFrameAnnexBBytes": 44185
+          },
+          "encodeLatencyMs": {
+            "p50": 9.214792,
+            "p95": 14.693542,
+            "maximum": 15.714084,
+            "scope": "encode call to output callback received, excludes source read/fill"
+          },
+          "probeWallSeconds": 329.981,
+          "pacing": {
+            "nominalFirstToLastFrameSeconds": 329.96666666666664,
+            "wallMinusNominalSeconds": 0.014333333333354403,
+            "scope": "Probe wall includes final drain. Nominal PTS do not prove application presentation cadence or end-to-end latency."
+          },
+          "processResources": {
+            "wallSeconds": 330.06,
+            "userSeconds": 4.52,
+            "systemSeconds": 7.6,
+            "averageCpuPercentOneCore": 3.6720596255226323,
+            "maximumResidentBytes": 42336256,
+            "scope": "macOS time-lp probe process only; includes file I/O/init/warmup, excludes OS helper/GPU/power and app baseline"
+          },
+          "quality": {
+            "full": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.9998083248888888,
+                  "minimum": 0.999734,
+                  "phaseMeans": {
+                    "still": 0.9997908219298246,
+                    "typing": 0.9998035464912282,
+                    "scrolling": 0.9997851666666667,
+                    "window-movement": 0.9998543666666667
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9990330033333333,
+                  "minimum": 0.998329,
+                  "phaseMeans": {
+                    "still": 0.9992372333333333,
+                    "typing": 0.9992393500000001,
+                    "scrolling": 0.9991252833333334,
+                    "window-movement": 0.99851905
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.9990486154444445,
+                  "minimum": 0.998479,
+                  "phaseMeans": {
+                    "still": 0.9992037890350878,
+                    "typing": 0.9992164105263158,
+                    "scrolling": 0.9990796833333333,
+                    "window-movement": 0.99868585
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9995525304444445,
+                  "minimum": 0.999369,
+                  "phaseMeans": {
+                    "still": 0.9996007592105264,
+                    "typing": 0.9996117096491227,
+                    "scrolling": 0.9995576833333334,
+                    "window-movement": 0.9994370666666668
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            },
+            "text": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.9998976655555556,
+                  "minimum": 0.99988,
+                  "phaseMeans": {
+                    "still": 0.9999007666666667,
+                    "typing": 0.9999011833333334,
+                    "scrolling": 0.9998924166666666,
+                    "window-movement": 0.9998961166666666
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9989754756666666,
+                  "minimum": 0.99802,
+                  "phaseMeans": {
+                    "still": 0.99923755,
+                    "typing": 0.9992407499999999,
+                    "scrolling": 0.9991438166666666,
+                    "window-movement": 0.9982655333333333
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.9990945984444445,
+                  "minimum": 0.998286,
+                  "phaseMeans": {
+                    "still": 0.9993217000000001,
+                    "typing": 0.9993390166666666,
+                    "scrolling": 0.9991481666666666,
+                    "window-movement": 0.9985567666666667
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9996101543333334,
+                  "minimum": 0.999309,
+                  "phaseMeans": {
+                    "still": 0.9996937166666666,
+                    "typing": 0.9996974333333334,
+                    "scrolling": 0.9996436666666667,
+                    "window-movement": 0.9994011833333333
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            },
+            "thin": {
+              "frames": 9000,
+              "channels": {
+                "Y": {
+                  "mean": 0.9994790287777778,
+                  "minimum": 0.999463,
+                  "phaseMeans": {
+                    "still": 0.9994769166666667,
+                    "typing": 0.9994688311403509,
+                    "scrolling": 0.9994757500000001,
+                    "window-movement": 0.99949495
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "U": {
+                  "mean": 0.9979868012222222,
+                  "minimum": 0.997789,
+                  "phaseMeans": {
+                    "still": 0.9978836916666667,
+                    "typing": 0.9978585333333333,
+                    "scrolling": 0.9978936999999999,
+                    "window-movement": 0.9983175333333334
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "V": {
+                  "mean": 0.997875856,
+                  "minimum": 0.997548,
+                  "phaseMeans": {
+                    "still": 0.9976009320175437,
+                    "typing": 0.9976021368421052,
+                    "scrolling": 0.9977703666666666,
+                    "window-movement": 0.9985448166666667
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                },
+                "All": {
+                  "mean": 0.9989629972222223,
+                  "minimum": 0.998865,
+                  "phaseMeans": {
+                    "still": 0.9988988662280702,
+                    "typing": 0.998888875877193,
+                    "scrolling": 0.99892795,
+                    "window-movement": 0.9991400333333333
+                  },
+                  "phaseFrames": {
+                    "still": 2280,
+                    "typing": 2280,
+                    "scrolling": 2220,
+                    "window-movement": 2220
+                  }
+                }
+              }
+            }
+          },
+          "rgbPath": "/private$SUSTAINED/private/run-1-hevc-compatible-1500/thin.rgb",
+          "foregroundAnalysis": {
+            "file": "foreground-run-1.json",
+            "sha256": "12aec5a33a197914ec6a2e4415839e154b720c423a1ab58908ffa7a80f6dc74a",
+            "meanAbsoluteForegroundRgbCodeError": 13.194498112593804,
+            "worseAggregateFrames": 0,
+            "worseAggregateChannelFrames": {
+              "r": 0,
+              "g": 0,
+              "b": 0
+            },
+            "scope": "Exact frame/channel aggregate sums on reference-derived ink+halo; not pixelwise/glyph/visual nonregression or full codec admission."
+          },
+          "normalizedRgbIntermediateRemovedAfterAnalysis": true
+        }
+      ],
+      "unexecutedCases": [],
+      "plan": {
+        "warmupSeconds": 30,
+        "observationSeconds": 300,
+        "independentRuns": 1,
+        "cases": [
+          "h264:compatible:3000",
+          "hevc:compatible:1500"
+        ]
+      },
+      "productionAdmission": false,
+      "unsupportedCurrentNativeProfiles": [
+        "av1"
+      ],
+      "limits": "Generated native encoder/file-input comparison only. No capture/control/transport, actual wire/relay traffic, OS helper/GPU/power/baseline-subtracted app CPU or physical endpoints. CPU/RSS cover the probe process including I/O, initialization and warmup. Metric comparisons are not complete text/codec admission."
+    }
+  },
+  "exports": {
+    "initial-contract-failure/queue.json": {
+      "sha256": "d37c761612b3995c0f9e8fdf699a23d5efa98fbd3a79f9e2c8e6adad3e7a934f",
+      "json": {
+        "source": "1bf86f639039cc627d4de26db377ecc57bc7d9d2",
+        "scope": "Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification",
+        "terminal": true,
+        "exitCode": 1,
+        "steps": [
+          {
+            "name": "queue",
+            "command": [
+              "/usr/bin/lockf",
+              "-k",
+              "-t",
+              "45",
+              "/tmp/fincode-build.lock",
+              "/usr/bin/nice",
+              "-n",
+              "19",
+              "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+              "$INITIAL_FAILURE/run.py",
+              "--inside-lock"
+            ],
+            "deadlineSeconds": 1800,
+            "exitCode": 1,
+            "childExitCode": 1,
+            "seconds": 1.251,
+            "pgid": 64618,
+            "groupGone": true,
+            "sourceCleanBefore": true,
+            "sourceCleanAfter": true,
+            "timedOut": false,
+            "logSha256": "ef346308d240f10dd0ab61aa6f8e25849c2a384dd350056a4977f9403e2d76bf"
+          }
+        ],
+        "helperSha256": "092c8bf178a87aaee8480e52d59a27dbd64cb49c4e2be2ec4b08d04507a5d6dd"
+      }
+    },
+    "initial-contract-failure/compiler-artifact.json": {
+      "sha256": "597afdb846d10b0b6c8768f07c860b8b2214d21ea32eb2fdd86e4b88a959863d",
+      "json": {
+        "source": "1bf86f639039cc627d4de26db377ecc57bc7d9d2",
+        "artifact": {
+          "reason": "compiler-artifact",
+          "package_id": "path+file://$CHECKOUT/media#voxl-media@0.1.0",
+          "manifest_path": "$CHECKOUT/media/Cargo.toml",
+          "target": {
+            "kind": [
+              "example"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "codec_probe",
+            "src_path": "$CHECKOUT/media/examples/codec_probe.rs",
+            "edition": "2024",
+            "doc": false,
+            "doctest": false,
+            "test": false
+          },
+          "profile": {
+            "opt_level": "3",
+            "debuginfo": 0,
+            "debug_assertions": false,
+            "overflow_checks": false,
+            "test": false
+          },
+          "features": [
+            "default"
+          ],
+          "filenames": [
+            "$CHECKOUT/media/target/release/examples/codec_probe"
+          ],
+          "executable": "$CHECKOUT/media/target/release/examples/codec_probe",
+          "fresh": true
+        },
+        "executableSha256": "3e321299ec1fd8639591b4ebb90d2ba307da54a3fadb7174afdef3a7575b9ca2"
+      }
+    },
+    "initial-contract-failure/clippy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "initial-contract-failure/cycle-tests.log": {
+      "sha256": "fff0282d231fa708bf57e4a10c4201df329816f4fe8dad8ef04238075882c525",
+      "text": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+    },
+    "initial-contract-failure/evidence-tests.log": {
+      "sha256": "82820f11a416e7d66dce585f2c65fcde8966d484be769e4b0f35c1de64c32043",
+      "text": "test_access_units_separate_warmup_and_observed_payload (__main__.CodecEvidenceTests.test_access_units_separate_warmup_and_observed_payload) ... FAIL\ntest_missing_nonfinite_and_wrong_count_ssim_are_rejected (__main__.CodecEvidenceTests.test_missing_nonfinite_and_wrong_count_ssim_are_rejected) ... ok\ntest_partial_extra_and_misclocked_streams_are_rejected (__main__.CodecEvidenceTests.test_partial_extra_and_misclocked_streams_are_rejected) ... ok\ntest_ssim_rows_preserve_channels_and_phase_boundaries (__main__.CodecEvidenceTests.test_ssim_rows_preserve_channels_and_phase_boundaries) ... ok\n\n======================================================================\nFAIL: test_access_units_separate_warmup_and_observed_payload (__main__.CodecEvidenceTests.test_access_units_separate_warmup_and_observed_payload)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"$CHECKOUT/media/tools/test-run-matched-codecs.py\", line 34, in test_access_units_separate_warmup_and_observed_payload\n    self.assertEqual(value[\"firstFrameAnnexBBytes\"],18)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 24 != 18\n\n----------------------------------------------------------------------\nRan 4 tests in 0.007s\n\nFAILED (failures=1)\n"
+    },
+    "initial-contract-failure/load.log": {
+      "sha256": "1b431310ce18cb0245ae937b88be76136762916f8ee06d16de2cd0a1db0fe1c0",
+      "text": "17:55  up 20 days,  4:42, 1 user, load averages: 1.89 1.97 2.12\n"
+    },
+    "initial-contract-failure/metric-tests.log": {
+      "sha256": "b20fd34f2506d0c71e86cde3ac8a75966b6a5643affde4088a55a8bc8bad942f",
+      "text": "test_channel_regression_cannot_hide_behind_lower_total_error (__main__.TextMetricsTests.test_channel_regression_cannot_hide_behind_lower_total_error) ... ok\ntest_cyclic_source_position_does_not_repeat_capture_clock (__main__.TextMetricsTests.test_cyclic_source_position_does_not_repeat_capture_clock) ... ok\ntest_partial_and_linked_decoded_data_are_rejected (__main__.TextMetricsTests.test_partial_and_linked_decoded_data_are_rejected) ... ok\ntest_vectorized_errors_equal_scalar_including_255_differences (__main__.TextMetricsTests.test_vectorized_errors_equal_scalar_including_255_differences) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.021s\n\nOK\n"
+    },
+    "initial-contract-failure/queue.log": {
+      "sha256": "ef346308d240f10dd0ab61aa6f8e25849c2a384dd350056a4977f9403e2d76bf",
+      "text": "AssertionError \n"
+    },
+    "initial-contract-failure/test-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "initial-contract-failure/toolchain.log": {
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    },
+    "initial-contract-failure/run.py": {
+      "sha256": "092c8bf178a87aaee8480e52d59a27dbd64cb49c4e2be2ec4b08d04507a5d6dd",
+      "text": "from pathlib import Path\nimport subprocess,os,sys,signal,time,json,hashlib\nP=Path;ROOT=P('$CHECKOUT');SHA='1bf86f639039cc627d4de26db377ecc57bc7d9d2';OUT=P(__file__).parent;INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','GIT_OPTIONAL_LOCKS':'0','CI':'true','PYTHONDONTWRITEBYTECODE':'1'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\n\ndef digest(path):return hashlib.sha256(P(path).read_bytes()).hexdigest()\ndef gone(group):\n try:os.killpg(group,0);return False\n except ProcessLookupError:return True\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'scope':'Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification','terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__)},indent=2)+'\\n')\ndef stop():\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef run(name,args,deadline,expected=0):\n global child\n clean();started=time.monotonic();timed=False\n with (OUT/(name+'.log')).open('w')as stream:\n  child=subprocess.Popen(args,cwd=ROOT,env=ENV,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':args,'deadlineSeconds':deadline,'exitCode':exitcode,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'sourceCleanBefore':True,'sourceCleanAfter':True,'timedOut':timed,'logSha256':digest(OUT/(name+'.log'))});save();assert gone(child.pid);child=None;assert exitcode==expected\n\ndef interrupted(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],1800)\n else:\n  run('load',['uptime'],10);run('toolchain',['cargo','--version'],15)\n  common=['--locked','--manifest-path','media/Cargo.toml','--release','--example','codec_probe','-j2','-q']\n  run('build',['cargo','build',*common,'--message-format=json'],600)\n  artifacts=[json.loads(line) for line in (OUT/'build.log').read_text().splitlines() if line.startswith('{')]\n  artifacts=[row for row in artifacts if row.get('reason')=='compiler-artifact' and row.get('target',{}).get('name')=='codec_probe' and row.get('executable')]\n  assert len(artifacts)==1\n  exe=P(artifacts[0]['executable']);assert exe.parent==ROOT/'media/target/release/examples'\n  (OUT/'compiler-artifact.json').write_text(json.dumps({'source':SHA,'artifact':artifacts[0],'executableSha256':digest(exe)},indent=2))\n  run('clippy',['cargo','clippy','--locked','--manifest-path','media/Cargo.toml','--lib','--example','codec_probe','-j2','-q','--message-format=short','--','-D','warnings'],300)\n  run('test-build',['cargo','test',*common,'--no-run','--message-format=short'],300)\n  run('cycle-tests',['cargo','test',*common,'input_cycle_','--','--nocapture'],30)\n  run('metric-tests',[sys.executable,'-B','media/tools/test-analyze-text-workload.py','-v'],30)\n  run('evidence-tests',[sys.executable,'-B','media/tools/test-run-matched-codecs.py','-v'],30)\n  native=[]\n  import re\n  for width in [320,322]:\n   height=180;raw=OUT/('source-'+str(width)+'.nv12');video=OUT/(str(width)+'.h264');framed=OUT/(str(width)+'.vxfr');decoded=OUT/(str(width)+'.decoded.nv12')\n   raw.write_bytes(b''.join(bytes([y])*(width*height)+bytes([128])*(width*height//2) for y in [16,110,235]))\n   command=[str(exe),'hardware',str(video),'h264',str(framed),'--warmup-frames=2','--frames=4','--fps=30','--width='+str(width),'--height=180','--input-nv12='+str(raw),'--input-cycle-prefix=1','--force-keyframe-period=1','--pixel-range=full','--color-tags=srgb']\n   run('native-'+str(width),command,20)\n   text=(OUT/('native-'+str(width)+'.log')).read_text();strides=list(map(int,re.search(r'input_y_stride=(\\d+) input_uv_stride=(\\d+) packed_width=(\\d+)',text).groups()))\n   assert strides[2]==width and (strides[:2]==[width,width] if width==320 else min(strides[:2])>width)\n   run('decode-'+str(width),['/opt/homebrew/bin/ffmpeg','-nostdin','-hide_banner','-loglevel','error','-threads','2','-i',str(video),'-pix_fmt','nv12','-fps_mode','passthrough','-f','rawvideo',str(decoded)],20)\n   data=decoded.read_bytes();size=width*height*3//2;assert len(data)==6*size\n   actual=[data[index*size+height//2*width+width//2] for index in range(6)];expected=[16,16,110,235,110,235]\n   assert all(abs(a-b)<=3 for a,b in zip(actual,expected)),(width,actual)\n   assert all(abs(data[index*size+width*height+width//2]-128)<=3 for index in range(6))\n   native.append({'width':width,'height':height,'nativeStrides':strides[:2],'decodedFrames':6,'expectedLumaCenters':expected,'actualLumaCenters':actual,'sourceSha256':digest(raw),'encodedSha256':digest(video),'decodedSha256':digest(decoded),'toleranceCodeValues':3})\n  for label,options in [('no-input',['--input-cycle-prefix=1']),('prefix-only',['--input-nv12='+str(raw),'--input-cycle-prefix=3'])]:\n   dest=OUT/(label+'.h264');run('reject-'+label,[str(exe),'hardware',str(dest),'h264','--width=322','--height=180',*options],15,1);assert not dest.exists()\n  partial=OUT/'partial.nv12';partial.write_bytes(raw.read_bytes()[:-1]);dest=OUT/'partial.h264'\n  run('reject-partial',[str(exe),'hardware',str(dest),'h264','--width=322','--height=180','--input-nv12='+str(partial),'--input-cycle-prefix=1'],15,1);assert not dest.exists()\n  (OUT/'native-reader.json').write_text(json.dumps({'source':SHA,'cases':native,'negativeCases':3,'scope':'Generated tiny NV12 only; proves packed/padded input reads, decoded cyclic order and validation. Not quality/resource admission.'},indent=2))\n  run('diff',['git','diff','--check','eca830a98e3fd2c5b8866ea307c22004c53bab31',SHA],15)\n code=0\nexcept BaseException as error:print(type(error).__name__,str(error),flush=True)\nfinally:stop();terminal=True;save()\nraise SystemExit(code)\n"
+    },
+    "native-contracts/queue.json": {
+      "sha256": "c5da552ff550e01ed88e8532d701e57f5315632909f44278903c2fb6c2b84631",
+      "json": {
+        "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+        "scope": "Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification",
+        "terminal": true,
+        "exitCode": 0,
+        "steps": [
+          {
+            "name": "queue",
+            "command": [
+              "/usr/bin/lockf",
+              "-k",
+              "-t",
+              "45",
+              "/tmp/fincode-build.lock",
+              "/usr/bin/nice",
+              "-n",
+              "19",
+              "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+              "$CONTRACTS/run.py",
+              "--inside-lock"
+            ],
+            "deadlineSeconds": 1800,
+            "exitCode": 0,
+            "childExitCode": 0,
+            "seconds": 2.602,
+            "pgid": 66899,
+            "groupGone": true,
+            "sourceCleanBefore": true,
+            "sourceCleanAfter": true,
+            "timedOut": false,
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "helperSha256": "d1e7190bffac679a725e5e399a44f655b0a7974a217ff53d34fe51c035f1684e"
+      }
+    },
+    "native-contracts/compiler-artifact.json": {
+      "sha256": "3569fb970d68049655771395988b735e3536cfa56a9386ffcdb0327c4f721429",
+      "json": {
+        "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+        "artifact": {
+          "reason": "compiler-artifact",
+          "package_id": "path+file://$CHECKOUT/media#voxl-media@0.1.0",
+          "manifest_path": "$CHECKOUT/media/Cargo.toml",
+          "target": {
+            "kind": [
+              "example"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "codec_probe",
+            "src_path": "$CHECKOUT/media/examples/codec_probe.rs",
+            "edition": "2024",
+            "doc": false,
+            "doctest": false,
+            "test": false
+          },
+          "profile": {
+            "opt_level": "3",
+            "debuginfo": 0,
+            "debug_assertions": false,
+            "overflow_checks": false,
+            "test": false
+          },
+          "features": [
+            "default"
+          ],
+          "filenames": [
+            "$CHECKOUT/media/target/release/examples/codec_probe"
+          ],
+          "executable": "$CHECKOUT/media/target/release/examples/codec_probe",
+          "fresh": true
+        },
+        "executableSha256": "3e321299ec1fd8639591b4ebb90d2ba307da54a3fadb7174afdef3a7575b9ca2"
+      }
+    },
+    "native-contracts/native-reader.json": {
+      "sha256": "865d0f4297c6a9a2a06a388ee8091e43e589cda17756e76ee61fc1d5d0a4342b",
+      "json": {
+        "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+        "cases": [
+          {
+            "width": 320,
+            "height": 180,
+            "nativeStrides": [
+              320,
+              320
+            ],
+            "decodedFrames": 6,
+            "expectedLumaCenters": [
+              16,
+              16,
+              110,
+              235,
+              110,
+              235
+            ],
+            "actualLumaCenters": [
+              16,
+              16,
+              110,
+              235,
+              110,
+              235
+            ],
+            "sourceSha256": "e9043e461de86647068ef3df1ea00d6c0c095970d0f266e1bc63b22d5b11b951",
+            "encodedSha256": "6a86a633b16ee5098bec5732d6be56a9bc77667a9799feaca5f16da95fef59c5",
+            "decodedSha256": "a6da390e8e3a2e6bcd9795d27bd289f1249b28fff97db6a1619ec0a2fdb56aa0",
+            "toleranceCodeValues": 3
+          },
+          {
+            "width": 322,
+            "height": 180,
+            "nativeStrides": [
+              384,
+              384
+            ],
+            "decodedFrames": 6,
+            "expectedLumaCenters": [
+              16,
+              16,
+              110,
+              235,
+              110,
+              235
+            ],
+            "actualLumaCenters": [
+              16,
+              16,
+              110,
+              235,
+              110,
+              235
+            ],
+            "sourceSha256": "6982d3a0f95ec8b6b7b94a8004c88bd2fecd2774e17204105e2f2d791f0dac57",
+            "encodedSha256": "6f3041cc01e2a6e15bf8558e5306228ad50503cc981ddfcb90027288a11e2303",
+            "decodedSha256": "f9f648512c38032cf125df83932fdf10c03ee887ba2c676b72d9f74db41dadd1",
+            "toleranceCodeValues": 3
+          }
+        ],
+        "negativeCases": 3,
+        "scope": "Generated tiny NV12 only; proves packed/padded input reads, decoded cyclic order and validation. Not quality/resource admission."
+      }
+    },
+    "native-contracts/clippy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/cycle-tests.log": {
+      "sha256": "fff0282d231fa708bf57e4a10c4201df329816f4fe8dad8ef04238075882c525",
+      "text": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+    },
+    "native-contracts/decode-320.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/decode-322.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/evidence-tests.log": {
+      "sha256": "d6c4a0d5659ea0e1c68e20670b5e286ef494605ac38697ae4c3225cff2712910",
+      "text": "test_access_units_separate_warmup_and_observed_payload (__main__.CodecEvidenceTests.test_access_units_separate_warmup_and_observed_payload) ... ok\ntest_missing_nonfinite_and_wrong_count_ssim_are_rejected (__main__.CodecEvidenceTests.test_missing_nonfinite_and_wrong_count_ssim_are_rejected) ... ok\ntest_partial_extra_and_misclocked_streams_are_rejected (__main__.CodecEvidenceTests.test_partial_extra_and_misclocked_streams_are_rejected) ... ok\ntest_ssim_rows_preserve_channels_and_phase_boundaries (__main__.CodecEvidenceTests.test_ssim_rows_preserve_channels_and_phase_boundaries) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.005s\n\nOK\n"
+    },
+    "native-contracts/load.log": {
+      "sha256": "5aeaa362888ab0064e8812fb80e5ee99a3846a617d784f9a49f2cc4ec61525b4",
+      "text": "17:55  up 20 days,  4:43, 1 user, load averages: 1.87 1.96 2.11\n"
+    },
+    "native-contracts/metric-tests.log": {
+      "sha256": "1d4713070a7ff341d4d9d7fdba012d0e952f922279051a3abd1e239f85c9f167",
+      "text": "test_channel_regression_cannot_hide_behind_lower_total_error (__main__.TextMetricsTests.test_channel_regression_cannot_hide_behind_lower_total_error) ... ok\ntest_cyclic_source_position_does_not_repeat_capture_clock (__main__.TextMetricsTests.test_cyclic_source_position_does_not_repeat_capture_clock) ... ok\ntest_partial_and_linked_decoded_data_are_rejected (__main__.TextMetricsTests.test_partial_and_linked_decoded_data_are_rejected) ... ok\ntest_vectorized_errors_equal_scalar_including_255_differences (__main__.TextMetricsTests.test_vectorized_errors_equal_scalar_including_255_differences) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.024s\n\nOK\n"
+    },
+    "native-contracts/native-320.log": {
+      "sha256": "b2bc4b27117a70109b6e5b79e3194515c2578fd57421a759154a315f825c1014",
+      "text": "requested_tuning=compatible warmup_frames=2 observed_frames=4 force_keyframe_period=Some(1)\ninput_pattern=file-nv12 requested_pixel_range=full requested_color_tags=srgb matrix_for_generated_bars=bt709\ninput_sequence=cyclic source_frames=3 prefix_frames=1 observed_cycle_frames=2\nhardware_selection=QueriedHardware\ninput_y_stride=320 input_uv_stride=320 packed_width=320\nprofile_level_id=[42, c0, 15]\nwait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms=30.85\nencode_samples_ms=[1.033458, 0.9852920000000001, 1.613709, 0.968083]\nkeyframe_indices=[0, 1, 2, 3, 4, 5] total_stream_bytes=1545\ncodec=H264 hardware=true width=320 height=180 fps=30 target_bitrate_kbps=2500 frames=4 warmup_frames=2 keyframes=4 bytes=1012 encoded_kbps=60.7 encode_p50_ms=0.99 encode_p95_ms=1.61 wall_seconds=0.170 percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps\n"
+    },
+    "native-contracts/native-322.log": {
+      "sha256": "d10cc15e2eda05591a7f3bb0b8cd9271e0fb60287f2f5abeafee8dbf07386278",
+      "text": "requested_tuning=compatible warmup_frames=2 observed_frames=4 force_keyframe_period=Some(1)\ninput_pattern=file-nv12 requested_pixel_range=full requested_color_tags=srgb matrix_for_generated_bars=bt709\ninput_sequence=cyclic source_frames=3 prefix_frames=1 observed_cycle_frames=2\nhardware_selection=QueriedHardware\ninput_y_stride=384 input_uv_stride=384 packed_width=322\nprofile_level_id=[42, c0, 15]\nwait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms=26.05\nencode_samples_ms=[0.994041, 1.01375, 1.007125, 1.0143330000000002]\nkeyframe_indices=[0, 1, 2, 3, 4, 5] total_stream_bytes=1605\ncodec=H264 hardware=true width=322 height=180 fps=30 target_bitrate_kbps=2500 frames=4 warmup_frames=2 keyframes=4 bytes=1052 encoded_kbps=63.1 encode_p50_ms=1.01 encode_p95_ms=1.01 wall_seconds=0.172 percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps\n"
+    },
+    "native-contracts/queue.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/reject-no-input.log": {
+      "sha256": "9bfc40f6feb4a799656dfc8764719b10f77c454c6e434e789149f4043898b39e",
+      "text": "Error: \"cyclic input requires an NV12 input file\"\n"
+    },
+    "native-contracts/reject-partial.log": {
+      "sha256": "620c3258be8d558f6db16569f38d032c8f4a487952535c57dab695b6d438697e",
+      "text": "Error: \"cyclic NV12 input must contain whole frames\"\n"
+    },
+    "native-contracts/reject-prefix-only.log": {
+      "sha256": "248169211e6194922a6802483d7c98d7e92eaff51af36fae230cc4e2453749e9",
+      "text": "Error: \"cyclic NV12 input needs a bounded nonempty observed segment\"\n"
+    },
+    "native-contracts/test-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "native-contracts/toolchain.log": {
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    },
+    "native-contracts/run.py": {
+      "sha256": "d1e7190bffac679a725e5e399a44f655b0a7974a217ff53d34fe51c035f1684e",
+      "text": "from pathlib import Path\nimport subprocess,os,sys,signal,time,json,hashlib\nP=Path;ROOT=P('$CHECKOUT');SHA='f1f08a424d7e405543f4088c522c19f5c49b22bc';OUT=P(__file__).parent;INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','GIT_OPTIONAL_LOCKS':'0','CI':'true','PYTHONDONTWRITEBYTECODE':'1'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\n\ndef digest(path):return hashlib.sha256(P(path).read_bytes()).hexdigest()\ndef gone(group):\n try:os.killpg(group,0);return False\n except ProcessLookupError:return True\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'scope':'Mac codec probe reader and metric/evidence contracts; no screen, input, Windows or full performance qualification','terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__)},indent=2)+'\\n')\ndef stop():\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef run(name,args,deadline,expected=0):\n global child\n clean();started=time.monotonic();timed=False\n with (OUT/(name+'.log')).open('w')as stream:\n  child=subprocess.Popen(args,cwd=ROOT,env=ENV,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':args,'deadlineSeconds':deadline,'exitCode':exitcode,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'sourceCleanBefore':True,'sourceCleanAfter':True,'timedOut':timed,'logSha256':digest(OUT/(name+'.log'))});save();assert gone(child.pid);child=None;assert exitcode==expected\n\ndef interrupted(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],1800)\n else:\n  run('load',['uptime'],10);run('toolchain',['cargo','--version'],15)\n  common=['--locked','--manifest-path','media/Cargo.toml','--release','--example','codec_probe','-j2','-q']\n  run('build',['cargo','build',*common,'--message-format=json'],600)\n  artifacts=[json.loads(line) for line in (OUT/'build.log').read_text().splitlines() if line.startswith('{')]\n  artifacts=[row for row in artifacts if row.get('reason')=='compiler-artifact' and row.get('target',{}).get('name')=='codec_probe' and row.get('executable')]\n  assert len(artifacts)==1\n  exe=P(artifacts[0]['executable']);assert exe.parent==ROOT/'media/target/release/examples'\n  (OUT/'compiler-artifact.json').write_text(json.dumps({'source':SHA,'artifact':artifacts[0],'executableSha256':digest(exe)},indent=2))\n  run('clippy',['cargo','clippy','--locked','--manifest-path','media/Cargo.toml','--lib','--example','codec_probe','-j2','-q','--message-format=short','--','-D','warnings'],300)\n  run('test-build',['cargo','test',*common,'--no-run','--message-format=short'],300)\n  run('cycle-tests',['cargo','test',*common,'input_cycle_','--','--nocapture'],30)\n  run('metric-tests',[sys.executable,'-B','media/tools/test-analyze-text-workload.py','-v'],30)\n  run('evidence-tests',[sys.executable,'-B','media/tools/test-run-matched-codecs.py','-v'],30)\n  native=[]\n  import re\n  for width in [320,322]:\n   height=180;raw=OUT/('source-'+str(width)+'.nv12');video=OUT/(str(width)+'.h264');framed=OUT/(str(width)+'.vxfr');decoded=OUT/(str(width)+'.decoded.nv12')\n   raw.write_bytes(b''.join(bytes([y])*(width*height)+bytes([128])*(width*height//2) for y in [16,110,235]))\n   command=[str(exe),'hardware',str(video),'h264',str(framed),'--warmup-frames=2','--frames=4','--fps=30','--width='+str(width),'--height=180','--input-nv12='+str(raw),'--input-cycle-prefix=1','--force-keyframe-period=1','--pixel-range=full','--color-tags=srgb']\n   run('native-'+str(width),command,20)\n   text=(OUT/('native-'+str(width)+'.log')).read_text();strides=list(map(int,re.search(r'input_y_stride=(\\d+) input_uv_stride=(\\d+) packed_width=(\\d+)',text).groups()))\n   assert strides[2]==width and (strides[:2]==[width,width] if width==320 else min(strides[:2])>width)\n   run('decode-'+str(width),['/opt/homebrew/bin/ffmpeg','-nostdin','-hide_banner','-loglevel','error','-threads','2','-i',str(video),'-pix_fmt','nv12','-fps_mode','passthrough','-f','rawvideo',str(decoded)],20)\n   data=decoded.read_bytes();size=width*height*3//2;assert len(data)==6*size\n   actual=[data[index*size+height//2*width+width//2] for index in range(6)];expected=[16,16,110,235,110,235]\n   assert all(abs(a-b)<=3 for a,b in zip(actual,expected)),(width,actual)\n   assert all(abs(data[index*size+width*height+width//2]-128)<=3 for index in range(6))\n   native.append({'width':width,'height':height,'nativeStrides':strides[:2],'decodedFrames':6,'expectedLumaCenters':expected,'actualLumaCenters':actual,'sourceSha256':digest(raw),'encodedSha256':digest(video),'decodedSha256':digest(decoded),'toleranceCodeValues':3})\n  for label,options in [('no-input',['--input-cycle-prefix=1']),('prefix-only',['--input-nv12='+str(raw),'--input-cycle-prefix=3'])]:\n   dest=OUT/(label+'.h264');run('reject-'+label,[str(exe),'hardware',str(dest),'h264','--width=322','--height=180',*options],15,1);assert not dest.exists()\n  partial=OUT/'partial.nv12';partial.write_bytes(raw.read_bytes()[:-1]);dest=OUT/'partial.h264'\n  run('reject-partial',[str(exe),'hardware',str(dest),'h264','--width=322','--height=180','--input-nv12='+str(partial),'--input-cycle-prefix=1'],15,1);assert not dest.exists()\n  (OUT/'native-reader.json').write_text(json.dumps({'source':SHA,'cases':native,'negativeCases':3,'scope':'Generated tiny NV12 only; proves packed/padded input reads, decoded cyclic order and validation. Not quality/resource admission.'},indent=2))\n  run('diff',['git','diff','--check','eca830a98e3fd2c5b8866ea307c22004c53bab31',SHA],15)\n code=0\nexcept BaseException as error:print(type(error).__name__,str(error),flush=True)\nfinally:stop();terminal=True;save()\nraise SystemExit(code)\n"
+    },
+    "short-comparison/compiler-artifact.json": {
+      "sha256": "dbbece5d6df91c8c01278587bc8527e8784ed2a3ffd18a373d83378791ac6a5e",
+      "json": {
+        "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+        "artifact": {
+          "reason": "compiler-artifact",
+          "package_id": "path+file://$CHECKOUT/media#voxl-media@0.1.0",
+          "manifest_path": "$CHECKOUT/media/Cargo.toml",
+          "target": {
+            "kind": [
+              "example"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "codec_probe",
+            "src_path": "$CHECKOUT/media/examples/codec_probe.rs",
+            "edition": "2024",
+            "doc": false,
+            "doctest": false,
+            "test": false
+          },
+          "profile": {
+            "opt_level": "3",
+            "debuginfo": 0,
+            "debug_assertions": false,
+            "overflow_checks": false,
+            "test": false
+          },
+          "features": [
+            "default"
+          ],
+          "filenames": [
+            "$CHECKOUT/media/target/release/examples/codec_probe"
+          ],
+          "executable": "$CHECKOUT/media/target/release/examples/codec_probe",
+          "fresh": true
+        },
+        "executableSha256": "3e321299ec1fd8639591b4ebb90d2ba307da54a3fadb7174afdef3a7575b9ca2",
+        "privateBuildLogSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781"
+      }
+    },
+    "short-comparison/fixture.json": {
+      "sha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707",
+      "json": {
+        "manifest": {
+          "chromaSampling": "2x2 RGB box average then quantize",
+          "colorPrimaries": "bt709",
+          "files": {
+            "reference-thin.rgb": {
+              "bytes": 78019200,
+              "sha256": "7eff53332664f1013fdbc8579072fcad3863fc37bd18ba5dcde999796ec8f655"
+            },
+            "reference.nv12": {
+              "bytes": 839808000,
+              "sha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6"
+            }
+          },
+          "fontPointSize": 14,
+          "fontPostScriptName": "Menlo-Regular",
+          "fontURL": "/System/Library/Fonts/Menlo.ttc",
+          "fps": 30,
+          "generator": "CoreText offscreen coding workload v1",
+          "height": 1080,
+          "observedFrames": 240,
+          "phases": [
+            {
+              "firstFrame": 30,
+              "frames": 60,
+              "name": "still"
+            },
+            {
+              "firstFrame": 90,
+              "frames": 60,
+              "name": "typing"
+            },
+            {
+              "firstFrame": 150,
+              "frames": 60,
+              "name": "scrolling"
+            },
+            {
+              "firstFrame": 210,
+              "frames": 60,
+              "name": "window-movement"
+            }
+          ],
+          "pixelFormat": "nv12",
+          "pixelRange": "full",
+          "regions": {
+            "codeText": {
+              "height": 924,
+              "width": 1720,
+              "x": 180,
+              "y": 48
+            },
+            "thinColoredText": {
+              "height": 56,
+              "width": 1720,
+              "x": 180,
+              "y": 990
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "Generated pixels only. Original RGB thin region is retained before source 4:2:0 conversion. No screen, UI, input, codec or performance qualification.",
+          "smallFontPointSize": 11,
+          "totalFrames": 270,
+          "transferFunction": "iec61966-2-1",
+          "warmupFrames": 30,
+          "width": 1920,
+          "ycbcrMatrix": "bt709"
+        },
+        "manifestSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+        "validation": {
+          "backgroundRgb": [
+            14,
+            15,
+            18
+          ],
+          "sourceInkPixels": 3856,
+          "evaluatedPixelsIncludingHalo": 9792,
+          "totalRegionPixels": 96320,
+          "contrastThresholdCodes": 8,
+          "haloPixels": 1,
+          "independentMatrixMaxCodeDifference": 0,
+          "matrixSamplesPerCheckedFrame": 163,
+          "checkedSourceFrames": [
+            0,
+            269
+          ],
+          "staticReferenceFramesVerified": 270
+        },
+        "currentGeneratorSourceSha256": "dff0026e95b5f68aef01dc78e55a9ba5b719a087a6122312645808695910293d",
+        "currentlyInstalledFontSha256": "f2d400484a6aace67980730ec0a9ef24ce9e535a2604f118e6fdc2510021b85f",
+        "reuse": true,
+        "scope": "Reused assets are identified by their byte hashes; current source/font hashes do not establish their historical generation environment."
+      }
+    },
+    "short-comparison/floor.json": {
+      "sha256": "e797f2f8884e6c9ea8987b4b214fc3b47c8a5d0408527a93951a5f27a505b2d2",
+      "json": {
+        "sha256": "c6cc6a4100a831a6c6e2e831c215ff9ef35c8add9b8eb123548d78832e912c6a",
+        "frames": 240,
+        "regenerableIntermediateRemoved": true,
+        "scope": "Uncompressed 4:2:0 reconstruction control, not additive codec loss or hardware decode proof"
+      }
+    },
+    "short-comparison/clippy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "short-comparison/cpu.log": {
+      "sha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "text": "Apple M5 Pro\n"
+    },
+    "short-comparison/ffmpeg-version.log": {
+      "sha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "text": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n\nExiting with exit code 0\n"
+    },
+    "short-comparison/ffprobe-version.log": {
+      "sha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "text": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n"
+    },
+    "short-comparison/foreground-run-1.log": {
+      "sha256": "dac9ce6b457fa0524f71288554be74297972e299d332ae274663681b3d5a5ec5",
+      "text": "{\"output\": \"/private$DIAGNOSTIC/foreground-run-1.json\", \"evaluatedPixels\": 9792, \"framesPerVariant\": 240}\n"
+    },
+    "short-comparison/load.log": {
+      "sha256": "ffdbf165fffa36d46ee0893fb38a811589e33e3035e3ebde177d347c8b50f0cc",
+      "text": "17:55  up 20 days,  4:43, 1 user, load averages: 1.82 1.94 2.11\n"
+    },
+    "short-comparison/model.log": {
+      "sha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "text": "Mac17,8\n"
+    },
+    "short-comparison/os.log": {
+      "sha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "text": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B5101f\n"
+    },
+    "short-comparison/run-1-h264-compatible-3000-decode.log": {
+      "sha256": "d110e5fa39412d9472706a87750b6f2a64137cb3c29971ee8fcffb22a093e84a",
+      "text": "{\n    \"programs\": [\n\n    ],\n    \"stream_groups\": [\n\n    ],\n    \"streams\": [\n        {\n            \"codec_name\": \"h264\",\n            \"profile\": \"Constrained Baseline\",\n            \"width\": 1920,\n            \"height\": 1080,\n            \"pix_fmt\": \"yuvj420p\",\n            \"color_range\": \"pc\",\n            \"color_space\": \"bt709\",\n            \"color_transfer\": \"iec61966-2-1\",\n            \"color_primaries\": \"bt709\",\n            \"nb_read_frames\": \"270\"\n        }\n    ]\n}\n"
+    },
+    "short-comparison/run-1-hevc-compatible-1500-decode.log": {
+      "sha256": "9ad7afe618265ad0559a3794e3e1d99f7f3b958471fef99abacaae8825dfecad",
+      "text": "{\n    \"programs\": [\n\n    ],\n    \"stream_groups\": [\n\n    ],\n    \"streams\": [\n        {\n            \"codec_name\": \"hevc\",\n            \"profile\": \"Main\",\n            \"width\": 1920,\n            \"height\": 1080,\n            \"pix_fmt\": \"yuvj420p\",\n            \"color_range\": \"pc\",\n            \"color_space\": \"bt709\",\n            \"color_transfer\": \"iec61966-2-1\",\n            \"color_primaries\": \"bt709\",\n            \"nb_read_frames\": \"270\"\n        }\n    ]\n}\n"
+    },
+    "short-comparison/source-floor.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "short-comparison/toolchain.log": {
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    },
+    "sustained-comparison/compiler-artifact.json": {
+      "sha256": "dbbece5d6df91c8c01278587bc8527e8784ed2a3ffd18a373d83378791ac6a5e",
+      "json": {
+        "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+        "artifact": {
+          "reason": "compiler-artifact",
+          "package_id": "path+file://$CHECKOUT/media#voxl-media@0.1.0",
+          "manifest_path": "$CHECKOUT/media/Cargo.toml",
+          "target": {
+            "kind": [
+              "example"
+            ],
+            "crate_types": [
+              "bin"
+            ],
+            "name": "codec_probe",
+            "src_path": "$CHECKOUT/media/examples/codec_probe.rs",
+            "edition": "2024",
+            "doc": false,
+            "doctest": false,
+            "test": false
+          },
+          "profile": {
+            "opt_level": "3",
+            "debuginfo": 0,
+            "debug_assertions": false,
+            "overflow_checks": false,
+            "test": false
+          },
+          "features": [
+            "default"
+          ],
+          "filenames": [
+            "$CHECKOUT/media/target/release/examples/codec_probe"
+          ],
+          "executable": "$CHECKOUT/media/target/release/examples/codec_probe",
+          "fresh": true
+        },
+        "executableSha256": "3e321299ec1fd8639591b4ebb90d2ba307da54a3fadb7174afdef3a7575b9ca2",
+        "privateBuildLogSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781"
+      }
+    },
+    "sustained-comparison/fixture.json": {
+      "sha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707",
+      "json": {
+        "manifest": {
+          "chromaSampling": "2x2 RGB box average then quantize",
+          "colorPrimaries": "bt709",
+          "files": {
+            "reference-thin.rgb": {
+              "bytes": 78019200,
+              "sha256": "7eff53332664f1013fdbc8579072fcad3863fc37bd18ba5dcde999796ec8f655"
+            },
+            "reference.nv12": {
+              "bytes": 839808000,
+              "sha256": "6ac8056140ff4b10f73872538c4d3f21bc866e6966af789792805a726b02bec6"
+            }
+          },
+          "fontPointSize": 14,
+          "fontPostScriptName": "Menlo-Regular",
+          "fontURL": "/System/Library/Fonts/Menlo.ttc",
+          "fps": 30,
+          "generator": "CoreText offscreen coding workload v1",
+          "height": 1080,
+          "observedFrames": 240,
+          "phases": [
+            {
+              "firstFrame": 30,
+              "frames": 60,
+              "name": "still"
+            },
+            {
+              "firstFrame": 90,
+              "frames": 60,
+              "name": "typing"
+            },
+            {
+              "firstFrame": 150,
+              "frames": 60,
+              "name": "scrolling"
+            },
+            {
+              "firstFrame": 210,
+              "frames": 60,
+              "name": "window-movement"
+            }
+          ],
+          "pixelFormat": "nv12",
+          "pixelRange": "full",
+          "regions": {
+            "codeText": {
+              "height": 924,
+              "width": 1720,
+              "x": 180,
+              "y": 48
+            },
+            "thinColoredText": {
+              "height": 56,
+              "width": 1720,
+              "x": 180,
+              "y": 990
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "Generated pixels only. Original RGB thin region is retained before source 4:2:0 conversion. No screen, UI, input, codec or performance qualification.",
+          "smallFontPointSize": 11,
+          "totalFrames": 270,
+          "transferFunction": "iec61966-2-1",
+          "warmupFrames": 30,
+          "width": 1920,
+          "ycbcrMatrix": "bt709"
+        },
+        "manifestSha256": "db2fd74fb74a461a15c69e66bc0cf5e6f2b914af6affb3c2f8b1bdfc3d4351fa",
+        "validation": {
+          "backgroundRgb": [
+            14,
+            15,
+            18
+          ],
+          "sourceInkPixels": 3856,
+          "evaluatedPixelsIncludingHalo": 9792,
+          "totalRegionPixels": 96320,
+          "contrastThresholdCodes": 8,
+          "haloPixels": 1,
+          "independentMatrixMaxCodeDifference": 0,
+          "matrixSamplesPerCheckedFrame": 163,
+          "checkedSourceFrames": [
+            0,
+            269
+          ],
+          "staticReferenceFramesVerified": 270
+        },
+        "currentGeneratorSourceSha256": "dff0026e95b5f68aef01dc78e55a9ba5b719a087a6122312645808695910293d",
+        "currentlyInstalledFontSha256": "f2d400484a6aace67980730ec0a9ef24ce9e535a2604f118e6fdc2510021b85f",
+        "reuse": true,
+        "scope": "Reused assets are identified by their byte hashes; current source/font hashes do not establish their historical generation environment."
+      }
+    },
+    "sustained-comparison/floor.json": {
+      "sha256": "ea96b508efeface2d4899a62e72ffd6f768896256eeb552048a1fefeecfce688",
+      "json": {
+        "sha256": "e5d49a4cba5287476e4a2b86800dfff62211eec7180eee754cf373a103d57437",
+        "frames": 9000,
+        "regenerableIntermediateRemoved": true,
+        "scope": "Uncompressed 4:2:0 reconstruction control, not additive codec loss or hardware decode proof"
+      }
+    },
+    "sustained-comparison/clippy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "sustained-comparison/cpu.log": {
+      "sha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "text": "Apple M5 Pro\n"
+    },
+    "sustained-comparison/ffmpeg-version.log": {
+      "sha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "text": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n\nExiting with exit code 0\n"
+    },
+    "sustained-comparison/ffprobe-version.log": {
+      "sha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "text": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n"
+    },
+    "sustained-comparison/foreground-run-1.log": {
+      "sha256": "61274bd65136eab5225dfbf9ceca1b113fbab50c1703c2bf447e23c38bf33aaf",
+      "text": "{\"output\": \"/private$SUSTAINED/foreground-run-1.json\", \"evaluatedPixels\": 9792, \"framesPerVariant\": 9000}\n"
+    },
+    "sustained-comparison/load.log": {
+      "sha256": "158ed56ce806912938bcc67ac56997f27bdd07b6eddfb61bf4a0f230f65f5990",
+      "text": "17:56  up 20 days,  4:44, 1 user, load averages: 1.87 1.98 2.11\n"
+    },
+    "sustained-comparison/model.log": {
+      "sha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "text": "Mac17,8\n"
+    },
+    "sustained-comparison/os.log": {
+      "sha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "text": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B5101f\n"
+    },
+    "sustained-comparison/run-1-h264-compatible-3000-decode.log": {
+      "sha256": "64b88b826e968089cdbcf4b223a72610412d92037d10fed21a9f6bd977589f20",
+      "text": "{\n    \"programs\": [\n\n    ],\n    \"stream_groups\": [\n\n    ],\n    \"streams\": [\n        {\n            \"codec_name\": \"h264\",\n            \"profile\": \"Constrained Baseline\",\n            \"width\": 1920,\n            \"height\": 1080,\n            \"pix_fmt\": \"yuvj420p\",\n            \"color_range\": \"pc\",\n            \"color_space\": \"bt709\",\n            \"color_transfer\": \"iec61966-2-1\",\n            \"color_primaries\": \"bt709\",\n            \"nb_read_frames\": \"9900\"\n        }\n    ]\n}\n"
+    },
+    "sustained-comparison/run-1-hevc-compatible-1500-decode.log": {
+      "sha256": "d9233818eae85dcc1d8be166440dd162cd006e630fce75a06456468f4435ad6c",
+      "text": "{\n    \"programs\": [\n\n    ],\n    \"stream_groups\": [\n\n    ],\n    \"streams\": [\n        {\n            \"codec_name\": \"hevc\",\n            \"profile\": \"Main\",\n            \"width\": 1920,\n            \"height\": 1080,\n            \"pix_fmt\": \"yuvj420p\",\n            \"color_range\": \"pc\",\n            \"color_space\": \"bt709\",\n            \"color_transfer\": \"iec61966-2-1\",\n            \"color_primaries\": \"bt709\",\n            \"nb_read_frames\": \"9900\"\n        }\n    ]\n}\n"
+    },
+    "sustained-comparison/source-floor.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "sustained-comparison/toolchain.log": {
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    }
+  },
+  "groupsIndependentlyAbsent": [
+    64618,
+    64622,
+    64627,
+    64632,
+    64642,
+    64653,
+    64666,
+    64677,
+    64682,
+    66899,
+    66906,
+    66911,
+    66916,
+    66931,
+    66946,
+    66961,
+    66976,
+    66984,
+    66993,
+    67007,
+    67012,
+    67024,
+    67029,
+    67034,
+    67039,
+    67044,
+    68079,
+    68084,
+    68089,
+    68094,
+    68099,
+    68104,
+    68109,
+    68114,
+    68125,
+    68139,
+    68147,
+    68178,
+    68183,
+    68188,
+    68193,
+    68229,
+    68234,
+    68240,
+    68245,
+    69649,
+    69655,
+    69660,
+    69665,
+    69670,
+    69675,
+    69680,
+    69685,
+    69696,
+    69708,
+    69713,
+    79847,
+    79868,
+    79893,
+    79903,
+    82568,
+    82578,
+    82630,
+    82636
+  ]
+}

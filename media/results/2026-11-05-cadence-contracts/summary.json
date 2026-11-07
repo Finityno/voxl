@@ -1,0 +1,42 @@
+{
+  "source": "2dd18efdfe6f4cd98966045a6fbb2ba14503c936",
+  "selectedTests": {
+    "parsers": {
+      "passed": 7,
+      "skipped": 0
+    },
+    "foreground": {
+      "passed": 6,
+      "skipped": 0
+    }
+  },
+  "expectedRefusals": {
+    "invalidFpsExit": 2,
+    "tooManyObservedFramesAt60Exit": 1,
+    "tooManyWarmupFramesAt60Exit": 1,
+    "intendedReasonsVerified": true,
+    "noOutputDirectories": true
+  },
+  "originalResultSha256": "89466e8b4c04e43e5030f4a48fb35f85f6eb44f09ee6412b3a46b5b64bb9bca6",
+  "originalHelperSha256": "e3cccf2f161fab2e6f052405f12f661af7b8b6471fbdcd8452a6efc529e94ef2",
+  "runtimeBlobsIdenticalToMeasuredF098": {
+    "media/src": "79922359b0cd31777fe9f2b9354e2409f4b3c564",
+    "media/Cargo.toml": "fa9fff086c55f1b4a17f39ddcad7c6213e021c50",
+    "media/Cargo.lock": "a7904c366c0e1f2b4132f964d1a13f689b62e5fc",
+    "media/vendor": "50f4bd6d21b4b571c3fb8747f01b23e134e5d356"
+  },
+  "independentlyAbsentGroups": [
+    59338,
+    59343,
+    59348,
+    59353,
+    59358,
+    59363
+  ],
+  "unexecuted": [
+    "Swift generation and default30 pixel/hash compatibility",
+    "Native60 encode/decode/quality/performance",
+    "Complete endpoint/profile admission"
+  ],
+  "scope": "Pure clock/metric/plan contracts only. No native operation, screen/window/input, production default/target/app-pin change or performance claim."
+}

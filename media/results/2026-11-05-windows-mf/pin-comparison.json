@@ -1,0 +1,177 @@
+{
+  "changes": [
+    {
+      "old": {
+        "name": "rtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+        "dependencies": [
+          "bytes",
+          "hex",
+          "log",
+          "pem",
+          "rand 0.10.3",
+          "rcgen",
+          "rtc-crypto",
+          "rtc-datachannel",
+          "rtc-dtls",
+          "rtc-ice",
+          "rtc-interceptor",
+          "rtc-mdns",
+          "rtc-media",
+          "rtc-rtcp",
+          "rtc-rtp",
+          "rtc-sctp",
+          "rtc-sdp",
+          "rtc-shared",
+          "rtc-srtp",
+          "rtc-stun",
+          "rtc-turn",
+          "rustls",
+          "sansio",
+          "serde",
+          "serde_json",
+          "unicase",
+          "url",
+          "x509-parser 0.16.0"
+        ]
+      },
+      "new": {
+        "name": "rtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+        "dependencies": [
+          "bytes",
+          "hex",
+          "log",
+          "pem",
+          "rand 0.10.3",
+          "rcgen",
+          "rtc-crypto",
+          "rtc-datachannel",
+          "rtc-dtls",
+          "rtc-ice",
+          "rtc-interceptor",
+          "rtc-mdns",
+          "rtc-media",
+          "rtc-rtcp",
+          "rtc-rtp",
+          "rtc-sctp",
+          "rtc-sdp",
+          "rtc-shared",
+          "rtc-srtp",
+          "rtc-stun",
+          "rtc-turn",
+          "rustls",
+          "sansio",
+          "serde",
+          "serde_json",
+          "unicase",
+          "url",
+          "x509-parser 0.16.0"
+        ]
+      }
+    },
+    {
+      "old": {
+        "name": "voxl-media",
+        "version": "0.1.0",
+        "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+        "dependencies": [
+          "async-trait",
+          "bytes",
+          "objc2-core-media",
+          "rand 0.10.3",
+          "rtc",
+          "tokio",
+          "tokio-rustls",
+          "webpki-roots",
+          "webrtc"
+        ]
+      },
+      "new": {
+        "name": "voxl-media",
+        "version": "0.1.0",
+        "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+        "dependencies": [
+          "async-trait",
+          "bytes",
+          "objc2-core-media",
+          "rand 0.10.3",
+          "rtc",
+          "tokio",
+          "tokio-rustls",
+          "webpki-roots",
+          "webrtc",
+          "windows 0.61.3",
+          "windows-core 0.61.2"
+        ]
+      }
+    },
+    {
+      "old": {
+        "name": "webrtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=636e04d62998883ccd8a6cf824e812a18b56dac8#636e04d62998883ccd8a6cf824e812a18b56dac8",
+        "dependencies": [
+          "async-broadcast",
+          "async-channel",
+          "async-trait",
+          "bytes",
+          "event-listener",
+          "futures",
+          "log",
+          "quinn-udp",
+          "rtc",
+          "tokio"
+        ]
+      },
+      "new": {
+        "name": "webrtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+        "dependencies": [
+          "async-broadcast",
+          "async-channel",
+          "async-trait",
+          "bytes",
+          "event-listener",
+          "futures",
+          "log",
+          "quinn-udp",
+          "rtc",
+          "tokio"
+        ]
+      }
+    }
+  ],
+  "packageCountUnchanged": 1321,
+  "selected": [
+    {
+      "name": "rtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "features": [
+        "crypto-aws-lc-rs"
+      ]
+    },
+    {
+      "name": "voxl-media",
+      "version": "0.1.0",
+      "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "features": [
+        "webrtc"
+      ]
+    },
+    {
+      "name": "webrtc",
+      "version": "0.21.1",
+      "source": "git+https://github.com/Finityno/voxl?rev=0b365da584c7a24db01e41beb45f4da75651651c#0b365da584c7a24db01e41beb45f4da75651651c",
+      "features": [
+        "crypto-aws-lc-rs",
+        "runtime-tokio"
+      ]
+    }
+  ],
+  "scope": "Locked semantic comparison; three custom-fork package sources changed, two existing Windows package references added to voxl-media. No other versions or packages changed."
+}

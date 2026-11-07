@@ -1,0 +1,76 @@
+{
+  "runtime": "0b365da584c7a24db01e41beb45f4da75651651c",
+  "app": "b2811a6c041555eb2fc4d42b81b253b98ea9a830",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4711,
+      "sha256": "d4c55dd1d68e0b2949ad6bc0bc17d760770c4272f5e489d41cdfd1f89b216f08"
+    },
+    {
+      "path": "app.json",
+      "bytes": 10149,
+      "sha256": "1bc5267a0ec0613d79944c455248169933c7b5b0c4ef88b8488b742daa33c3cc"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 2332,
+      "sha256": "8bc76fbb22d8f72555bcd5e74ddfb03d26819a43512cb50b940125e8ef3086a7"
+    },
+    {
+      "path": "comparison.json",
+      "bytes": 1135,
+      "sha256": "340baf17d2ae4975e1c878bec32bf505aa65697a765e805f1d502f6c9640efa0"
+    },
+    {
+      "path": "final.json",
+      "bytes": 9900,
+      "sha256": "7d643dfc1bc57eddf00525493c278be1c123397dd41094c4f11b4cbfc1007374"
+    },
+    {
+      "path": "framing-pass.json",
+      "bytes": 13120,
+      "sha256": "55bff2df394138bca3cee4b781e0f328be9ef4fe89c275cbe88bfd828cfe1fbd"
+    },
+    {
+      "path": "initial.json",
+      "bytes": 8852,
+      "sha256": "2e689485bd80273ad7021c47c4ed64028b39417add4a29e8239c449f3a77e0de"
+    },
+    {
+      "path": "lint-attempt.json",
+      "bytes": 10067,
+      "sha256": "efe90aadf67d103620af69f7bcbe55af7a8820ceba451ac64ef3fcd60b564960"
+    },
+    {
+      "path": "lock-diff.json",
+      "bytes": 2229,
+      "sha256": "87d29280d9b2c7677d7a0a381023898ff0c6e3c6ec4573c366fe49f824ed36b1"
+    },
+    {
+      "path": "native-plan.md",
+      "bytes": 3898,
+      "sha256": "e0765873844d490b74f1cd91ac7d858c30f3b4fe9505e1eaa9d4acf6a1739266"
+    },
+    {
+      "path": "pin-comparison.json",
+      "bytes": 4793,
+      "sha256": "bf63cfd138e44bfad20127435bc465241171e3ca3dee28d10fc395e6307fa2ce"
+    },
+    {
+      "path": "probe-warning.json",
+      "bytes": 8958,
+      "sha256": "ef34210adeb7b2400227d9e1b7f1a1664791799af447d846d0c5b419894f858d"
+    },
+    {
+      "path": "target-install.json",
+      "bytes": 437,
+      "sha256": "2d3a3030d65ead02385d7fbcfa29391e24468735ea703be8a9bbde634a3c2296"
+    },
+    {
+      "path": "target-retry.json",
+      "bytes": 9072,
+      "sha256": "5b68baa6a9c7d61482022112b77ecafdcdc7b7214b71b8d7dc7a8b269e41d328"
+    }
+  ]
+}

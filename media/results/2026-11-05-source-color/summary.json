@@ -1,0 +1,791 @@
+{
+  "runtimeSource": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+  "initialColorSource": "0ad2646386e3a1ad7f6996632ad97b5bce7ce14d",
+  "counts": {
+    "baselineEncodedDecodedCases": 24,
+    "baselineTaggedCases": 16,
+    "baselineTaggedCasesPreserved": 0,
+    "finalEncodedDecodedCases": 24,
+    "finalTaggedCases": 16,
+    "finalTaggedCasesPreserved": 16,
+    "finalNumericRegionComparisons": 16,
+    "finalNativeTransitionTestsPassed": 4,
+    "initialBadGeometryTestsFailed": 4,
+    "initialDefaultGuardFailureColorCasesExecuted": 0
+  },
+  "finalCompileLintTests": {
+    "build": {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--release",
+        "--example",
+        "codec_probe",
+        "-j2",
+        "-q",
+        "--message-format=json"
+      ],
+      "deadlineSeconds": 600,
+      "pid": 8064,
+      "pgid": 8064,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.158,
+      "groupGone": true,
+      "cleanupSignals": [],
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "logSha256": "154f1d3f93426e11acc605b5634c3f3c09ca089d9ca585d8a85f9a0c24a44781"
+    },
+    "clippy": {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "--tests",
+        "--example",
+        "codec_probe",
+        "-j2",
+        "-q",
+        "--message-format=short",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "deadlineSeconds": 600,
+      "pid": 8128,
+      "pgid": 8128,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.274,
+      "groupGone": true,
+      "cleanupSignals": [],
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-build": {
+      "name": "test-build",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "--no-run",
+        "-j2",
+        "-q",
+        "--message-format=json"
+      ],
+      "deadlineSeconds": 600,
+      "pid": 8426,
+      "pgid": 8426,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 0.399,
+      "groupGone": true,
+      "cleanupSignals": [],
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "logSha256": "edc369d744304a21408cbf41cf42c790df99229486077fcb84240b3f62286642"
+    },
+    "color-transition-tests": {
+      "name": "color-transition-tests",
+      "command": [
+        "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/debug/deps/voxl_media-51cbc0a914bac636",
+        "color_configuration_",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "deadlineSeconds": 30,
+      "pid": 8456,
+      "pgid": 8456,
+      "exitCode": 0,
+      "childExitCode": 0,
+      "seconds": 3.255,
+      "groupGone": true,
+      "cleanupSignals": [],
+      "sourceCleanBefore": true,
+      "sourceCleanAfter": true,
+      "logSha256": "00771e4a8fd0f27dab5dfe1fa5f24b77ce198cda5715911ccb5f9bad3867c195"
+    }
+  },
+  "cases": [
+    {
+      "case": "h264-hardware-compatible-video-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-hardware-compatible-video-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.9583333333333334,
+      "colorRegionMaxAbsSrgbCodeError": 6
+    },
+    {
+      "case": "h264-hardware-compatible-video-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.8541666666666666,
+      "colorRegionMaxAbsSrgbCodeError": 3
+    },
+    {
+      "case": "h264-hardware-compatible-full-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-hardware-compatible-full-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.8333333333333334,
+      "colorRegionMaxAbsSrgbCodeError": 6
+    },
+    {
+      "case": "h264-hardware-compatible-full-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.4375,
+      "colorRegionMaxAbsSrgbCodeError": 2
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.9583333333333334,
+      "colorRegionMaxAbsSrgbCodeError": 6
+    },
+    {
+      "case": "h264-hardware-constrained-high-video-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.8541666666666666,
+      "colorRegionMaxAbsSrgbCodeError": 3
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.8333333333333334,
+      "colorRegionMaxAbsSrgbCodeError": 6
+    },
+    {
+      "case": "h264-hardware-constrained-high-full-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "High",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.4375,
+      "colorRegionMaxAbsSrgbCodeError": 2
+    },
+    {
+      "case": "hevc-hardware-compatible-video-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "hevc-hardware-compatible-video-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "hevc-hardware-compatible-video-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "hevc-hardware-compatible-full-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "hevc-hardware-compatible-full-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "hevc-hardware-compatible-full-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "hevc",
+        "profile": "Main",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "h264-software-compatible-video-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-software-compatible-video-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "h264-software-compatible-video-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "h264-software-compatible-full-none",
+      "tagged": false,
+      "beforeTagsPreserved": null,
+      "afterTagsPreserved": null,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": null,
+      "colorRegionMaxAbsSrgbCodeError": null
+    },
+    {
+      "case": "h264-software-compatible-full-bt709",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    },
+    {
+      "case": "h264-software-compatible-full-srgb",
+      "tagged": true,
+      "beforeTagsPreserved": false,
+      "afterTagsPreserved": true,
+      "beforeMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "nb_read_frames": "20"
+      },
+      "afterMetadata": {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuvj420p",
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "iec61966-2-1",
+        "color_primaries": "bt709",
+        "nb_read_frames": "20"
+      },
+      "colorRegionMeanAbsSrgbCodeError": 0.0,
+      "colorRegionMaxAbsSrgbCodeError": 0
+    }
+  ],
+  "qualityAdmission": false,
+  "performanceAdmission": false,
+  "limits": "Static 720p30 color bars, twenty frames each and force IDR at0/10, generated NV12video/full with709primaries/matrix and709/sRGBtransfer. Numeric center16x16ROI comparison on first frame only, not all-frame/full-image quality, colored text, HDR/P3, motion or browser conversion. Software independent FFmpeg decoding does not prove a hardware decoder. No CPU/RAM/power or total-wire saving measured."
+}

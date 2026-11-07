@@ -1,0 +1,18 @@
+{
+  "h264": {
+    "speedWorseAggregateFramesVsSameCodecDefault": 0,
+    "speedWorseChannelFramesVsSameCodecDefault": {
+      "r": 0,
+      "g": 0,
+      "b": 0
+    }
+  },
+  "hevc": {
+    "speedWorseAggregateFramesVsSameCodecDefault": 240,
+    "speedWorseChannelFramesVsSameCodecDefault": {
+      "r": 240,
+      "g": 240,
+      "b": 240
+    }
+  }
+}

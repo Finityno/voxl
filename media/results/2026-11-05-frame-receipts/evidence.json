@@ -1,0 +1,122 @@
+{
+  "source": "6279c1f57fb268945ea9567643eb8e4331411091",
+  "normalization": "Private filesystem paths are replaced. Copied scope/limits descriptions were stale and are corrected; exact commands, counts and exit codes define coverage. Original byte hashes remain; raw originals stay in the owned local artifact.",
+  "texts": [
+    {
+      "name": "diff-check.log",
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "h264.log",
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.49s\n\n",
+      "sha256": "4541d1bdb219e7136264510f8e87d4af4204d89bcb563c96183b440f2151476c",
+      "originalSha256": "4541d1bdb219e7136264510f8e87d4af4204d89bcb563c96183b440f2151476c"
+    },
+    {
+      "name": "hevc.log",
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.48s\n\n",
+      "sha256": "b5936e24f170cf04a4abfb3a7afae142a0691ed27299507d0fd8c1840199dade",
+      "originalSha256": "b5936e24f170cf04a4abfb3a7afae142a0691ed27299507d0fd8c1840199dade"
+    },
+    {
+      "name": "load.log",
+      "text": " 8:50  up 19 days, 19:38, 1 user, load averages: 1.87 1.65 1.64\n",
+      "sha256": "ae193742a0243e24233572ba0ccca7fb26e78691f7907cbd45f763c0ba9645e5",
+      "originalSha256": "ae193742a0243e24233572ba0ccca7fb26e78691f7907cbd45f763c0ba9645e5"
+    },
+    {
+      "name": "media-build.log",
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "native-results.json",
+      "text": "{\n  \"source\": \"6279c1f57fb268945ea9567643eb8e4331411091\",\n  \"scope\": \"frame_receipt_clock_and_restart\",\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"pid\": 97348,\n      \"pgid\": 97348,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.026,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"ae193742a0243e24233572ba0ccca7fb26e78691f7907cbd45f763c0ba9645e5\"\n    },\n    {\n      \"name\": \"media-build\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--no-run\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"pid\": 97353,\n      \"pgid\": 97353,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 17.921,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"h264\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"webrtc::tests::webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback\",\n        \"--\",\n        \"--exact\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 99098,\n      \"pgid\": 99098,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 1.09,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"4541d1bdb219e7136264510f8e87d4af4204d89bcb563c96183b440f2151476c\"\n    },\n    {\n      \"name\": \"hevc\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock\",\n        \"--\",\n        \"--exact\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 99109,\n      \"pgid\": 99109,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.72,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"b5936e24f170cf04a4abfb3a7afae142a0691ed27299507d0fd8c1840199dade\"\n    },\n    {\n      \"name\": \"restart\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"webrtc::tests::live_restart::live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations\",\n        \"--\",\n        \"--exact\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 45,\n      \"pid\": 99120,\n      \"pgid\": 99120,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.467,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"50a11cf20d0332db2fccce9712852c85b7726792bb04f4ccc72c1db0e1d3257b\"\n    },\n    {\n      \"name\": \"strict-clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"--manifest-path\",\n        \"media/Cargo.toml\",\n        \"--features\",\n        \"webrtc\",\n        \"--lib\",\n        \"--tests\",\n        \"--examples\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"pid\": 99131,\n      \"pgid\": 99131,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 4.318,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"diff-check\",\n      \"command\": [\n        \"git\",\n        \"diff\",\n        \"--check\",\n        \"cee1a49e32e10517bad96fbbcde3214ebfca8ea6\",\n        \"6279c1f57fb268945ea9567643eb8e4331411091\"\n      ],\n      \"deadlineSeconds\": 15,\n      \"pid\": 99171,\n      \"pgid\": 99171,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.032,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"0204630a511c72cec4793827d32338cb2cb9a0d2e6a1885b1a065a33e9b7f566\",\n  \"limits\": \"Three synthetic local UDP/DTLS/SRTP media tests and strict library/test/example Clippy. No native capture, encoder, decoder, physical LAN, TURN rerun or resource-budget qualification.\",\n  \"cases\": []\n}\n",
+      "sha256": "db456b241bd4b68f46d2ca94aaeb9377e8bd10fc105d0332a72bd2f81aa06812",
+      "originalSha256": "afff69ba1be43144c842000a3dfb6b6d9d1ab01164aba64251c8fecb02ea568a"
+    },
+    {
+      "name": "queue.json",
+      "text": "{\n  \"source\": \"6279c1f57fb268945ea9567643eb8e4331411091\",\n  \"scope\": \"supervisor_queue\",\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"<shared-build-lock>\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"<owned-validation-artifact>.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 1300,\n      \"pid\": 97342,\n      \"pgid\": 97342,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 24.857,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"0204630a511c72cec4793827d32338cb2cb9a0d2e6a1885b1a065a33e9b7f566\",\n  \"limits\": \"Three synthetic local UDP/DTLS/SRTP media tests and strict library/test/example Clippy. No native capture, encoder, decoder, physical LAN, TURN rerun or resource-budget qualification.\",\n  \"nativeResults\": \"native-results.json\"\n}\n",
+      "sha256": "19d220e722995f4a84de39243b0c4ad903d5b6f718dd20827b4a7623e0b9bf03",
+      "originalSha256": "5782e01d553cf2b5f5a06752de26ddee9c36a844d170188a3522665afa5891a5"
+    },
+    {
+      "name": "queue.log",
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "restart.log",
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.23s\n\n",
+      "sha256": "50a11cf20d0332db2fccce9712852c85b7726792bb04f4ccc72c1db0e1d3257b",
+      "originalSha256": "50a11cf20d0332db2fccce9712852c85b7726792bb04f4ccc72c1db0e1d3257b"
+    },
+    {
+      "name": "strict-clippy.log",
+      "text": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "helper.py",
+      "text": "import fractions,hashlib,json,math,os,pathlib,re,signal,subprocess,sys,time\nROOT=pathlib.Path('<isolated-media-worktree>')\nREV='6279c1f57fb268945ea9567643eb8e4331411091'\nOUT=pathlib.Path('<owned-validation-artifact>')\nINITIAL=pathlib.Path('<unused-prior-artifact>')\nINNER='--inside-lock' in sys.argv\nif not INNER:OUT.mkdir(mode=0o700)\nos.umask(0o077)\nos.environ['GIT_OPTIONAL_LOCKS']='0'\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','RUSTC_WRAPPER':'','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_JOBS':'2','CARGO_BUILD_WARNINGS':'deny','CI':'true','GIT_OPTIONAL_LOCKS':'0','FINCODE_COMMIT_SHA':REV,'CARGO_INCREMENTAL':'0','FINCODE_TEST_TIMEOUT_SECONDS':'90','FINCODE_TEST_BINARY_TIMEOUT_SECONDS':'60'}\nsteps=[];cases=[]\ndef interrupted(signum,frame):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ndef digest(path):\n with pathlib.Path(path).open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()\ndef source():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==REV\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef exists(group):\n try:os.killpg(group,0);return True\n except ProcessLookupError:return False\ndef save():\n j={'source':REV,'scope':'frame_receipt_clock_and_restart' if INNER else 'supervisor_queue','steps':steps,'helperSha256':digest(__file__),'limits':'Corrected in evidence scope; original helper contained stale copied descriptive metadata.'}\n if INNER:j['cases']=cases\n else:j['nativeResults']='native-results.json'\n (OUT/('native-results.json' if INNER else 'queue.json')).write_text(json.dumps(j,indent=2)+'\\n')\ndef run(name,command,deadline,grace=4):\n source();started=time.monotonic();pending=None;cleanup=[]\n with (OUT/(name+'.log')).open('x') as log:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)\n  try:code=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:code=124\n  except BaseException as error:code=130;pending=error\n  finally:\n   if child.poll() is None:\n    try:os.killpg(child.pid,signal.SIGTERM)\n    except ProcessLookupError:pass\n    cleanup.append('SIGTERM')\n    try:child.wait(timeout=grace)\n    except subprocess.TimeoutExpired:\n     try:os.killpg(child.pid,signal.SIGKILL)\n     except ProcessLookupError:pass\n     cleanup.append('SIGKILL');child.wait(timeout=3)\n   if exists(child.pid):\n    try:os.killpg(child.pid,signal.SIGKILL)\n    except ProcessLookupError:pass\n    cleanup.append('SIGKILL-descendants')\n   until=time.monotonic()+3\n   while exists(child.pid) and time.monotonic()<until:time.sleep(.05)\n source();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'pid':child.pid,'pgid':child.pid,'exitCode':code,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'groupGone':not exists(child.pid),'cleanupSignals':cleanup,'sourceCleanBefore':True,'sourceCleanAfter':True,'logSha256':digest(OUT/(name+'.log'))});save();assert not exists(child.pid)\n if pending:raise pending\n return code\n\n\ntry:\n source()\n if not INNER:\n  code=run('queue',['/usr/bin/lockf','-k','-t','45','<shared-build-lock>','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],1300,20)\n else:\n  assert run('load',['uptime'],10)==0\n  assert run('media-build',['cargo','test','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--no-run','-j2','-q','--message-format=short'],600)==0\n  for label,selected in [('h264','webrtc::tests::webrtc_loopback_preserves_video_payload_capture_clock_and_keyframe_feedback'),('hevc','webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock'),('restart','webrtc::tests::live_restart::live_ice_restart_preserves_peer_identity_rtp_clock_and_fences_three_generations')]:\n   assert run(label,['cargo','test','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','-j2','-q',selected,'--','--exact','--nocapture'],45)==0\n   assert 'test result: ok. 1 passed; 0 failed; 0 ignored;' in (OUT/(label+'.log')).read_text()\n  assert run('strict-clippy',['cargo','clippy','--locked','--manifest-path','media/Cargo.toml','--features','webrtc','--lib','--tests','--examples','-j2','-q','--message-format=short','--','-D','warnings'],600)==0\n  assert run('diff-check',['git','diff','--check','cee1a49e32e10517bad96fbbcde3214ebfca8ea6',REV],15)==0\n  code=0\nexcept BaseException:\n save();raise\nsave()\nraise SystemExit(code)\n\n\n\n",
+      "sha256": "6d7a29ea851fcba6062ab3e3a17b609af12f9db361c221af4fa18b6127e57275",
+      "originalSha256": "0204630a511c72cec4793827d32338cb2cb9a0d2e6a1885b1a065a33e9b7f566"
+    }
+  ],
+  "postRunGroups": [
+    {
+      "artifact": "native-results.json",
+      "step": "load",
+      "pgid": 97348,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "media-build",
+      "pgid": 97353,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "h264",
+      "pgid": 99098,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "hevc",
+      "pgid": 99109,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "restart",
+      "pgid": 99120,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "strict-clippy",
+      "pgid": 99131,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "native-results.json",
+      "step": "diff-check",
+      "pgid": 99171,
+      "goneAtEvidenceExport": true
+    },
+    {
+      "artifact": "queue.json",
+      "step": "queue",
+      "pgid": 97342,
+      "goneAtEvidenceExport": true
+    }
+  ]
+}

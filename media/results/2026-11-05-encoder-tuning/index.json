@@ -1,0 +1,55 @@
+{
+  "runtimeSource": "7677d66abe68be42572b838c5460fd8583bc5f34",
+  "initialSource": "ce39fc599fcfd7b349a4096b86c7283f69d249b3",
+  "files": {
+    "README.md": {
+      "bytes": 9614,
+      "sha256": "a5454b4881ee0c243b7342342959f905d0a84d3318581bdccb09c3d4ac8d6ccc"
+    },
+    "final-7677d66/analysis.json": {
+      "bytes": 23045,
+      "sha256": "2c9cb1dba8abbf4447f77e936326b8ee8fd8828c99b984280586c84c559e59d9"
+    },
+    "final-7677d66/cleanup.json": {
+      "bytes": 44645,
+      "sha256": "ccbd8694bd84def8166483ab8c50ea6a0c2b25ec261bbab1ad54549c4b5f4449"
+    },
+    "final-7677d66/cloud-artifact-pack.json": {
+      "bytes": 107864,
+      "sha256": "a0e24256e8527589d4e090f639c4bd11b078e8ef8e21700b0a4336e6a9477031"
+    },
+    "final-7677d66/host.json": {
+      "bytes": 562,
+      "sha256": "e38ad32f3c3bc69759690c6174e39aa6ef5cba578684ec045dd30ae2f2d75805"
+    },
+    "final-7677d66/native-matrix.json": {
+      "bytes": 1124788,
+      "sha256": "1d08b35afa8cb5b71d469ef783ff7770da650eb8b3b2f28952f568ea5d702a95"
+    },
+    "final-7677d66/native-smoke.json": {
+      "bytes": 75894,
+      "sha256": "7806888c86d08d5bc5402d947add9506d3728c3538ad20bf1c1975ed9283fbc5"
+    },
+    "final-7677d66/quality-alignment.json": {
+      "bytes": 695447,
+      "sha256": "d65be38af7fbe371721c040299d1f5a27c9b6dcfcf223a4f5c03c5c4472cbacb"
+    },
+    "initial-ce39fc5/artifact-pack.json": {
+      "bytes": 58498,
+      "sha256": "e2b031b40c3b5a8fae3889ecf2dce46bdf06474068f651fcb0315a9c200f4515"
+    },
+    "initial-ce39fc5/cloud-artifact-pack.json": {
+      "bytes": 107880,
+      "sha256": "9b1785386bfb368d097021b06cc938282aab475cd7f653401ce85dd9e97f2dd0"
+    }
+  },
+  "verifiedIncludedTextHashes": {
+    "final-7677d66/native-matrix.json": 231,
+    "final-7677d66/cloud-artifact-pack.json": 31,
+    "final-7677d66/native-smoke.json": 36,
+    "final-7677d66/quality-alignment.json": 94,
+    "initial-ce39fc5/artifact-pack.json": 28,
+    "initial-ce39fc5/cloud-artifact-pack.json": 31
+  },
+  "scope": "Text results only. Excluded native binaries and reference/encoded streams have hashes in the packs. Remote-only raw Cargo artifact JSON hashes are recorded but its contents are not transferred or independently verified here."
+}

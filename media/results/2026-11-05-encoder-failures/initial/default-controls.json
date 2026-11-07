@@ -1,0 +1,54 @@
+{
+  "controls": [
+    {
+      "codec": "h264",
+      "mode": "hardware",
+      "version": "previous",
+      "decodedFrames": 32,
+      "decodedSha256": "a0dd00ddc778df59131e5f6f9e9781438ac1fe15e7a6a200088591c499fb657f",
+      "encodedSha256": "66dbb9ddd0e7fa99cd4db44807b22a1779005f3d6d9ddfe27be3709ef657042d"
+    },
+    {
+      "codec": "h264",
+      "mode": "hardware",
+      "version": "current",
+      "decodedFrames": 32,
+      "decodedSha256": "a0dd00ddc778df59131e5f6f9e9781438ac1fe15e7a6a200088591c499fb657f",
+      "encodedSha256": "14748d6428151f8a1b6142ab2143c30e8a857c1c45d1fa74a6f999fb0379af9d"
+    },
+    {
+      "codec": "hevc",
+      "mode": "hardware",
+      "version": "previous",
+      "decodedFrames": 32,
+      "decodedSha256": "ccca639e67980f1067111beca31053f01c7298acaa8d6a4b763f5cb1fb307d7f",
+      "encodedSha256": "3b3e585a90e48780d054db15feb13f5178c477bac539d26e9ba7340101183c44"
+    },
+    {
+      "codec": "hevc",
+      "mode": "hardware",
+      "version": "current",
+      "decodedFrames": 32,
+      "decodedSha256": "ccca639e67980f1067111beca31053f01c7298acaa8d6a4b763f5cb1fb307d7f",
+      "encodedSha256": "a1095f3431591405b7591ebda528d516ad65213e0b71cca98153428364eb3ea0"
+    },
+    {
+      "codec": "h264",
+      "mode": "software",
+      "version": "previous",
+      "decodedFrames": 32,
+      "decodedSha256": "db80079cc1857949c64be7cd38f46106d3d011516a74a1fb33657161cf8d0175",
+      "encodedSha256": "9160970ce2fe9a29be6e79bc9d923b114c77f1dd8f11d4dbd9afd1fd8721e3a8"
+    },
+    {
+      "codec": "h264",
+      "mode": "software",
+      "version": "current",
+      "decodedFrames": 32,
+      "decodedSha256": "db80079cc1857949c64be7cd38f46106d3d011516a74a1fb33657161cf8d0175",
+      "encodedSha256": "9160970ce2fe9a29be6e79bc9d923b114c77f1dd8f11d4dbd9afd1fd8721e3a8"
+    }
+  ],
+  "allThreeDecodedPairsMatch": true,
+  "scope": "Generated tiny-bar decoded-output control, not performance/text/device admission."
+}

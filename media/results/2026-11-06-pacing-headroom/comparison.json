@@ -1,0 +1,88 @@
+{
+  "source": "e3568aa21395996ba5403479f00b8eb06f12160c",
+  "initialSource": "e9c225c55a9ee96d645516237d1ee651f65ae145",
+  "groups": [
+    {
+      "job": "initial-clock-failure",
+      "name": "load",
+      "pgid": 91052,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-clock-failure",
+      "name": "toolchain",
+      "pgid": 91057,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-clock-failure",
+      "name": "diff",
+      "pgid": 91062,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-clock-failure",
+      "name": "test-build",
+      "pgid": 91067,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "initial-clock-failure",
+      "name": "adaptive-contracts",
+      "pgid": 91438,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "load",
+      "pgid": 97967,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "toolchain",
+      "pgid": 97972,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "diff",
+      "pgid": 97977,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "test-build",
+      "pgid": 97982,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "adaptive-contracts",
+      "pgid": 98345,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "legacy-loopback",
+      "pgid": 98356,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "legacy-epoch",
+      "pgid": 98363,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "responsive-pass",
+      "name": "strict-clippy",
+      "pgid": 98370,
+      "independentlyAbsent": true
+    }
+  ],
+  "adaptivePassed": 21,
+  "legacyPassed": 2,
+  "strictClippy": true,
+  "scope": "Pure virtual schedules and localhost UDP synthetic access units. No native codec, decoder, quality, physical path/capacity/loss, cost or default admission."
+}

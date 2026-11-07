@@ -1,0 +1,96 @@
+{
+  "originalArtifacts": {
+    "api/results.json": {
+      "originalSha256": "02fc50e4977fe1b47db1fa3be5049cad55a80d2855fac8cdc059af9a88dba135"
+    },
+    "api/default-controls.json": {
+      "originalSha256": "809a592d8e9f2d02840682afdf5d551f763f47436c76a74787f81032b1427131"
+    },
+    "api/compiler-artifact.json": {
+      "originalSha256": "fedb1afeeddcc5befec6e2d6e4957a63ff5a3b4cab6a789e53e06bd2973eada8"
+    },
+    "api/native-priority.json": {
+      "originalSha256": "1286c60667f000f1cbc5f091382a252ae5c25d463c03d295d275aa2de84106a2"
+    },
+    "api/queue.json": {
+      "originalSha256": "875b8ea1eacb7a55843712b62496fbebd5cab3f91e713cfed68a868f244c526d"
+    },
+    "api/run.py": {
+      "originalSha256": "44936448661ccd96e1a65f7b65900ef9699e85cec1bc3e590167e2804e6425e9"
+    },
+    "receipt/controller/results.json": {
+      "originalSha256": "1c1d214d8cd0bbaa408b1a7a492a2e323618baf0ca08e1788567272700944735"
+    },
+    "receipt/worker/results.json": {
+      "originalSha256": "2ed4a1f1fc95f8f51a78e6ec3cb6bc3be3862e00e22e57fba6c7dd1fc5034898"
+    },
+    "receipt/worker/prior-evidence.json": {
+      "originalSha256": "f0dc0e01d88e9c16309a685c584d382f3f46915684a776177836377b77333f05"
+    },
+    "receipt/worker/software-default-controls.json": {
+      "originalSha256": "a013861adb3fd607556ca80300ef889b949772c61b3bda5beda3ba3135b32230"
+    },
+    "receipt/run.py": {
+      "originalSha256": "9422378ca237fb7536f26ddd4a33289dfa6341f69c818ce31454c78050ce5e3e"
+    },
+    "priority-pilot/fixture.json": {
+      "originalSha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707"
+    },
+    "priority-pilot/run-1-h264-compatible-3000.json": {
+      "originalSha256": "4c8859e10bc8316d56b07856bba75bc1f495da7633769b06b38eda710aa2c941"
+    },
+    "priority-pilot/run-1-hevc-compatible-1500.json": {
+      "originalSha256": "b059da2c234a542147d41041cc9230a993d34e8a990302356e7012f8803c3835"
+    },
+    "priority-pilot/floor.json": {
+      "originalSha256": "e797f2f8884e6c9ea8987b4b214fc3b47c8a5d0408527a93951a5f27a505b2d2"
+    },
+    "priority-pilot/results.json": {
+      "originalSha256": "02145212226b003cd9d787b0aed4063694c483c4a47417f1e220e3f92f5845c5"
+    },
+    "priority-pilot/compiler-artifact.json": {
+      "originalSha256": "71aec136c0343fdcd305c572f49c0ada6ea5d70820f82d9421b327ca376ae0dc"
+    },
+    "priority-pilot/foreground-run-1.json": {
+      "originalSha256": "5cd7f3f0ba1ce45b28d700b004cf712391b015febc746f4d674573a15db12e05"
+    },
+    "priority-pilot/run-1-hevc-compatible-1500-speed.json": {
+      "originalSha256": "bf8164133c6371f32657739335a0aa9ec90b797fc4c19a70f1269c6d7a3f71f1"
+    },
+    "priority-pilot/run-1-h264-compatible-3000-speed.json": {
+      "originalSha256": "017ad968a59eab2585b27362419ff5143cff653bd15360887c1f7ed1958f7134"
+    },
+    "low-latency-pilot/fixture.json": {
+      "originalSha256": "870cf1fffaf979ca280a03f7e677e9fd937d7faf0e9cf8a2b28e111dd0cc0707"
+    },
+    "low-latency-pilot/run-1-h264-compatible-3000.json": {
+      "originalSha256": "3a1cee8704f3b5a7c229fa1cd0f34a092e73ce0f9815f6f4a7b359397ccb5215"
+    },
+    "low-latency-pilot/run-1-hevc-compatible-1500.json": {
+      "originalSha256": "93aee8b35f182e71a9671ee8d0de494baeed3586593ab2be441c04788e177438"
+    },
+    "low-latency-pilot/run-1-h264-low-latency-compatible-3000.json": {
+      "originalSha256": "633a4ef6e05f23c1ceff52f250ce8851c80cd59126e76db0d11c21e0ab49dbe2"
+    },
+    "low-latency-pilot/results.json": {
+      "originalSha256": "4d0962b2df50dfa0cee3eba83c6b27d06934575c6484affcb38ff39b15a78d2a"
+    },
+    "low-latency-pilot/compiler-artifact.json": {
+      "originalSha256": "03daf3725c9e858d3f7b799a1d2c24671e11bf88fb3201525bceb9c6481cf1d6"
+    },
+    "low-latency-pilot/failure.txt": {
+      "originalSha256": "c7954e9e760cd317e8c117a213961582e5a94c729c58ec90316f1cdc90466e2b"
+    },
+    "partial-analysis/results.json": {
+      "originalSha256": "ca3d430e67998217521e142e0e12fa163093b643d6ab5cfc6ba783c071f51e3f"
+    },
+    "partial-analysis/reuse.json": {
+      "originalSha256": "2c643746666a95036794b615ddd79d12a05e5b01e557f2a2447285401e943481"
+    },
+    "partial-analysis/foreground.json": {
+      "originalSha256": "1a7efef3592545732cdaf11e4ef05698b15bbceabec1bb06fda08d509c8e8c63"
+    }
+  },
+  "executedExporterSha256": "ab526674bd5de2ac047fba2619f5c29022f93edd99062cb5eae0f9f78543bfd0",
+  "normalization": "Only paths are normalized in logs/helpers/JSON. Original hashes retained; CSV/SSIM numeric data unchanged. No bitstreams, font, screen/input, decoded images or private app source."
+}

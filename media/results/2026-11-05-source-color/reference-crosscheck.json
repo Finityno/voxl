@@ -1,0 +1,893 @@
+{
+  "source": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+  "summary": {
+    "source": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+    "records": [
+      {
+        "range": "video",
+        "sourceRgbSha256": "8f88479c93bc9dc923facceb6670fac39e4627bcf023e4ad6d571d70146f730c",
+        "independentFfmpegNv12Sha256": "a32eccddcb575cd2c7ef186d2123d10236c3471da269fa1aa54bf72f58f39db4",
+        "rationalReferenceNv12Sha256": "a32eccddcb575cd2c7ef186d2123d10236c3471da269fa1aa54bf72f58f39db4",
+        "barCenterDifferences": [
+          {
+            "bar": 0,
+            "rgb": [
+              255,
+              255,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 1,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 2,
+            "rgb": [
+              0,
+              255,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 3,
+            "rgb": [
+              0,
+              255,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 4,
+            "rgb": [
+              255,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 5,
+            "rgb": [
+              255,
+              0,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 6,
+            "rgb": [
+              0,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 7,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 8,
+            "rgb": [
+              128,
+              128,
+              128
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 9,
+            "rgb": [
+              64,
+              64,
+              64
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 10,
+            "rgb": [
+              192,
+              192,
+              192
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 11,
+            "rgb": [
+              255,
+              128,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 12,
+            "rgb": [
+              128,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 13,
+            "rgb": [
+              0,
+              128,
+              128
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 14,
+            "rgb": [
+              255,
+              128,
+              192
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 15,
+            "rgb": [
+              128,
+              64,
+              32
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          }
+        ],
+        "maxAbsoluteCodeDifference": 0,
+        "scope": "Independent FFmpeg RGB-to-NV12 BT709 matrix/range comparison, center ROIs. Different chroma filters/rounding at edges are excluded; no encoder/decoder quality or transfer/gamut qualification."
+      },
+      {
+        "range": "full",
+        "sourceRgbSha256": "8f88479c93bc9dc923facceb6670fac39e4627bcf023e4ad6d571d70146f730c",
+        "independentFfmpegNv12Sha256": "9d80ab4b73358ed32ecf48e0db77e68edce5705b690c78006ef03bdec91cd212",
+        "rationalReferenceNv12Sha256": "7fad79f314e2413c841175afd8c4d57a954b394a5adb69c6a493dc3e7bccbd21",
+        "barCenterDifferences": [
+          {
+            "bar": 0,
+            "rgb": [
+              255,
+              255,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 1,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              }
+            ]
+          },
+          {
+            "bar": 2,
+            "rgb": [
+              0,
+              255,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              }
+            ]
+          },
+          {
+            "bar": 3,
+            "rgb": [
+              0,
+              255,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 4,
+            "rgb": [
+              255,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              }
+            ]
+          },
+          {
+            "bar": 5,
+            "rgb": [
+              255,
+              0,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 6,
+            "rgb": [
+              0,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 7,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 8,
+            "rgb": [
+              128,
+              128,
+              128
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 9,
+            "rgb": [
+              64,
+              64,
+              64
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 10,
+            "rgb": [
+              192,
+              192,
+              192
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 11,
+            "rgb": [
+              255,
+              128,
+              0
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 12,
+            "rgb": [
+              128,
+              0,
+              255
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          },
+          {
+            "bar": 13,
+            "rgb": [
+              0,
+              128,
+              128
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              }
+            ]
+          },
+          {
+            "bar": 14,
+            "rgb": [
+              255,
+              128,
+              192
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              }
+            ]
+          },
+          {
+            "bar": 15,
+            "rgb": [
+              128,
+              64,
+              32
+            ],
+            "channels": [
+              {
+                "channel": "Y",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              },
+              {
+                "channel": "U",
+                "meanSignedCodeDifference": -1.0,
+                "maxAbsoluteCodeDifference": 1
+              },
+              {
+                "channel": "V",
+                "meanSignedCodeDifference": 0.0,
+                "maxAbsoluteCodeDifference": 0
+              }
+            ]
+          }
+        ],
+        "maxAbsoluteCodeDifference": 1,
+        "scope": "Independent FFmpeg RGB-to-NV12 BT709 matrix/range comparison, center ROIs. Different chroma filters/rounding at edges are excluded; no encoder/decoder quality or transfer/gamut qualification."
+      }
+    ]
+  },
+  "files": {
+    "arch.log": {
+      "sha256": "c1669e1d8edca98769c37d494b76442a1d6e5ffffd7b4da1fb63aef8ebaf6f01",
+      "text": "arm64\n"
+    },
+    "ffmpeg-full.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "ffmpeg-video.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "ffprobe.log": {
+      "sha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "text": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.1.1.101)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.101 / 61.  1.101\nlibavcodec     63.  1.101 / 63.  1.101\nlibavformat    63.  1.101 / 63.  1.101\nlibavdevice    63.  1.101 / 63.  1.101\nlibavfilter    12.  1.101 / 12.  1.101\nlibswscale     10.  1.101 / 10.  1.101\nlibswresample   7.  1.101 /  7.  1.101\n"
+    },
+    "native-results.json": {
+      "sha256": "2f99af747ee0dde044d9ec46799252d1b41a25e6b59170304fca908e72fb730e",
+      "text": "{\n  \"source\": \"af9cad081eee1581bbd498f383e25c2ebbf1f85e\",\n  \"scope\": \"native_color_component_executions\",\n  \"steps\": [\n    {\n      \"name\": \"os\",\n      \"command\": [\n        \"sw_vers\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"pid\": 31528,\n      \"pgid\": 31528,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.037,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3\"\n    },\n    {\n      \"name\": \"arch\",\n      \"command\": [\n        \"uname\",\n        \"-m\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"pid\": 31533,\n      \"pgid\": 31533,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.023,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"c1669e1d8edca98769c37d494b76442a1d6e5ffffd7b4da1fb63aef8ebaf6f01\"\n    },\n    {\n      \"name\": \"ffprobe\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffprobe\",\n        \"-version\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"pid\": 31538,\n      \"pgid\": 31538,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.069,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8\"\n    },\n    {\n      \"name\": \"ffmpeg-video\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffmpeg\",\n        \"-nostdin\",\n        \"-hide_banner\",\n        \"-loglevel\",\n        \"error\",\n        \"-threads\",\n        \"2\",\n        \"-filter_threads\",\n        \"1\",\n        \"-f\",\n        \"rawvideo\",\n        \"-pixel_format\",\n        \"rgb24\",\n        \"-video_size\",\n        \"1280x720\",\n        \"-framerate\",\n        \"30\",\n        \"-i\",\n        \"/tmp/fincode-voxl-color-reference-af9cad0-retry/bars.rgb\",\n        \"-vf\",\n        \"scale=in_range=pc:out_range=tv:out_color_matrix=bt709:flags=accurate_rnd+bitexact,format=nv12\",\n        \"-frames:v\",\n        \"1\",\n        \"-f\",\n        \"rawvideo\",\n        \"/tmp/fincode-voxl-color-reference-af9cad0-retry/ffmpeg-video.nv12\"\n      ],\n      \"deadlineSeconds\": 20,\n      \"pid\": 31543,\n      \"pgid\": 31543,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.068,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"name\": \"ffmpeg-full\",\n      \"command\": [\n        \"/opt/homebrew/bin/ffmpeg\",\n        \"-nostdin\",\n        \"-hide_banner\",\n        \"-loglevel\",\n        \"error\",\n        \"-threads\",\n        \"2\",\n        \"-filter_threads\",\n        \"1\",\n        \"-f\",\n        \"rawvideo\",\n        \"-pixel_format\",\n        \"rgb24\",\n        \"-video_size\",\n        \"1280x720\",\n        \"-framerate\",\n        \"30\",\n        \"-i\",\n        \"/tmp/fincode-voxl-color-reference-af9cad0-retry/bars.rgb\",\n        \"-vf\",\n        \"scale=in_range=pc:out_range=pc:out_color_matrix=bt709:flags=accurate_rnd+bitexact,format=nv12\",\n        \"-frames:v\",\n        \"1\",\n        \"-f\",\n        \"rawvideo\",\n        \"/tmp/fincode-voxl-color-reference-af9cad0-retry/ffmpeg-full.nv12\"\n      ],\n      \"deadlineSeconds\": 20,\n      \"pid\": 31548,\n      \"pgid\": 31548,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.068,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  ],\n  \"helperSha256\": \"25572aaf5451c50fd23fbca0aec6ea8e8df772b0c40bace33fb9ddb41c2700a6\",\n  \"limits\": \"Generated color bars only, no screen/input/visual verification or performance/codec admission. Source requests and actual encoded metadata remain separate.\",\n  \"cases\": []\n}\n"
+    },
+    "os.log": {
+      "sha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "text": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B5101f\n"
+    },
+    "queue.json": {
+      "sha256": "4e1eb8e13efb24c17b7689609b6e23f91694db3d7a12db6fc2c1735c44b3fd16",
+      "text": "{\n  \"source\": \"af9cad081eee1581bbd498f383e25c2ebbf1f85e\",\n  \"scope\": \"supervisor_queue\",\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/Library/Frameworks/Python.framework/Versions/3.13/bin/python3\",\n        \"/tmp/fincode-voxl-color-reference-af9cad0-retry.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 180,\n      \"pid\": 31522,\n      \"pgid\": 31522,\n      \"exitCode\": 0,\n      \"childExitCode\": 0,\n      \"seconds\": 0.451,\n      \"groupGone\": true,\n      \"cleanupSignals\": [],\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true,\n      \"logSha256\": \"18246e23bb7ce874db85446683fcc39415900f91f7dfde2d83748d322873b89d\"\n    }\n  ],\n  \"helperSha256\": \"25572aaf5451c50fd23fbca0aec6ea8e8df772b0c40bace33fb9ddb41c2700a6\",\n  \"limits\": \"Generated color bars only, no screen/input/visual verification or performance/codec admission. Source requests and actual encoded metadata remain separate.\",\n  \"nativeResults\": \"native-results.json\"\n}\n"
+    },
+    "queue.log": {
+      "sha256": "18246e23bb7ce874db85446683fcc39415900f91f7dfde2d83748d322873b89d",
+      "text": "reference crosscheck exit=0 output=/tmp/fincode-voxl-color-reference-af9cad0-retry\n"
+    },
+    "reference-crosscheck.json": {
+      "sha256": "1779e944142556e10c77b0f7df55cc2da97de9b88736276d6ae73a92e0efcf3d",
+      "text": "{\n  \"source\": \"af9cad081eee1581bbd498f383e25c2ebbf1f85e\",\n  \"records\": [\n    {\n      \"range\": \"video\",\n      \"sourceRgbSha256\": \"8f88479c93bc9dc923facceb6670fac39e4627bcf023e4ad6d571d70146f730c\",\n      \"independentFfmpegNv12Sha256\": \"a32eccddcb575cd2c7ef186d2123d10236c3471da269fa1aa54bf72f58f39db4\",\n      \"rationalReferenceNv12Sha256\": \"a32eccddcb575cd2c7ef186d2123d10236c3471da269fa1aa54bf72f58f39db4\",\n      \"barCenterDifferences\": [\n        {\n          \"bar\": 0,\n          \"rgb\": [\n            255,\n            255,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 1,\n          \"rgb\": [\n            255,\n            255,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 2,\n          \"rgb\": [\n            0,\n            255,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 3,\n          \"rgb\": [\n            0,\n            255,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 4,\n          \"rgb\": [\n            255,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 5,\n          \"rgb\": [\n            255,\n            0,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 6,\n          \"rgb\": [\n            0,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 7,\n          \"rgb\": [\n            0,\n            0,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 8,\n          \"rgb\": [\n            128,\n            128,\n            128\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 9,\n          \"rgb\": [\n            64,\n            64,\n            64\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 10,\n          \"rgb\": [\n            192,\n            192,\n            192\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 11,\n          \"rgb\": [\n            255,\n            128,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 12,\n          \"rgb\": [\n            128,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 13,\n          \"rgb\": [\n            0,\n            128,\n            128\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 14,\n          \"rgb\": [\n            255,\n            128,\n            192\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 15,\n          \"rgb\": [\n            128,\n            64,\n            32\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        }\n      ],\n      \"maxAbsoluteCodeDifference\": 0,\n      \"scope\": \"Independent FFmpeg RGB-to-NV12 BT709 matrix/range comparison, center ROIs. Different chroma filters/rounding at edges are excluded; no encoder/decoder quality or transfer/gamut qualification.\"\n    },\n    {\n      \"range\": \"full\",\n      \"sourceRgbSha256\": \"8f88479c93bc9dc923facceb6670fac39e4627bcf023e4ad6d571d70146f730c\",\n      \"independentFfmpegNv12Sha256\": \"9d80ab4b73358ed32ecf48e0db77e68edce5705b690c78006ef03bdec91cd212\",\n      \"rationalReferenceNv12Sha256\": \"7fad79f314e2413c841175afd8c4d57a954b394a5adb69c6a493dc3e7bccbd21\",\n      \"barCenterDifferences\": [\n        {\n          \"bar\": 0,\n          \"rgb\": [\n            255,\n            255,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 1,\n          \"rgb\": [\n            255,\n            255,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            }\n          ]\n        },\n        {\n          \"bar\": 2,\n          \"rgb\": [\n            0,\n            255,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            }\n          ]\n        },\n        {\n          \"bar\": 3,\n          \"rgb\": [\n            0,\n            255,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 4,\n          \"rgb\": [\n            255,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            }\n          ]\n        },\n        {\n          \"bar\": 5,\n          \"rgb\": [\n            255,\n            0,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 6,\n          \"rgb\": [\n            0,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 7,\n          \"rgb\": [\n            0,\n            0,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 8,\n          \"rgb\": [\n            128,\n            128,\n            128\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 9,\n          \"rgb\": [\n            64,\n            64,\n            64\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 10,\n          \"rgb\": [\n            192,\n            192,\n            192\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 11,\n          \"rgb\": [\n            255,\n            128,\n            0\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 12,\n          \"rgb\": [\n            128,\n            0,\n            255\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        },\n        {\n          \"bar\": 13,\n          \"rgb\": [\n            0,\n            128,\n            128\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            }\n          ]\n        },\n        {\n          \"bar\": 14,\n          \"rgb\": [\n            255,\n            128,\n            192\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            }\n          ]\n        },\n        {\n          \"bar\": 15,\n          \"rgb\": [\n            128,\n            64,\n            32\n          ],\n          \"channels\": [\n            {\n              \"channel\": \"Y\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            },\n            {\n              \"channel\": \"U\",\n              \"meanSignedCodeDifference\": -1.0,\n              \"maxAbsoluteCodeDifference\": 1\n            },\n            {\n              \"channel\": \"V\",\n              \"meanSignedCodeDifference\": 0.0,\n              \"maxAbsoluteCodeDifference\": 0\n            }\n          ]\n        }\n      ],\n      \"maxAbsoluteCodeDifference\": 1,\n      \"scope\": \"Independent FFmpeg RGB-to-NV12 BT709 matrix/range comparison, center ROIs. Different chroma filters/rounding at edges are excluded; no encoder/decoder quality or transfer/gamut qualification.\"\n    }\n  ]\n}\n"
+    },
+    "supervisor.py": {
+      "text": "import fractions,hashlib,json,math,os,pathlib,re,signal,subprocess,sys,time\nROOT=pathlib.Path('/Users/sondre/Documents/GitHub/voxl-desktop-native-validation')\nREV='af9cad081eee1581bbd498f383e25c2ebbf1f85e'\nOUT=pathlib.Path('/tmp/fincode-voxl-color-reference-af9cad0-retry')\nINITIAL=pathlib.Path('/tmp/fincode-voxl-color-0ad2646')\nINNER='--inside-lock' in sys.argv\nif not INNER:OUT.mkdir(mode=0o700)\nos.umask(0o077)\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','RUSTC_WRAPPER':'','CARGO_TARGET_DIR':str(ROOT/'media/target'),'CARGO_BUILD_JOBS':'2','CARGO_BUILD_WARNINGS':'deny','CI':'true'}\nsteps=[];cases=[]\ndef interrupted(signum,frame):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)\ndef digest(path):\n with pathlib.Path(path).open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()\ndef source():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==REV\n assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef exists(group):\n try:os.killpg(group,0);return True\n except ProcessLookupError:return False\ndef save():\n j={'source':REV,'scope':'native_color_component_executions' if INNER else 'supervisor_queue','steps':steps,'helperSha256':digest(__file__),'limits':'Generated color bars only, no screen/input/visual verification or performance/codec admission. Source requests and actual encoded metadata remain separate.'}\n if INNER:j['cases']=cases\n else:j['nativeResults']='native-results.json'\n (OUT/('native-results.json' if INNER else 'queue.json')).write_text(json.dumps(j,indent=2)+'\\n')\ndef run(name,command,deadline,grace=4):\n source();started=time.monotonic();pending=None;cleanup=[]\n with (OUT/(name+'.log')).open('x') as log:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)\n  try:code=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:code=124\n  except BaseException as error:code=130;pending=error\n  finally:\n   if child.poll() is None:\n    try:os.killpg(child.pid,signal.SIGTERM)\n    except ProcessLookupError:pass\n    cleanup.append('SIGTERM')\n    try:child.wait(timeout=grace)\n    except subprocess.TimeoutExpired:\n     try:os.killpg(child.pid,signal.SIGKILL)\n     except ProcessLookupError:pass\n     cleanup.append('SIGKILL');child.wait(timeout=3)\n   if exists(child.pid):\n    try:os.killpg(child.pid,signal.SIGKILL)\n    except ProcessLookupError:pass\n    cleanup.append('SIGKILL-descendants')\n   until=time.monotonic()+3\n   while exists(child.pid) and time.monotonic()<until:time.sleep(.05)\n source();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'pid':child.pid,'pgid':child.pid,'exitCode':code,'childExitCode':child.returncode,'seconds':round(time.monotonic()-started,3),'groupGone':not exists(child.pid),'cleanupSignals':cleanup,'sourceCleanBefore':True,'sourceCleanAfter':True,'logSha256':digest(OUT/(name+'.log'))});save();assert not exists(child.pid)\n if pending:raise pending\n return code\nRGB=[[255,255,255],[255,255,0],[0,255,255],[0,255,0],[255,0,255],[255,0,0],[0,0,255],[0,0,0],[128,128,128],[64,64,64],[192,192,192],[255,128,0],[128,0,255],[0,128,128],[255,128,192],[128,64,32]]\ndef quantize(value):return max(0,min(255,math.floor(value+fractions.Fraction(1,2))))\ndef bars(full):\n values=[]\n for red,green,blue in RGB:\n  weighted=2126*red+7152*green+722*blue\n  if full:y=fractions.Fraction(weighted,10000);u=128+fractions.Fraction(10000*blue-weighted,2*9278);v=128+fractions.Fraction(10000*red-weighted,2*7874)\n  else:y=16+fractions.Fraction(219*weighted,255*10000);u=128+fractions.Fraction(112*(10000*blue-weighted),9278*255);v=128+fractions.Fraction(112*(10000*red-weighted),7874*255)\n  values.append([quantize(y),quantize(u),quantize(v)])\n return values\ndef framed(path,codec):\n data=path.read_bytes();assert len(data)<=32*1024*1024 and data[:6]==b'VXFR\\x01'+bytes([0 if codec=='h264' else 1]);offset=6;units=[]\n while offset<len(data):\n  pts=int.from_bytes(data[offset:offset+8],'big',signed=True);key=data[offset+8];size=int.from_bytes(data[offset+9:offset+13],'big');offset+=13\n  assert key in [0,1] and 0<size<=8*1024*1024 and offset+size<=len(data)\n  raw=data[offset:offset+size];offset+=size;types=[raw[n+4]&31 if codec=='h264' else (raw[n+4]>>1)&63 for n in range(len(raw)-4) if raw[n:n+4]==b'\\0\\0\\0\\1']\n  actual=5 in types if codec=='h264' else any(16<=v<=21 for v in types);assert bool(key)==actual and pts==len(units)*1_000_000//30\n  if actual:assert set([7,8] if codec=='h264' else [32,33,34])<=set(types)\n  units.append({'bytes':raw,'key':bool(key),'types':types})\n assert len(units)==20 and [i for i,u in enumerate(units) if u['key']]==[0,10];return units\nFILTER='format=yuv420p,colorspace=all=bt709:trc=srgb:range=pc:format=yuv444p:dither=none,format=rgb24'\ntry:\n source()\n if not INNER:\n  code=run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],180)\n else:\n  for name,cmd in [('os',['sw_vers']),('arch',['uname','-m']),('ffprobe',['/opt/homebrew/bin/ffprobe','-version'])]:assert run(name,cmd,10)==0\n  raw=OUT/'bars.rgb';raw.write_bytes(bytes(c for v in RGB for _ in range(80) for c in v)*720)\n  records=[]\n  for pixel_range in ['video','full']:\n   actual=OUT/('ffmpeg-'+pixel_range+'.nv12')\n   cmd=['/opt/homebrew/bin/ffmpeg','-nostdin','-hide_banner','-loglevel','error','-threads','2','-filter_threads','1','-f','rawvideo','-pixel_format','rgb24','-video_size','1280x720','-framerate','30','-i',str(raw),'-vf','scale=in_range=pc:out_range='+('pc' if pixel_range=='full' else 'tv')+':out_color_matrix=bt709:flags=accurate_rnd+bitexact,format=nv12','-frames:v','1','-f','rawvideo',str(actual)]\n   assert run('ffmpeg-'+pixel_range,cmd,20)==0\n   expected=pathlib.Path('/tmp/fincode-voxl-color-af9cad0')/('reference-'+pixel_range+'.nv12')\n   a=actual.read_bytes();e=expected.read_bytes();assert len(a)==len(e)==1280*720*3//2\n   values=[]\n   for bar in range(16):\n    channels=[]\n    for c in range(3):\n     if c==0:indices=[y*1280+x for y in range(352,368) for x in range(bar*80+32,bar*80+48)]\n     else:indices=[1280*720+y*1280+2*x+c-1 for y in range(176,184) for x in range(bar*40+16,bar*40+24)]\n     deltas=[a[i]-e[i] for i in indices];channels.append({'channel':['Y','U','V'][c],'meanSignedCodeDifference':sum(deltas)/len(deltas),'maxAbsoluteCodeDifference':max(abs(v) for v in deltas)})\n    values.append({'bar':bar,'rgb':RGB[bar],'channels':channels})\n   max_error=max(c['maxAbsoluteCodeDifference'] for b in values for c in b['channels'])\n   records.append({'range':pixel_range,'sourceRgbSha256':digest(raw),'independentFfmpegNv12Sha256':digest(actual),'rationalReferenceNv12Sha256':digest(expected),'barCenterDifferences':values,'maxAbsoluteCodeDifference':max_error,'scope':'Independent FFmpeg RGB-to-NV12 BT709 matrix/range comparison, center ROIs. Different chroma filters/rounding at edges are excluded; no encoder/decoder quality or transfer/gamut qualification.'})\n  (OUT/'reference-crosscheck.json').write_text(json.dumps({'source':REV,'records':records},indent=2)+'\\n')\n  code=0\n print('reference crosscheck exit='+str(code)+' output='+str(OUT))\nexcept BaseException as error:\n save();(OUT/'failure.txt').write_text(type(error).__name__+': '+str(error)+'\\n');print('reference crosscheck failed: '+type(error).__name__);code=130 if isinstance(error,KeyboardInterrupt) else 1\nraise SystemExit(code)\n",
+      "sha256": "25572aaf5451c50fd23fbca0aec6ea8e8df772b0c40bace33fb9ddb41c2700a6"
+    }
+  },
+  "excluded": {
+    "bars.rgb": {
+      "sha256": "8f88479c93bc9dc923facceb6670fac39e4627bcf023e4ad6d571d70146f730c",
+      "bytes": 2764800
+    },
+    "ffmpeg-full.nv12": {
+      "sha256": "9d80ab4b73358ed32ecf48e0db77e68edce5705b690c78006ef03bdec91cd212",
+      "bytes": 1382400
+    },
+    "ffmpeg-video.nv12": {
+      "sha256": "a32eccddcb575cd2c7ef186d2123d10236c3471da269fa1aa54bf72f58f39db4",
+      "bytes": 1382400
+    }
+  },
+  "independentGroupsGone": [
+    31522,
+    31528,
+    31533,
+    31538,
+    31543,
+    31548
+  ],
+  "scope": "Independent FFmpeg quantizer/metadata snapshot; no encoder or application execution. Initial shared-lock queue expiration retained separately."
+}

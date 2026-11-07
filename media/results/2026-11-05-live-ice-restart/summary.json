@@ -1,0 +1,104 @@
+{
+  "source": "af6478e446c0c05a98645ff54df088f826947945",
+  "baseline": "a8c1211a130483d6a7f871abdbf05ce360124913",
+  "nativeAttempts": [
+    {
+      "label": "initial-compile",
+      "source": "404bf4cffbaf14514740e846940558c16dfebf44",
+      "exits": {
+        "load": 0,
+        "test-build": 101
+      }
+    },
+    {
+      "label": "typed-ipc",
+      "source": "69654a71a55ab63c72940fc53cdd39fe00532b07",
+      "exits": {
+        "load": 0,
+        "test-build": 0,
+        "live-restart": 0,
+        "retired-adapter": 0,
+        "replace-ipc": 0,
+        "startup-compatibility": 0,
+        "terminal-fence": 0,
+        "strict-clippy": 0,
+        "diff-check": 0
+      }
+    },
+    {
+      "label": "relay-tests-added",
+      "source": "57793c6024fc99c77101f2665bf1f6ef67e2ba22",
+      "exits": {
+        "load": 0,
+        "test-build": 0,
+        "live-restart": 0,
+        "retired-adapter": 0,
+        "replace-ipc": 0,
+        "startup-compatibility": 0,
+        "terminal-fence": 0,
+        "strict-clippy": 0,
+        "diff-check": 0
+      }
+    },
+    {
+      "label": "writes-drained",
+      "source": "11002743df9b4f0ec10a9c5d2bcfeee3e4a6506d",
+      "exits": {
+        "load": 0,
+        "test-build": 0,
+        "live-restart": 0,
+        "retired-adapter": 0,
+        "replace-ipc": 0,
+        "startup-compatibility": 0,
+        "terminal-fence": 0,
+        "strict-clippy": 0,
+        "diff-check": 0
+      }
+    },
+    {
+      "label": "readiness-before",
+      "source": "bfed51b65110ad0f51c881e759fc7fc34961247a",
+      "exits": {
+        "load": 0,
+        "test-build": 0,
+        "live-restart": 101
+      }
+    },
+    {
+      "label": "readiness-after",
+      "source": "af6478e446c0c05a98645ff54df088f826947945",
+      "exits": {
+        "load": 0,
+        "test-build": 0,
+        "live-restart": 0,
+        "retired-adapter": 0,
+        "replace-ipc": 0,
+        "startup-compatibility": 0,
+        "terminal-fence": 0,
+        "strict-clippy": 0,
+        "diff-check": 0
+      }
+    }
+  ],
+  "nativeValidationGroupsIndependentlyGone": 47,
+  "finalNativeValidationGroupsGone": 10,
+  "finalCloudValidationChildGroupsGone": 15,
+  "finalRustExecutions": {
+    "nativeMacPassed": 5,
+    "nativeMacFailed": 0,
+    "linuxCoturnPassed": 3,
+    "linuxCoturnFailed": 0
+  },
+  "finalForcedRelayRestarts": 9,
+  "packetsPerForcedRelayCase": 4,
+  "embeddedTextHashesVerified": 111,
+  "adoption": "Application media/SDK pin remains af9cad081eee1581bbd498f383e25c2ebbf1f85e; no host/desktop/phone renewal or handover integration",
+  "limits": [
+    "Synthetic H264 NALs and loopback UDP/DTLS/SRTP; no capture/decoder/quality/performance/resource or physical-network budget",
+    "Valid alternating REST usernames; no real expiry, HTTP issuer, lease/revocation or long-session end-to-end oracle",
+    "Explicit original ephemeral host bindings only; host interface replacement not implemented",
+    "Imported raw SDK credential-only update path bypassed and unqualified",
+    "Completed cloud background launchers remain defunct until their external parent reaps them; command/server groups are gone",
+    "No new Windows, phone, VPS, formatter, visual verification or merge"
+  ]
+}

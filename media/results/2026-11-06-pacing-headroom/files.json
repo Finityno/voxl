@@ -1,0 +1,92 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 2389,
+    "sha256": "4daf82f36104474b8247fe301f32247924ce698620b5aa41beb36332189c37a6"
+  },
+  {
+    "path": "comparison.json",
+    "bytes": 2073,
+    "sha256": "8005603f8a6f9c75e400da44bf1268cbbd97feb74e50c6794998430f1bf5a8d9"
+  },
+  {
+    "path": "initial-clock-failure/private/adaptive-contracts.log.gz",
+    "bytes": 385,
+    "sha256": "7f3afeaf308491d9a981774458555472f84ae129461c9511bbdd557546b889cc"
+  },
+  {
+    "path": "initial-clock-failure/private/diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "initial-clock-failure/private/load.log.gz",
+    "bytes": 81,
+    "sha256": "6a96cde2575c02db2b58f3bac8c3de6db1b1836f2acbb08da6ee8494d4a28fe0"
+  },
+  {
+    "path": "initial-clock-failure/private/test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "initial-clock-failure/private/toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "receipts/initial-clock-failure.json.gz",
+    "bytes": 1271,
+    "sha256": "3073ca4ab154ba3f043558730e7270efcc49c0df4827f660d5b38d5be1160290"
+  },
+  {
+    "path": "receipts/responsive-pass.json.gz",
+    "bytes": 1555,
+    "sha256": "6f124643336a8384365f5450dc21861ba73017bb21662f59d47822605d2a9739"
+  },
+  {
+    "path": "responsive-pass/private/adaptive-contracts.log.gz",
+    "bytes": 112,
+    "sha256": "f3505679724ae2b9dd2bfcd635311b0f4c9f8e58e7d9eec1d31c437c8ab80bd8"
+  },
+  {
+    "path": "responsive-pass/private/diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "responsive-pass/private/legacy-epoch.log.gz",
+    "bytes": 109,
+    "sha256": "56b3481ace1b6f943ba986c921c6cb20fd34627e95609f8888d608672212be2c"
+  },
+  {
+    "path": "responsive-pass/private/legacy-loopback.log.gz",
+    "bytes": 109,
+    "sha256": "c5add9199e663a7fed877d21f240f146e8ebf4b247b4373cd5f7062285fd3b50"
+  },
+  {
+    "path": "responsive-pass/private/load.log.gz",
+    "bytes": 80,
+    "sha256": "3deed0f7fb373519e66f05825b8e2a75d7306817c96dd480a7f4530829d9947b"
+  },
+  {
+    "path": "responsive-pass/private/strict-clippy.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "responsive-pass/private/test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "responsive-pass/private/toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "verify.py",
+    "bytes": 1806,
+    "sha256": "1c07d9ded51eb860aa8bff0a89de42f3de4f7dd940a8669183260b557220759f"
+  }
+]

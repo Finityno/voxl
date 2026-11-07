@@ -1,0 +1,71 @@
+{
+  "source": "af6478e446c0c05a98645ff54df088f826947945",
+  "embeddedTextHashesVerified": 111,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6732,
+      "sha256": "5773a16242d4ecb8f62e41c0480e41a5daa23d3359f0a0e90700d4d17fee7478"
+    },
+    {
+      "path": "cloud-before-readiness.json",
+      "bytes": 65002,
+      "sha256": "2dae8740d23f6370b72a29a4b7fde0ecb672b03ab6b8cd4a16a864e3554b6d69"
+    },
+    {
+      "path": "cloud-final.json",
+      "bytes": 37709,
+      "sha256": "7ed4c47341ad6f75626f8c3ccb749d26eed36afd91c947b082cf79dadab3cdca"
+    },
+    {
+      "path": "initial-compile.json",
+      "bytes": 12114,
+      "sha256": "686a796203bcf75eac6860075aaa7c6eca38a385135335d896e3765503fa1c40"
+    },
+    {
+      "path": "native-cleanup.json",
+      "bytes": 6688,
+      "sha256": "51c1cada827bdab9851ffb832a832ba8f32b3bf7678f6cef0a435ca6bc5dad2c"
+    },
+    {
+      "path": "native-environment.json",
+      "bytes": 1137,
+      "sha256": "1ddb696433bc38fdf9a453362dc8c53e69cd41274c437935510ab93c5326169e"
+    },
+    {
+      "path": "readiness-after.json",
+      "bytes": 25036,
+      "sha256": "48fc282cceaec6e012451c45d721624da112def63b17468aa1541ad956d61d63"
+    },
+    {
+      "path": "readiness-before.json",
+      "bytes": 14414,
+      "sha256": "de56714fa9e07619c77d5ddcd735746438094cc131b8e2978fba74df5ab9dd12"
+    },
+    {
+      "path": "readiness-comparison.json",
+      "bytes": 1456,
+      "sha256": "bb7984d27a770366b1951e7ef52e9c2cf21f20f46bacc23046e6bb013f41bbdd"
+    },
+    {
+      "path": "relay-tests-added.json",
+      "bytes": 25014,
+      "sha256": "9b2dd0eb927776e801092b1d621a4d614cf2359d9b4e8f034b602c1f3c06810a"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 3198,
+      "sha256": "742aa5bdaa51b9f5bacd480fb848ae1223ba8ad8ecce02d92a1c903a328ea589"
+    },
+    {
+      "path": "typed-ipc.json",
+      "bytes": 25008,
+      "sha256": "1044fa2a3b9cf967319709e5ad99f1a7c153eb8bfbf8c322ce647509c54fde72"
+    },
+    {
+      "path": "writes-drained.json",
+      "bytes": 25006,
+      "sha256": "065d5a6890c186a8bc0e4edaa21e208ae2ae2b4fd48930546d639c93b9b09e88"
+    }
+  ]
+}

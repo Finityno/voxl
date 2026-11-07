@@ -1,0 +1,62 @@
+{
+  "source": "f19e14c78e0f1b5d9134163b650774bfd78e3a5c",
+  "counts": {
+    "flow-epoch-contract": 1,
+    "probe-lifetime-contracts": 4,
+    "probe-contracts": 7,
+    "probe-network": 10,
+    "producer-debt-contracts": 6,
+    "feedback-epoch-contract": 1
+  },
+  "selectedRustPassed": 29,
+  "strictClippy": true,
+  "newDependenciesOrFeatures": false,
+  "productionDefaultEnabled": false,
+  "archive": "/Users/sondre/Documents/Fincode Desktop Lab Evidence/2026-11-07/quiet-retry",
+  "archiveOriginals": 41,
+  "ownedGroups": 30,
+  "sourceDocOnlyReplacement": {
+    "old": "    /// seconds without media. Missing/lost/late feedback closes the transport.",
+    "new": "    /// seconds without media. Unknown/late feedback and exhausted retries close\n    /// the transport; only an explicitly enabled fresh-cluster retry can recover."
+  },
+  "success": [
+    {
+      "attempts": 2,
+      "fresh_arrivals": 32,
+      "padding_received": 64,
+      "padding_original_rtp_bytes": 17408,
+      "probe_us": 163411,
+      "resume_bytes": 64005,
+      "total_us": 352123,
+      "queue_max_us": 29681,
+      "dropped": 1,
+      "overflow": 0
+    }
+  ],
+  "failures": [
+    {
+      "fault": "Close",
+      "elapsed_us": 56704,
+      "rtp_packets": 44,
+      "dropped": 1,
+      "fake_video_frames": 0,
+      "overflow": 0
+    },
+    {
+      "fault": "Twice",
+      "elapsed_us": 163942,
+      "rtp_packets": 65,
+      "dropped": 2,
+      "fake_video_frames": 0,
+      "overflow": 0
+    },
+    {
+      "fault": "Slow",
+      "elapsed_us": 500952,
+      "rtp_packets": 66,
+      "dropped": 1,
+      "fake_video_frames": 0,
+      "overflow": 0
+    }
+  ]
+}

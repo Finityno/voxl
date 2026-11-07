@@ -1,0 +1,12 @@
+{
+  "osVersion": "27.2",
+  "osBuild": "26B5101f",
+  "cpu": "Apple M5 Pro",
+  "model": "Mac17,8",
+  "memoryBytes": "25769803776",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "ffmpeg": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "ffprobe": "ffprobe version 9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+  "scope": "Read-only inventory. No serial/device UUID or full environment. Not physical refresh timing, power, GPU/helper accounting or hardware-decoder evidence."
+}

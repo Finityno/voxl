@@ -1,0 +1,90 @@
+{
+  "source": "ab12301fad765d46e21fd0874ac2bd603cd75e78",
+  "adaptiveTestsPassed": 14,
+  "legacyTestsPassed": 2,
+  "strictClippyPassed": true,
+  "groups": [
+    {
+      "job": "lock-failure",
+      "name": "load",
+      "pgid": 99791,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lock-failure",
+      "name": "toolchain",
+      "pgid": 99796,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lock-failure",
+      "name": "diff",
+      "pgid": 99801,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "lock-failure",
+      "name": "test-build",
+      "pgid": 99807,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "load",
+      "pgid": 3704,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "toolchain",
+      "pgid": 3709,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "diff",
+      "pgid": 3714,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "test-build",
+      "pgid": 3719,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "adaptive-contracts",
+      "pgid": 5292,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "legacy-h264",
+      "pgid": 5311,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "legacy-hevc",
+      "pgid": 5318,
+      "independentlyAbsent": true
+    },
+    {
+      "job": "worker-confirm",
+      "name": "strict-clippy",
+      "pgid": 5325,
+      "independentlyAbsent": true
+    }
+  ],
+  "receipts": [
+    "receipts/lock-failure.json.gz",
+    "receipts/worker-confirm.json.gz"
+  ],
+  "originalFiles": 19,
+  "history": {
+    "lock-failure": "Test build exits75 before compilation because duplicate outer/inner build locking timed out. No tests run. Removed the duplicate outer lock; source unchanged.",
+    "worker-confirm": "Test build,14 adaptive tests,2 legacy UDP tests and strict library/tests/examples Clippy all exit0."
+  },
+  "scope": "Adds worker-readable fresh target without borrowing serial sender, rejects unknown/stale/retired/closed observations. Same-Mac component scope; no actual decoded native adaptive app, changing-capacity/loss, physical LAN/device, quality or CPU/RSS/power/bandwidth savings admission."
+}

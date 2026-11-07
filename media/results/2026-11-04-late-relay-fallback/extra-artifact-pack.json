@@ -1,0 +1,41 @@
+{
+  "sources": {
+    "fork": "5229daca7471b6f041013a4bfe0eb67982c4475c",
+    "app": "e9d2b0a380908182de0d5a03b5b0061bfe0608a3"
+  },
+  "results": {
+    "hevc": {
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 37
+    },
+    "dependency_guard": {
+      "exit": 0
+    },
+    "missing_checks": []
+  },
+  "files": {
+    "commands.log": "cargo --version \ntimeout -k 5 25 cargo test --locked --manifest-path media/Cargo.toml --features webrtc --lib -j2 -q --message-format=short webrtc::tests::webrtc_hevc_loopback_preserves_both_idr_types_and_capture_clock -- --exact --nocapture \ntimeout -k 5 30 git fetch origin feat/desktop-access \ngit switch --detach e9d2b0a380908182de0d5a03b5b0061bfe0608a3\ntimeout -k 5 30 bash scripts/check-workspace-deps.sh \n",
+    "exits.tsv": "cargo-version\t0\t0\nhevc\t0\t2\nfetch\t0\t8\nswitch\t0\ndependency-guard\t0\t0\n",
+    "source-checks.log": "initial-fork 5229daca7471b6f041013a4bfe0eb67982c4475c clean\nbefore-cargo-version 5229daca7471b6f041013a4bfe0eb67982c4475c clean\nafter-cargo-version 5229daca7471b6f041013a4bfe0eb67982c4475c clean\nbefore-hevc 5229daca7471b6f041013a4bfe0eb67982c4475c clean\nafter-hevc 5229daca7471b6f041013a4bfe0eb67982c4475c clean\ninitial-app 8f0034db37c21981abd47284aefab29fbd474b0c clean\nbefore-fetch 8f0034db37c21981abd47284aefab29fbd474b0c clean\nafter-fetch 8f0034db37c21981abd47284aefab29fbd474b0c clean\nbefore-switch 8f0034db37c21981abd47284aefab29fbd474b0c clean\nafter-switch e9d2b0a380908182de0d5a03b5b0061bfe0608a3 clean\nbefore-dependency-guard e9d2b0a380908182de0d5a03b5b0061bfe0608a3 clean\nafter-dependency-guard e9d2b0a380908182de0d5a03b5b0061bfe0608a3 clean\n",
+    "final-source.log": "fork 5229daca7471b6f041013a4bfe0eb67982c4475c clean\napp e9d2b0a380908182de0d5a03b5b0061bfe0608a3 clean\n",
+    "cargo-version.log": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+    "hevc.log": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 37 filtered out; finished in 1.49s\n\n",
+    "fetch.log": "From https://github.com/Finityai/fincode\n * branch                feat/desktop-access -> FETCH_HEAD\n",
+    "switch.log": "Previous HEAD position was 8f0034db3 Observe native modifier release after phone access is revoked\nHEAD is now at e9d2b0a38 Use packet-ordered media transport for the first desktop frame\n",
+    "dependency-guard.log": "workspace deps: no literal versions outside the allowlist\n"
+  },
+  "sha256": {
+    "commands.log": "d6510e733f04a0401ef7e382c7002f9e85d0dd4514e9ba547b4917242eecc3cc",
+    "exits.tsv": "90f0d51d91034118190a109e34920e96ab94d80a5ed9f7bce4831b3e1bac0ef8",
+    "source-checks.log": "e15183b71498a74d164cefab21eb09b9e480e4238edc94f2d95ccdf91087ba64",
+    "final-source.log": "d14a2347d9e507dcca75dda31d3e7e36b633efc1bafce5676ab42bda64cc3a18",
+    "cargo-version.log": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+    "hevc.log": "936fa76d3c132f9ca785d20f5f1dc4b0da25eb1c3dd9416822e32d92701db715",
+    "fetch.log": "e358ad62543d76ff27edd1a31e1cc23b7671aae775e80faf6baa16d823928659",
+    "switch.log": "81ad52720caa2e0ed051a8d764d9750c4016df42995d09deb0ed6a54038e45a2",
+    "dependency-guard.log": "5d5e7ac5adcf56fd0580d221af53490075c2d4021fdab18f45eb0b46f229c5ad"
+  }
+}

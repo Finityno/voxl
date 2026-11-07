@@ -1,0 +1,585 @@
+{
+  "exports": {
+    "initial/results.json": {
+      "originalPrivateSha256": "512bc672401a937c180ee29ac3beba8947023ae75ef51c984fdadffd3ca38f0b",
+      "normalizedUncompressedSha256": "512bc672401a937c180ee29ac3beba8947023ae75ef51c984fdadffd3ca38f0b",
+      "normalizedUncompressedBytes": 2055
+    },
+    "initial/load.log.gz": {
+      "originalPrivateSha256": "2860de5ad1ad521fca23b5f78ec92e468f33413a4b2fc324ce06c42a51508763",
+      "normalizedUncompressedSha256": "2860de5ad1ad521fca23b5f78ec92e468f33413a4b2fc324ce06c42a51508763",
+      "normalizedUncompressedBytes": 64
+    },
+    "initial/toolchain.log.gz": {
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedBytes": 36
+    },
+    "initial/supervisor-failure.txt": {
+      "originalPrivateSha256": "0170ea4012a1bf908e3f5b9481685f84cccd5c02513932d994a9de42b7ada66a",
+      "normalizedUncompressedSha256": "0170ea4012a1bf908e3f5b9481685f84cccd5c02513932d994a9de42b7ada66a",
+      "normalizedUncompressedBytes": 73
+    },
+    "initial/run-snapshot.py": {
+      "originalPrivateSha256": "97ddfdc043235ceca838c159503ca961dbb79706312640f816735ea846e78457",
+      "normalizedUncompressedSha256": "c9e97b757785c92c3d89072e23b45f0015863544499725e3bce14c821b49cf3c",
+      "normalizedUncompressedBytes": 6634
+    },
+    "contracts/results.json": {
+      "originalPrivateSha256": "9a1be84926bf85d230864b5294f489447719cc328f91dc1bf5cae38c0a9146f0",
+      "normalizedUncompressedSha256": "228843e78936dd49b7b5c31bd380ca265a2d9f1c3ac2eb7f4325ba964013e1ac",
+      "normalizedUncompressedBytes": 12668
+    },
+    "contracts/load.log.gz": {
+      "originalPrivateSha256": "0eb0d6d4aa8b21b0c61791531377b271d427834b4616884f86c783706a90b1b3",
+      "normalizedUncompressedSha256": "0eb0d6d4aa8b21b0c61791531377b271d427834b4616884f86c783706a90b1b3",
+      "normalizedUncompressedBytes": 64
+    },
+    "contracts/os.log.gz": {
+      "originalPrivateSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedBytes": 66
+    },
+    "contracts/cpu.log.gz": {
+      "originalPrivateSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedBytes": 13
+    },
+    "contracts/model.log.gz": {
+      "originalPrivateSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedBytes": 8
+    },
+    "contracts/toolchain.log.gz": {
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedBytes": 36
+    },
+    "contracts/ffmpeg-version.log.gz": {
+      "originalPrivateSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedBytes": 822
+    },
+    "contracts/ffprobe-version.log.gz": {
+      "originalPrivateSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedBytes": 797
+    },
+    "contracts/build.log.gz": {
+      "originalPrivateSha256": "c612bbee99948a74a8c93ab6c17af1af24352ad79f6b295e829401abdf490783",
+      "normalizedUncompressedSha256": "494ba24f333d3e8eba89be0a58d4c88c6b4447e7b8ef0954d2da6a849d6cefe0",
+      "normalizedUncompressedBytes": 4380
+    },
+    "contracts/clippy.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "contracts/unit-build.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "contracts/qp-contracts.log.gz": {
+      "originalPrivateSha256": "db9a323b01ae560b1a77a4b5e8b3fa553c227ff76d42db9c5fd7a4810175af1f",
+      "normalizedUncompressedSha256": "db9a323b01ae560b1a77a4b5e8b3fa553c227ff76d42db9c5fd7a4810175af1f",
+      "normalizedUncompressedBytes": 116
+    },
+    "contracts/priority-compatibility.log.gz": {
+      "originalPrivateSha256": "e840733f400b17a373ffaf6f10af3a5988f874b249ad9c63c9a55546856cb47e",
+      "normalizedUncompressedSha256": "e840733f400b17a373ffaf6f10af3a5988f874b249ad9c63c9a55546856cb47e",
+      "normalizedUncompressedBytes": 114
+    },
+    "contracts/test-clippy.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "contracts/profile-contracts.log.gz": {
+      "originalPrivateSha256": "a6707d4eff38012da33ddc34bc6dc076a3b17151cfc9aef223c8790cbe64c3da",
+      "normalizedUncompressedSha256": "a6707d4eff38012da33ddc34bc6dc076a3b17151cfc9aef223c8790cbe64c3da",
+      "normalizedUncompressedBytes": 100
+    },
+    "contracts/h264-compatible-qp28.log.gz": {
+      "originalPrivateSha256": "004aa70bf5161a4c1e047bf1d5472ad6dde1dd8c915bb4cb777b4dc85eeabb27",
+      "normalizedUncompressedSha256": "004aa70bf5161a4c1e047bf1d5472ad6dde1dd8c915bb4cb777b4dc85eeabb27",
+      "normalizedUncompressedBytes": 1253
+    },
+    "contracts/compiler-artifact.json": {
+      "originalPrivateSha256": "d8d51e2255461f0be468b10198353c4cc65a04cb4ca78f36a524d0f64e1fe4c9",
+      "normalizedUncompressedSha256": "a638968551c325d43382dee83e9e5000554309a2b5c2104c78bee8d873c9abf5",
+      "normalizedUncompressedBytes": 1082
+    },
+    "contracts/supervisor-failure.txt": {
+      "originalPrivateSha256": "f0720b4d4463d4a1c35aa5c2b20528b16b001e41b6e40616f69e4bf95f0353d2",
+      "normalizedUncompressedSha256": "f0720b4d4463d4a1c35aa5c2b20528b16b001e41b6e40616f69e4bf95f0353d2",
+      "normalizedUncompressedBytes": 58
+    },
+    "contracts/run-snapshot.py": {
+      "originalPrivateSha256": "6ae60ec7795cfc6129b2c872a1d8015e2a0ed0a2c1f4c8bf24aae1b12034a6ef",
+      "normalizedUncompressedSha256": "17f2d3261457f33f348c38675e60af91e6f7574897500bab3e5da5cc891ef452",
+      "normalizedUncompressedBytes": 6655
+    },
+    "native/results.json": {
+      "originalPrivateSha256": "f5991879a464f0a7773bb2e45f00641f201b57166a33710bc6ad2705cd663b38",
+      "normalizedUncompressedSha256": "1151bcdcc0bfcd284dc89a546d33431a21a7efce1833b5ed9b22b5dd729d822e",
+      "normalizedUncompressedBytes": 43485
+    },
+    "native/h264-compatible-qp28-decode.log.gz": {
+      "originalPrivateSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/h264-compatible-qp36.log.gz": {
+      "originalPrivateSha256": "1de856b426ebc11fea33199adba2763f4d134441a2722a7764b030e76d976f36",
+      "normalizedUncompressedSha256": "1de856b426ebc11fea33199adba2763f4d134441a2722a7764b030e76d976f36",
+      "normalizedUncompressedBytes": 1216
+    },
+    "native/h264-compatible-qp36-decode.log.gz": {
+      "originalPrivateSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/h264-low-latency-compatible-qp28.log.gz": {
+      "originalPrivateSha256": "e717f2eb0e96b3663990782a3a7031396754a85be2571d06bee2f8f47af1cc15",
+      "normalizedUncompressedSha256": "e717f2eb0e96b3663990782a3a7031396754a85be2571d06bee2f8f47af1cc15",
+      "normalizedUncompressedBytes": 1239
+    },
+    "native/h264-low-latency-compatible-qp28-decode.log.gz": {
+      "originalPrivateSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/h264-low-latency-compatible-qp36.log.gz": {
+      "originalPrivateSha256": "aa4c62ef1872b75ae754911987f8fa0a28bb36a69906a32da46f5694ddddab1d",
+      "normalizedUncompressedSha256": "aa4c62ef1872b75ae754911987f8fa0a28bb36a69906a32da46f5694ddddab1d",
+      "normalizedUncompressedBytes": 1177
+    },
+    "native/h264-low-latency-compatible-qp36-decode.log.gz": {
+      "originalPrivateSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedSha256": "b945a22965b1758256a5685963a981f2c3f15c768976425ff916986f9eadbed6",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/hevc-compatible-qp28.log.gz": {
+      "originalPrivateSha256": "030805408905d0361b80095e4966bb0f0a6bce90dad247cb623c8f6803d60858",
+      "normalizedUncompressedSha256": "030805408905d0361b80095e4966bb0f0a6bce90dad247cb623c8f6803d60858",
+      "normalizedUncompressedBytes": 1350
+    },
+    "native/hevc-compatible-qp28-decode.log.gz": {
+      "originalPrivateSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/hevc-compatible-qp36.log.gz": {
+      "originalPrivateSha256": "67d20be63d9aad1174e2fa529c9938ba7b8f6884987b10cff4ee320cb56663f1",
+      "normalizedUncompressedSha256": "67d20be63d9aad1174e2fa529c9938ba7b8f6884987b10cff4ee320cb56663f1",
+      "normalizedUncompressedBytes": 1327
+    },
+    "native/hevc-compatible-qp36-decode.log.gz": {
+      "originalPrivateSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/hevc-low-latency-compatible-qp28.log.gz": {
+      "originalPrivateSha256": "7054347666874b99ee7706826488b217fe8ef2db04823088fe8b849b2f3cc00d",
+      "normalizedUncompressedSha256": "7054347666874b99ee7706826488b217fe8ef2db04823088fe8b849b2f3cc00d",
+      "normalizedUncompressedBytes": 1365
+    },
+    "native/hevc-low-latency-compatible-qp28-decode.log.gz": {
+      "originalPrivateSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/hevc-low-latency-compatible-qp36.log.gz": {
+      "originalPrivateSha256": "bc684e733d987408704b9bc964b12c79914e49268669222cbcdab8094281112b",
+      "normalizedUncompressedSha256": "bc684e733d987408704b9bc964b12c79914e49268669222cbcdab8094281112b",
+      "normalizedUncompressedBytes": 1340
+    },
+    "native/hevc-low-latency-compatible-qp36-decode.log.gz": {
+      "originalPrivateSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedSha256": "9a77902025ff9f28fbbf5d230434a71c6ddafdd8827735fb8c5fd1316e76fe04",
+      "normalizedUncompressedBytes": 381
+    },
+    "native/control-hardware-h264-old.log.gz": {
+      "originalPrivateSha256": "abde3f177c2ace75bd4b0535bfcb53354754686e3426cc612c5be1c8b285b2ca",
+      "normalizedUncompressedSha256": "abde3f177c2ace75bd4b0535bfcb53354754686e3426cc612c5be1c8b285b2ca",
+      "normalizedUncompressedBytes": 1107
+    },
+    "native/control-hardware-h264-old-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/control-hardware-h264-new.log.gz": {
+      "originalPrivateSha256": "58b06dc0233474676de8ce5bfc9203db3a52d192a2bab35e1946939e0f6e4936",
+      "normalizedUncompressedSha256": "58b06dc0233474676de8ce5bfc9203db3a52d192a2bab35e1946939e0f6e4936",
+      "normalizedUncompressedBytes": 1132
+    },
+    "native/control-hardware-h264-new-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/control-hardware-hevc-old.log.gz": {
+      "originalPrivateSha256": "d8530af2f3322aabf60e1750d43298f39452d80208b1108d4af3aa7c03aac1e3",
+      "normalizedUncompressedSha256": "d8530af2f3322aabf60e1750d43298f39452d80208b1108d4af3aa7c03aac1e3",
+      "normalizedUncompressedBytes": 1249
+    },
+    "native/control-hardware-hevc-old-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/control-hardware-hevc-new.log.gz": {
+      "originalPrivateSha256": "4ebb2acee7e0d845002c302c66a5cf8441f33bb275e217472c5f8848acc5104d",
+      "normalizedUncompressedSha256": "4ebb2acee7e0d845002c302c66a5cf8441f33bb275e217472c5f8848acc5104d",
+      "normalizedUncompressedBytes": 1287
+    },
+    "native/control-hardware-hevc-new-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/control-software-h264-old.log.gz": {
+      "originalPrivateSha256": "33d54a626417bfbb35b65b6cb3b9d8683201be57b964f03274b4d9926cf43dd0",
+      "normalizedUncompressedSha256": "33d54a626417bfbb35b65b6cb3b9d8683201be57b964f03274b4d9926cf43dd0",
+      "normalizedUncompressedBytes": 1144
+    },
+    "native/control-software-h264-old-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/control-software-h264-new.log.gz": {
+      "originalPrivateSha256": "571853ed80f55e60d3cc12861306094e8bf1a158a9e20fae03aadb0abfff56ae",
+      "normalizedUncompressedSha256": "571853ed80f55e60d3cc12861306094e8bf1a158a9e20fae03aadb0abfff56ae",
+      "normalizedUncompressedBytes": 1139
+    },
+    "native/control-software-h264-new-rgb.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/diff.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "native/run-snapshot.py": {
+      "originalPrivateSha256": "7cd23e805d14a8e50e75d4e648672472533d864a9be91a5aa06ca78e03429036",
+      "normalizedUncompressedSha256": "6ff61d8b602ae46b617a8c0b8bc269a65ccad3cb866b4e7052c514ef1e9fa710",
+      "normalizedUncompressedBytes": 7592
+    },
+    "matched-failure/results.json": {
+      "originalPrivateSha256": "892e011f5ea4333c8fc77017870bec73281b558abbd3510835ee498168ac297e",
+      "normalizedUncompressedSha256": "c17f5f74818b039051ec22afaf3cba6755fab7e1d698f5b5e40f9d1f3c255fe0",
+      "normalizedUncompressedBytes": 111269
+    },
+    "matched-failure/load.log.gz": {
+      "originalPrivateSha256": "3eb399f71f15d61c6eb143035ee29570aecaaa14021c3a00d8f107c74b9eb1db",
+      "normalizedUncompressedSha256": "3eb399f71f15d61c6eb143035ee29570aecaaa14021c3a00d8f107c74b9eb1db",
+      "normalizedUncompressedBytes": 64
+    },
+    "matched-failure/os.log.gz": {
+      "originalPrivateSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedSha256": "a9e64d7dcaac07d4350658ab1887803e480908e5b31041a19065095cb91f31a3",
+      "normalizedUncompressedBytes": 66
+    },
+    "matched-failure/cpu.log.gz": {
+      "originalPrivateSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedSha256": "4413154dc1451ff5d95fd0ece30dbc943d4de7af109369e88a780124c6ed4875",
+      "normalizedUncompressedBytes": 13
+    },
+    "matched-failure/model.log.gz": {
+      "originalPrivateSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedSha256": "43f8bab7c0a17461d08dccff734dd0d098e749d5d081158a16df566952f73886",
+      "normalizedUncompressedBytes": 8
+    },
+    "matched-failure/toolchain.log.gz": {
+      "originalPrivateSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "normalizedUncompressedBytes": 36
+    },
+    "matched-failure/ffmpeg-version.log.gz": {
+      "originalPrivateSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedSha256": "5878b0d8e4ec7fa9b139a0c1270ad42fdf2ef8950cc17063ee744f27b53143cb",
+      "normalizedUncompressedBytes": 822
+    },
+    "matched-failure/ffprobe-version.log.gz": {
+      "originalPrivateSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedSha256": "e61df1404a27e0f12871a9ddae42ccd0970ea03105cf16bf18139cbbf06048e8",
+      "normalizedUncompressedBytes": 797
+    },
+    "matched-failure/build.log.gz": {
+      "originalPrivateSha256": "3ce0a9f3a21232a7226569b3aa422051da2a18ab536d60e77dabe9467b281edb",
+      "normalizedUncompressedSha256": "a09b2546625789e51ff62736563517b1a3d7f853fe0d651677300ac0bae042eb",
+      "normalizedUncompressedBytes": 4378
+    },
+    "matched-failure/clippy.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "matched-failure/source-floor.log.gz": {
+      "originalPrivateSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalizedUncompressedBytes": 0
+    },
+    "matched-failure/run-1-h264-compatible-3000.log.gz": {
+      "originalPrivateSha256": "507197a9d84a1867970b27bb66f150e001974c7c3b45fbb1690c40c2a1f80f73",
+      "normalizedUncompressedSha256": "507197a9d84a1867970b27bb66f150e001974c7c3b45fbb1690c40c2a1f80f73",
+      "normalizedUncompressedBytes": 7512
+    },
+    "matched-failure/run-1-h264-compatible-3000-decode.log.gz": {
+      "originalPrivateSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedSha256": "3ece2e09e35ae48442685fef4653cb09f134ad55fea3c35aa7d8b94665d7b574",
+      "normalizedUncompressedBytes": 466
+    },
+    "matched-failure/run-1-h264-compatible-3000-quality.log.gz": {
+      "originalPrivateSha256": "0b158d6eb2a49100af8788923ed89092a4afa6a74c20ea2f2f155896a30fe8ce",
+      "normalizedUncompressedSha256": "0b158d6eb2a49100af8788923ed89092a4afa6a74c20ea2f2f155896a30fe8ce",
+      "normalizedUncompressedBytes": 97014
+    },
+    "matched-failure/run-1-h264-compatible-3000-rgb.log.gz": {
+      "originalPrivateSha256": "4933fdb5187846223a3ac8433b5383c17161e1fd7ddf5497bd7cb0c39e5462f2",
+      "normalizedUncompressedSha256": "4933fdb5187846223a3ac8433b5383c17161e1fd7ddf5497bd7cb0c39e5462f2",
+      "normalizedUncompressedBytes": 26748
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000.log.gz": {
+      "originalPrivateSha256": "1dc7cdeb0e0d47fb817608161759e5de131e34cfcf5b1cdf39e7aa9ceb9294f1",
+      "normalizedUncompressedSha256": "1dc7cdeb0e0d47fb817608161759e5de131e34cfcf5b1cdf39e7aa9ceb9294f1",
+      "normalizedUncompressedBytes": 7586
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-quality.log.gz": {
+      "originalPrivateSha256": "d3d68f85b2c0ef5293979bd60db9cde23a30f94223178bc2b9fdf81a789428ee",
+      "normalizedUncompressedSha256": "d3d68f85b2c0ef5293979bd60db9cde23a30f94223178bc2b9fdf81a789428ee",
+      "normalizedUncompressedBytes": 97346
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-rgb.log.gz": {
+      "originalPrivateSha256": "68539cac963db4bbd9fe0d4f0454c77a71402b94f9d044dbd4b47ba83cab9436",
+      "normalizedUncompressedSha256": "68539cac963db4bbd9fe0d4f0454c77a71402b94f9d044dbd4b47ba83cab9436",
+      "normalizedUncompressedBytes": 26748
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36.log.gz": {
+      "originalPrivateSha256": "bdc40a94285f01283ce20358e0dc0836a033fdabd8f452eb34dd37b6d41d2b57",
+      "normalizedUncompressedSha256": "bdc40a94285f01283ce20358e0dc0836a033fdabd8f452eb34dd37b6d41d2b57",
+      "normalizedUncompressedBytes": 7680
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-quality.log.gz": {
+      "originalPrivateSha256": "72c9a03dd7e3e93f8d544b8cfe241a41347f084e9b100ce4308c1711da2d28ee",
+      "normalizedUncompressedSha256": "72c9a03dd7e3e93f8d544b8cfe241a41347f084e9b100ce4308c1711da2d28ee",
+      "normalizedUncompressedBytes": 96688
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-rgb.log.gz": {
+      "originalPrivateSha256": "9ff31b93d723fca7ae7c8430c5e847e8a3b9a7ba8cdafc160d3444c2a01015fa",
+      "normalizedUncompressedSha256": "9ff31b93d723fca7ae7c8430c5e847e8a3b9a7ba8cdafc160d3444c2a01015fa",
+      "normalizedUncompressedBytes": 26748
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp28.log.gz": {
+      "originalPrivateSha256": "4a3571e1ba94b23e6465ed4192fdf241ea204d0e8cb8ed4684287b211720a743",
+      "normalizedUncompressedSha256": "4a3571e1ba94b23e6465ed4192fdf241ea204d0e8cb8ed4684287b211720a743",
+      "normalizedUncompressedBytes": 1487
+    },
+    "matched-failure/compiler-artifact.json": {
+      "originalPrivateSha256": "9dcd0cf96b1689c201643a8d6860296f8b38509af1e24908eb1e9f6b7c33388b",
+      "normalizedUncompressedSha256": "cb16c554f52cc23fe3af439f8528b91ab5e5737cb27b1d07939a3dcc821fde38",
+      "normalizedUncompressedBytes": 1081
+    },
+    "matched-failure/fixture.json": {
+      "originalPrivateSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedSha256": "3ae202a0ce69aba0c6094631310c590694451a63c7c579eed64fd2bb011c335c",
+      "normalizedUncompressedBytes": 2609
+    },
+    "matched-failure/supervisor-failure.txt": {
+      "originalPrivateSha256": "f2548968371fb55d94801e5b794ba4d2c643d2a718f8462a01b118545c348f52",
+      "normalizedUncompressedSha256": "f2548968371fb55d94801e5b794ba4d2c643d2a718f8462a01b118545c348f52",
+      "normalizedUncompressedBytes": 124
+    },
+    "matched-failure/run-snapshot.py": {
+      "originalPrivateSha256": "6d7f616f2986e3d7b1b8ca0a7e8d9beeee6605c68dd70daac92c6274c06d85b0",
+      "normalizedUncompressedSha256": "6d7f616f2986e3d7b1b8ca0a7e8d9beeee6605c68dd70daac92c6274c06d85b0",
+      "normalizedUncompressedBytes": 30194
+    },
+    "partial-analysis/results.json": {
+      "originalPrivateSha256": "a5883e5cbe1cc47380b9a4cf390255ea36e5811e4485df21ad503278b46814da",
+      "normalizedUncompressedSha256": "bf950eeec5db2b7b3ac4ec3df05ed1640e8c5d88bbc476d7514aedcaa9d99608",
+      "normalizedUncompressedBytes": 87133
+    },
+    "partial-analysis/foreground-completed-prefix.log.gz": {
+      "originalPrivateSha256": "4851db8c1205cb66f4372e4aa590dc59fbf9408bfad4ac2f91e44c1e7ab3acd6",
+      "normalizedUncompressedSha256": "83a0543f66ee7964da59cbbc4060938ee2d3dcf2fe5cc578479cfe5b0e678ca4",
+      "normalizedUncompressedBytes": 106
+    },
+    "partial-analysis/foreground.json.gz": {
+      "originalPrivateSha256": "64ccc6952c9d7aa0e13cb4fdc95198040900813d8d90c4d55873a2e7751b579c",
+      "normalizedUncompressedSha256": "64ccc6952c9d7aa0e13cb4fdc95198040900813d8d90c4d55873a2e7751b579c",
+      "normalizedUncompressedBytes": 672338
+    },
+    "partial-analysis/run-snapshot.py": {
+      "originalPrivateSha256": "b393c5a06df90ae7f6e97fdcea3bc4d991c9f40c3d791ff4ca51b4087d1af739",
+      "normalizedUncompressedSha256": "028d2b0062fd10e48bea3bfdf2e0e996c266e6da3255b659e72dd585aed33cf4",
+      "normalizedUncompressedBytes": 3794
+    },
+    "middle/results.json": {
+      "originalPrivateSha256": "56a2a95fb7a50541ab5dbc1658b21439a7b100c5ee064a9fdb111d50e5ec2493",
+      "normalizedUncompressedSha256": "6826385273b45519cab3a32220fb88cfd206b63cdc971f0d16a655ae2f9e720b",
+      "normalizedUncompressedBytes": 100900
+    },
+    "middle/failed-qp28-prefix-decode.log.gz": {
+      "originalPrivateSha256": "1c7e5c990c059fc60365bdb46072fbb063d02b311d4cc3ef2950eaa486cac18f",
+      "normalizedUncompressedSha256": "1c7e5c990c059fc60365bdb46072fbb063d02b311d4cc3ef2950eaa486cac18f",
+      "normalizedUncompressedBytes": 227
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32.log.gz": {
+      "originalPrivateSha256": "b70bd5ed91ee2e25075568a408f452f7dda0f9a21b643fe238ccc1078113d329",
+      "normalizedUncompressedSha256": "b70bd5ed91ee2e25075568a408f452f7dda0f9a21b643fe238ccc1078113d329",
+      "normalizedUncompressedBytes": 7803
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-quality.log.gz": {
+      "originalPrivateSha256": "b15a2e5fa371e48d2f4dfdebbb4b94d1922fb0d4ccee7179b69df161e546ec9c",
+      "normalizedUncompressedSha256": "b15a2e5fa371e48d2f4dfdebbb4b94d1922fb0d4ccee7179b69df161e546ec9c",
+      "normalizedUncompressedBytes": 97012
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-rgb.log.gz": {
+      "originalPrivateSha256": "50ea9f2770046530e81edf23fdae80a0c7732e2412397efb3e65476ca945c6ac",
+      "normalizedUncompressedSha256": "50ea9f2770046530e81edf23fdae80a0c7732e2412397efb3e65476ca945c6ac",
+      "normalizedUncompressedBytes": 26748
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34.log.gz": {
+      "originalPrivateSha256": "4b9793e30f3734ba085565295cb4768233536e8b0837663e644be34c8163ed13",
+      "normalizedUncompressedSha256": "4b9793e30f3734ba085565295cb4768233536e8b0837663e644be34c8163ed13",
+      "normalizedUncompressedBytes": 7796
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-decode.log.gz": {
+      "originalPrivateSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedSha256": "e40b87887aa126aedc9d041b70d3c11098f376974cc1c3ab9cf6ff891cc81504",
+      "normalizedUncompressedBytes": 450
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-quality.log.gz": {
+      "originalPrivateSha256": "6afa8f4940c693a3e91f64f68b8e724fe9226d218c0fcbed398e5973a996109f",
+      "normalizedUncompressedSha256": "6afa8f4940c693a3e91f64f68b8e724fe9226d218c0fcbed398e5973a996109f",
+      "normalizedUncompressedBytes": 96930
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-rgb.log.gz": {
+      "originalPrivateSha256": "d89137382ef8e346e126aef87af091d4a57c8cf81af508d2938f604b1ebaca5e",
+      "normalizedUncompressedSha256": "d89137382ef8e346e126aef87af091d4a57c8cf81af508d2938f604b1ebaca5e",
+      "normalizedUncompressedBytes": 26748
+    },
+    "middle/foreground-successful-candidates.log.gz": {
+      "originalPrivateSha256": "3eb259767cf75801a9ec932ee53a199e5120019d36468ccd55c141f1752b6e61",
+      "normalizedUncompressedSha256": "fc130d9fa369cebbc55144dd9c80170efb706a35da5172af8ce9b6d08ae1fbeb",
+      "normalizedUncompressedBytes": 96
+    },
+    "middle/foreground.json.gz": {
+      "originalPrivateSha256": "2a74b52c3e6697e763ba9784e767539679aa9dae03cb0a02215871a1d2c0a6db",
+      "normalizedUncompressedSha256": "2a74b52c3e6697e763ba9784e767539679aa9dae03cb0a02215871a1d2c0a6db",
+      "normalizedUncompressedBytes": 672343
+    },
+    "middle/failed-prefix.json": {
+      "originalPrivateSha256": "3b25690722baea9f9fa05ff9d8dab21ffd42cbae63bdca973c3f1dcf2f7276c6",
+      "normalizedUncompressedSha256": "3b25690722baea9f9fa05ff9d8dab21ffd42cbae63bdca973c3f1dcf2f7276c6",
+      "normalizedUncompressedBytes": 471
+    },
+    "middle/run-snapshot.py": {
+      "originalPrivateSha256": "a80133cd444730006c50051481573f81aeb7fd2c310aa1aa739dfafa5e41d9df",
+      "normalizedUncompressedSha256": "6966f64571f4c168ae9e2c0958800562177dc61935e5158ee0e32c6fddfb1798",
+      "normalizedUncompressedBytes": 5785
+    },
+    "matched-failure/run-1-h264-compatible-3000-full.ssim.gz": {
+      "originalPrivateSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedSha256": "e95a2d29047039eb5907574aeab6003c2a00aa19348368ecafd857f1b21649bd",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-h264-compatible-3000-text.ssim.gz": {
+      "originalPrivateSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedSha256": "14b1bca1076d2da56bfcf7506d3e10724d2e242ec008a2812905ef73ccd8e915",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-h264-compatible-3000-thin.ssim.gz": {
+      "originalPrivateSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedSha256": "04b8d43c784f8b078cd297d7dbc301a787e8b3d2595e5e31f67a507a75756b8c",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-full.ssim.gz": {
+      "originalPrivateSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-text.ssim.gz": {
+      "originalPrivateSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-thin.ssim.gz": {
+      "originalPrivateSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-full.ssim.gz": {
+      "originalPrivateSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-text.ssim.gz": {
+      "originalPrivateSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedBytes": 30612
+    },
+    "matched-failure/run-1-hevc-low-latency-compatible-12000-qp36-thin.ssim.gz": {
+      "originalPrivateSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-full.ssim.gz": {
+      "originalPrivateSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-text.ssim.gz": {
+      "originalPrivateSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp32-thin.ssim.gz": {
+      "originalPrivateSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-full.ssim.gz": {
+      "originalPrivateSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedSha256": "f167bf3f70f3f62041f505fef658e1f6e6c058e2d09fd02fefade4e91a162aff",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-text.ssim.gz": {
+      "originalPrivateSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedSha256": "f58407ba4181c9c889837e519cb8b8ddf167423db0d0e6dfd1d1afa4def67f7e",
+      "normalizedUncompressedBytes": 30612
+    },
+    "middle/run-1-hevc-low-latency-compatible-12000-qp34-thin.ssim.gz": {
+      "originalPrivateSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedSha256": "4752f70e9617cbfd4e8b0f6f0a10aac65ee557db136b20a74cd6301477a74478",
+      "normalizedUncompressedBytes": 30612
+    },
+    "exporter-snapshot.py": {
+      "originalPrivateSha256": "72d7ece30183d22e20e5e36df2d18a3ca3b6e94dca6345c1ffcd0e1c6b015c07",
+      "normalizedUncompressedSha256": "30572d45dd1e0de87541e7f51ad7f9a960b593d79e890f7880f8acc9acb081fe",
+      "normalizedUncompressedBytes": 6648
+    }
+  },
+  "normalization": "Owned paths replaced by named placeholders; original versus normalized hashes distinct. Published helper/exporter snapshots were not executed. No image/font/bitstream/credential/private app source."
+}

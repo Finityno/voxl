@@ -1,0 +1,219 @@
+{
+  "base": "9c2f214672e8387acb6ab3632720f4d50a45e006",
+  "application": "a519edf252ff0fcbcb65c4d74434228f0c4b52fb",
+  "media": "f81e553ba5c1da15223c3374e57d44531c64ca8c",
+  "packageAndVersionSetUnchanged": true,
+  "changes": [
+    {
+      "package": "desktop_media",
+      "version": "0.1.0",
+      "before": {
+        "name": "desktop_media",
+        "version": "0.1.0",
+        "dependencies": [
+          "async-trait",
+          "block2 0.6.2",
+          "connect",
+          "connect_protocol",
+          "dispatch2",
+          "environment_protocol",
+          "libc",
+          "lifecycle",
+          "log",
+          "objc2 0.6.4",
+          "objc2-core-foundation",
+          "objc2-core-media",
+          "objc2-core-video",
+          "objc2-foundation 0.3.2",
+          "objc2-screen-capture-kit",
+          "parking_lot",
+          "thiserror 2.0.19",
+          "tokio",
+          "util",
+          "uuid",
+          "voxl-media"
+        ]
+      },
+      "after": {
+        "name": "desktop_media",
+        "version": "0.1.0",
+        "dependencies": [
+          "async-trait",
+          "block2 0.6.2",
+          "connect",
+          "connect_protocol",
+          "dispatch2",
+          "environment_protocol",
+          "libc",
+          "lifecycle",
+          "log",
+          "objc2 0.6.4",
+          "objc2-core-foundation",
+          "objc2-core-media",
+          "objc2-core-video",
+          "objc2-foundation 0.3.2",
+          "objc2-screen-capture-kit",
+          "parking_lot",
+          "thiserror 2.0.19",
+          "tokio",
+          "util",
+          "uuid",
+          "voxl-media",
+          "windows 0.61.3"
+        ]
+      }
+    },
+    {
+      "package": "rtc",
+      "version": "0.21.1",
+      "before": {
+        "name": "rtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+        "dependencies": [
+          "bytes",
+          "hex",
+          "log",
+          "pem",
+          "rand 0.10.3",
+          "rcgen",
+          "rtc-crypto",
+          "rtc-datachannel",
+          "rtc-dtls",
+          "rtc-ice",
+          "rtc-interceptor",
+          "rtc-mdns",
+          "rtc-media",
+          "rtc-rtcp",
+          "rtc-rtp",
+          "rtc-sctp",
+          "rtc-sdp",
+          "rtc-shared",
+          "rtc-srtp",
+          "rtc-stun",
+          "rtc-turn",
+          "rustls",
+          "sansio",
+          "serde",
+          "serde_json",
+          "unicase",
+          "url",
+          "x509-parser 0.16.0"
+        ]
+      },
+      "after": {
+        "name": "rtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=f81e553ba5c1da15223c3374e57d44531c64ca8c#f81e553ba5c1da15223c3374e57d44531c64ca8c",
+        "dependencies": [
+          "bytes",
+          "hex",
+          "log",
+          "pem",
+          "rand 0.10.3",
+          "rcgen",
+          "rtc-crypto",
+          "rtc-datachannel",
+          "rtc-dtls",
+          "rtc-ice",
+          "rtc-interceptor",
+          "rtc-mdns",
+          "rtc-media",
+          "rtc-rtcp",
+          "rtc-rtp",
+          "rtc-sctp",
+          "rtc-sdp",
+          "rtc-shared",
+          "rtc-srtp",
+          "rtc-stun",
+          "rtc-turn",
+          "rustls",
+          "sansio",
+          "serde",
+          "serde_json",
+          "unicase",
+          "url",
+          "x509-parser 0.16.0"
+        ]
+      }
+    },
+    {
+      "package": "voxl-media",
+      "version": "0.1.0",
+      "before": {
+        "name": "voxl-media",
+        "version": "0.1.0",
+        "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+        "dependencies": [
+          "async-trait",
+          "bytes",
+          "objc2-core-media",
+          "rand 0.10.3",
+          "rtc",
+          "tokio",
+          "tokio-rustls",
+          "webpki-roots",
+          "webrtc",
+          "windows 0.61.3",
+          "windows-core 0.61.2"
+        ]
+      },
+      "after": {
+        "name": "voxl-media",
+        "version": "0.1.0",
+        "source": "git+https://github.com/Finityno/voxl?rev=f81e553ba5c1da15223c3374e57d44531c64ca8c#f81e553ba5c1da15223c3374e57d44531c64ca8c",
+        "dependencies": [
+          "async-trait",
+          "bytes",
+          "objc2-core-media",
+          "rand 0.10.3",
+          "rtc",
+          "tokio",
+          "tokio-rustls",
+          "webpki-roots",
+          "webrtc",
+          "windows 0.61.3",
+          "windows-core 0.61.2"
+        ]
+      }
+    },
+    {
+      "package": "webrtc",
+      "version": "0.21.1",
+      "before": {
+        "name": "webrtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=c976515bc3b71789c472a614ae20f301ab5a334b#c976515bc3b71789c472a614ae20f301ab5a334b",
+        "dependencies": [
+          "async-broadcast",
+          "async-channel",
+          "async-trait",
+          "bytes",
+          "event-listener",
+          "futures",
+          "log",
+          "quinn-udp",
+          "rtc",
+          "tokio"
+        ]
+      },
+      "after": {
+        "name": "webrtc",
+        "version": "0.21.1",
+        "source": "git+https://github.com/Finityno/voxl?rev=f81e553ba5c1da15223c3374e57d44531c64ca8c#f81e553ba5c1da15223c3374e57d44531c64ca8c",
+        "dependencies": [
+          "async-broadcast",
+          "async-channel",
+          "async-trait",
+          "bytes",
+          "event-listener",
+          "futures",
+          "log",
+          "quinn-udp",
+          "rtc",
+          "tokio"
+        ]
+      }
+    }
+  ]
+}

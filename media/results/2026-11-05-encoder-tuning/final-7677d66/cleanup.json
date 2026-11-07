@@ -1,0 +1,1667 @@
+{
+  "checkedAtUTC": "2026-11-05T02:25:24.663759+00:00",
+  "nativeSource": "7677d66abe68be42572b838c5460fd8583bc5f34",
+  "sourceClean": true,
+  "groups": [
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "load",
+      "pid": 33953,
+      "pgid": 33953,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "toolchain",
+      "pid": 33958,
+      "pgid": 33958,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "build",
+      "pid": 33963,
+      "pgid": 33963,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "clippy",
+      "pid": 33985,
+      "pgid": 33985,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-compatible",
+      "pid": 34003,
+      "pgid": 34003,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-compatible-full",
+      "pid": 34009,
+      "pgid": 34009,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-compatible-recovery",
+      "pid": 34014,
+      "pgid": 34014,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-high",
+      "pid": 34019,
+      "pgid": 34019,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-high-full",
+      "pid": 34025,
+      "pgid": 34025,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-high-recovery",
+      "pid": 34030,
+      "pgid": 34030,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-constrained-high",
+      "pid": 34035,
+      "pgid": 34035,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-constrained-high-full",
+      "pid": 34041,
+      "pgid": 34041,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-constrained-high-recovery",
+      "pid": 34046,
+      "pgid": 34046,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-low-latency-compatible",
+      "pid": 34051,
+      "pgid": 34051,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-low-latency-high",
+      "pid": 34057,
+      "pgid": 34057,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-hardware-low-latency-constrained-high",
+      "pid": 34063,
+      "pgid": 34063,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "hevc-hardware-compatible",
+      "pid": 34069,
+      "pgid": 34069,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "hevc-hardware-compatible-full",
+      "pid": 34075,
+      "pgid": 34075,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "hevc-hardware-compatible-recovery",
+      "pid": 34080,
+      "pgid": 34080,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "hevc-hardware-low-latency-compatible",
+      "pid": 34085,
+      "pgid": 34085,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-software-compatible",
+      "pid": 34091,
+      "pgid": 34091,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-software-compatible-full",
+      "pid": 34097,
+      "pgid": 34097,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "h264-software-compatible-recovery",
+      "pid": 34102,
+      "pgid": 34102,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-ce39fc5",
+      "step": "queue",
+      "pid": 33947,
+      "pgid": 33947,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "load",
+      "pid": 38849,
+      "pgid": 38849,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "toolchain",
+      "pid": 38854,
+      "pgid": 38854,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "build",
+      "pid": 38859,
+      "pgid": 38859,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "clippy",
+      "pid": 38877,
+      "pgid": 38877,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-compatible",
+      "pid": 38891,
+      "pgid": 38891,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-compatible-full",
+      "pid": 38897,
+      "pgid": 38897,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-compatible-recovery",
+      "pid": 38902,
+      "pgid": 38902,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-high",
+      "pid": 38907,
+      "pgid": 38907,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-high-full",
+      "pid": 38919,
+      "pgid": 38919,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-high-recovery",
+      "pid": 38924,
+      "pgid": 38924,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-constrained-high",
+      "pid": 38929,
+      "pgid": 38929,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-constrained-high-full",
+      "pid": 38937,
+      "pgid": 38937,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-constrained-high-recovery",
+      "pid": 38942,
+      "pgid": 38942,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-compatible",
+      "pid": 38947,
+      "pgid": 38947,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-compatible-full",
+      "pid": 38953,
+      "pgid": 38953,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-compatible-recovery",
+      "pid": 38958,
+      "pgid": 38958,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-high",
+      "pid": 38963,
+      "pgid": 38963,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-high-full",
+      "pid": 38969,
+      "pgid": 38969,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-high-recovery",
+      "pid": 38974,
+      "pgid": 38974,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-constrained-high",
+      "pid": 38979,
+      "pgid": 38979,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-constrained-high-full",
+      "pid": 38985,
+      "pgid": 38985,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 38990,
+      "pgid": 38990,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-compatible",
+      "pid": 38995,
+      "pgid": 38995,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-compatible-full",
+      "pid": 39001,
+      "pgid": 39001,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-compatible-recovery",
+      "pid": 39006,
+      "pgid": 39006,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-low-latency-compatible",
+      "pid": 39011,
+      "pgid": 39011,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-low-latency-compatible-full",
+      "pid": 39019,
+      "pgid": 39019,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "hevc-hardware-low-latency-compatible-recovery",
+      "pid": 39024,
+      "pgid": 39024,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-software-compatible",
+      "pid": 39029,
+      "pgid": 39029,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-software-compatible-full",
+      "pid": 39037,
+      "pgid": 39037,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "h264-software-compatible-recovery",
+      "pid": 39042,
+      "pgid": 39042,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-smoke-7677d66",
+      "step": "queue",
+      "pid": 38843,
+      "pgid": 38843,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-compatible",
+      "pid": 41119,
+      "pgid": 41119,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-compatible-full",
+      "pid": 41144,
+      "pgid": 41144,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-compatible-recovery",
+      "pid": 41149,
+      "pgid": 41149,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-compatible-quality",
+      "pid": 41156,
+      "pgid": 41156,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-compatible",
+      "pid": 41161,
+      "pgid": 41161,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-compatible-full",
+      "pid": 41168,
+      "pgid": 41168,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-compatible-recovery",
+      "pid": 41173,
+      "pgid": 41173,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-compatible-quality",
+      "pid": 41178,
+      "pgid": 41178,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-high",
+      "pid": 41183,
+      "pgid": 41183,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-high-full",
+      "pid": 41204,
+      "pgid": 41204,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-high-recovery",
+      "pid": 41213,
+      "pgid": 41213,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-high-quality",
+      "pid": 41218,
+      "pgid": 41218,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-high",
+      "pid": 41223,
+      "pgid": 41223,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-high-full",
+      "pid": 41243,
+      "pgid": 41243,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-high-recovery",
+      "pid": 41248,
+      "pgid": 41248,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-high-quality",
+      "pid": 41253,
+      "pgid": 41253,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-constrained-high",
+      "pid": 41258,
+      "pgid": 41258,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-constrained-high-full",
+      "pid": 41272,
+      "pgid": 41272,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-constrained-high-recovery",
+      "pid": 41277,
+      "pgid": 41277,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-constrained-high-quality",
+      "pid": 41282,
+      "pgid": 41282,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-constrained-high",
+      "pid": 41287,
+      "pgid": 41287,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-constrained-high-full",
+      "pid": 41304,
+      "pgid": 41304,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 41309,
+      "pgid": 41309,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-hardware-low-latency-constrained-high-quality",
+      "pid": 41314,
+      "pgid": 41314,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-compatible",
+      "pid": 41319,
+      "pgid": 41319,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-compatible-full",
+      "pid": 41346,
+      "pgid": 41346,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-compatible-recovery",
+      "pid": 41351,
+      "pgid": 41351,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-compatible-quality",
+      "pid": 41356,
+      "pgid": 41356,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-low-latency-compatible",
+      "pid": 41361,
+      "pgid": 41361,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-low-latency-compatible-full",
+      "pid": 41387,
+      "pgid": 41387,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-low-latency-compatible-recovery",
+      "pid": 41392,
+      "pgid": 41392,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-hevc-hardware-low-latency-compatible-quality",
+      "pid": 41397,
+      "pgid": 41397,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-software-compatible",
+      "pid": 41403,
+      "pgid": 41403,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-software-compatible-full",
+      "pid": 41470,
+      "pgid": 41470,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-software-compatible-recovery",
+      "pid": 41476,
+      "pgid": 41476,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r0-h264-software-compatible-quality",
+      "pid": 41481,
+      "pgid": 41481,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-compatible",
+      "pid": 41486,
+      "pgid": 41486,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-compatible-full",
+      "pid": 41537,
+      "pgid": 41537,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-compatible-recovery",
+      "pid": 41542,
+      "pgid": 41542,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-compatible-quality",
+      "pid": 41547,
+      "pgid": 41547,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-compatible",
+      "pid": 41552,
+      "pgid": 41552,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-compatible-full",
+      "pid": 41587,
+      "pgid": 41587,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-compatible-recovery",
+      "pid": 41592,
+      "pgid": 41592,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-compatible-quality",
+      "pid": 41597,
+      "pgid": 41597,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-low-latency-compatible",
+      "pid": 41602,
+      "pgid": 41602,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-low-latency-compatible-full",
+      "pid": 41967,
+      "pgid": 41967,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-low-latency-compatible-recovery",
+      "pid": 41974,
+      "pgid": 41974,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-low-latency-compatible-quality",
+      "pid": 41979,
+      "pgid": 41979,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-compatible",
+      "pid": 41984,
+      "pgid": 41984,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-compatible-full",
+      "pid": 42000,
+      "pgid": 42000,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-compatible-recovery",
+      "pid": 42005,
+      "pgid": 42005,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-hevc-hardware-compatible-quality",
+      "pid": 42010,
+      "pgid": 42010,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-constrained-high",
+      "pid": 42015,
+      "pgid": 42015,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-constrained-high-full",
+      "pid": 42035,
+      "pgid": 42035,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 42040,
+      "pgid": 42040,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-constrained-high-quality",
+      "pid": 42045,
+      "pgid": 42045,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-constrained-high",
+      "pid": 42050,
+      "pgid": 42050,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-constrained-high-full",
+      "pid": 42084,
+      "pgid": 42084,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-constrained-high-recovery",
+      "pid": 42089,
+      "pgid": 42089,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-constrained-high-quality",
+      "pid": 42094,
+      "pgid": 42094,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-high",
+      "pid": 42099,
+      "pgid": 42099,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-high-full",
+      "pid": 42109,
+      "pgid": 42109,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-high-recovery",
+      "pid": 42116,
+      "pgid": 42116,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-low-latency-high-quality",
+      "pid": 42123,
+      "pgid": 42123,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-high",
+      "pid": 42128,
+      "pgid": 42128,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-high-full",
+      "pid": 42158,
+      "pgid": 42158,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-high-recovery",
+      "pid": 42163,
+      "pgid": 42163,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-hardware-high-quality",
+      "pid": 42168,
+      "pgid": 42168,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-software-compatible",
+      "pid": 42181,
+      "pgid": 42181,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-software-compatible-full",
+      "pid": 42337,
+      "pgid": 42337,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-software-compatible-recovery",
+      "pid": 42342,
+      "pgid": 42342,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r1-h264-software-compatible-quality",
+      "pid": 42347,
+      "pgid": 42347,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-constrained-high",
+      "pid": 42352,
+      "pgid": 42352,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-constrained-high-full",
+      "pid": 42377,
+      "pgid": 42377,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-constrained-high-recovery",
+      "pid": 42382,
+      "pgid": 42382,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-constrained-high-quality",
+      "pid": 42387,
+      "pgid": 42387,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-constrained-high",
+      "pid": 42392,
+      "pgid": 42392,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-constrained-high-full",
+      "pid": 42742,
+      "pgid": 42742,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 42747,
+      "pgid": 42747,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-constrained-high-quality",
+      "pid": 42752,
+      "pgid": 42752,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-compatible",
+      "pid": 42757,
+      "pgid": 42757,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-compatible-full",
+      "pid": 42780,
+      "pgid": 42780,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-compatible-recovery",
+      "pid": 42785,
+      "pgid": 42785,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-compatible-quality",
+      "pid": 42790,
+      "pgid": 42790,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-low-latency-compatible",
+      "pid": 42795,
+      "pgid": 42795,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-low-latency-compatible-full",
+      "pid": 42827,
+      "pgid": 42827,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-low-latency-compatible-recovery",
+      "pid": 42832,
+      "pgid": 42832,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-hevc-hardware-low-latency-compatible-quality",
+      "pid": 42837,
+      "pgid": 42837,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-compatible",
+      "pid": 42842,
+      "pgid": 42842,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-compatible-full",
+      "pid": 42867,
+      "pgid": 42867,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-compatible-recovery",
+      "pid": 42872,
+      "pgid": 42872,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-compatible-quality",
+      "pid": 42877,
+      "pgid": 42877,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-compatible",
+      "pid": 42882,
+      "pgid": 42882,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-compatible-full",
+      "pid": 42897,
+      "pgid": 42897,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-compatible-recovery",
+      "pid": 42902,
+      "pgid": 42902,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-compatible-quality",
+      "pid": 42907,
+      "pgid": 42907,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-high",
+      "pid": 42912,
+      "pgid": 42912,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-high-full",
+      "pid": 42941,
+      "pgid": 42941,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-high-recovery",
+      "pid": 42946,
+      "pgid": 42946,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-high-quality",
+      "pid": 42951,
+      "pgid": 42951,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-high",
+      "pid": 42956,
+      "pgid": 42956,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-high-full",
+      "pid": 42973,
+      "pgid": 42973,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-high-recovery",
+      "pid": 42978,
+      "pgid": 42978,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-hardware-low-latency-high-quality",
+      "pid": 42983,
+      "pgid": 42983,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-software-compatible",
+      "pid": 42990,
+      "pgid": 42990,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-software-compatible-full",
+      "pid": 43018,
+      "pgid": 43018,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-software-compatible-recovery",
+      "pid": 43023,
+      "pgid": 43023,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r2-h264-software-compatible-quality",
+      "pid": 43028,
+      "pgid": 43028,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-constrained-high",
+      "pid": 43033,
+      "pgid": 43033,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-constrained-high-full",
+      "pid": 43058,
+      "pgid": 43058,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 43063,
+      "pgid": 43063,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-constrained-high-quality",
+      "pid": 43068,
+      "pgid": 43068,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-constrained-high",
+      "pid": 43073,
+      "pgid": 43073,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-constrained-high-full",
+      "pid": 43085,
+      "pgid": 43085,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-constrained-high-recovery",
+      "pid": 43090,
+      "pgid": 43090,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-constrained-high-quality",
+      "pid": 43095,
+      "pgid": 43095,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-high",
+      "pid": 43100,
+      "pgid": 43100,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-high-full",
+      "pid": 43120,
+      "pgid": 43120,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-high-recovery",
+      "pid": 43125,
+      "pgid": 43125,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-high-quality",
+      "pid": 43130,
+      "pgid": 43130,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-high",
+      "pid": 43135,
+      "pgid": 43135,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-high-full",
+      "pid": 43155,
+      "pgid": 43155,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-high-recovery",
+      "pid": 43160,
+      "pgid": 43160,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-high-quality",
+      "pid": 43165,
+      "pgid": 43165,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-compatible",
+      "pid": 43170,
+      "pgid": 43170,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-compatible-full",
+      "pid": 43187,
+      "pgid": 43187,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-compatible-recovery",
+      "pid": 43192,
+      "pgid": 43192,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-low-latency-compatible-quality",
+      "pid": 43197,
+      "pgid": 43197,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-compatible",
+      "pid": 43204,
+      "pgid": 43204,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-compatible-full",
+      "pid": 43226,
+      "pgid": 43226,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-compatible-recovery",
+      "pid": 43231,
+      "pgid": 43231,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-hardware-compatible-quality",
+      "pid": 43236,
+      "pgid": 43236,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-low-latency-compatible",
+      "pid": 43241,
+      "pgid": 43241,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-low-latency-compatible-full",
+      "pid": 43339,
+      "pgid": 43339,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-low-latency-compatible-recovery",
+      "pid": 43346,
+      "pgid": 43346,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-low-latency-compatible-quality",
+      "pid": 43353,
+      "pgid": 43353,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-compatible",
+      "pid": 43362,
+      "pgid": 43362,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-compatible-full",
+      "pid": 43455,
+      "pgid": 43455,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-compatible-recovery",
+      "pid": 43460,
+      "pgid": 43460,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-hevc-hardware-compatible-quality",
+      "pid": 43466,
+      "pgid": 43466,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-software-compatible",
+      "pid": 43471,
+      "pgid": 43471,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-software-compatible-full",
+      "pid": 43495,
+      "pgid": 43495,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-software-compatible-recovery",
+      "pid": 43500,
+      "pgid": 43500,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r3-h264-software-compatible-quality",
+      "pid": 43505,
+      "pgid": 43505,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-compatible",
+      "pid": 43510,
+      "pgid": 43510,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-compatible-full",
+      "pid": 43522,
+      "pgid": 43522,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-compatible-recovery",
+      "pid": 43527,
+      "pgid": 43527,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-compatible-quality",
+      "pid": 43532,
+      "pgid": 43532,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-compatible",
+      "pid": 43537,
+      "pgid": 43537,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-compatible-full",
+      "pid": 43546,
+      "pgid": 43546,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-compatible-recovery",
+      "pid": 43551,
+      "pgid": 43551,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-compatible-quality",
+      "pid": 43565,
+      "pgid": 43565,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-high",
+      "pid": 43570,
+      "pgid": 43570,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-high-full",
+      "pid": 43588,
+      "pgid": 43588,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-high-recovery",
+      "pid": 43593,
+      "pgid": 43593,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-high-quality",
+      "pid": 43598,
+      "pgid": 43598,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-high",
+      "pid": 43603,
+      "pgid": 43603,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-high-full",
+      "pid": 43629,
+      "pgid": 43629,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-high-recovery",
+      "pid": 43634,
+      "pgid": 43634,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-high-quality",
+      "pid": 43639,
+      "pgid": 43639,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-constrained-high",
+      "pid": 43644,
+      "pgid": 43644,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-constrained-high-full",
+      "pid": 43675,
+      "pgid": 43675,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-constrained-high-recovery",
+      "pid": 43680,
+      "pgid": 43680,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-constrained-high-quality",
+      "pid": 43685,
+      "pgid": 43685,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-constrained-high",
+      "pid": 43690,
+      "pgid": 43690,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-constrained-high-full",
+      "pid": 43710,
+      "pgid": 43710,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-constrained-high-recovery",
+      "pid": 43715,
+      "pgid": 43715,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-hardware-low-latency-constrained-high-quality",
+      "pid": 43720,
+      "pgid": 43720,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-compatible",
+      "pid": 43725,
+      "pgid": 43725,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-compatible-full",
+      "pid": 43756,
+      "pgid": 43756,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-compatible-recovery",
+      "pid": 43761,
+      "pgid": 43761,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-compatible-quality",
+      "pid": 43768,
+      "pgid": 43768,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-low-latency-compatible",
+      "pid": 43773,
+      "pgid": 43773,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-low-latency-compatible-full",
+      "pid": 43792,
+      "pgid": 43792,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-low-latency-compatible-recovery",
+      "pid": 43797,
+      "pgid": 43797,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-hevc-hardware-low-latency-compatible-quality",
+      "pid": 43802,
+      "pgid": 43802,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-software-compatible",
+      "pid": 43807,
+      "pgid": 43807,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-software-compatible-full",
+      "pid": 43820,
+      "pgid": 43820,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-software-compatible-recovery",
+      "pid": 43825,
+      "pgid": 43825,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "r4-h264-software-compatible-quality",
+      "pid": 43830,
+      "pgid": 43830,
+      "groupGoneNow": true
+    },
+    {
+      "batch": "fincode-voxl-tuning-matrix-7677d66",
+      "step": "queue",
+      "pid": 41113,
+      "pgid": 41113,
+      "groupGoneNow": true
+    }
+  ],
+  "scope": "All recorded native/decoder/supervisor groups gone. No assertion about persistent system codec/GPU helpers. No unrelated process stopped."
+}

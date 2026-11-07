@@ -1,0 +1,328 @@
+//! Bounded synthetic codec probe. It captures no screen and records no user
+//! input. Its deterministic NV12 frames can be decoded independently by ffmpeg.
+// A short immutable fixture can drive long observations without duplicating
+// tens of gigabytes. The prefix and observed cycle stay separate from the
+// capture clock: native output timestamps never repeat when input pixels do.
+#[cfg(any(target_os="macos",test))]
+#[path="support/probe_pipeline.rs"]
+mod probe_pipeline;
+#[cfg(any(target_os="macos",test))]
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+struct InputCycle {prefix:usize,frames:usize}
+#[cfg(any(target_os="macos",test))]
+impl InputCycle {
+    fn new(prefix:usize,file_bytes:u64,frame_bytes:u64)->Result<Self,&'static str> {
+        if frame_bytes==0 || !file_bytes.is_multiple_of(frame_bytes) {return Err("cyclic NV12 input must contain whole frames");}
+        let frames=usize::try_from(file_bytes/frame_bytes).map_err(|_|"cyclic source frame count overflow")?;
+        if frames==0 || frames>19800 || prefix>=frames {return Err("cyclic NV12 input needs a bounded nonempty observed segment");}
+        Ok(Self {prefix,frames})
+    }
+    fn source_frame(self,index:usize,warmup:usize)->usize {
+        if index<warmup {index%if self.prefix==0 {self.frames} else {self.prefix}}
+        else {self.prefix+(index-warmup)%(self.frames-self.prefix)}
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    use std::{ffi::c_void, ptr, time::{Duration, Instant}, io::{Read,Write,Seek,SeekFrom}};
+    use voxl_media::{EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning};
+    use voxl_media::codec::VideoCodec;
+    use voxl_media::macos::{VideoEncoder, PixelBuffer, EncodingPriority, EncodingOptions, MaxFrameQp};
+    use probe_pipeline::{Pipeline,Submission,Action};
+    #[link(name = "CoreVideo", kind = "framework")]
+    unsafe extern "C" {
+        fn CVPixelBufferCreate(allocator: *const c_void, width: usize, height: usize, format: u32, attrs: *const c_void, out: *mut *const c_void) -> i32;
+        fn CVPixelBufferLockBaseAddress(buffer: *const c_void, flags: u64) -> i32;
+        fn CVPixelBufferUnlockBaseAddress(buffer: *const c_void, flags: u64) -> i32;
+        fn CVPixelBufferGetBaseAddressOfPlane(buffer: *const c_void, plane: usize) -> *mut u8;
+        fn CVPixelBufferGetBytesPerRowOfPlane(buffer: *const c_void, plane: usize) -> usize;
+        fn CVBufferSetAttachment(buffer: *const c_void, key: *const c_void, value: *const c_void, mode: u32);
+        static kCVImageBufferColorPrimariesKey: *const c_void;
+        static kCVImageBufferTransferFunctionKey: *const c_void;
+        static kCVImageBufferYCbCrMatrixKey: *const c_void;
+        static kCVImageBufferColorPrimaries_ITU_R_709_2: *const c_void;
+        static kCVImageBufferTransferFunction_ITU_R_709_2: *const c_void;
+        static kCVImageBufferTransferFunction_sRGB: *const c_void;
+        static kCVImageBufferYCbCrMatrix_ITU_R_709_2: *const c_void;
+    }
+    #[link(name = "CoreFoundation", kind = "framework")]
+    unsafe extern "C" { fn CFRelease(object: *const c_void); }
+    fn option(args: &mut Vec<String>, prefix: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+        let indices: Vec<_> = args.iter().enumerate().filter_map(|(index,arg)| arg.starts_with(prefix).then_some(index)).collect();
+        if indices.len() > 1 { return Err("duplicate codec probe option".into()); }
+        Ok(indices.first().map(|index| args.remove(*index)[prefix.len()..].to_owned()))
+    }
+    let mut args: Vec<_> = std::env::args().collect();
+    let tuning_name = option(&mut args,"--tuning=")?.unwrap_or_else(||"compatible".to_owned());
+    let streaming_policy=match option(&mut args,"--streaming-rate-policy=")?.as_deref() {None|Some("off")=>false,Some("on")=>true,_=>return Err("streaming rate policy must be on or off".into())};
+    let priority_name=option(&mut args,"--priority=")?.unwrap_or_else(||"default".to_owned());
+    let priority=match priority_name.as_str() {"default"=>EncodingPriority::Default,"speed"=>EncodingPriority::Speed,"quality"=>EncodingPriority::Quality,_=>return Err("unknown encoding priority".into())};
+    let max_frame_qp=option(&mut args,"--max-frame-qp=")?.map(|value|value.parse::<u8>()).transpose()?.map(MaxFrameQp::new).transpose()?;
+    let max_frame_delay=option(&mut args,"--max-frame-delay=")?.map(|value|value.parse::<u32>()).transpose()?;
+    let tuning = match tuning_name.as_str() {
+        "compatible" => EncoderTuning::default(),
+        "high" => EncoderTuning { rate_control: EncoderRateControl::RealTime, profile: EncoderProfile::H264High },
+        "constrained-high" => EncoderTuning { rate_control: EncoderRateControl::RealTime, profile: EncoderProfile::H264ConstrainedHigh },
+        "low-latency-compatible" => EncoderTuning { rate_control: EncoderRateControl::LowLatency, profile: EncoderProfile::Compatible },
+        "low-latency-high" => EncoderTuning { rate_control: EncoderRateControl::LowLatency, profile: EncoderProfile::H264High },
+        "low-latency-constrained-high" => EncoderTuning { rate_control: EncoderRateControl::LowLatency, profile: EncoderProfile::H264ConstrainedHigh },
+        _ => return Err("unknown codec probe tuning".into()),
+    };
+    let parse_count = |value: Option<String>, default: usize| -> Result<usize, Box<dyn std::error::Error>> {
+        value.map(|value|value.parse::<usize>()).transpose().map(|value|value.unwrap_or(default)).map_err(Into::into)
+    };
+    let warmup = parse_count(option(&mut args,"--warmup-frames=")?,0)?;
+    let count = parse_count(option(&mut args,"--frames=")?,60)?;
+    let pipeline_depth=parse_count(option(&mut args,"--pipeline-depth=")?,1)?;
+    let mut pipeline=Pipeline::new(pipeline_depth)?;
+    let force_period = option(&mut args,"--force-keyframe-period=")?.map(|value|value.parse::<usize>()).transpose()?;
+    let pattern = option(&mut args,"--pattern=")?.unwrap_or_else(||"mono".to_owned());
+    let pixel_range = option(&mut args,"--pixel-range=")?.unwrap_or_else(||"video".to_owned());
+    let color_tags = option(&mut args,"--color-tags=")?.unwrap_or_else(||"none".to_owned());
+    let input_path = option(&mut args,"--input-nv12=")?;
+    let input_cycle_prefix=option(&mut args,"--input-cycle-prefix=")?.map(|value|value.parse::<usize>()).transpose()?;
+    if input_cycle_prefix.is_some() && input_path.is_none() {return Err("cyclic input requires an NV12 input file".into());}
+    let width = u32::try_from(parse_count(option(&mut args,"--width=")?,1280)?)?;
+    let height = u32::try_from(parse_count(option(&mut args,"--height=")?,720)?)?;
+    let fps = u32::try_from(parse_count(option(&mut args,"--fps=")?,30)?)?;
+    let bitrate_kbps = u32::try_from(parse_count(option(&mut args,"--bitrate-kbps=")?,2500)?)?;
+    let full_range = match pixel_range.as_str() {"video"=>false,"full"=>true,_=>return Err("unknown input pixel range".into())};
+    if !matches!(pattern.as_str(),"mono"|"color-bars") || !matches!(color_tags.as_str(),"none"|"bt709"|"srgb") {
+        return Err("unknown input pattern or color tags".into());
+    }
+    if warmup > 1800 || !(1..=18000).contains(&count) || force_period.is_some_and(|period|!(1..=1800).contains(&period))
+        || !(3..=5).contains(&args.len()) || args.iter().skip(1).any(|arg|arg.starts_with("--"))
+    { return Err("codec probe options exceed their bounds".into()); }
+    let preference = match args.get(1).map(String::as_str) {
+        Some("hardware") => EncoderPreference::RequireHardware,
+        Some("software") => EncoderPreference::Software,
+        _ => return Err("Usage: codec_probe hardware|software <output> [h264|hevc] [framed-output] [--tuning=compatible|high|constrained-high|low-latency-compatible|low-latency-high|low-latency-constrained-high] [--streaming-rate-policy=on|off] [--priority=default|speed|quality] [--max-frame-qp=1..51] [--max-frame-delay=N] [--pipeline-depth=1|2] [--warmup-frames=N] [--frames=N] [--force-keyframe-period=N] [--pattern=mono|color-bars] [--pixel-range=video|full] [--color-tags=none|bt709|srgb] [--input-nv12=PATH] [--input-cycle-prefix=N] [--width=N] [--height=N] [--fps=N] [--bitrate-kbps=N]".into()),
+    };
+    let path = args.get(2).ok_or("output path required")?;
+    let codec = match args.get(3).map(String::as_str) {
+        None | Some("h264") => VideoCodec::H264,
+        Some("hevc") => VideoCodec::Hevc,
+        _ => return Err("codec must be h264 or hevc".into()),
+    };
+    if input_path.is_some() && pattern!="mono" { return Err("file input cannot be combined with a generated pattern".into()); }
+    let config = EncoderConfig { codec, width, height, fps, bitrate_kbps, preference };
+    if pipeline_depth!=1 && preference!=EncoderPreference::RequireHardware {return Err("pipelining experiment requires explicitly selected hardware".into());}
+    tuning.validate(&config)?;
+    if priority!=EncodingPriority::Default && preference!=EncoderPreference::RequireHardware {return Err("encoding priority requires explicitly selected hardware".into());}
+    if max_frame_qp.is_some() && preference!=EncoderPreference::RequireHardware {return Err("maximum frame QP requires explicitly selected hardware".into());}
+    if max_frame_delay.is_some() && preference!=EncoderPreference::RequireHardware {return Err("maximum frame delay requires explicitly selected hardware".into());}
+    if let Some(path)=&input_path && !std::fs::symlink_metadata(path)?.file_type().is_file() {
+        return Err("NV12 input must be a regular non-symlink file".into());
+    }
+    let mut input = input_path.as_ref().map(std::fs::File::open).transpose()?;
+    let frame_bytes=u64::from(width)*u64::from(height)*3/2;
+    let input_cycle=if let Some(input)=&input {
+        let metadata=input.metadata()?;
+        if !metadata.is_file() {return Err("NV12 input is not a regular file".into());}
+        if let Some(prefix)=input_cycle_prefix {Some(InputCycle::new(prefix,metadata.len(),frame_bytes)?)}
+        else {
+            let expected=frame_bytes*u64::try_from(warmup+count)?;
+            if metadata.len()!=expected {return Err("NV12 file length does not match geometry and total frame count".into());}None
+        }
+    } else {None};
+    let create = |path| std::fs::OpenOptions::new().write(true).create_new(true).open(path);
+    let mut file = create(path)?;
+    // Test-only access-unit capture preserves frame boundaries and timestamps
+    // for native browser interoperability; it is not a recording format API.
+    let mut framed = args.get(4).map(create).transpose()?;
+    if let Some(framed) = &mut framed {
+        framed.write_all(b"VXFR\x01")?;
+        framed.write_all(&[if codec == VideoCodec::H264 { 0 } else { 1 }])?;
+    }
+    println!("requested_tuning={tuning_name} warmup_frames={warmup} observed_frames={count} force_keyframe_period={force_period:?}");
+    println!("input_pattern={} requested_pixel_range={pixel_range} requested_color_tags={color_tags} matrix_for_generated_bars=bt709",if input.is_some() {"file-nv12"} else {&pattern});
+    let rgb_bars = [[255u8,255,255],[255,255,0],[0,255,255],[0,255,0],[255,0,255],[255,0,0],[0,0,255],[0,0,0],
+        [128,128,128],[64,64,64],[192,192,192],[255,128,0],[128,0,255],[0,128,128],[255,128,192],[128,64,32]];
+    let quantize = |value:f64|value.round().clamp(0.0,255.0) as u8;
+    let color_bars = rgb_bars.map(|[red,green,blue]| {
+        let red=f64::from(red)/255.0;let green=f64::from(green)/255.0;let blue=f64::from(blue)/255.0;
+        let luma=0.2126*red+0.7152*green+0.0722*blue;
+        let y=if full_range {255.0*luma} else {16.0+219.0*luma};
+        let scale=if full_range {255.0} else {224.0};
+        [quantize(y),quantize(128.0+scale*(blue-luma)/1.8556),quantize(128.0+scale*(red-luma)/1.5748)]
+    });
+    if let Some(cycle)=input_cycle {println!("input_sequence=cyclic source_frames={} prefix_frames={} observed_cycle_frames={}",cycle.frames,cycle.prefix,cycle.frames-cycle.prefix);}
+    let mut encoder = VideoEncoder::new_tuned_with_options(config,tuning,EncodingOptions {priority,max_frame_qp,max_frame_delay},|| {})?;
+    if streaming_policy {
+        encoder.set_streaming_bitrate_target(config.bitrate_kbps)?;
+        let (bytes,millis)=encoder.burst_limit().ok_or("streaming burst readback missing")?;
+        if encoder.bitrate_target_kbps()!=config.bitrate_kbps || bytes!=config.bitrate_kbps*50 || millis!=if encoder.using_hardware() {400} else {1000} {return Err("streaming native policy readback differs".into());}
+        println!("streaming_policy=verified target_kbps={} burst_bytes={bytes} burst_millis={millis}",encoder.bitrate_target_kbps());
+    }
+    println!("hardware_selection={:?}",encoder.acceleration_selection());
+    println!("encoding_priority={:?} priority_property_verified={}",encoder.encoding_priority(),encoder.encoding_priority()!=EncodingPriority::Default);
+    if let Some(limit)=encoder.max_frame_qp() {println!("max_frame_qp={} qp_property_verified=true",limit.get());}
+    if let Some(limit)=encoder.max_frame_delay() {println!("max_frame_delay={limit} delay_property_verified=true");}
+    let started = Instant::now();
+    let mut bytes = 0;
+    let mut total_bytes = 0;
+    let mut latencies = Vec::new();
+    let mut keyframes = 0;
+    let mut keyframe_indices = Vec::new();
+    let mut first_frame_ms = None;
+    let mut output_arrivals_ms=Vec::new();
+    let mut submission_lateness_ms=Vec::new();
+    {
+    let mut consume=|output:voxl_media::EncodedFrame,pipeline:&mut Pipeline|->Result<(),Box<dyn std::error::Error>> {
+        // Receipt time includes any producer work before it drains this output;
+        // it is not a driver/GPU callback timestamp or decoder presentation time.
+        let received=Instant::now();
+        let entry=pipeline.complete(output.presentation_time_micros,received)?;
+        let index=entry.index;let forced=entry.forced;
+        let latency = received.duration_since(entry.submitted).as_secs_f64()*1000.0;
+        if forced && !output.keyframe { return Err("forced keyframe was not observed".into()); }
+        if index == 0 {
+            first_frame_ms = Some(latency);
+            match codec {
+                VideoCodec::H264 => println!("profile_level_id={:02x?}",voxl_media::h264_profile_level_id(&output.annex_b)?),
+                VideoCodec::Hevc => println!("hevc_fmtp={}",voxl_media::hevc_main_profile(&output.annex_b)?.fmtp()),
+                VideoCodec::Av1 => unreachable!(),
+            }
+        }
+        if output.codec != codec { return Err("codec mismatch".into()); }
+        if output.presentation_time_micros != (index as i64)*1_000_000/i64::from(fps) { return Err("timestamp mismatch".into()); }
+        total_bytes += output.annex_b.len();
+        if output.keyframe { keyframe_indices.push(index); }
+        if index>=warmup {bytes += output.annex_b.len();keyframes += usize::from(output.keyframe);latencies.push(latency);output_arrivals_ms.push(received.duration_since(started).as_secs_f64()*1000.0);}
+        file.write_all(&output.annex_b)?;
+        if let Some(framed) = &mut framed {
+            framed.write_all(&output.presentation_time_micros.to_be_bytes())?;
+            framed.write_all(&[u8::from(output.keyframe)])?;
+            framed.write_all(&u32::try_from(output.annex_b.len())?.to_be_bytes())?;
+            framed.write_all(&output.annex_b)?;
+        }
+        Ok(())
+    };
+    for index in 0..warmup+count {
+        let deadline = started + Duration::from_secs_f64(index as f64 / f64::from(fps));
+        loop {
+            if let Some(output)=encoder.take_output().map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;continue;}
+            match pipeline.action(Instant::now(),deadline)? {
+                Action::Submit=>break,
+                Action::Sleep(wait)=>std::thread::sleep(wait),
+                Action::Receive(wait)=>if let Some(output)=encoder.wait_output(wait).map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;},
+            }
+        }
+        if let (Some(input),Some(cycle))=(&mut input,input_cycle) {
+            let offset=u64::try_from(cycle.source_frame(index,warmup))?.checked_mul(frame_bytes).ok_or("cyclic frame offset overflow")?;
+            input.seek(SeekFrom::Start(offset))?;
+        }
+        let mut raw = ptr::null();
+        let format=if full_range {*b"420f"} else {*b"420v"};
+        let code = unsafe { CVPixelBufferCreate(ptr::null(),width as usize,height as usize,u32::from_be_bytes(format),ptr::null(),&mut raw) };
+        if code != 0 || raw.is_null() { return Err(format!("pixel buffer creation: {code}").into()); }
+        unsafe {
+            if CVPixelBufferLockBaseAddress(raw,0) != 0 { CFRelease(raw); return Err("pixel buffer lock failed".into()); }
+            let y_stride = CVPixelBufferGetBytesPerRowOfPlane(raw,0);
+            let uv_stride = CVPixelBufferGetBytesPerRowOfPlane(raw,1);
+            let y = CVPixelBufferGetBaseAddressOfPlane(raw,0);
+            let uv = CVPixelBufferGetBaseAddressOfPlane(raw,1);
+            if y.is_null() || uv.is_null() || y_stride < width as usize || uv_stride < width as usize {
+                CVPixelBufferUnlockBaseAddress(raw,0); CFRelease(raw); return Err("missing NV12 planes".into());
+            }
+            if index==0 && input.is_some() {println!("input_y_stride={y_stride} input_uv_stride={uv_stride} packed_width={width}");}
+            if let Some(input)=&mut input {
+                // Read directly into this exclusive buffer's stride-separated
+                // active planes. File bytes are tightly packed Y followed by
+                // interleaved UV; no second full-frame copy is allocated.
+                let copied=(|| -> std::io::Result<()> {
+                    // Each locked plane is contiguous at its reported stride.
+                    // Packed planes need two reads per frame, not one syscall
+                    // per row. Keep padded planes on the existing row path;
+                    // never span separate plane allocations with one slice.
+                    if y_stride==width as usize {input.read_exact(std::slice::from_raw_parts_mut(y,width as usize*height as usize))?;}
+                    else {for row in 0..height as usize {input.read_exact(std::slice::from_raw_parts_mut(y.add(row*y_stride),width as usize))?;}}
+                    if uv_stride==width as usize {input.read_exact(std::slice::from_raw_parts_mut(uv,width as usize*height as usize/2))?;}
+                    else {for row in 0..height as usize/2 {input.read_exact(std::slice::from_raw_parts_mut(uv.add(row*uv_stride),width as usize))?;}}
+                    Ok(())
+                })();
+                if let Err(error)=copied {CVPixelBufferUnlockBaseAddress(raw,0);CFRelease(raw);return Err(error.into());}
+            } else if pattern=="color-bars" {
+                for row in 0..height as usize {
+                    for col in 0..width as usize {y.add(row*y_stride+col).write(color_bars[col*16/width as usize][0]);}
+                }
+                for row in 0..height as usize/2 {
+                    for col in 0..width as usize/2 {
+                        let color=color_bars[col*32/width as usize];uv.add(row*uv_stride+2*col).write(color[1]);uv.add(row*uv_stride+2*col+1).write(color[2]);
+                    }
+                }
+            } else {
+                for row in 0..height as usize {
+                    for col in 0..width as usize {
+                        // Small text-like edges and a scrolling bar over a stable
+                        // background exercise interframe coding deterministically.
+                        let bar = (col + index*8) % (width as usize) < 32;
+                        let grid = row % 24 < 2 && col % 12 < 8;
+                        y.add(row*y_stride+col).write(if bar {200} else if grid {40} else {100});
+                    }
+                }
+                for row in 0..height as usize/2 { ptr::write_bytes(uv.add(row*uv_stride),128,width as usize); }
+            }
+            CVPixelBufferUnlockBaseAddress(raw,0);
+            if color_tags!="none" {
+                // These immortal SDK values describe the generated samples.
+                // Tag before retaining an immutable encoder input; do not claim
+                // output signaling until an independent decoder observes it.
+                const SHOULD_PROPAGATE:u32=1;
+                CVBufferSetAttachment(raw,kCVImageBufferColorPrimariesKey,kCVImageBufferColorPrimaries_ITU_R_709_2,SHOULD_PROPAGATE);
+                CVBufferSetAttachment(raw,kCVImageBufferTransferFunctionKey,if color_tags=="srgb" {kCVImageBufferTransferFunction_sRGB} else {kCVImageBufferTransferFunction_ITU_R_709_2},SHOULD_PROPAGATE);
+                CVBufferSetAttachment(raw,kCVImageBufferYCbCrMatrixKey,kCVImageBufferYCbCrMatrix_ITU_R_709_2,SHOULD_PROPAGATE);
+            }
+        }
+        let image = unsafe { PixelBuffer::from_raw(raw)? };
+        unsafe { CFRelease(raw); }
+        let submitted = Instant::now();
+        let forced = index==0 || force_period.is_some_and(|period|index.is_multiple_of(period));
+        let pts=(index as i64)*1_000_000/i64::from(fps);
+        pipeline.submit(Submission {index,pts,forced,submitted})?;
+        if index>=warmup {submission_lateness_ms.push(submitted.saturating_duration_since(deadline).as_secs_f64()*1000.0);}
+        encoder.encode(&image,pts,forced)?;
+    }
+    while !pipeline.empty() {
+        let wait=pipeline.receive_wait(Instant::now())?;
+        if let Some(output)=encoder.wait_output(wait).map_err(|error|encoder.failure_cause().unwrap_or(error))? {consume(output,&mut pipeline)?;}
+    }
+    }
+    if pipeline.submitted()!=warmup+count || pipeline.completed()!=warmup+count {return Err("pipeline frame count mismatch".into());}
+    println!("pipeline_depth={pipeline_depth} maximum_pending={} submitted_frames={} completed_frames={} output_order=verified",pipeline.maximum(),pipeline.submitted(),pipeline.completed());
+    println!("output_arrivals_ms={output_arrivals_ms:?}");
+    println!("submission_lateness_ms={submission_lateness_ms:?}");
+    println!("wait_strategy=callback latency_scope=encode_call_to_output_received first_frame_ms={:.2}",first_frame_ms.ok_or("first frame missing")?);
+    println!("encode_samples_ms={latencies:?}");
+    println!("keyframe_indices={keyframe_indices:?} total_stream_bytes={total_bytes}");
+    latencies.sort_by(f64::total_cmp);
+    let rank = |percent: usize| latencies[(count*percent).div_ceil(100)-1];
+    println!("codec={codec:?} hardware={} width={width} height={height} fps={fps} target_bitrate_kbps={bitrate_kbps} frames={count} warmup_frames={warmup} keyframes={keyframes} bytes={bytes} encoded_kbps={:.1} encode_p50_ms={:.2} encode_p95_ms={:.2} wall_seconds={:.3} percentile=nearest_rank bitrate_duration=nominal_observed_frames_over_fps",
+        encoder.using_hardware(), bytes as f64*8.0*f64::from(fps)/(count as f64*1000.0), rank(50),rank(95),started.elapsed().as_secs_f64());
+    Ok(())
+}
+#[cfg(not(target_os = "macos"))]
+fn main() { eprintln!("The native codec probe requires macOS."); std::process::exit(2); }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn input_cycle_preserves_separate_warmup_and_observed_segments_across_wraps() {
+        let cycle=InputCycle::new(30,270*10,10).unwrap();
+        assert_eq!([0,29,30,899].map(|i|cycle.source_frame(i,900)),[0,29,0,29]);
+        assert_eq!([900,1139,1140,9899].map(|i|cycle.source_frame(i,900)),[30,269,30,149]);
+        for i in 0..270 {assert_eq!(cycle.source_frame(i,30),i);}
+    }
+    #[test]
+    fn input_cycle_without_prefix_reuses_all_source_frames_and_handles_no_warmup() {
+        let cycle=InputCycle::new(0,3*10,10).unwrap();
+        assert_eq!([0,2,3,8,9].map(|i|cycle.source_frame(i,6)),[0,2,0,2,0]);
+        assert_eq!([0,2,3,usize::MAX].map(|i|cycle.source_frame(i,0)),[0,2,0,usize::MAX%3]);
+    }
+    #[test]
+    fn input_cycle_rejects_empty_partial_unbounded_and_prefix_only_sources() {
+        for (prefix,bytes,size) in [(0,0,10),(0,11,10),(0,10,0),(1,10,10),(2,10,10),(0,19801*10,10)] {assert!(InputCycle::new(prefix,bytes,size).is_err());}
+    }
+}

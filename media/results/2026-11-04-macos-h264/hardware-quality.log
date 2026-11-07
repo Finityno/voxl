@@ -1,0 +1,21 @@
+[in#0/rawvideo @ 0x7c7ac34000] Estimating duration from bitrate, this may be inaccurate
+Input #0, rawvideo, from '/tmp/fincode-desktop-codec-76adf15/reference.nv12':
+  Duration: 00:00:02.00, start: 0.000000, bitrate: 331776 kb/s
+  Stream #0:0: Video: rawvideo (NV12 / 0x3231564E), nv12, 1280x720, 331776 kb/s, 30 tbr, 30 tbn
+Input #1, h264, from '/tmp/fincode-desktop-codec-76adf15/hardware.h264':
+  Duration: N/A, bitrate: N/A
+  Stream #1:0: Video: h264 (Baseline), yuv420p(progressive), 1280x720, 30 fps, 1200k tbr, 1200k tbn
+Stream mapping:
+  Stream #0:0 (rawvideo) -> format:default
+  Stream #1:0 (h264) -> format:default
+  ssim:default -> Stream #0:0 (wrapped_avframe)
+[Parsed_ssim_2 @ 0x7c7ac25380] not matching timebases found between first input: 1/30 and second input 1/1200000, results may be incorrect!
+Output #0, null, to 'pipe:':
+  Metadata:
+    encoder         : Lavf63.1.101
+  Stream #0:0: Video: wrapped_avframe, yuv420p(progressive), 1280x720, q=2-31, 200 kb/s, 30 fps, 30 tbn
+    Metadata:
+      encoder         : Lavc63.1.101 wrapped_avframe
+[Parsed_ssim_2 @ 0x7c7ac25380] SSIM Y:0.999582 (33.784272) U:1.000000 (inf) V:1.000000 (inf) All:0.999721 (35.545185)
+[out#0/null @ 0x7c7ac24480] video:25KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   60 fps=0.0 q=-0.0 Lsize=N/A time=00:00:01.96 bitrate=N/A speed=55.6x elapsed=0:00:00.03    

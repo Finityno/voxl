@@ -1,0 +1,23 @@
+{
+  "head": "10fd258ff4fcceaca235fd30a89dbad6e9f07db7",
+  "steps": [
+    {
+      "step": "queue",
+      "command": [
+        "/usr/bin/lockf",
+        "-k",
+        "-t",
+        "900",
+        "/tmp/fincode-build.lock",
+        "/usr/bin/nice",
+        "-n",
+        "19",
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "/tmp/fincode-desktop-codec-10fd258/run.py",
+        "--locked"
+      ],
+      "exit_code": 75,
+      "seconds": 900.02
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "result": {
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "19",
+      "python3",
+      "/tmp/fincode-desktop-encoder-inventory.py"
+    ],
+    "exitCode": 0,
+    "deadlineSeconds": 15,
+    "pgid": 56545,
+    "groupGone": true,
+    "seconds": 0.142,
+    "scriptSha256": "a6ca34d11af607e82fd9199253bbc813e02f7a02a8de57b2a24807bd247f8cd8",
+    "logSha256": "7309b746ff1f62bd714525c9c5499f6e880a02c280e05f93a3539b20e073f92c",
+    "limit": "Non-prompting inventory only; not active encoder/decoder identity, interoperability or performance."
+  },
+  "observation": {
+    "architecture": "arm64",
+    "system": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B5101f\n",
+    "encoder_list_status": 0,
+    "encoders": [
+      {
+        "codec": "\u0000\u0000\u0000\u0018",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.24rgb",
+        "hardware": null
+      },
+      {
+        "codec": "\u0000\u0000\u0000 ",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.32argb",
+        "hardware": null
+      },
+      {
+        "codec": "apcn",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-422",
+        "hardware": null
+      },
+      {
+        "codec": "apch",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-422hq",
+        "hardware": null
+      },
+      {
+        "codec": "apcs",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-422lt",
+        "hardware": null
+      },
+      {
+        "codec": "apco",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-422proxy",
+        "hardware": null
+      },
+      {
+        "codec": "ap4h",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-4444",
+        "hardware": null
+      },
+      {
+        "codec": "ap4x",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.prores-4444xq",
+        "hardware": null
+      },
+      {
+        "codec": "apcn",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.422",
+        "hardware": true
+      },
+      {
+        "codec": "apch",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.422hq",
+        "hardware": true
+      },
+      {
+        "codec": "apcs",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.422lt",
+        "hardware": true
+      },
+      {
+        "codec": "apco",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.422proxy",
+        "hardware": true
+      },
+      {
+        "codec": "ap4h",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.4444",
+        "hardware": true
+      },
+      {
+        "codec": "ap4x",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.appleproreshw.4444xq",
+        "hardware": true
+      },
+      {
+        "codec": "deph",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.depth-hevc:com.apple.videotoolbox.videoencoder.ave.hevc",
+        "hardware": true
+      },
+      {
+        "codec": "deph",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.depth-hevc:com.apple.videotoolbox.videoencoder.hevc.vcp",
+        "hardware": null
+      },
+      {
+        "codec": "dish",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.disparity-hevc:com.apple.videotoolbox.videoencoder.ave.hevc",
+        "hardware": true
+      },
+      {
+        "codec": "dish",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.disparity-hevc:com.apple.videotoolbox.videoencoder.hevc.vcp",
+        "hardware": null
+      },
+      {
+        "codec": "h263",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.h263",
+        "hardware": null
+      },
+      {
+        "codec": "avc1",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.ave.avc",
+        "hardware": true
+      },
+      {
+        "codec": "avc1",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.h264",
+        "hardware": null
+      },
+      {
+        "codec": "hvc1",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.ave.hevc",
+        "hardware": true
+      },
+      {
+        "codec": "hvc1",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.hevc.vcp",
+        "hardware": null
+      },
+      {
+        "codec": "jpeg",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.jpeg",
+        "hardware": null
+      },
+      {
+        "codec": "jpeg",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.jpeg.ajpeg",
+        "hardware": true
+      },
+      {
+        "codec": "muxa",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.hevc-with-alpha:com.apple.videotoolbox.videoencoder.ave.hevc",
+        "hardware": true
+      },
+      {
+        "codec": "muxa",
+        "encoder_id": "com.apple.videotoolbox.videoencoder.hevc-with-alpha:com.apple.videotoolbox.videoencoder.hevc.vcp",
+        "hardware": null
+      }
+    ],
+    "hardware_decoders": {
+      "avc1": true,
+      "hvc1": true,
+      "av01": true
+    },
+    "limits": "Inventory only; not an encode/decode performance or geometry probe."
+  },
+  "texts": {
+    "results.json": {
+      "text": "{\n  \"command\": [\n    \"/usr/bin/nice\",\n    \"-n\",\n    \"19\",\n    \"python3\",\n    \"/tmp/fincode-desktop-encoder-inventory.py\"\n  ],\n  \"exitCode\": 0,\n  \"deadlineSeconds\": 15,\n  \"pgid\": 56545,\n  \"groupGone\": true,\n  \"seconds\": 0.142,\n  \"scriptSha256\": \"a6ca34d11af607e82fd9199253bbc813e02f7a02a8de57b2a24807bd247f8cd8\",\n  \"logSha256\": \"7309b746ff1f62bd714525c9c5499f6e880a02c280e05f93a3539b20e073f92c\",\n  \"limit\": \"Non-prompting inventory only; not active encoder/decoder identity, interoperability or performance.\"\n}\n",
+      "sha256": "41ff9a16853844d8215e8976eb6180936133d5a04dfb5a51993251c2f4726bd8",
+      "bytes": 510
+    },
+    "inventory.log": {
+      "text": "{\n  \"architecture\": \"arm64\",\n  \"system\": \"ProductName:\\t\\tmacOS\\nProductVersion:\\t\\t27.2\\nBuildVersion:\\t\\t26B5101f\\n\",\n  \"encoder_list_status\": 0,\n  \"encoders\": [\n    {\n      \"codec\": \"\\u0000\\u0000\\u0000\\u0018\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.24rgb\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"\\u0000\\u0000\\u0000 \",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.32argb\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"apcn\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-422\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"apch\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-422hq\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"apcs\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-422lt\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"apco\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-422proxy\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"ap4h\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-4444\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"ap4x\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.prores-4444xq\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"apcn\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.422\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"apch\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.422hq\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"apcs\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.422lt\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"apco\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.422proxy\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"ap4h\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.4444\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"ap4x\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.appleproreshw.4444xq\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"deph\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.depth-hevc:com.apple.videotoolbox.videoencoder.ave.hevc\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"deph\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.depth-hevc:com.apple.videotoolbox.videoencoder.hevc.vcp\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"dish\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.disparity-hevc:com.apple.videotoolbox.videoencoder.ave.hevc\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"dish\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.disparity-hevc:com.apple.videotoolbox.videoencoder.hevc.vcp\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"h263\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.h263\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"avc1\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.ave.avc\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"avc1\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.h264\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"hvc1\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.ave.hevc\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"hvc1\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.hevc.vcp\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"jpeg\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.jpeg\",\n      \"hardware\": null\n    },\n    {\n      \"codec\": \"jpeg\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.jpeg.ajpeg\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"muxa\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.hevc-with-alpha:com.apple.videotoolbox.videoencoder.ave.hevc\",\n      \"hardware\": true\n    },\n    {\n      \"codec\": \"muxa\",\n      \"encoder_id\": \"com.apple.videotoolbox.videoencoder.hevc-with-alpha:com.apple.videotoolbox.videoencoder.hevc.vcp\",\n      \"hardware\": null\n    }\n  ],\n  \"hardware_decoders\": {\n    \"avc1\": true,\n    \"hvc1\": true,\n    \"av01\": true\n  },\n  \"limits\": \"Inventory only; not an encode/decode performance or geometry probe.\"\n}\n",
+      "sha256": "7309b746ff1f62bd714525c9c5499f6e880a02c280e05f93a3539b20e073f92c",
+      "bytes": 4175
+    },
+    "fincode-desktop-encoder-inventory.py": {
+      "text": "import ctypes as c,json,platform,subprocess\ncf=c.CDLL('/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation')\nvt=c.CDLL('/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox')\nobj=c.c_void_p\ncf.CFArrayGetCount.argtypes=[obj];cf.CFArrayGetCount.restype=c.c_long\ncf.CFArrayGetValueAtIndex.argtypes=[obj,c.c_long];cf.CFArrayGetValueAtIndex.restype=obj\ncf.CFDictionaryGetValue.argtypes=[obj,obj];cf.CFDictionaryGetValue.restype=obj\ncf.CFNumberGetValue.argtypes=[obj,c.c_long,obj];cf.CFNumberGetValue.restype=c.c_bool\ncf.CFBooleanGetValue.argtypes=[obj];cf.CFBooleanGetValue.restype=c.c_bool\ncf.CFStringGetCString.argtypes=[obj,obj,c.c_long,c.c_uint32];cf.CFStringGetCString.restype=c.c_bool\ncf.CFRelease.argtypes=[obj];cf.CFRelease.restype=None\nvt.VTCopyVideoEncoderList.argtypes=[obj,c.POINTER(obj)];vt.VTCopyVideoEncoderList.restype=c.c_int32\nvt.VTIsHardwareDecodeSupported.argtypes=[c.c_uint32];vt.VTIsHardwareDecodeSupported.restype=c.c_ubyte\nkeys={name:obj.in_dll(vt,'kVTVideoEncoderList_'+name).value for name in ['CodecType','EncoderID','IsHardwareAccelerated']}\ndef text(value):\n if not value:return None\n out=c.create_string_buffer(4096)\n if not cf.CFStringGetCString(value,out,len(out),0x08000100):raise RuntimeError('CFString conversion')\n return out.value.decode()\narray=obj();status=vt.VTCopyVideoEncoderList(None,c.byref(array))\nif status or not array.value:raise RuntimeError('encoder list status '+str(status))\nrows=[]\ntry:\n for index in range(cf.CFArrayGetCount(array)):\n  row=cf.CFArrayGetValueAtIndex(array,index)\n  number=cf.CFDictionaryGetValue(row,keys['CodecType']);code=c.c_int64()\n  if not number or not cf.CFNumberGetValue(number,4,c.byref(code)):raise RuntimeError('codec type')\n  hardware=cf.CFDictionaryGetValue(row,keys['IsHardwareAccelerated'])\n  rows.append(dict(codec=int(code.value).to_bytes(4,'big').decode('ascii'),encoder_id=text(cf.CFDictionaryGetValue(row,keys['EncoderID'])),hardware=bool(cf.CFBooleanGetValue(hardware)) if hardware else None))\nfinally:cf.CFRelease(array)\nprint(json.dumps(dict(architecture=platform.machine(),system=subprocess.check_output(['sw_vers'],text=True),encoder_list_status=status,encoders=rows,hardware_decoders={code:bool(vt.VTIsHardwareDecodeSupported(int.from_bytes(code.encode(),'big'))) for code in ['avc1','hvc1','av01']},limits='Inventory only; not an encode/decode performance or geometry probe.'),indent=2))\n",
+      "sha256": "a6ca34d11af607e82fd9199253bbc813e02f7a02a8de57b2a24807bd247f8cd8",
+      "bytes": 2405
+    }
+  },
+  "independentlyAbsentGroups": [
+    56545
+  ]
+}

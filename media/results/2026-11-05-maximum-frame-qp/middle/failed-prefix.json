@@ -1,0 +1,10 @@
+{
+  "specification": "hevc:low-latency-compatible:12000:qp28",
+  "decodedPrefixFrames": 2,
+  "expectedWarmupFrames": 60,
+  "expectedObservedFrames": 480,
+  "observedPhaseNotReached": true,
+  "encodedSha256": "c6620bf2959bffa2f85e98d8c869c893760d83c667c9139de4d6c1e0416e5f1b",
+  "framedSha256": "1bc975d55383bece3d4a8473ae84b1e3b01db768930628ee582926fe58e483c5",
+  "scope": "Existing failed-stream prefix only, not a complete/available mode or repeated native attempt."
+}

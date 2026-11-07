@@ -1,0 +1,95 @@
+{
+  "uncompressed_bytes": 140510,
+  "uncompressed_sha256": "754df3c1bda7c307aa34bfe79540a2256eb02d217626d00689796650b99efc65",
+  "compressed_bytes": 15533,
+  "compressed_sha256": "c01e6478f45a62c75a4a7764f074f00a8bd747dc453576a4d6b36ae27803981e",
+  "base64_length": 20712,
+  "chunk_count": 4,
+  "chunk_characters": 6000,
+  "missing_paths": [
+    "/workspace/voxl-late-relay-turn-345b9fb/build.json",
+    "/workspace/voxl-late-relay-turn-345b9fb/build.log",
+    "/workspace/voxl-late-relay-turn-908a83d/fixture.py",
+    "/workspace/voxl-late-relay-turn-908a83d/namespace.sh",
+    "/workspace/voxl-late-relay-turn-908a83d/commands.log",
+    "/workspace/voxl-late-relay-turn-908a83d/exits.tsv",
+    "/workspace/voxl-late-relay-turn-908a83d/cleanup.json",
+    "/workspace/voxl-late-relay-turn-908a83d/firewall-summary.json"
+  ],
+  "test_counts": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  "cleanup": {
+    "source": "5229daca7471b6f041013a4bfe0eb67982c4475c",
+    "tests": {
+      "late_relay_udp_initial_configuration_baseline": {
+        "exit": 0,
+        "counts": [
+          "1",
+          "0",
+          "0"
+        ],
+        "firewall_drop_packets_delta": 36,
+        "server_counts_delta": {
+          "allocate_success": 1,
+          "create_permission_success": 2,
+          "channel_bind_success": 4
+        }
+      },
+      "late_relay_udp_configuration_carries_media": {
+        "exit": 0,
+        "counts": [
+          "1",
+          "0",
+          "0"
+        ],
+        "firewall_drop_packets_delta": 36,
+        "server_counts_delta": {
+          "allocate_success": 1,
+          "create_permission_success": 2,
+          "channel_bind_success": 4
+        }
+      },
+      "late_relay_tcp_configuration_carries_media": {
+        "exit": 0,
+        "counts": [
+          "1",
+          "0",
+          "0"
+        ],
+        "firewall_drop_packets_delta": 36,
+        "server_counts_delta": {
+          "allocate_success": 1,
+          "create_permission_success": 2,
+          "channel_bind_success": 4
+        }
+      },
+      "late_relay_tls_configuration_carries_media": {
+        "exit": 0,
+        "counts": [
+          "1",
+          "0",
+          "0"
+        ],
+        "firewall_drop_packets_delta": 36,
+        "server_counts_delta": {
+          "allocate_success": 1,
+          "create_permission_success": 2,
+          "channel_bind_success": 4
+        }
+      }
+    },
+    "groups_gone": true,
+    "private_state_removed": true,
+    "ports_rebindable_inside_namespace": true,
+    "coturn_exit": -15,
+    "xtables_lock_removed": true
+  },
+  "server_counts": {
+    "allocate_success": 4,
+    "create_permission_success": 8,
+    "channel_bind_success": 16
+  }
+}

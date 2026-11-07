@@ -1,0 +1,98 @@
+{
+  "component_only": true,
+  "full_srtp": false,
+  "full_endpoint": false,
+  "matched_ciphertext": true,
+  "cases": [
+    {
+      "payload_bytes": 32,
+      "packets": 200000,
+      "pairs": 8,
+      "modes": {
+        "soft": {
+          "cpu_nanos_median": 116007500.0,
+          "cpu_nanos_min": 113596000,
+          "cpu_nanos_max": 130052000,
+          "wall_nanos_median": 116083500.0
+        },
+        "arm": {
+          "cpu_nanos_median": 10741500.0,
+          "cpu_nanos_min": 10494000,
+          "cpu_nanos_max": 19762000,
+          "wall_nanos_median": 10746937.5
+        }
+      },
+      "paired_cpu_ratios": [
+        0.15195460277427492,
+        0.09832225169669619,
+        0.09195987268288897,
+        0.09403677697441602,
+        0.0954875171660974,
+        0.0915978562575284,
+        0.09083024927227608,
+        0.0918472830019641
+      ],
+      "paired_median_cpu_reduction_percent": 90.70016751713474
+    },
+    {
+      "payload_bytes": 1200,
+      "packets": 40000,
+      "pairs": 8,
+      "modes": {
+        "soft": {
+          "cpu_nanos_median": 153404500.0,
+          "cpu_nanos_min": 152164000,
+          "cpu_nanos_max": 156251000,
+          "wall_nanos_median": 153504208.0
+        },
+        "arm": {
+          "cpu_nanos_median": 4333500.0,
+          "cpu_nanos_min": 4237000,
+          "cpu_nanos_max": 4523000,
+          "wall_nanos_median": 4331479.5
+        }
+      },
+      "paired_cpu_ratios": [
+        0.028420180024934565,
+        0.027828497116660317,
+        0.028597083683070137,
+        0.028282709054663728,
+        0.0297245077679346,
+        0.027404624610402495,
+        0.028741992604551847,
+        0.027727469014456697
+      ],
+      "paired_median_cpu_reduction_percent": 97.16485554602009
+    },
+    {
+      "payload_bytes": 4096,
+      "packets": 12000,
+      "pairs": 8,
+      "modes": {
+        "soft": {
+          "cpu_nanos_median": 134410000.0,
+          "cpu_nanos_min": 133203000,
+          "cpu_nanos_max": 136205000,
+          "wall_nanos_median": 134496937.5
+        },
+        "arm": {
+          "cpu_nanos_median": 3138000.0,
+          "cpu_nanos_min": 3078000,
+          "cpu_nanos_max": 3278000,
+          "wall_nanos_median": 3136687.5
+        }
+      },
+      "paired_cpu_ratios": [
+        0.023661029548411077,
+        0.024194738862153464,
+        0.023411621316464404,
+        0.022781774580335732,
+        0.02297926207230351,
+        0.023429259644371966,
+        0.023082853052384274,
+        0.023873336186121936
+      ],
+      "paired_median_cpu_reduction_percent": 97.65795595195819
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "source": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "nativeExitCode": 1,
+  "reportedFailure": "Platform { operation: \"encoder dropped output\", code: 2 }",
+  "completePrefixFrames": 1,
+  "plannedFrames": 270,
+  "actualPrefixDecode": {
+    "codec_name": "hevc",
+    "width": 1920,
+    "height": 1080,
+    "nb_read_frames": "1"
+  },
+  "encodedSha256": "71fcba2eb1b58c6e4a40193840a83cf2c1e3773732c5219ad56d7aa83d3b5119",
+  "framedSha256": "2f1f575a98554647c82d9d2d63f47cc673fa0e10af73a37e6d9068b6f821067a",
+  "sizes": [
+    24900
+  ],
+  "timestampsMicros": [
+    0
+  ],
+  "productionAdmission": false,
+  "scope": "Retained prefix from failed low-latency HEVC case; no encode replay or complete profile qualification."
+}

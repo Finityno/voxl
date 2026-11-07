@@ -1,0 +1,63 @@
+{
+  "source": "af9cad081eee1581bbd498f383e25c2ebbf1f85e",
+  "initialSource": "0ad2646386e3a1ad7f6996632ad97b5bce7ce14d",
+  "includedTextHashesVerified": 183,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7590,
+      "sha256": "53027bb2fc87af88359817d7f7370672397f7d9c7faf568434af5ec6337f4f65"
+    },
+    {
+      "path": "baseline-color-matrix.json",
+      "bytes": 206348,
+      "sha256": "ddbbab7b5d28d6699f1d9fd3191657884f7145f727b5443b5dc299c6e3aebe17"
+    },
+    {
+      "path": "completed-group-check.json",
+      "bytes": 23792,
+      "sha256": "ff24375c20b6f31a241d7a6a00ff74de8022994a966085f18330e433ac8b3a24"
+    },
+    {
+      "path": "final-color-matrix.json",
+      "bytes": 309337,
+      "sha256": "4f8c44a901d885cc8125785c0f70f84fa9fe1293bbed0477ec0b29285bc65c1d"
+    },
+    {
+      "path": "initial-default-byte-guard.json",
+      "bytes": 25007,
+      "sha256": "98048e49926bb5d66d05f85ca5cded07e6fd4b9de97a2edc92134ffd5883d718"
+    },
+    {
+      "path": "initial-fixture-geometry-failure.json",
+      "bytes": 26235,
+      "sha256": "c4e2bb8f91dde07a7bbb77c758fe8eb7397bc9ca08a1a57523ce7caa374f533e"
+    },
+    {
+      "path": "picture-comparison.json",
+      "bytes": 6615,
+      "sha256": "737368d3facebee57cc0af5f14e0c1bf7a995b785dafcb45b2a129ffef5de15b"
+    },
+    {
+      "path": "reference-crosscheck.json",
+      "bytes": 61509,
+      "sha256": "280851191a5747b77ecc58e811bd55929a95a74d8da24b2c5711cbc524feea08"
+    },
+    {
+      "path": "reference-lock-timeout.json",
+      "bytes": 9670,
+      "sha256": "b7254defc7015ae64bb40bb5c1856c1f429efb8e1c43d0a8adb5aa6d0d4f68b4"
+    },
+    {
+      "path": "source-comparison.json",
+      "bytes": 3887,
+      "sha256": "ecb13db3f51b625f0bbad7aa97e97bfd2f3b244e770100dfd3cf87908eddb19a"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 22591,
+      "sha256": "25f48bde405ec22ab500db5669a6fc01c5df3d60ad8c0af288c8d42ef4dda010"
+    }
+  ],
+  "scope": "Public synthetic component results only, exact runtime source unchanged by evidence commit. No private application source, screenshots, stream/reference binaries, credentials or performance admission."
+}

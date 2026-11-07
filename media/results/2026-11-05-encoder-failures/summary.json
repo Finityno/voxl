@@ -1,0 +1,72 @@
+{
+  "source": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+  "selectedTests": {
+    "callback_": {
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    "color_configuration_": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "defaultDecodedControls": {
+    "pairs": 3,
+    "framesPerVersionPerPair": 32,
+    "totalDecodedFrames": 192,
+    "allPairsEqual": true
+  },
+  "lowLatencyHevcDiagnosis": {
+    "source": "f098e462a62833b73d6a6103e4f50ff810fb7ffb",
+    "nativeExitCode": 1,
+    "reportedFailure": "Platform { operation: \"encoder dropped output\", code: 2 }",
+    "completePrefixFrames": 1,
+    "plannedFrames": 270,
+    "actualPrefixDecode": {
+      "codec_name": "hevc",
+      "width": 1920,
+      "height": 1080,
+      "nb_read_frames": "1"
+    },
+    "encodedSha256": "71fcba2eb1b58c6e4a40193840a83cf2c1e3773732c5219ad56d7aa83d3b5119",
+    "framedSha256": "2f1f575a98554647c82d9d2d63f47cc673fa0e10af73a37e6d9068b6f821067a",
+    "sizes": [
+      24900
+    ],
+    "timestampsMicros": [
+      0
+    ],
+    "productionAdmission": false,
+    "scope": "Retained prefix from failed low-latency HEVC case; no encode replay or complete profile qualification."
+  },
+  "originalSupervisorExitCode": 1,
+  "completionSupervisorExitCode": 0,
+  "independentlyAbsentOwnedGroups": [
+    97703,
+    97708,
+    97713,
+    97746,
+    97778,
+    97797,
+    97809,
+    97822,
+    97829,
+    97835,
+    97853,
+    97859,
+    97883,
+    97889,
+    97918,
+    97932,
+    97958,
+    97968,
+    97999,
+    98005,
+    2644,
+    2650
+  ],
+  "scope": "Native dropped-output diagnosis and failure/wake contracts, not a passing HEVC low-latency profile, performance or production admission. No repeat of original tests or encoder for receipt correction.",
+  "runtimeBehavior": "First terminal cause retained in a synchronized one-shot state; failure wakes waiters through existing bounded channel. Existing permanent Closed behavior and finite queue bounds remain. Probe reports original cause. No dependency/thread/codec-default/app-pin change."
+}

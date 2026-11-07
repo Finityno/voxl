@@ -1,0 +1,31 @@
+[package]
+name = "voxl-media"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/Finityno/voxl"
+description = "Bounded native desktop media primitives for the Fincode Voxl fork"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-core-media = { version = "0.3", default-features = false, features = ["CMTime"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.61.3", default-features = false, features = ["std", "Foundation", "Graphics_Capture", "Graphics_DirectX_Direct3D11", "Win32_Foundation", "Win32_Security", "Win32_System_Com", "Win32_System_Threading", "Win32_System_Performance", "Win32_System_Variant", "Win32_System_Ole", "Win32_System_WinRT_Direct3D11", "Win32_System_WinRT_Graphics_Capture", "Win32_System_StationsAndDesktops", "Win32_Media_MediaFoundation", "Win32_Graphics_Direct3D", "Win32_Graphics_Direct3D11", "Win32_Graphics_Dxgi", "Win32_Graphics_Dxgi_Common", "Win32_Graphics_Gdi"] }
+windows-core = { version = "0.61.2", default-features = false, features = ["std"] }
+
+[features]
+default = []
+webrtc = ["dep:webrtc", "dep:rtc", "dep:tokio", "dep:async-trait", "dep:bytes", "dep:rand", "dep:tokio-rustls", "dep:webpki-roots"]
+
+[dependencies]
+webrtc = { path = "vendor/webrtc", version = "0.21.1", optional = true, default-features = false, features = ["runtime-tokio", "crypto-aws-lc-rs"] }
+rtc = { path = "vendor/rtc", version = "0.21.1", optional = true, default-features = false, features = ["crypto-aws-lc-rs"] }
+tokio = { version = "1", optional = true, default-features = false, features = ["rt", "sync", "time", "macros", "net", "io-util"] }
+tokio-rustls = { version = "0.26", optional = true, default-features = false, features = ["aws_lc_rs", "tls12"] }
+webpki-roots = { version = "1", optional = true }
+async-trait = { version = "0.1", optional = true }
+bytes = { version = "1", optional = true }
+rand = { version = "0.10", optional = true }
+
+[dev-dependencies]
+log = { version = "0.4", default-features = false }

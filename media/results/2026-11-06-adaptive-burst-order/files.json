@@ -1,0 +1,47 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1112,
+    "sha256": "fd8d350da0ecb8538f2d53cadf10f585dfef29656646e05211817b2a22fb72a3"
+  },
+  {
+    "path": "adaptive-contracts.log.gz",
+    "bytes": 107,
+    "sha256": "cd386e473d5776a26532ed3f1fb7b94c7b31175c3f8320fc08c30a836b0cc027"
+  },
+  {
+    "path": "diff.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "load.log.gz",
+    "bytes": 82,
+    "sha256": "2bd553d8b05f93476c3a6a0de8edd85a808fa7c092f2c608ef55ae7f2cf65688"
+  },
+  {
+    "path": "receipt.json.gz",
+    "bytes": 1418,
+    "sha256": "c48514a7ceeb507f700d352f3cf82433f3b13eeae2ef7a4e0e4fdc2703275da3"
+  },
+  {
+    "path": "strict-clippy.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "test-build.log.gz",
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "path": "toolchain.log.gz",
+    "bytes": 56,
+    "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610"
+  },
+  {
+    "path": "verify.py",
+    "bytes": 1031,
+    "sha256": "b9991d9ff6a3432c316a80d45c1d67f935dadbde31c548c477a4ed4a3a535a40"
+  }
+]

@@ -1,0 +1,164 @@
+{
+  "head": "76adf15ee3d67541a229b3f6c9ef4b143f915d5e",
+  "steps": [
+    {
+      "step": "environment",
+      "command": [
+        "/bin/sh",
+        "-c",
+        "uptime; df -h .; cargo --version"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08
+    },
+    {
+      "step": "test-build",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "--no-run",
+        "-j",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 1.32
+    },
+    {
+      "step": "tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "avcc_rejects_truncation",
+        "-j",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24
+    },
+    {
+      "step": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--lib",
+        "--examples",
+        "-j",
+        "2",
+        "-q",
+        "--message-format=short",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 0.67
+    },
+    {
+      "step": "release-build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--manifest-path",
+        "media/Cargo.toml",
+        "--release",
+        "--example",
+        "codec_probe",
+        "-j",
+        "2",
+        "-q",
+        "--message-format=short"
+      ],
+      "exit_code": 0,
+      "seconds": 0.83
+    },
+    {
+      "step": "hardware",
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe",
+        "hardware",
+        "/tmp/fincode-desktop-codec-76adf15/hardware.h264"
+      ],
+      "exit_code": 0,
+      "seconds": 2.27
+    },
+    {
+      "step": "hardware-decode",
+      "command": [
+        "/opt/homebrew/bin/ffprobe",
+        "-v",
+        "error",
+        "-count_frames",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=codec_name,width,height,nb_read_frames",
+        "-of",
+        "json",
+        "/tmp/fincode-desktop-codec-76adf15/hardware.h264"
+      ],
+      "exit_code": 0,
+      "seconds": 0.13
+    },
+    {
+      "step": "hardware-quality",
+      "command": [
+        "/opt/homebrew/bin/ffmpeg",
+        "-nostdin",
+        "-hide_banner",
+        "-threads",
+        "2",
+        "-filter_complex_threads",
+        "1",
+        "-f",
+        "rawvideo",
+        "-pixel_format",
+        "nv12",
+        "-video_size",
+        "1280x720",
+        "-framerate",
+        "30",
+        "-i",
+        "/tmp/fincode-desktop-codec-76adf15/reference.nv12",
+        "-threads",
+        "2",
+        "-framerate",
+        "30",
+        "-i",
+        "/tmp/fincode-desktop-codec-76adf15/hardware.h264",
+        "-lavfi",
+        "[0:v]format=yuv420p[r];[1:v]format=yuv420p[d];[r][d]ssim",
+        "-f",
+        "null",
+        "-"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08
+    },
+    {
+      "step": "software",
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/Users/sondre/Documents/GitHub/voxl-desktop-native-validation/media/target/release/examples/codec_probe",
+        "software",
+        "/tmp/fincode-desktop-codec-76adf15/software.h264"
+      ],
+      "exit_code": 1,
+      "seconds": 0.08
+    }
+  ]
+}

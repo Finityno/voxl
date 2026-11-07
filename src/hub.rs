@@ -7,10 +7,26 @@ use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
+use tokio::sync::{Notify, OwnedSemaphorePermit, Semaphore};
+
+/// Bound queued realtime payload separately from the number of messages.
+pub const REALTIME_QUEUE_BYTES: usize = 8 * 1024 * 1024;
+pub const REALTIME_QUEUE_MESSAGES: usize = 32;
 
 pub enum Out {
     Bin(Bytes),
     Text(String),
+}
+
+pub struct QueuedOut {
+    pub message: Out,
+    /// Kept through the socket write, including a write suspended by TCP.
+    pub permit: OwnedSemaphorePermit,
+}
+
+enum ClientTx {
+    Recording(mpsc::UnboundedSender<Out>),
+    Realtime { tx: mpsc::Sender<QueuedOut>, budget: Arc<Semaphore> },
 }
 
 pub struct Inflight {
@@ -21,7 +37,9 @@ pub struct Inflight {
 
 pub struct Client {
     pub id: u64,
-    pub tx: mpsc::UnboundedSender<Out>,
+    tx: ClientTx,
+    closed: AtomicBool,
+    closed_notify: Notify,
     pub video: AtomicBool,
     pub audio: AtomicBool,
     pub inflight: Mutex<VecDeque<Inflight>>,
@@ -51,7 +69,40 @@ pub struct RateEst {
 
 impl Client {
     pub fn send(&self, m: Out) {
-        let _ = self.tx.send(m);
+        if self.is_closed() { return; }
+        let failed = match &self.tx {
+            ClientTx::Recording(tx) => tx.send(m).is_err(),
+            ClientTx::Realtime { tx, budget } => {
+                let bytes = match &m { Out::Bin(value) => value.len(), Out::Text(value) => value.capacity() };
+                let permit = u32::try_from(bytes.max(1)).ok()
+                    .and_then(|bytes| Arc::clone(budget).try_acquire_many_owned(bytes).ok());
+                match permit {
+                    Some(permit) => tx.try_send(QueuedOut { message: m, permit }).is_err(),
+                    None => true,
+                }
+            }
+        };
+        if failed { self.close(); }
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.closed.load(Ordering::Acquire)
+    }
+
+    pub fn close(&self) {
+        if !self.closed.swap(true, Ordering::AcqRel) {
+            self.video.store(false, Ordering::Relaxed);
+            self.audio.store(false, Ordering::Relaxed);
+            // There is one socket reader. notify_one stores a permit even
+            // when close races the reader between select-loop iterations.
+            self.closed_notify.notify_one();
+        }
+    }
+
+    pub async fn closed(&self) {
+        while !self.is_closed() {
+            self.closed_notify.notified().await;
+        }
     }
 
     pub fn on_ack(&self, id: u32) {
@@ -293,9 +344,26 @@ impl Hub {
     }
 
     pub fn add_client(&self, tx: mpsc::UnboundedSender<Out>) -> Arc<Client> {
+        self.add_client_tx(ClientTx::Recording(tx))
+    }
+
+    /// Realtime sockets must never use the lossless recording queue. Dropping
+    /// arbitrary H.264 deltas corrupts references, so overload closes this
+    /// viewer; reconnect starts with a fresh hello and keyframe.
+    pub fn add_realtime_client(&self) -> (Arc<Client>, mpsc::Receiver<QueuedOut>) {
+        let (tx, rx) = mpsc::channel(REALTIME_QUEUE_MESSAGES);
+        let client = self.add_client_tx(ClientTx::Realtime {
+            tx, budget: Arc::new(Semaphore::new(REALTIME_QUEUE_BYTES)),
+        });
+        (client, rx)
+    }
+
+    fn add_client_tx(&self, tx: ClientTx) -> Arc<Client> {
         let c = Arc::new(Client {
             id: self.next_id.fetch_add(1, Ordering::Relaxed),
             tx,
+            closed: AtomicBool::new(false),
+            closed_notify: Notify::new(),
             video: AtomicBool::new(false),
             audio: AtomicBool::new(false),
             inflight: Mutex::new(VecDeque::new()),
@@ -326,7 +394,7 @@ impl Hub {
         self.clients
             .lock()
             .iter()
-            .filter(|c| c.video.load(Ordering::Relaxed))
+            .filter(|c| !c.is_closed() && c.video.load(Ordering::Relaxed))
             .cloned()
             .collect()
     }
@@ -357,5 +425,68 @@ impl Hub {
         for c in self.clients.lock().iter() {
             c.send(m());
         }
+    }
+}
+
+#[cfg(test)]
+mod realtime_queue_tests {
+    use super::*;
+
+    #[test]
+    fn realtime_byte_budget_covers_dequeued_payload_until_write_finishes() {
+        let hub = Hub::new();
+        let (client, mut rx) = hub.add_realtime_client();
+        let budget = match &client.tx { ClientTx::Realtime { budget, .. } => budget.clone(), _ => unreachable!() };
+        client.send(Out::Bin(Bytes::from(vec![0; REALTIME_QUEUE_BYTES])));
+        let writing = rx.try_recv().expect("first payload");
+        assert_eq!(budget.available_permits(), 0, "dequeue is not write completion");
+        drop(writing);
+        assert_eq!(budget.available_permits(), REALTIME_QUEUE_BYTES);
+        client.send(Out::Bin(Bytes::from_static(b"next")));
+        assert!(!client.is_closed());
+        assert!(rx.try_recv().is_ok());
+    }
+
+    #[test]
+    fn realtime_overload_closes_only_the_slow_viewer_without_dropping_deltas() {
+        let hub = Hub::new();
+        let (slow, mut slow_rx) = hub.add_realtime_client();
+        let (fast, mut fast_rx) = hub.add_realtime_client();
+        slow.video.store(true, Ordering::Relaxed);
+        fast.video.store(true, Ordering::Relaxed);
+        for _ in 0..REALTIME_QUEUE_MESSAGES {
+            slow.send(Out::Bin(Bytes::from_static(b"frame")));
+        }
+        assert!(!slow.is_closed());
+        slow.send(Out::Bin(Bytes::from_static(b"overflow")));
+        assert!(slow.is_closed());
+        assert!(!slow.video.load(Ordering::Relaxed));
+        assert_eq!(slow_rx.len(), REALTIME_QUEUE_MESSAGES);
+        assert_eq!(hub.video_clients().len(), 1);
+        fast.send(Out::Text("still live".into()));
+        assert!(fast_rx.try_recv().is_ok());
+        assert!(!fast.is_closed());
+        // Closing prevents new messages; it does not selectively discard a
+        // dependency frame while pretending the rest of the GOP is usable.
+        slow.send(Out::Text("late".into()));
+        assert_eq!(slow_rx.len(), REALTIME_QUEUE_MESSAGES);
+        while slow_rx.try_recv().is_ok() {}
+    }
+
+    #[test]
+    fn realtime_rejects_an_oversized_payload_without_queueing_it() {
+        let hub = Hub::new();
+        let (client, rx) = hub.add_realtime_client();
+        client.send(Out::Bin(Bytes::from(vec![0; REALTIME_QUEUE_BYTES + 1])));
+        assert!(client.is_closed());
+        assert_eq!(rx.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn realtime_close_wakes_a_reader_even_when_it_precedes_the_wait() {
+        let hub = Hub::new();
+        let (client, _rx) = hub.add_realtime_client();
+        client.close();
+        tokio::time::timeout(std::time::Duration::from_millis(50), client.closed()).await.expect("close notification");
     }
 }

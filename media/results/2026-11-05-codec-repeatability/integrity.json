@@ -1,0 +1,12 @@
+{
+  "source": "f1f08a424d7e405543f4088c522c19f5c49b22bc",
+  "compressedFilesVerified": 44,
+  "compressedDataRowsVerified": 396000,
+  "allTenSessionPayloadSumsAndP95sRecomputed": true,
+  "allThirtyRegionSsimMeansRecomputed": true,
+  "allFifteenForegroundMeansAndTenPairwiseComparisonsRecomputed": true,
+  "missingFloorComparisonFieldsAbsent": true,
+  "scope": "Offline numeric artifact verification only; no native session or new codec admission.",
+  "executedVerifierSha256": "fe1c5e2f11ec6d38af48a448823eeea22a0717fe5dad03a3327c8c7dc38d81d8",
+  "portableVerifierScope": "integrity-verifier.py differs only by importing os and taking ROOT through VOXL_REPEATABILITY_EXPORT."
+}

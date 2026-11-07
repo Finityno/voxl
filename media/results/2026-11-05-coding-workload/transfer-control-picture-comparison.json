@@ -1,0 +1,14 @@
+{
+  "allCompressedPictureNalsEqual": true,
+  "pictureNalsPerStream": {
+    "untaggedSrgb": 20,
+    "taggedSrgb": 20,
+    "taggedBt709": 20
+  },
+  "fileSha256": {
+    "untaggedSrgb": "f73b6efedb586779b0fbf421c028a6284276448f4d6bcab9408ef09a44a35df4",
+    "taggedSrgb": "94b3bdea5e946b57b37cd242f76b62b815fba0cd70dd5551e1812d3363ca3aaf",
+    "taggedBt709": "4e6c9275d7d25a19b394122389dd23c202a83974cb059ee8f979ccbe63a34396"
+  },
+  "scope": "Untyped/explicit sRGB/explicit BT709 full-range controls have identical compressed picture NALs. Signaling/metadata differ; this does not prove the renderer honors every tag."
+}

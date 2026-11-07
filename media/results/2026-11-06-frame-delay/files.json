@@ -1,0 +1,31 @@
+{
+  "source": "4391a67750a492aaa0dc97c4f30e4a31225b7076",
+  "files": {
+    "logs/build.log.gz": "9c7339b1f21eed0dee5293c7153f3e1dd09990dee6827f84b410c2c91dc4c03b",
+    "logs/clippy.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/cpu.log.gz": "f8a0c9d4ea83c02178e33bec8169b95e95d18a03c6ea3e403d53d13806ececf3",
+    "logs/diff.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/ffmpeg-version.log.gz": "0fafb0ab589e22d5c964df86557134fb582b556d172447a7626bf536d045a9c9",
+    "logs/ffprobe-version.log.gz": "5a6cab5c96434e7f2dc09f52f7101831a2a7db923cc04af1c4252ecd4d6ce620",
+    "logs/h264-delay-0.log.gz": "c119ec0f141b59be27009c82990921df8b0fe289f6774dff2bf12e5f98cb9e55",
+    "logs/h264-delay-1.log.gz": "c119ec0f141b59be27009c82990921df8b0fe289f6774dff2bf12e5f98cb9e55",
+    "logs/h264-delay-default-decode.log.gz": "0f814042fb8fed294caefbed4035cc7bd899a15a2a933961f317bcee69fc863b",
+    "logs/h264-delay-default.log.gz": "370db6d90065c23c8d9d95ad3f4512a37d4dd4a3cb7f33a1a5a2940aff8c8ea9",
+    "logs/hevc-delay-0.log.gz": "c119ec0f141b59be27009c82990921df8b0fe289f6774dff2bf12e5f98cb9e55",
+    "logs/hevc-delay-1.log.gz": "c119ec0f141b59be27009c82990921df8b0fe289f6774dff2bf12e5f98cb9e55",
+    "logs/hevc-delay-default-decode.log.gz": "ed5134fbc09b77ce0970ce25d54c376a41198412d32d294a5d0554c3e562b37b",
+    "logs/hevc-delay-default.log.gz": "e30947e9bc2c2f50fafcb8b4b05dcb67d6d47bfc2c0d252f4d388dad0d71cb10",
+    "logs/load.log.gz": "52577a2aa04c2206914fc512186a7e22bd516234439a254ab93d2c33c81cddb5",
+    "logs/maximum_frame_delay_.log.gz": "b9cca599d8c70adfb0c5961cf1d6d11e8550da9c12e7bcabb9af64e7afaa73d4",
+    "logs/model.log.gz": "8fa4e4c44f7ae1eeaef867797b97ca7bd757b817d769ca0d1115c66411a8ffe4",
+    "logs/os.log.gz": "e9a0a8e43517ca7bd18f2e3e0c42e5dbb93b863fc7af1e384259c923181817ae",
+    "logs/output_wake_publishes_before_signaling_and_signals_only_the_first_failure.log.gz": "2d32e9e3daa7b4abca81e0dd99234a04710895ada5458bbc0eb71255296e650d",
+    "logs/test-build.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/toolchain.log.gz": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610",
+    "receipt.json": "eb228a786b3950e2cf8f124a3fb636f5e617ba7553cc645173fc99343ee61624",
+    "support.json": "548f53310de11a3d963e68776081151147493212d8b874595f90238b72c2d451"
+  },
+  "originalFileCount": 31,
+  "independentlyAbsentGroups": 21,
+  "normalization": "Local paths only; original bytes and hashes remain in the owner-only archive. No images or bitstreams published."
+}

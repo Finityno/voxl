@@ -1,0 +1,32 @@
+{
+  "testedFramingSource": "c0e899f3fcdf1a61faafa3bd9877a4cdecbff27d",
+  "finalRuntimeSource": "0b365da584c7a24db01e41beb45f4da75651651c",
+  "unchangedInputs": [
+    {
+      "path": "media/src/windows/bitstream.rs",
+      "sha256": "66f685400f447e905695e29cf9e8e565382c14cdf61873665c55d5898b9ac5d9",
+      "unchanged": true
+    },
+    {
+      "path": "media/src/lib.rs",
+      "sha256": "1b8f8aebfbbd5544da32ca28dc60e037d7dadacc67a325946744626b25bed145",
+      "unchanged": true
+    },
+    {
+      "path": "media/src/av1.rs",
+      "sha256": "a62dc8b56bcf1af755d62dab1d2017f437ab8361e0dd3f29d0df9942b2159922",
+      "unchanged": true
+    },
+    {
+      "path": "media/src/macos/mod.rs",
+      "sha256": "c6a1021c1fb4cce3ebec860cf7105b4098d73db638b69500b4f22813b9697c53",
+      "unchanged": true
+    },
+    {
+      "path": "media/src/webrtc.rs",
+      "sha256": "30353643a5684ec82cae4b3053c9fe53744e0a9c6c6494d1423e893f3940df3d",
+      "unchanged": true
+    }
+  ],
+  "subsequentRuntimeDiff": "Only windows/mod.rs event-wait idle fast path changed; final Windows-target check and strict Clippy rerun. Framing tests were not repeated."
+}

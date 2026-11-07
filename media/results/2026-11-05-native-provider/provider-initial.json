@@ -1,0 +1,96 @@
+{
+  "origin": "/tmp/fincode-native-provider-initial",
+  "files": [
+    {
+      "name": "check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "clippy.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "host-tests.log",
+      "sha256": "64a77c65861af760d7b487199ee54a08b8bedcbd8a789a158181f524143a7d97",
+      "originalSha256": "64a77c65861af760d7b487199ee54a08b8bedcbd8a789a158181f524143a7d97",
+      "redacted": false,
+      "text": "\nrunning 15 tests\n...............\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 1.41s\n\n"
+    },
+    {
+      "name": "load.log",
+      "sha256": "09166018890e409332ee0c2736f72f8472d712057fd09ac2989d0e7fa2e69349",
+      "originalSha256": "09166018890e409332ee0c2736f72f8472d712057fd09ac2989d0e7fa2e69349",
+      "redacted": false,
+      "text": "15:23  up 20 days,  2:11, 1 user, load averages: 1.67 1.94 1.76\n"
+    },
+    {
+      "name": "queue.json",
+      "sha256": "69dae31a277c196e974ad134124ec0d79383d8689c84825fce182073dd928ee3",
+      "originalSha256": "69dae31a277c196e974ad134124ec0d79383d8689c84825fce182073dd928ee3",
+      "redacted": false,
+      "text": "{\n  \"source\": \"50f198c0271eff977f08364a7e5bd6f95dbfce3c\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 1,\n  \"steps\": [\n    {\n      \"name\": \"queue\",\n      \"command\": [\n        \"/usr/bin/lockf\",\n        \"-k\",\n        \"-t\",\n        \"45\",\n        \"/tmp/fincode-build.lock\",\n        \"/usr/bin/nice\",\n        \"-n\",\n        \"19\",\n        \"/usr/local/bin/python3\",\n        \"/tmp/fincode-native-provider-initial/run.py\",\n        \"--inside-lock\"\n      ],\n      \"deadlineSeconds\": 2100,\n      \"exitCode\": 1,\n      \"seconds\": 79.953,\n      \"pgid\": 37562,\n      \"groupGone\": true,\n      \"logSha256\": \"99b42c1c635aa249bbafd45075dba7408d77e68e8326efcbf7b1d004e7358871\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"074e7b1bea35f17e71716a6c8a41383df61d38bae385aeb72bbe1c35b7213ee4\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "queue.log",
+      "sha256": "99b42c1c635aa249bbafd45075dba7408d77e68e8326efcbf7b1d004e7358871",
+      "originalSha256": "99b42c1c635aa249bbafd45075dba7408d77e68e8326efcbf7b1d004e7358871",
+      "redacted": false,
+      "text": "load 0\ntoolchain 0\ncheck 0\nclippy 0\ntest-build 0\nhost-tests 0\nwindows-input-policy 0\nunknown-clock 0\ntest-clippy 101\nAssertionError \n"
+    },
+    {
+      "name": "results.json",
+      "sha256": "18bd38050d7b6e7d7a17be1bec877f35fd12542165d94500f3c81be81a6056b1",
+      "originalSha256": "18bd38050d7b6e7d7a17be1bec877f35fd12542165d94500f3c81be81a6056b1",
+      "redacted": false,
+      "text": "{\n  \"source\": \"50f198c0271eff977f08364a7e5bd6f95dbfce3c\",\n  \"root\": \"/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation\",\n  \"terminal\": true,\n  \"exitCode\": 1,\n  \"steps\": [\n    {\n      \"name\": \"load\",\n      \"command\": [\n        \"/usr/bin/uptime\"\n      ],\n      \"deadlineSeconds\": 10,\n      \"exitCode\": 0,\n      \"seconds\": 0.051,\n      \"pgid\": 37566,\n      \"groupGone\": true,\n      \"logSha256\": \"09166018890e409332ee0c2736f72f8472d712057fd09ac2989d0e7fa2e69349\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"toolchain\",\n      \"command\": [\n        \"cargo\",\n        \"--version\"\n      ],\n      \"deadlineSeconds\": 30,\n      \"exitCode\": 0,\n      \"seconds\": 0.083,\n      \"pgid\": 37571,\n      \"groupGone\": true,\n      \"logSha256\": \"1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"check\",\n      \"command\": [\n        \"cargo\",\n        \"check\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"-p\",\n        \"environment_host\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 900,\n      \"exitCode\": 0,\n      \"seconds\": 16.528,\n      \"pgid\": 37576,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"-p\",\n        \"environment_host\",\n        \"--lib\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 12.832,\n      \"pgid\": 38068,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"test-build\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"--no-run\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 0,\n      \"seconds\": 41.847,\n      \"pgid\": 38236,\n      \"groupGone\": true,\n      \"logSha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"host-tests\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"native_host\",\n        \"-j2\",\n        \"-q\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 60,\n      \"exitCode\": 0,\n      \"seconds\": 2.251,\n      \"pgid\": 38333,\n      \"groupGone\": true,\n      \"logSha256\": \"64a77c65861af760d7b487199ee54a08b8bedcbd8a789a158181f524143a7d97\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"windows-input-policy\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"native_windows_\",\n        \"-j2\",\n        \"-q\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 60,\n      \"exitCode\": 0,\n      \"seconds\": 0.391,\n      \"pgid\": 38342,\n      \"groupGone\": true,\n      \"logSha256\": \"c4a2acae37d79d2613cd588acaf5e7dd6597cfed25e30b157cabbbb79b2d46ee\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"unknown-clock\",\n      \"command\": [\n        \"cargo\",\n        \"test\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"native_statistics_unknown_capture_clock\",\n        \"-j2\",\n        \"-q\",\n        \"--\",\n        \"--nocapture\"\n      ],\n      \"deadlineSeconds\": 60,\n      \"exitCode\": 0,\n      \"seconds\": 0.391,\n      \"pgid\": 38351,\n      \"groupGone\": true,\n      \"logSha256\": \"c41b55bfcd62b93d6acb043a7ceaff646065d031a26ba123c14c9e5d9e8ac0a6\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    },\n    {\n      \"name\": \"test-clippy\",\n      \"command\": [\n        \"cargo\",\n        \"clippy\",\n        \"--locked\",\n        \"-p\",\n        \"desktop_media\",\n        \"--lib\",\n        \"--tests\",\n        \"-j2\",\n        \"-q\",\n        \"--message-format=short\",\n        \"--\",\n        \"-D\",\n        \"warnings\"\n      ],\n      \"deadlineSeconds\": 600,\n      \"exitCode\": 101,\n      \"seconds\": 5.096,\n      \"pgid\": 38360,\n      \"groupGone\": true,\n      \"logSha256\": \"359f67a72a476eb0a9665e5c515b1676601bd44512f3e98d02ddb339510b708f\",\n      \"timedOut\": false,\n      \"sourceCleanBefore\": true,\n      \"sourceCleanAfter\": true\n    }\n  ],\n  \"helperSha256\": \"074e7b1bea35f17e71716a6c8a41383df61d38bae385aeb72bbe1c35b7213ee4\",\n  \"scope\": \"Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.\"\n}\n"
+    },
+    {
+      "name": "run.py",
+      "sha256": "074e7b1bea35f17e71716a6c8a41383df61d38bae385aeb72bbe1c35b7213ee4",
+      "originalSha256": "074e7b1bea35f17e71716a6c8a41383df61d38bae385aeb72bbe1c35b7213ee4",
+      "redacted": false,
+      "text": "import os,sys,pathlib,json,subprocess,time,signal,hashlib\nP=pathlib.Path;ROOT=P('/Users/sondre/Documents/GitHub/fincode-desktop-provider-validation');OUT=P(__file__).parent;SHA='50f198c0271eff977f08364a7e5bd6f95dbfce3c';INNER='--inside-lock'in sys.argv\nENV=os.environ|{'DEVELOPER_DIR':'/Applications/Xcode-beta.app/Contents/Developer','CARGO_TARGET_DIR':str(ROOT/'target'),'CARGO_BUILD_WARNINGS':'deny','CARGO_BUILD_JOBS':'2','RUSTC_WRAPPER':'','CARGO_INCREMENTAL':'0','FINCODE_COMMIT_SHA':SHA,'GIT_OPTIONAL_LOCKS':'0','CI':'true'}\nos.umask(0o077);steps=[];child=None;terminal=False;code=1\nfor k in ['CARGO_HOME','RUSTUP_TOOLCHAIN']:assert k not in ENV\n\ndef digest(p):return hashlib.sha256(P(p).read_bytes()).hexdigest()\ndef gone(pid):\n try:os.killpg(pid,0);return False\n except ProcessLookupError:return True\n\ndef clean():\n assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,timeout=10).strip()==SHA\n assert not subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=ROOT,text=True,timeout=10).strip()\ndef save():\n (OUT/('results.json'if INNER else'queue.json')).write_text(json.dumps({'source':SHA,'root':str(ROOT),'terminal':terminal,'exitCode':code if terminal else None,'steps':steps,'helperSha256':digest(__file__),'scope':'Native Mac desktop_media library compile and strict Clippy after common admitted-host extraction; dependency guard. No Windows app compile/execution or provider integration, capture or performance evidence.'},indent=2)+'\\n')\ndef stop():\n global child\n if child is not None and not gone(child.pid):\n  os.killpg(child.pid,signal.SIGTERM)\n  try:child.wait(timeout=4)\n  except subprocess.TimeoutExpired:pass\n  if not gone(child.pid):\n   os.killpg(child.pid,signal.SIGKILL)\n  child.wait(timeout=4)\ndef interrupt(a,b):raise KeyboardInterrupt()\nsignal.signal(signal.SIGTERM,interrupt);signal.signal(signal.SIGINT,interrupt)\ndef run(name,command,deadline):\n global child\n clean();log=OUT/(name+'.log');started=time.monotonic()\n with log.open('w')as f:\n  child=subprocess.Popen(command,cwd=ROOT,env=ENV,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)\n  timed=False\n  try:exitcode=child.wait(timeout=deadline)\n  except subprocess.TimeoutExpired:timed=True;stop();exitcode=124\n  stop()\n clean();steps.append({'name':name,'command':command,'deadlineSeconds':deadline,'exitCode':exitcode,'seconds':round(time.monotonic()-started,3),'pgid':child.pid,'groupGone':gone(child.pid),'logSha256':digest(log),'timedOut':timed,'sourceCleanBefore':True,'sourceCleanAfter':True});save();print(name,exitcode,flush=True);assert gone(child.pid);child=None;assert exitcode==0\ntry:\n if not INNER:run('queue',['/usr/bin/lockf','-k','-t','45','/tmp/fincode-build.lock','/usr/bin/nice','-n','19',sys.executable,__file__,'--inside-lock'],2100)\n else:\n  run('load',['/usr/bin/uptime'],10)\n  run('toolchain',['cargo','--version'],30)\n  run('check',['cargo','check','--locked','-p','desktop_media','-p','environment_host','--lib','-j2','-q','--message-format=short'],900)\n  run('clippy',['cargo','clippy','--locked','-p','desktop_media','-p','environment_host','--lib','-j2','-q','--message-format=short','--','-D','warnings'],600)\n  run('test-build',['cargo','test','--locked','-p','desktop_media','--lib','--no-run','-j2','-q','--message-format=short'],600)\n  run('host-tests',['cargo','test','--locked','-p','desktop_media','--lib','native_host','-j2','-q','--','--nocapture'],60)\n  run('windows-input-policy',['cargo','test','--locked','-p','desktop_media','--lib','native_windows_','-j2','-q','--','--nocapture'],60)\n  run('unknown-clock',['cargo','test','--locked','-p','desktop_media','--lib','native_statistics_unknown_capture_clock','-j2','-q','--','--nocapture'],60)\n  run('test-clippy',['cargo','clippy','--locked','-p','desktop_media','--lib','--tests','-j2','-q','--message-format=short','--','-D','warnings'],600)\n  run('dependency-guard',['bash','scripts/check-workspace-deps.sh'],45)\n  run('state-guard',['python3','scripts/check-implicit-state.py'],60)\n  run('runtime-guard',['bash','scripts/check-gpui-tokio-boundaries.sh','crates/desktop_media/src/native_host/mod.rs','crates/desktop_media/src/windows/mod.rs'],60)\n  run('diff',['git','diff','--check','9c2f214672e8387acb6ab3632720f4d50a45e006',SHA],15)\n code=0\nexcept BaseException as e:\n print(type(e).__name__,str(e),flush=True)\nfinally:\n stop();terminal=True;save()\nsys.exit(code)\n"
+    },
+    {
+      "name": "test-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false,
+      "text": ""
+    },
+    {
+      "name": "test-clippy.log",
+      "sha256": "359f67a72a476eb0a9665e5c515b1676601bd44512f3e98d02ddb339510b708f",
+      "originalSha256": "359f67a72a476eb0a9665e5c515b1676601bd44512f3e98d02ddb339510b708f",
+      "redacted": false,
+      "text": "crates/desktop_media/src/windows_keys.rs:43:26: error: used `expect()` on an `Option` value\ncrates/desktop_media/src/native_host/startup_tests.rs:129:25: error: using `.clone()` on a ref-counted pointer: help: try: `std::sync::Arc::<native_host::startup_tests::WorkerWake>::clone(&wake)`\ncrates/desktop_media/src/native_host/startup_tests.rs:153:134: error: using `.clone()` on a ref-counted pointer: help: try: `std::sync::Arc::<native_host::startup_tests::WorkerWake>::clone(&wake)`\ncrates/desktop_media/src/native_host/mod.rs:247:43: error: this argument is passed by value, but not consumed in the function body\nerror: could not compile `desktop_media` (lib test) due to 4 previous errors\n"
+    },
+    {
+      "name": "toolchain.log",
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "originalSha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+      "redacted": false,
+      "text": "cargo 1.99.0 (5f94df478 2026-08-27)\n"
+    },
+    {
+      "name": "unknown-clock.log",
+      "sha256": "c41b55bfcd62b93d6acb043a7ceaff646065d031a26ba123c14c9e5d9e8ac0a6",
+      "originalSha256": "c41b55bfcd62b93d6acb043a7ceaff646065d031a26ba123c14c9e5d9e8ac0a6",
+      "redacted": false,
+      "text": "\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 0.00s\n\n"
+    },
+    {
+      "name": "windows-input-policy.log",
+      "sha256": "c4a2acae37d79d2613cd588acaf5e7dd6597cfed25e30b157cabbbb79b2d46ee",
+      "originalSha256": "c4a2acae37d79d2613cd588acaf5e7dd6597cfed25e30b157cabbbb79b2d46ee",
+      "redacted": false,
+      "text": "\nrunning 2 tests\n..\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 32 filtered out; finished in 0.00s\n\n"
+    }
+  ]
+}
