@@ -39,7 +39,7 @@ async fn pair()->(WebRtcVideo,Arc<dyn PeerConnection>,Arc<dyn DataChannel>,mpsc:
     let mut video=video;video.answer(receiver.local_description().await.unwrap().sdp).await.unwrap();
     assert_eq!(video.next_update().await,VideoUpdate::Connected);assert!(video.take_keyframe_request());
     let channel=incoming.recv().await.unwrap();
-    loop {match channel.poll().await {Some(DataChannelEvent::OnOpen)=>break,other=>panic!("unexpected channel opening: {other:?}")}}
+    match channel.poll().await {Some(DataChannelEvent::OnOpen)=>{},other=>panic!("unexpected channel opening: {other:?}")}
     assert_eq!(channel.label().await.unwrap(),super::super::receipts::LABEL);
     assert_eq!(channel.protocol().await.unwrap(),super::super::receipts::PROTOCOL);
     assert!(!channel.ordered().await.unwrap());assert_eq!(channel.max_retransmits().await.unwrap(),Some(0));
@@ -116,7 +116,7 @@ fn decoded_receipt_sdk_preserves_incoming_dcep_reliability_metadata() {
             receiver_gathering.gathered().await;
             sender.set_remote_description(RTCSessionDescription::answer(receiver.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
             let remote=incoming.recv().await.unwrap();
-            loop {match remote.poll().await {Some(DataChannelEvent::OnOpen)=>break,other=>panic!("unexpected policy channel opening: {other:?}")}}
+            match remote.poll().await {Some(DataChannelEvent::OnOpen)=>{},other=>panic!("unexpected policy channel opening: {other:?}")}
             assert_eq!(remote.ordered().await.unwrap(),ordered);
             assert_eq!(remote.max_retransmits().await.unwrap(),retransmits);
             assert_eq!(remote.max_packet_life_time().await.unwrap(),lifetime);

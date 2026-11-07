@@ -1065,3 +1065,26 @@ before requesting another. Capacity reports Vec storage, not allocator or
 process RAM. There is no retained source surface, hash, thread, timer or default
 encoder behavior change. Callers must explicitly reset at source/authority/
 recovery boundaries; an observed baseline is never a sent/decoded baseline.
+
+### Optional decoded-frame receipts
+
+`SendControl::with_frame_receipts()` opens one unordered, zero-retransmission
+SCTP channel alongside video on the same DTLS peer. It is disabled by default,
+adds no timer/thread, and enables no frame suppression. The label is
+`fincode-decoded-frames` and protocol is `fincode-decoded-v1`. A binary message
+is exactly 12 bytes: ASCII `FCD1`, signaling generation as big-endian `u32`,
+then the decoded RTP timestamp as big-endian `u32`.
+
+`VideoUpdate::FrameDecoded` is a peer claim matched to one of at most 64
+successfully written frames within two seconds. Presentation time comes from
+the sender's ledger. Unknown, old-generation, ambiguous RTP-clock collisions,
+duplicate and out-of-order claims yield no receipt. Restart retires the ledger;
+connection readiness is checked when a claim is consumed. Malformed messages,
+more than 120 messages per second or unsolicited remote channels end that peer.
+SCTP message/receive-buffer bounds are 256/4096 bytes. A clean channel loss emits
+`FrameReceiptsClosed` and ordinary video remains usable. Clients without the
+channel or decoded RTP metadata simply provide no evidence.
+
+A receipt proves neither source equality nor decoded quality. Idle suppression
+still needs a source-to-publication fence, loss/recovery handling and measured
+quality settling. Local send completion alone is insufficient.
