@@ -41,6 +41,43 @@ pub struct FrameDifference {
     pub planes:[PlaneDifference;3],
 }
 
+/// Metadata for active NV12 bytes. Unknown colour tags remain unknown rather
+/// than being inferred from geometry. Strings use the unambiguous WebCodecs
+/// names supported here; additional/missing native tags return None.
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub struct Nv12ByteInfo {
+    pub width:u32,pub height:u32,pub full_range:bool,
+    pub primaries:Option<&'static str>,pub transfer:Option<&'static str>,pub matrix:Option<&'static str>,
+}
+fn known_tag(actual:Object,known:&[(&std::ffi::CStr,&'static str)])->Option<&'static str> {
+    if actual.is_null() {return None;}
+    known.iter().find_map(|(symbol,name)| {
+        let expected=super::optional_constant(symbol)?;
+        // SAFETY: SourceColor validated and owns actual; the optional SDK data
+        // symbol is a linked immortal CFString. Equality reads neither pixels.
+        unsafe {CFEqual(actual,expected)}.then_some(*name)
+    })
+}
+
+/// Visit active Y rows followed by interleaved CbCr rows in canonical packed
+/// NV12 order. Padding is excluded and no full image is allocated/retained.
+/// Row borrows cannot escape the callback; panic/error unwinding unlocks the
+/// native image. The caller controls hashing or any other use of read-only data.
+pub fn visit_nv12_bytes(image:&PixelBuffer,mut visit:impl FnMut(&[u8]))->Result<Nv12ByteInfo,MediaError> {
+    let info=Info::read(image,MAX_SNAPSHOT_BYTES)?;let color=SourceColor::copy_from(image.0.as_ptr())?;
+    let metadata=Nv12ByteInfo {width:info.width as u32,height:info.height as u32,full_range:info.format==u32::from_be_bytes(*b"420f"),
+        primaries:known_tag(color.tags[0],&[(c"kCVImageBufferColorPrimaries_ITU_R_709_2","bt709"),(c"kCVImageBufferColorPrimaries_P3_D65","smpte432")]),
+        transfer:known_tag(color.tags[1],&[(c"kCVImageBufferTransferFunction_sRGB","iec61966-2-1"),(c"kCVImageBufferTransferFunction_ITU_R_709_2","bt709")]),
+        matrix:known_tag(color.tags[2],&[(c"kCVImageBufferYCbCrMatrix_ITU_R_709_2","bt709")])};
+    with_planes(image,info,|planes| {
+        for plane in planes {for row in 0..plane.rows {
+            // SAFETY: the successful read lock and validated active row span
+            // remain held for this synchronous callback only.
+            visit(unsafe {slice::from_raw_parts(plane.base.add(row*plane.stride),info.width)});
+        }}Ok(())
+    })?;Ok(metadata)
+}
+
 /// Compare two immutable NV12 images in RAM. Geometry, pixel range and colour
 /// tags must match exactly. No pixels are retained or exported. These numeric
 /// errors alone do not establish perceptual quality or a production threshold.

@@ -121,3 +121,24 @@ fn native_frame_fidelity_exact_plane_errors_ignore_padding_and_never_convert_col
         assert_eq!(compare_frames(&source,&other),Err(MediaError::InvalidFrame));
     }
 }
+
+#[test]
+fn native_nv12_visitor_has_canonical_active_order_and_preserves_missing_colour_metadata() {
+    let source=image((66,34),None,false,true,None);let padded=image((66,34),None,true,true,None);let mut a=Vec::new();let mut b=Vec::new();
+    let first=visit_nv12_bytes(&source,|row|a.extend_from_slice(row)).unwrap();let second=visit_nv12_bytes(&padded,|row|b.extend_from_slice(row)).unwrap();assert_eq!(a,b);assert_eq!(a.len(),66*34*3/2);assert_eq!(first,second);
+    assert_eq!(first,Nv12ByteInfo {width:66,height:34,full_range:true,primaries:None,transfer:None,matrix:None});assert_eq!(a[66*34],73);
+    // SAFETY: these linked SDK strings are immortal, read-only attachments.
+    let tagged=image((66,34),None,false,false,Some(unsafe {kCVImageBufferTransferFunction_sRGB}));
+    let info=visit_nv12_bytes(&tagged,|_|{}).unwrap();assert!(!info.full_range);assert_eq!(info.transfer,Some("iec61966-2-1"));assert_eq!(info.primaries,None);assert_eq!(info.matrix,None);
+}
+
+#[test]
+fn native_nv12_visitor_releases_the_lock_on_panic_and_rejects_invalid_tags_before_visiting() {
+    let source=image((66,34),None,false,true,None);
+    let result=std::panic::catch_unwind(std::panic::AssertUnwindSafe(||visit_nv12_bytes(&source,|_|panic!("intentional visitor failure"))));assert!(result.is_err());
+    let mut rows=0;assert!(visit_nv12_bytes(&source,|_|rows+=1).is_ok());assert_eq!(rows,51);
+    // SAFETY: a deliberately invalid tag borrows an immortal CFBoolean; the
+    // visitor must reject it before exposing any row to the caller.
+    let invalid=image((66,34),None,false,true,Some(unsafe {kCFBooleanTrue}));
+    assert_eq!(visit_nv12_bytes(&invalid,|_|panic!("invalid metadata exposed pixels")),Err(MediaError::InvalidFrame));
+}
