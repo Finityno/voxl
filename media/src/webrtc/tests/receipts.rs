@@ -4,9 +4,23 @@ use super::*;
 use webrtc::data_channel::{DataChannel,DataChannelEvent};
 
 struct Receiver {media:ReceiverEvents,channels:mpsc::Sender<Arc<dyn DataChannel>>}
-struct SenderEvents;
+#[derive(Default)]
+struct SenderEvents {gathered:AtomicBool,wake:Notify}
 #[async_trait]
-impl PeerConnectionEventHandler for SenderEvents {}
+impl PeerConnectionEventHandler for SenderEvents {
+    async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {
+        if state==RTCIceGatheringState::Complete {self.gathered.store(true,Ordering::Release);self.wake.notify_one();}
+    }
+}
+impl SenderEvents {
+    async fn gathered(&self) {tokio::time::timeout(Duration::from_secs(2),async {while !self.gathered.load(Ordering::Acquire) {self.wake.notified().await;}}).await.expect("bounded policy candidate gathering");}
+}
+struct PolicyReceiver {channels:mpsc::Sender<Arc<dyn DataChannel>>,gathering:Arc<SenderEvents>}
+#[async_trait]
+impl PeerConnectionEventHandler for PolicyReceiver {
+    async fn on_data_channel(&self,channel:Arc<dyn DataChannel>) {self.channels.try_send(channel).unwrap();}
+    async fn on_ice_gathering_state_change(&self,state:RTCIceGatheringState) {self.gathering.on_ice_gathering_state_change(state).await;}
+}
 #[async_trait]
 impl PeerConnectionEventHandler for Receiver {
     async fn on_track(&self,track:Arc<dyn TrackRemote>) {self.media.on_track(track).await;}
@@ -90,14 +104,16 @@ fn decoded_receipt_sdk_preserves_incoming_dcep_reliability_metadata() {
     let runtime=tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {tokio::time::timeout(Duration::from_secs(20),async {
         for (ordered,retransmits,lifetime) in [(true,None,None),(false,None,None),(true,Some(0),None),(false,Some(u16::MAX),None),(true,None,Some(0)),(false,None,Some(u16::MAX))] {
-            let (packets,_unused)=mpsc::channel(1);let (channels,mut incoming)=mpsc::channel(1);
-            let receiver=PeerConnectionBuilder::new().with_handler(Arc::new(Receiver {media:ReceiverEvents {packets},channels}))
+            let (channels,mut incoming)=mpsc::channel(1);let gathering=Arc::new(SenderEvents::default());let receiver_gathering=Arc::new(SenderEvents::default());
+            let receiver=PeerConnectionBuilder::new().with_handler(Arc::new(PolicyReceiver {channels,gathering:Arc::clone(&receiver_gathering)}))
                 .with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
-            let sender=PeerConnectionBuilder::new().with_handler(Arc::new(SenderEvents)).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
+            let sender=PeerConnectionBuilder::new().with_handler(Arc::<SenderEvents>::clone(&gathering)).with_udp_addrs(vec!["127.0.0.1:0"]).build().await.unwrap();
             let local=sender.create_data_channel("policy-fixture",Some(RTCDataChannelInit {ordered,max_retransmits:retransmits,max_packet_life_time:lifetime,..Default::default()})).await.unwrap();
             sender.set_local_description(sender.create_offer(None).await.unwrap()).await.unwrap();
+            gathering.gathered().await;
             receiver.set_remote_description(RTCSessionDescription::offer(sender.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
             receiver.set_local_description(receiver.create_answer(None).await.unwrap()).await.unwrap();
+            receiver_gathering.gathered().await;
             sender.set_remote_description(RTCSessionDescription::answer(receiver.local_description().await.unwrap().sdp).unwrap()).await.unwrap();
             let remote=incoming.recv().await.unwrap();
             loop {match remote.poll().await {Some(DataChannelEvent::OnOpen)=>break,other=>panic!("unexpected policy channel opening: {other:?}")}}
