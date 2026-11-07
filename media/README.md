@@ -1006,6 +1006,18 @@ cap, rather than assuming every budget equals the larger nominal pacing value.
 The [exact-cap proof](results/2026-11-07-quiet-cap/README.md) retains 30 selected
 tests, strict Clippy and fresh/expired/cleared/retired/closed cap contracts.
 
+The opt-in detector also distinguishes recent tiny acknowledgements from bulk
+capacity. After two seconds of actual media lifetime, a large prepared output
+needs recent capacity from a normal contiguous RTP burst or an explicit probe.
+Normal evidence retains at most 32 original packet identities, requires eight
+adjacent packets and 8,704 RTP bytes from one timestamp, and expires two seconds
+after the original departure. Padding, RTX, loss and mismatched reports do not
+qualify. Tiny updates cannot refresh the older burst, and safely small outputs
+still create no padding. The optional exact byte cap also reports normal-burst
+evidence; the existing paced minimum and 25 percent native headroom remain.
+The tracker is allocated only for the opt-in policy. Application defaults remain
+unchanged while sparse/native/resource qualification continues.
+
 ### Finite desktop keyframe qualification
 
 Mac `VideoEncoder::set_keyframe_interval(frames,seconds)` is a local pre-first-

@@ -286,13 +286,16 @@ fn adaptive_network_quiet_worker_keeps_the_fence_after_a_small_resumed_delta() {
     }).await.expect("bounded staged quiet fence after tiny delta");});
 }
 #[test]
-fn adaptive_network_sparse_updates_characterize_capacity_freshness_before_a_large_burst() {
+fn adaptive_network_sparse_updates_probe_before_a_large_burst_on_a_slow_path() {sparse_capacity(250_000);}
+#[test]
+fn adaptive_network_sparse_updates_keep_the_same_large_payload_on_a_fast_path() {sparse_capacity(3_000_000);}
+fn sparse_capacity(capacity:u32) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
         let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probe_retry().with_producer_control(ProducerControl::RtpDebt);
         let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;
         let first=frame(24005,true,1_000_000);let expected=first.annex_b[4..].to_vec();let stamp=video.send_with_stamp(first).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
         let deadline=Instant::now()+Duration::from_secs(2);while video.bitrate_estimate().is_none() && Instant::now()<deadline {tokio::time::sleep(Duration::from_millis(10)).await;}
-        assert!(video.bitrate_estimate().is_some());let before=link.snapshot().await;link.condition(Shape::new(250_000,10,0,None)).await;
+        assert!(video.bitrate_estimate().is_some());let before=link.snapshot().await;link.condition(Shape::new(capacity,10,0,None)).await;
         for index in 1..=3 {
             let began=Instant::now();tokio::time::sleep(Duration::from_millis(900)).await;assert!(video.close_handle().prepare_frame(1005).unwrap().is_none());
             let unit=frame(1005,false,1_000_000+index*900_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
@@ -300,13 +303,35 @@ fn adaptive_network_sparse_updates_characterize_capacity_freshness_before_a_larg
         }
         let until=Instant::now()+Duration::from_secs(1);while video.bitrate_estimate().is_none_or(|value|value.age>Duration::from_millis(100)) && Instant::now()<until {tokio::time::sleep(Duration::from_millis(5)).await;}
         let estimate=video.bitrate_estimate().unwrap();assert!(estimate.age<Duration::from_millis(100));let after=link.snapshot().await;assert_eq!(after.rtp-before.rtp,3,"small updates alone must create no padding");
-        let requested=video.close_handle().prepare_frame(64005).unwrap();assert!(requested.is_none(),"characterize the unmodified sparse-gap detector");let budget=video.close_handle().frame_budget().unwrap();let allowed=64005<=u64::from(budget.payload_bytes)*4/5;
-        if allowed {
-            let unit=frame(64005,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let began=Instant::now();let stamp=video.send_with_stamp(unit).await.unwrap();let send=began.elapsed();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;let received=began.elapsed();let stats=link.snapshot().await;
-            eprintln!("sparse_capacity_baseline small_packets=3 interval_ms=900 feedback_age_us={} held_kbps={} native_budget_bytes={} large_would_admit=true request_probe=false send_us={} receiver_us={} queue_max_us={} overflow={}",estimate.age.as_micros(),estimate.target_kbps,budget.payload_bytes,send.as_micros(),received.as_micros(),stats.max_queue_micros,stats.overflow);
-        } else {eprintln!("sparse_capacity_baseline small_packets=3 interval_ms=900 feedback_age_us={} held_kbps={} native_budget_bytes={} large_would_admit=false request_probe=false",estimate.age.as_micros(),estimate.target_kbps,budget.payload_bytes);}
+        let began=Instant::now();let ticket=video.close_handle().prepare_frame(64005).unwrap().expect("fresh tiny ACKs cannot qualify stale capacity");
+        loop {match video.next_update().await {VideoUpdate::ResumeProbeRequested(request)=>{assert_eq!(request,ticket);break;},VideoUpdate::Ended=>panic!("sparse capacity request lost"),_=>{}}}
+        let observed=video.service_resume_probe(ticket).await.unwrap();let probe_time=began.elapsed();assert_eq!((observed.attempts,observed.packets,observed.arrived),(1,32,32));assert!(probe_time<Duration::from_millis(500));
+        for _ in 0..observed.packets {let packet=packets.recv().await.unwrap();assert!(packet.header.padding && packet.payload.is_empty());}
+        let budget=video.close_handle().frame_budget().unwrap();let bytes=64005.min((u64::from(budget.payload_bytes)*4/5) as usize);assert!(bytes>5);
+        if capacity==3_000_000 {assert_eq!(bytes,64005,"fast case retains exactly the baseline payload");}else {assert!(bytes<64005,"slow case must explicitly use a smaller synthetic output");}
+        assert!(video.close_handle().prepare_frame(bytes).unwrap().is_none());let unit=frame(bytes,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        let total=began.elapsed();let stats=link.snapshot().await;assert!(total<Duration::from_millis(750));assert!(stats.max_queue_micros<750_000);assert_eq!(stats.overflow,0);assert_eq!(stats.dropped,0);
+        eprintln!("sparse_capacity_fixed capacity_bps={capacity} small_packets=3 interval_ms=900 feedback_age_us={} held_kbps={} native_budget_bytes={} request_probe=true padding_packets={} padding_rtp_bytes={} measured_bps={} probe_us={} resume_bytes={bytes} total_us={} queue_max_us={} overflow=0",estimate.age.as_micros(),estimate.target_kbps,budget.payload_bytes,observed.packets,observed.transmitted_rtp_bytes,observed.received_bps,probe_time.as_micros(),total.as_micros(),stats.max_queue_micros);
         video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
-    }).await.expect("bounded sparse-update capacity characterization");});
+    }).await.expect("bounded sparse-update capacity refresh before large output");});
+}
+#[test]
+fn adaptive_network_dense_normal_bursts_refresh_capacity_without_padding() {
+    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {
+        let limits=SendControl::new(250,1500,1500).unwrap().with_pacing_gain(PacingGain::Responsive).with_delay_control(DelayControl::Trendline).with_quiet_resume_probe_retry().with_producer_control(ProducerControl::RtpDebt);
+        let (mut video,receiver,events,mut packets,mut link)=pair_with_control(limits).await;link.condition(Shape::new(3_000_000,10,0,None)).await;let began=Instant::now();let mut media_packets=0;
+        for index in 0..12 {
+            assert!(video.close_handle().prepare_frame(24005).unwrap().is_none(),"fresh normal bulk evidence needs no padding");
+            let unit=frame(24005,index==0,1_000_000+index*300_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+            media_packets=link.snapshot().await.rtp;tokio::time::sleep(Duration::from_millis(200)).await;
+        }
+        assert!(began.elapsed()>Duration::from_secs(2));let cap=video.close_handle().frame_budget().unwrap().quiet_cap_bps.expect("actual normal burst capacity");assert!(cap>2_031_905);
+        assert!(video.close_handle().prepare_frame(64005).unwrap().is_none());let unit=frame(64005,true,5_000_000);let expected=unit.annex_b[4..].to_vec();let stamp=video.send_with_stamp(unit).await.unwrap();exact_frame(&mut packets,&expected,stamp.rtp_timestamp).await;
+        let stats=link.snapshot().await;assert_eq!(stats.overflow,0);assert_eq!(stats.dropped,0);
+        while let Ok(packet)=packets.try_recv() {assert!(!packet.header.padding,"dense path created unexpected padding");}
+        eprintln!("dense_capacity_fixed frames=13 active_us={} normal_cap_bps={cap} first_twelve_rtp_packets={media_packets} total_rtp_packets={} padding_packets=0 resume_bytes=64005 queue_max_us={} overflow=0",began.elapsed().as_micros(),stats.rtp,stats.max_queue_micros);
+        video.close();video.peer.close().await.unwrap();receiver.close().await.unwrap();events.close().await;link.close().await;
+    }).await.expect("bounded active normal burst capacity without padding");});
 }
 fn quiet_probe_failure(close:bool) {
     tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(async {tokio::time::timeout(Duration::from_secs(15),async {

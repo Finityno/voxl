@@ -3,7 +3,7 @@
 use super::*;
 pub(in crate::webrtc) const PACKETS:usize=32;
 pub(in crate::webrtc) const DEADLINE:Duration=Duration::from_millis(500);
-const FRESHNESS:Duration=Duration::from_secs(2);
+pub(super) const FRESHNESS:Duration=Duration::from_secs(2);
 #[derive(Clone,Copy)]
 pub(super) struct ProbePacket {pub(super) index:usize}
 #[derive(Debug,Clone,Copy)]
