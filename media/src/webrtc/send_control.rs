@@ -22,7 +22,7 @@ fn burst_bits(rate:f64)->f64 {(rate/200.0).clamp(PACER_MIN_BURST_BITS,48_000.0)}
 /// Local qualification limits. The maximum must also fit the viewer's request.
 /// Rates limit the media target, not provider-billed or encoded-byte ceilings.
 #[derive(Debug,Clone,Copy)]
-pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl,producer:ProducerControl,observe_flow:bool,quiet_probes:probe::Policy}
+pub struct SendControl {min:u32,initial:u32,max:u32,gain:PacingGain,delay:DelayControl,producer:ProducerControl,observe_flow:bool,quiet_probes:probe::Policy,frame_receipts:bool}
 /// Local pacing qualification. Headroom changes packet departure timing, not
 /// the encoder's average target. It can still queue on a constrained path.
 #[derive(Debug,Clone,Copy,Default)]
@@ -37,13 +37,17 @@ pub struct FrameBudget {pub payload_bytes:u32,pub media_target_bps:u32,pub pacin
 impl SendControl {
     pub fn new(min_kbps:u32,initial_kbps:u32,max_kbps:u32)->Result<Self,WebRtcError> {
         if min_kbps<250 || min_kbps>initial_kbps || initial_kbps>max_kbps || max_kbps>20_000 {return Err(WebRtcError::Configuration);}
-        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard,producer:ProducerControl::Unbounded,observe_flow:false,quiet_probes:probe::Policy::Disabled})
+        Ok(Self {min:min_kbps*1000,initial:initial_kbps*1000,max:max_kbps*1000,gain:PacingGain::MediaRate,delay:DelayControl::Standard,producer:ProducerControl::Unbounded,observe_flow:false,quiet_probes:probe::Policy::Disabled,frame_receipts:false})
     }
     pub fn with_pacing_gain(mut self,gain:PacingGain)->Self {self.gain=gain;self}
     pub fn with_delay_control(mut self,delay:DelayControl)->Self {self.delay=delay;self}
     pub fn with_producer_control(mut self,producer:ProducerControl)->Self {self.producer=producer;self}
     /// Bounded numeric diagnostics only, with no packet payload retention.
     pub fn with_flow_observation(mut self)->Self {self.observe_flow=true;self}
+    /// Optional unreliable peer-reported decode receipts. No frame suppression
+    /// or source/quality authority is enabled by this transport option.
+    pub fn with_frame_receipts(mut self)->Self {self.frame_receipts=true;self}
+    pub(super) fn frame_receipts(self)->bool {self.frame_receipts}
     /// Enables an explicit bounded probe API; creates no periodic traffic.
     pub fn with_quiet_resume_probes(mut self)->Self {self.quiet_probes=probe::Policy::Single;self}
     /// Retry a fully reported lossy cluster once with 32 fresh packets. Both

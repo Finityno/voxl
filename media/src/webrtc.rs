@@ -27,6 +27,8 @@ mod relay_interfaces;
 mod signaling;
 mod send_control;
 mod fast_delay;
+mod receipts;
+pub use receipts::DecodedFrameReceipt;
 pub use send_control::{SendControl,BitrateEstimate,PacingGain,FrameBudget,DelayControl,ProducerControl,ProducerBudget,FlowObservation,ResumeProbeObservation,ResumeProbeTicket,ResumeProbeStatus};
 pub use stream_turn::RelayTransport;
 pub use signaling::{VideoIceSignal,VideoSignaling};
@@ -50,6 +52,7 @@ struct Events {
     changes: Arc<ChangeSignal>,
     signals: Option<signaling::Signals>,
     media_mid:OnceLock<String>,
+    reject_remote_channels:bool,
 }
 impl Events {
     fn connection(&self)->Connection {match self.connection.load(Ordering::Acquire) {0=>Connection::Waiting,1=>Connection::Connected,2=>Connection::Disconnected,_=>Connection::Ended}}
@@ -84,6 +87,11 @@ impl ChangeSignal {
 }
 #[async_trait]
 impl PeerConnectionEventHandler for Events {
+    async fn on_data_channel(&self,_channel:Arc<dyn webrtc::data_channel::DataChannel>) {
+        // This sender creates the sole optional channel itself. Do not await a
+        // driver command from its callback; an unsolicited channel is terminal.
+        if self.reject_remote_channels {self.transition(Connection::Ended);self.changes.changed();}
+    }
     async fn on_ice_candidate(&self,event:RTCPeerConnectionIceEvent) {
         let Some(signals)=&self.signals else {return;};
         if !event.candidate.to_json().ok().is_some_and(|candidate|signals.local(candidate.candidate,candidate.sdp_mid.unwrap_or_default()).is_ok()) {self.transition(Connection::Ended);}
@@ -249,6 +257,7 @@ pub struct WebRtcVideo {
     checked_remote_candidates:u64,
     send_mode:SendMode,
     sent_boundary:SentBoundary,
+    receipts:receipts::Receipts,
 }
 enum SendMode {Immediate,Controlled {state:Arc<send_control::Control>,submitted:u64,rate_seen:(u64,u64)}}
 enum SentBoundary {Unsent,Written(u64)}
@@ -280,10 +289,24 @@ pub struct VideoFrameStamp {pub generation:u64,pub rtp_timestamp:u32}
 struct NegotiationGuard(Option<VideoCloseHandle>);
 impl Drop for NegotiationGuard {fn drop(&mut self) {if let Some(close)=self.0.take() {close.close();}}}
 
+fn trickle_offer(sdp:&str)->String {
+    let mut lines=sdp.lines().filter(|line|*line!="a=end-of-candidates").map(str::to_owned).collect::<Vec<_>>();
+    let application=lines.iter().any(|line|line.starts_with("m=application "));
+    let first_media=lines.iter().position(|line|line.starts_with("m=")).unwrap_or(lines.len());
+    let scope=if application {&lines[..first_media]} else {&lines[..]};
+    if !scope.iter().any(|line|line.strip_prefix("a=ice-options:").is_some_and(|options|options.split_whitespace().any(|option|option=="trickle"))) {
+        if application {
+            if let Some(line)=lines[..first_media].iter_mut().find(|line|line.starts_with("a=ice-options:")) {line.push_str(" trickle");}
+            else {lines.insert(first_media,"a=ice-options:trickle".into());}
+        } else {lines.push("a=ice-options:trickle".into());}
+    }
+    lines.join("\r\n")+"\r\n"
+}
+
 #[derive(Clone,Copy)]
 enum UpdatePhase {Waiting,Connected,Disconnected}
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
-pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,BitrateTarget(u32),ResumeProbeRequested(ResumeProbeTicket),Ended}
+pub enum VideoUpdate {Connected,Disconnected,KeyframeRequested,BitrateTarget(u32),ResumeProbeRequested(ResumeProbeTicket),FrameDecoded(DecodedFrameReceipt),FrameReceiptsClosed,Ended}
 
 struct OpeningPeer(Option<Arc<dyn PeerConnection>>, tokio::runtime::Handle);
 impl Drop for OpeningPeer {
@@ -347,9 +370,10 @@ impl WebRtcVideo {
         let runtime = tokio::runtime::Handle::try_current().map_err(|_| WebRtcError::Configuration)?;
         let changes=Arc::new(ChangeSignal::default());
         let closed=Arc::new(AtomicBool::new(false));
+        let frame_receipts=limits.is_some_and(SendControl::frame_receipts);
         let control=limits.map(|limits|send_control::Control::new(limits,Arc::clone(&closed),Arc::clone(&changes)));
         let relays=Arc::new(stream_turn::StreamRelays::prepare(&mut config.ice_servers,&config.bind_addresses,tls,Arc::clone(&changes),turn_delay).await?);
-        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connection: AtomicU8::new(Connection::Waiting as u8),ice:Mutex::new(RTCIceConnectionState::New),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new() });
+        let events = Arc::new(Events { gathered: AtomicBool::new(false), gather_wake: Notify::new(), connection: AtomicU8::new(Connection::Waiting as u8),ice:Mutex::new(RTCIceConnectionState::New),changes: Arc::clone(&changes),signals:trickle.then(signaling::Signals::default),media_mid:OnceLock::new(),reject_remote_channels:frame_receipts });
         let codec = RTCRtpCodec { mime_type: config.format.mime().into(), clock_rate: 90_000, channels: 0,
             sdp_fmtp_line: config.format.fmtp(),
             rtcp_feedback: vec![RTCPFeedback { typ: "nack".into(), parameter: String::new() },
@@ -370,15 +394,16 @@ impl WebRtcVideo {
         // nomination policy and lose to the embedder's shorter relay grace.
         // Deferred startup already gives direct ICE its grace before TURN is
         // installed; do not impose a second relay delay after that restart.
-        let settings=SettingEngineBuilder::new()
+        let mut settings=SettingEngineBuilder::new()
             .with_srflx_acceptance_min_wait(Some(Duration::ZERO))
             .with_prflx_acceptance_min_wait(Some(Duration::ZERO))
             .with_relay_acceptance_min_wait((discovery || config.route_policy==RoutePolicy::RelayOnly).then_some(Duration::ZERO))
-            .with_discard_local_candidates_during_ice_restart(trickle)
-            .build();
+            .with_discard_local_candidates_during_ice_restart(trickle);
+        if frame_receipts {settings=settings.with_sctp_max_message_size(rtc::peer_connection::configuration::setting_engine::SctpMaxMessageSize::Bounded(256)).with_sctp_max_receive_buffer_size(4096);}
         let peer: Arc<dyn PeerConnection> = Arc::new(PeerConnectionBuilder::new()
             .with_runtime(adapt_runtime(relays.runtime()))
-            .with_setting_engine(settings)
+            .with_setting_engine(settings.build())
+            .with_data_channel_send_buffer_limit(if frame_receipts {1024} else {usize::MAX})
             .with_configuration(RTCConfigurationBuilder::new().with_ice_servers(config.ice_servers)
                 .with_ice_transport_policy(if config.route_policy == RoutePolicy::RelayOnly { RTCIceTransportPolicy::Relay } else { RTCIceTransportPolicy::All }).build())
             .with_media_engine(media).with_interceptor_registry(registry).with_handler(Arc::<Events>::clone(&events))
@@ -389,6 +414,7 @@ impl WebRtcVideo {
             vec![RTCRtpEncodingParameters { rtp_coding_parameters: RTCRtpCodingParameters { ssrc: Some(ssrc), ..Default::default() },codec,..Default::default() }])));
         let sender = peer.add_track(Arc::<TrackLocalStaticRTP>::clone(&track) as Arc<dyn TrackLocal>).await.map_err(transport)?;
         for transceiver in peer.get_transceivers().await { transceiver.set_direction(RTCRtpTransceiverDirection::Sendonly).await.map_err(transport)?; }
+        let receipts=if frame_receipts {receipts::Receipts::new(peer.create_data_channel(receipts::LABEL,Some(receipts::options())).await.map_err(transport)?)} else {receipts::Receipts::Disabled};
         let offer = peer.create_offer(None).await.map_err(transport)?;
         peer.set_local_description(offer).await.map_err(transport)?;
         if !trickle {tokio::time::timeout(Duration::from_secs(6),async {
@@ -396,16 +422,11 @@ impl WebRtcVideo {
         }).await.map_err(|_| WebRtcError::Deadline)?;}
         let mut offer = peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
         if trickle {
-            offer=offer.lines().filter(|line|*line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n";
+            offer=trickle_offer(&offer);
             let mid=offer.lines().find_map(|line|line.strip_prefix("a=mid:")).filter(|mid|!mid.is_empty() && mid.len()<=256).ok_or(WebRtcError::Configuration)?;
             let _=events.media_mid.set(mid.to_owned());
-            // The wrapper now exchanges incremental candidates. Advertise that
-            // application capability in the one video media section; transport,
-            // fingerprints, ICE credentials and the SDK's local SDP stay intact.
-            if !offer.lines().any(|line|line.strip_prefix("a=ice-options:").is_some_and(|options|options.split_whitespace().any(|option|option=="trickle"))) {
-                if !offer.ends_with('\n') {offer.push_str("\r\n");}
-                offer.push_str("a=ice-options:trickle\r\n");
-            }
+            // Session scope covers both bundled video and the optional SCTP
+            // section; fingerprints/credentials and SDK local SDP stay intact.
         }
         if offer.is_empty() || offer.len() > 256 * 1024 { return Err(WebRtcError::Configuration); }
         guard.0 = None;
@@ -414,7 +435,7 @@ impl WebRtcVideo {
             sequence: rand::random(),timestamp: rand::random(),first_pts: None,last_pts: None,format: config.format,payloader: match config.format {
                 VideoFormat::H264 {..} => Box::<H264Payloader>::default(), VideoFormat::HevcMain(_) => Box::<HevcPayloader>::default(),VideoFormat::Av1Main(_) => Box::<Av1Payloader>::default() },
             keyframe,last_keyframe_request: None,updates: UpdatePhase::Waiting,checked_relay_failure:0,checked_remote_candidates:0,
-            send_mode:match control {Some(state)=>SendMode::Controlled {state,submitted:0,rate_seen:(0,0)},None=>SendMode::Immediate},sent_boundary:SentBoundary::Unsent })
+            send_mode:match control {Some(state)=>SendMode::Controlled {state,submitted:0,rate_seen:(0,0)},None=>SendMode::Immediate},sent_boundary:SentBoundary::Unsent,receipts })
     }
 
     pub fn offer(&self) -> &str { &self.offer }
@@ -422,6 +443,8 @@ impl WebRtcVideo {
         self.events.signals.as_ref().map(|signals|VideoSignaling {events:Arc::clone(&self.events),closer:self.closer.clone(),generation:signals.generation()})
     }
     pub fn connected(&self) -> bool { !self.ended() && self.negotiation.payload().is_some() && self.events.connection()==Connection::Connected }
+    /// An open optional channel, not evidence of any decoded source picture.
+    pub fn frame_receipts_available(&self)->bool {self.connected() && self.receipts.available()}
     /// ICE reachability is available before DTLS and the sender transport.
     /// Use it to retire optional startup relay work, never to permit RTP/input.
     pub fn ice_connected(&self)->bool {!self.ended() && self.events.ice_connected()}
@@ -472,6 +495,14 @@ impl WebRtcVideo {
                 self.last_keyframe_request.map(|last|last+Duration::from_millis(250))
             } else {None};
             tokio::select! {
+                event=self.receipts.poll()=>{
+                    let generation=match self.negotiation {Negotiation::Ready {generation,..} if connected=>Some(generation),_=>None};
+                    match self.receipts.event(event,generation) {
+                        Ok(receipts::Outcome::None)=>{},Ok(receipts::Outcome::Decoded(receipt))=>return VideoUpdate::FrameDecoded(receipt),
+                        Ok(receipts::Outcome::Closed)=>return VideoUpdate::FrameReceiptsClosed,
+                        Err(_)=>{self.close();return VideoUpdate::Ended;},
+                    }
+                },
                 _ = self.events.changes.wait(revision) => {},
                 _ = async {
                     if let Some(deadline)=deadline {tokio::time::sleep_until(deadline.into()).await;}
@@ -585,6 +616,7 @@ impl WebRtcVideo {
         for server in &config.ice_servers {validated.add_ice_server(server.urls.clone(),server.username.clone(),server.credential.clone())?;}
         let mut guard=NegotiationGuard(Some(self.closer.clone()));
         self.negotiation=Negotiation::PreparingRestart;
+        self.receipts.retire();
         if let SendMode::Controlled {state,..}=&self.send_mode {state.retire();}
         if startup_only {self.peer.quiesce_stun_gathering_for_restart().await.map_err(transport)?;}
         else {self.peer.quiesce_ice_gathering_for_restart().await.map_err(transport)?;}
@@ -614,8 +646,7 @@ impl WebRtcVideo {
         let offer=self.peer.create_offer(Some(RTCOfferOptions {ice_restart:true})).await.map_err(transport)?;
         self.peer.set_local_description(offer).await.map_err(transport)?;
         let sdp=self.peer.local_description().await.ok_or(WebRtcError::Transport)?.sdp;
-        let mut sdp=sdp.lines().filter(|line|*line!="a=end-of-candidates").collect::<Vec<_>>().join("\r\n")+"\r\n";
-        if !sdp.lines().any(|line|line.strip_prefix("a=ice-options:").is_some_and(|options|options.split_whitespace().any(|option|option=="trickle"))) {sdp.push_str("a=ice-options:trickle\r\n");}
+        let sdp=trickle_offer(&sdp);
         if self.ended() {return Err(WebRtcError::Ended);}
         if sdp.is_empty() || sdp.len()>256*1024 {return Err(WebRtcError::Configuration);}
         self.offer=sdp.clone();self.negotiation=Negotiation::RestartAnswer {generation:next,setup};self.updates=UpdatePhase::Waiting;
@@ -724,7 +755,7 @@ impl WebRtcVideo {
             Ok::<_,WebRtcError>(())
         }).await.map_err(|_| WebRtcError::Deadline).and_then(|result| result);
         if result.is_err() { self.close(); }
-        if result.is_ok() {self.sent_boundary=SentBoundary::Written(generation);guard.0=None;}
+        if result.is_ok() {self.sent_boundary=SentBoundary::Written(generation);self.receipts.record(VideoFrameStamp {generation,rtp_timestamp:timestamp},presentation_time_micros);guard.0=None;}
         self.last_pts = Some(presentation_time_micros);
         result.map(|()|VideoFrameStamp {generation,rtp_timestamp:timestamp})
     }
