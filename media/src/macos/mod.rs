@@ -4,7 +4,8 @@
 
 mod ffi;
 mod comparison;
-pub use comparison::{FrameObserver,FrameComparison};
+pub use comparison::{FrameObserver,FrameComparison,FrameDifference,PlaneDifference,compare_frames};
+pub mod quality;
 use ffi::*;
 use crate::{EncodedFrame, EncoderAcceleration, EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
 use crate::codec::VideoCodec;

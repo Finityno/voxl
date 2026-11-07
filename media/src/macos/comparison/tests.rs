@@ -103,3 +103,21 @@ fn native_frame_observer_rejects_non_nv12_without_reusing_the_previous_snapshot(
     assert_eq!(observer.observe(&invalid),Err(MediaError::InvalidFrame));assert_eq!(observer.snapshot_bytes(),0);
     assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
 }
+
+#[test]
+fn native_frame_fidelity_exact_plane_errors_ignore_padding_and_never_convert_color() {
+    let source=image((66,34),None,false,true,None);let padded=image((66,34),None,true,true,None);
+    let identical=compare_frames(&source,&padded).unwrap();assert!(!identical.color_tags_complete);
+    assert_eq!(identical.planes.map(|plane|plane.samples),[2244,561,561]);
+    assert!(identical.planes.iter().all(|plane|plane.changed==0 && plane.maximum==0 && plane.absolute==0 && plane.squared==0));
+    assert_eq!(compare_frames(&source,&source),Ok(identical));
+    for (change,target) in [((0,0),0),((0,66*34-1),0),((1,0),1),((1,66*17-1),2)] {
+        let changed=image((66,34),Some(change),true,true,None);let result=compare_frames(&source,&changed).unwrap();
+        for (index,error) in result.planes.iter().enumerate() {assert_eq!((error.changed,error.maximum,error.absolute,error.squared),if index==target {(1,1,1,1)} else {(0,0,0,0)});}
+    }
+    // SAFETY: these are linked immortal colour constants borrowed by the fixture.
+    let transfer=unsafe {kCVImageBufferTransferFunction_sRGB};
+    for other in [image((32,16),None,false,true,None),image((66,34),None,false,false,None),image((66,34),None,false,true,Some(transfer))] {
+        assert_eq!(compare_frames(&source,&other),Err(MediaError::InvalidFrame));
+    }
+}

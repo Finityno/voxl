@@ -22,6 +22,57 @@ unsafe extern "C" {
 #[derive(Clone,Copy,Debug,PartialEq,Eq)]
 pub enum FrameComparison {Initial,Equal,Different}
 
+/// Exact errors in active 8-bit samples, with no range/colour conversion.
+#[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
+pub struct PlaneDifference {
+    pub samples:u64,
+    pub changed:u64,
+    pub maximum:u8,
+    pub absolute:u64,
+    pub squared:u64,
+}
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub struct FrameDifference {
+    pub width:u32,
+    pub height:u32,
+    /// Missing tags remain missing; matching absent tags are not colour proof.
+    pub color_tags_complete:bool,
+    /// Y, Cb, Cr separately; padding and alpha never enter these counters.
+    pub planes:[PlaneDifference;3],
+}
+
+/// Compare two immutable NV12 images in RAM. Geometry, pixel range and colour
+/// tags must match exactly. No pixels are retained or exported. These numeric
+/// errors alone do not establish perceptual quality or a production threshold.
+pub fn compare_frames(source:&PixelBuffer,decoded:&PixelBuffer)->Result<FrameDifference,MediaError> {
+    let info=Info::read(source,MAX_SNAPSHOT_BYTES)?;
+    if Info::read(decoded,MAX_SNAPSHOT_BYTES)?!=info {return Err(MediaError::InvalidFrame);}
+    let color=SourceColor::copy_from(source.0.as_ptr())?;
+    if !color.matches(decoded.0.as_ptr()) {return Err(MediaError::InvalidFrame);}
+    let mut result=FrameDifference {width:info.width as u32,height:info.height as u32,color_tags_complete:color.tags.iter().all(|tag|!tag.is_null()),planes:[PlaneDifference::default();3]};
+    result.planes[0].samples=(info.width*info.height) as u64;
+    result.planes[1].samples=(info.width*info.height/4) as u64;result.planes[2].samples=result.planes[1].samples;
+    if source.0==decoded.0 {return Ok(result);}
+    with_planes(source,info,|source|with_planes(decoded,info,|decoded| {
+        for (plane,(source,decoded)) in source.iter().zip(&decoded).enumerate() {
+            for row in 0..source.rows {
+                // SAFETY: both read locks cover their independently validated
+                // row strides/spans. Only active bytes are read, never padding.
+                let a=unsafe {slice::from_raw_parts(source.base.add(row*source.stride),info.width)};
+                // SAFETY: the second image has matching geometry and a held lock.
+                let b=unsafe {slice::from_raw_parts(decoded.base.add(row*decoded.stride),info.width)};
+                for (column,(a,b)) in a.iter().zip(b).enumerate() {
+                    let error=&mut result.planes[if plane==0 {0} else {1+column%2}];
+                    let difference=a.abs_diff(*b);error.maximum=error.maximum.max(difference);
+                    error.changed+=u64::from(difference!=0);error.absolute+=u64::from(difference);error.squared+=u64::from(difference)*u64::from(difference);
+                }
+            }
+        }
+        Ok(())
+    }))?;
+    Ok(result)
+}
+
 /// A synchronous observer with one bounded active-byte snapshot. Construction
 /// does not allocate pixels. It retains copied colour strings, not source
 /// surfaces. Call reset at each source/authority/recovery boundary. Every
