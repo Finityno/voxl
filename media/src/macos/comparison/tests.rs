@@ -1,0 +1,105 @@
+use super::*;
+
+#[link(name="CoreVideo",kind="framework")]
+unsafe extern "C" {
+    fn CVPixelBufferCreate(allocator:Object,width:usize,height:usize,format:u32,attributes:Object,out:*mut Object)->i32;
+    fn CVBufferSetAttachment(buffer:Object,key:Object,value:Object,mode:u32);
+    static kCVPixelBufferBytesPerRowAlignmentKey:Object;
+    static kCVImageBufferTransferFunction_ITU_R_709_2:Object;
+    static kCVImageBufferTransferFunction_sRGB:Object;
+}
+
+fn image(size:(usize,usize),change:Option<(usize,usize)>,padding:bool,full:bool,transfer:Option<Object>)->PixelBuffer {
+    let (width,height)=size;let mut raw=ptr::null();
+    // SAFETY: this fixture exclusively owns the Create reference while writing
+    // its rows and colour attachment. Every buffer is immutable after from_raw.
+    unsafe {
+        let attributes=CFDictionaryCreateMutable(ptr::null(),0,ptr::null(),ptr::null());
+        assert!(!attributes.is_null());let alignment=if padding {512i32} else {128};
+        let number=CFNumberCreate(ptr::null(),9,(&alignment as *const i32).cast());assert!(!number.is_null());
+        CFDictionarySetValue(attributes,kCVPixelBufferBytesPerRowAlignmentKey,number);
+        let status=CVPixelBufferCreate(ptr::null(),width,height,u32::from_be_bytes(if full {*b"420f"} else {*b"420v"}),attributes,&mut raw);
+        CFRelease(attributes);CFRelease(number);assert_eq!(status,0);assert!(!raw.is_null());
+        assert_eq!(CVPixelBufferLockBaseAddress(raw,0),0);
+        for (plane,rows) in [(0,height),(1,height/2)] {
+            let base=CVPixelBufferGetBaseAddressOfPlane(raw,plane).cast_mut();let stride=CVPixelBufferGetBytesPerRowOfPlane(raw,plane);assert!(!base.is_null() && stride>=width);
+            for row in 0..rows {
+                ptr::write_bytes(base.add(row*stride),if padding {0xa5} else {0x5a},stride);
+                for column in 0..width {*base.add(row*stride+column)=((row*width+column+plane*73)%256) as u8;}
+            }
+            if let Some((target,index))=change && target==plane {assert!(index<rows*width);*base.add(index/width*stride+index%width)^=1;}
+        }
+        assert_eq!(CVPixelBufferUnlockBaseAddress(raw,0),0);
+        if let Some(transfer)=transfer {CVBufferSetAttachment(raw,kCVImageBufferTransferFunctionKey,transfer,1);}
+        let image=PixelBuffer::from_raw(raw).unwrap();CFRelease(raw);image
+    }
+}
+
+#[test]
+fn native_frame_observer_exact_bits_updates_the_observed_baseline() {
+    let mut observer=FrameObserver::new(64*1024).unwrap();let size=(66,34);
+    let first=image(size,None,false,true,None);
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Equal));
+    for change in [(0,0),(0,66*34-1),(1,0),(1,66*17-1)] {
+        let candidate=image(size,Some(change),false,true,None);
+        assert_eq!(observer.observe(&candidate),Ok(FrameComparison::Different));
+        assert_eq!(observer.observe(&candidate),Ok(FrameComparison::Equal));
+        assert_eq!(observer.observe(&first),Ok(FrameComparison::Different));
+    }
+    assert_eq!(observer.snapshot_bytes(),66*34*3/2);
+    assert_eq!(observer.snapshot_capacity(),observer.snapshot_bytes());
+    observer.reset();assert_eq!((observer.snapshot_bytes(),observer.snapshot_capacity()),(0,0));
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+}
+
+#[test]
+fn native_frame_observer_ignores_padding_and_different_plane_strides() {
+    let first=image((66,34),None,false,true,None);let padded=image((66,34),None,true,true,None);
+    // SAFETY: read-only scalar queries of retained immutable test images.
+    unsafe {for plane in 0..2 {assert_ne!(CVPixelBufferGetBytesPerRowOfPlane(first.0.as_ptr(),plane),CVPixelBufferGetBytesPerRowOfPlane(padded.0.as_ptr(),plane));}}
+    let mut observer=FrameObserver::new(64*1024).unwrap();
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    for _ in 0..3 {assert_eq!(observer.observe(&padded),Ok(FrameComparison::Equal));assert_eq!(observer.observe(&first),Ok(FrameComparison::Equal));}
+}
+
+#[test]
+fn native_frame_observer_geometry_range_and_colour_changes_start_new_snapshots() {
+    let mut observer=FrameObserver::new(64*1024).unwrap();
+    // SAFETY: the two linked colour strings are immortal framework constants.
+    let transfers=unsafe {[kCVImageBufferTransferFunction_sRGB,kCVImageBufferTransferFunction_ITU_R_709_2]};
+    for candidate in [image((66,34),None,false,true,None),image((32,16),None,false,true,None),image((32,16),None,false,false,None),
+        image((32,16),None,false,false,Some(transfers[0])),image((32,16),None,false,false,Some(transfers[1])),image((32,16),None,false,false,None)] {
+        assert_eq!(observer.observe(&candidate),Ok(FrameComparison::Initial));
+        assert_eq!(observer.observe(&candidate),Ok(FrameComparison::Equal));
+    }
+}
+
+#[test]
+fn native_frame_observer_cap_and_bad_attachment_errors_clear_the_snapshot() {
+    let first=image((32,16),None,false,true,None);let large=image((66,34),None,false,true,None);
+    let mut observer=FrameObserver::new(1024).unwrap();assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    assert_eq!(observer.observe(&large),Err(MediaError::Backpressure));assert_eq!(observer.snapshot_bytes(),0);
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    // SAFETY: deliberately malformed metadata borrows an immortal CFBoolean;
+    // the observer must type-check it before treating it as a colour string.
+    let invalid=image((32,16),None,false,true,Some(unsafe {kCFBooleanTrue}));
+    assert_eq!(observer.observe(&invalid),Err(MediaError::InvalidFrame));assert_eq!(observer.snapshot_bytes(),0);
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    assert!(FrameObserver::new(0).is_err());assert!(FrameObserver::new(MAX_SNAPSHOT_BYTES+1).is_err());
+}
+
+#[test]
+fn native_frame_observer_rejects_non_nv12_without_reusing_the_previous_snapshot() {
+    let first=image((32,16),None,false,true,None);let mut observer=FrameObserver::new(4096).unwrap();
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+    let mut raw=ptr::null();
+    // SAFETY: this Create reference is retained into the immutable wrapper and
+    // released exactly once. The unsupported BGRA image is never read as NV12.
+    let invalid=unsafe {
+        assert_eq!(CVPixelBufferCreate(ptr::null(),32,16,u32::from_be_bytes(*b"BGRA"),ptr::null(),&mut raw),0);
+        let image=PixelBuffer::from_raw(raw).unwrap();CFRelease(raw);image
+    };
+    assert_eq!(observer.observe(&invalid),Err(MediaError::InvalidFrame));assert_eq!(observer.snapshot_bytes(),0);
+    assert_eq!(observer.observe(&first),Ok(FrameComparison::Initial));
+}

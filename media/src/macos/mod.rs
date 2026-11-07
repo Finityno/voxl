@@ -3,6 +3,8 @@
 //! pixels are copied into a CPU color-conversion buffer on the encode path.
 
 mod ffi;
+mod comparison;
+pub use comparison::{FrameObserver,FrameComparison};
 use ffi::*;
 use crate::{EncodedFrame, EncoderAcceleration, EncoderConfig, EncoderPreference, EncoderProfile, EncoderRateControl, EncoderTuning, MediaError, MAX_FRAME_BYTES, nal_units_to_annex_b};
 use crate::codec::VideoCodec;
