@@ -110,7 +110,6 @@
       320,
       180
     ],
-    "hardware": false,
     "signal": {
       "videoFormat": 5,
       "fullRange": true,
@@ -120,7 +119,9 @@
         1
       ]
     },
-    "descriptorMissingInitiallyAndAfterRetirement": true
+    "descriptorMissingInitiallyAndAfterRetirement": true,
+    "encoderHardware": false,
+    "decoderAcceleration": "unknown"
   },
   "previousFailure": {
     "source": "61363036b8e0ea44aa232fb7ffc02039e0d540e9",

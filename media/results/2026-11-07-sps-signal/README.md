@@ -14,6 +14,7 @@ sRGB transfer and BT.709 matrix. Actual emitted SPS fields assert video format
 5, full range true and literal colour codes [1, 13, 1]. The descriptor is absent
 before decoding and after chain retirement. This uses native VideoToolbox,
 without screen capture, OS input, a network peer or persisted pixels.
+Software refers to the encoder selection; decoder acceleration was not measured.
 
 Parser tests cover missing VUI/video/colour fields, raw unspecified codes,
 high-profile scaling syntax, picture-order branches, cropping, extended aspect,
